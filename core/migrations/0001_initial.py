@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('nome', models.CharField(max_length=100, verbose_name='T\xedtulo')),
                 ('dt_evento', models.DateTimeField(verbose_name='Dt.Evento')),
                 ('local', models.TextField(verbose_name='Local do Evento')),
-                ('circulo', models.ForeignKey(to='cadastro.Circulo')),
+                ('circulo', models.ForeignKey(to='core.Circulo')),
             ],
         ),
         migrations.CreateModel(
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('administrador', models.BooleanField()),
-                ('circulo', models.ForeignKey(to='cadastro.Circulo')),
+                ('circulo', models.ForeignKey(to='core.Circulo')),
             ],
         ),
         migrations.CreateModel(
@@ -67,11 +67,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='circulomembro',
             name='membro',
-            field=models.ForeignKey(to='cadastro.Membro'),
+            field=models.ForeignKey(to='core.Membro'),
         ),
         migrations.AddField(
             model_name='circulo',
             name='uf',
-            field=models.ForeignKey(blank=True, to='cadastro.UF', null=True),
+            field=models.ForeignKey(blank=True, to='core.UF', null=True),
         ),
     ]

@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
 import sys
 import os
@@ -17,7 +17,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -33,13 +32,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'admin_tools',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cadastro',
+    'core',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -51,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
 )
 
 ROOT_URLCONF = 'config.urls'
@@ -58,7 +62,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +76,15 @@ TEMPLATES = [
         },
     },
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )),
+)
 
 # WSGI_APPLICATION = 'cadastro.wsgi.application'
 
@@ -110,23 +125,23 @@ USE_TZ = False
 DECIMAL_SEPARATOR = ','
 THOUSAND_SEPARATOR = '.'
 
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'public', 'media')
+# Media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
 MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
-ADMIN_MEDIA_ROOT =os.path.join(PROJECT_DIR, 'public', 'media', 'admin')
-UPLOAD_DIR = os.path.join(PROJECT_DIR, 'public', 'import')
-FORMAT_MODULE_PATH = 'formats'
 
-#STATIC_ROOT = MEDIA_ROOT
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-
+# Static
+STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 STATIC_URL = '/static/'
 
-ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
+# Admin static
+ADMIN_MEDIA_ROOT = os.path.join(STATIC_ROOT, 'admin')
+ADMIN_MEDIA_PREFIX = '/static/admin/'
 
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'public')
+
+#Configurations of the tools
+ADMIN_TOOLS_MENU = 'config.menu.CustomMenu'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'config.dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'config.dashboard.CustomAppIndexDashboard'
 
 try:
     import debug_toolbar

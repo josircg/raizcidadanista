@@ -34,7 +34,7 @@ class CustomMenu(Menu):
             items.Bookmarks(_('Favoritos')),
             CustomAppList(
                  _(u'Cadastro'),
-                models=('core.models.*', )
+                models=('cadastro.models.*', )
             ),
             CustomAppList(
                 _(u'Adminstração'),

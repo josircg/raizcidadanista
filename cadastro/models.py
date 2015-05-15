@@ -43,9 +43,9 @@ class Pessoa(models.Model):
     municipio = models.CharField(u'Município', max_length=150)
     email = models.EmailField(u'Email')
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
-    celular = models.CharField(max_length=14, help_text=u'Ex.: (XX)XXXXX-XXXX',blank=True, null=True)
-    residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX',blank=True, null=True)
-    dtcadastro = models.DateField(u'Dt.Cadastro')
+    celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
+    residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
+    dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
@@ -60,14 +60,14 @@ class Membro(Pessoa):
     dtnascimento = models.DateField(u'Dt.Nascimento')
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
     titulo_eleitoral = models.CharField(u'Título Eleitoral', max_length=50, blank=True, null=True)
-    uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True))
+    uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True)
     municipio_eleitoral= models.CharField(u'Município Eleitoral', max_length=150, blank=True, null=True)
     filiacao_partidaria = models.CharField(u'Filiação Partidária', max_length=100, blank=True, null=True)
 
-    usuario = models.ForeignKey(User, verbose_name=u'Usuário', blank=True, null=True)
+    usuario = models.ForeignKey(User, related_name='membro', verbose_name=u'Usuário', blank=True, null=True)
     facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
-    aprovador = models.ForeignKey(User, verbose_name=u'Aprovador')
+    aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
 
 
 CIRCULO_TIPO = (

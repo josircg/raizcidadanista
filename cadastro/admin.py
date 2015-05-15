@@ -2,7 +2,6 @@
 from django.contrib import admin
 
 from models import *
-from views import *
 
 
 class CirculoMembroInline(admin.TabularInline):
@@ -14,5 +13,6 @@ class MembroAdmin(admin.ModelAdmin):
 admin.site.register(Membro, MembroAdmin)
 
 
+admin.site.register(UF)
 admin.site.register(Pessoa)
 admin.site.register(Circulo)

@@ -2,7 +2,7 @@
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
 
-from core import views
+from cadastro import views
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='site/index.html'), name="index"),

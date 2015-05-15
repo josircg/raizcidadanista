@@ -31,7 +31,7 @@ class CustomIndexDashboard(Dashboard):
         self.children += [
             modules.ModelList(
                 u'Cadastro', [
-                    'core.models.*',
+                    'cadastro.models.*',
                 ]
             ),
             modules.ModelList(

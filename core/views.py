@@ -3,7 +3,26 @@ from django.views.generic import FormView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 
-from forms import MembroForm, MembroFundadorForm
+from forms import NewsletterForm, MembroForm
+
+
+class NewsletterView(FormView):
+    template_name = 'site/newsletter.html'
+    form_class = NewsletterForm
+
+    def get_success_url(self):
+        return reverse('newsletter')
+
+    def form_valid(self, form):
+        form.save()
+        messages.info(self.request, u"Cadastrado realizado com sucesso!")
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return super(NewsletterView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os dados!")
+        return super(NewsletterView, self).form_invalid(form)
 
 
 class MembroView(FormView):
@@ -15,7 +34,7 @@ class MembroView(FormView):
 
     def form_valid(self, form):
         form.save()
-        messages.info(self.request, u"Membro cadastrado com sucesso!")
+        messages.info(self.request, u"Cadastrado realizado com sucesso!")
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         return super(MembroView, self).form_valid(form)
@@ -23,22 +42,3 @@ class MembroView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(MembroView, self).form_invalid(form)
-
-
-class MembroFundadorView(FormView):
-    template_name = 'site/membro-fundador.html'
-    form_class = MembroFundadorForm
-
-    def get_success_url(self):
-        return reverse('membro-fundador')
-
-    def form_valid(self, form):
-        form.save()
-        messages.info(self.request, u"Membro Fundador cadastrado com sucesso!")
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        return super(MembroFundadorView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, u"Preencha corretamente todos os dados!")
-        return super(MembroFundadorView, self).form_invalid(form)

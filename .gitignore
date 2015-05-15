@@ -65,3 +65,5 @@ target/
 
 # Production
 config/production.py
+manage.py
+fabfile.py

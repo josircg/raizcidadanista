@@ -8,3 +8,8 @@ class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'sexo', )
+
+class MembroFundadorForm(forms.ModelForm):
+    class Meta:
+        model = Membro
+        fields = ('nome', 'email', 'sexo', )

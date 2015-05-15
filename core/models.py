@@ -43,12 +43,12 @@ class Pessoa(models.Model):
     municipio = models.CharField(u'Município', max_length=150)
     email = models.EmailField(u'Email')
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
-    celular = models.CharField(max_length=14, help_text=u'Ex.: (XX)XXXXX-XXXX')
-    residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
+    celular = models.CharField(max_length=14, help_text=u'Ex.: (XX)XXXXX-XXXX',blank=True, null=True)
+    residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX',blank=True, null=True)
+    dtcadastro = models.DateField(u'Dt.Cadastro')
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
-
 
 class Membro(Pessoa):
     class Meta:
@@ -58,16 +58,16 @@ class Membro(Pessoa):
 
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento')
-    rg = models.CharField(u'RG', max_length=50)
-    titulo_eleitoral = models.CharField(u'Título Eleitoral', max_length=50)
-    uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral')
-    municipio_eleitoral= models.CharField(u'Município Eleitoral', max_length=150)
+    rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
+    titulo_eleitoral = models.CharField(u'Título Eleitoral', max_length=50, blank=True, null=True)
+    uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True))
+    municipio_eleitoral= models.CharField(u'Município Eleitoral', max_length=150, blank=True, null=True)
     filiacao_partidaria = models.CharField(u'Filiação Partidária', max_length=100, blank=True, null=True)
-    
+
     usuario = models.ForeignKey(User, verbose_name=u'Usuário', blank=True, null=True)
-    # facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)
-    # facebook_access_token = models.TextField(editable=False, blank=True, null=True)
-    # aprovador = models.ForeignKey(User, verbose_name=u'Aprovador')
+    facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)
+    facebook_access_token = models.TextField(editable=False, blank=True, null=True)
+    aprovador = models.ForeignKey(User, verbose_name=u'Aprovador')
 
 
 CIRCULO_TIPO = (
@@ -101,7 +101,7 @@ class CirculoMembro(models.Model):
     administrador = models.BooleanField()
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
-    
+
     def __unicode__(self):
         return u'#%s' % self.pk
 

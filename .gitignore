@@ -61,7 +61,6 @@ target/
 
 # Statics files
 /public/static/
-/public/media/
 
 # Production
 config/production.py

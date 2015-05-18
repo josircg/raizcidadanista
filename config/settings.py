@@ -86,9 +86,6 @@ TEMPLATE_LOADERS = (
     )),
 )
 
-# WSGI_APPLICATION = 'cadastro.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -99,18 +96,9 @@ DATABASES = {
     }
 }
 
-
 ADMINS = (
     ('Admin', 'josircg@gmail.com'),
     ('Leonardo', 'leonardocsantoss@gmail.com'),
-)
-
-ADMINS_RADIX = (
-    'josir@cursoradix.com',
-)
-
-CONTATO_RADIX = (
-    'josir@cursoradix.com',
 )
 
 MANAGERS = ADMINS
@@ -136,7 +124,6 @@ STATIC_URL = '/static/'
 # Admin static
 ADMIN_MEDIA_ROOT = os.path.join(STATIC_ROOT, 'admin')
 ADMIN_MEDIA_PREFIX = '/static/admin/'
-
 
 #Configurations of the tools
 ADMIN_TOOLS_MENU = 'config.menu.CustomMenu'

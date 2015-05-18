@@ -57,7 +57,7 @@ class Membro(Pessoa):
         verbose_name_plural = u'Membros'
 
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
-    dtnascimento = models.DateField(u'Dt.Nascimento')
+    dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
     titulo_eleitoral = models.CharField(u'Título Eleitoral', max_length=50, blank=True, null=True)
     uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True)
@@ -69,11 +69,35 @@ class Membro(Pessoa):
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        super(Membro, self).save(*args, **kwargs)
+        if not self.aprovador:
+            return
+
+        if not self.usuario:
+            grupo = Group.objects.get(name='Membro')
+            login = self.email.split('@')[0]
+            cont = 1
+            while User.objects.filter(username=login).count() > 0:
+                login = login + (u'%d' % cont)
+                cont += 1
+            self.usuario = User.objects.create_user(login, self.email, 'raiz#2015')
+            self.usuario.is_active = True
+            self.usuario.is_staff = True
+            self.usuario.first_name = self.nome
+            self.usuario.groups.add(grupo)
+            self.usuario.save()
+            super(Membro, self).save(*args, **kwargs)
+        else:
+            if self.usuario.email != self.email:
+                self.usuario.email = self.email
+                self.usuario.save()
 
 CIRCULO_TIPO = (
     ('R', u'Regional'),
     ('T', u'Temático'),
 )
+
 class Circulo(models.Model):
     class Meta:
         verbose_name = u'Círculo'
@@ -88,8 +112,7 @@ class Circulo(models.Model):
     site_externo = models.URLField(u'Site/Blog/Fanpage', blank=True, null=True)
 
     def __unicode__(self):
-        return u'Círculo %s %s' % (self.get_tipo_display(), self.titulo)
-
+        return u'Círculo %s' % self.titulo
 
 class CirculoMembro(models.Model):
     class Meta:
@@ -98,13 +121,14 @@ class CirculoMembro(models.Model):
 
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
-    administrador = models.BooleanField()
+    administrador = models.BooleanField(default=False)
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
 
+# Só mostrar o Oficial se o usuário for do grupo Diretoria
+# Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
         return u'#%s' % self.pk
-
 
 # Eventos que devem ser divulgados no site
 class CirculoEvento(models.Model):

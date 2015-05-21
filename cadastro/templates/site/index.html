@@ -4,6 +4,23 @@
         <title>Raiz Movimento Cidadanista</title>
         <meta charset="utf-8">
         <link href='http://fonts.googleapis.com/css?family=Elsie:400,900' rel='stylesheet' type='text/css'>
+        <link rel="apple-touch-icon" sizes="57x57" href="{% static 'site/icon/apple-icon-57x57.png' %}">
+        <link rel="apple-touch-icon" sizes="60x60" href="{% static 'site/icon/apple-icon-60x60.png' %}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{% static 'site/icon/apple-icon-72x72.png' %}">
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'site/icon/apple-icon-76x76.png' %}">
+        <link rel="apple-touch-icon" sizes="114x114" href="{% static 'site/icon/apple-icon-114x114.png' %}">
+        <link rel="apple-touch-icon" sizes="120x120" href="{% static 'site/icon/apple-icon-120x120.png' %}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{% static 'site/icon/apple-icon-144x144.png' %}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{% static 'site/icon/apple-icon-152x152.png' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'site/icon/apple-icon-180x180.png' %}">
+        <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'site/icon/android-icon-192x192.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'site/icon/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="96x96" href="{% static 'site/icon/favicon-96x96.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'site/icon/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'site/icon/manifest.json' %}">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="{% static 'site/icon/ms-icon-144x144.png' %}">
+        <meta name="theme-color" content="#ffffff">
         <script type="text/javascript" src="{% static 'site/js/jquery.min.js' %}"></script>
         <style type="text/css">
             * {margin:0; padding: 0;}
@@ -57,46 +74,46 @@
             $(document).ready(function(){
             $('div.bgParallax').each(function(){
                 var $obj = $(this);
-            
+
                 $(window).scroll(function() {
-                    var yPos = -($(window).scrollTop() / $obj.data('speed')); 
-            
+                    var yPos = -($(window).scrollTop() / $obj.data('speed'));
+
                     var bgpos = '50% '+ yPos + 'px';
-            
+
                     $obj.css('background-position', bgpos );
-            
-                }); 
-            }); 
+
+                });
             });
-                
+            });
+
         </script>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-            
+
             ga('create', 'UA-4650303-20', 'auto');
             ga('send', 'pageview');
-            
+
         </script>
     </head>
     <body>
         <div id="quemsomos" class="bgParallax" data-speed="10">
             <article>
-                <br /> 
+                <br />
                 <p>
                     <br />  <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> Clique e leia  a Carta Cidadanista na integra</a>
                 </p>
                 <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> <img src="{% static 'site/img/chamada_lancamento.jpg' %}" width="600px" height="510px"></a>
                 <h1> 27 de março de 2015 - ás 16h. - Teatro Commune <br /> Rua da Consolação 2018 - Consolação - SP </h1>
                 <br /><br />
-                <p>    "...unidos com ousadia, semeando, confiando, compartilhando. 
-                    Por uma sociedade de mulheres e homens livres, 
+                <p>    "...unidos com ousadia, semeando, confiando, compartilhando.
+                    Por uma sociedade de mulheres e homens livres,
                     de gente unida entre si e unida ao planeta.
-                    Um povo capaz e responsável por seus próprios atos. 
-                    Livre, enfim, consciente, pensando por si mesma. 
-                    Conclama o manifesto: UNI-VOS! Unimos-nos." 
+                    Um povo capaz e responsável por seus próprios atos.
+                    Livre, enfim, consciente, pensando por si mesma.
+                    Conclama o manifesto: UNI-VOS! Unimos-nos."
                 </p>
                 <p>
                     <br />   <iframe width="560" height="315" src="https://www.youtube.com/embed/8WrFOj2UP8M?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -111,20 +128,18 @@
             </article>
         </div>
         <div id="quemsomos" class="bgParallax" data-speed="15">
-            <article>
-                <p /> 
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/BIP5B82SomE?rel=0" frameborder="0" allowfullscreen></iframe>
-                    <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> <img src="{% static 'site/img/chamada_lancamento.jpg' %}" width="500px" height="410px"></a>
-                <h1> 27 de março de 2015 - ás 16h. - Teatro Commune <br /> Rua da Consolação 2018 - Consolação - SP </h1>
-                </p>
-            </article>
-            <center>
+           <article>
                 <table>
                     <tr>
-                        <td><a href="https://www.facebook.com/events/813961908671706/"> <img src="{% static 'site/img/facebook.png' %}" width="106px" height="106px" alt="raiz Movimento cidadanista"> </a></td>
+                        <td><br/><br/><h1>Cadastre-se para receber os nossos informes</h1></td>
+                        <td><br/><br/><a href="/newsletter/">Clique aqui</a>
+                    </tr>
+                    <tr>
+                        <td><br/><br/><h1>Siga nossa página no Facebook</h1></td>
+                        <td><a href="https://www.facebook.com/RaizMovimentoCidadanista/"> <img src="{% static 'site/img/facebook.png' %}" width="120px" height="120px" alt="raiz Movimento cidadanista"> </a></td>
                     </tr>
                 </table>
-            </center>
+            </article>
         </div>
     </body>
 </html>

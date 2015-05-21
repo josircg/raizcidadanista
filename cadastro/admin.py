@@ -33,8 +33,6 @@ class MembroAdmin(admin.ModelAdmin):
             return ()
         else:
             return ('usuario', 'facebook_id','aprovador',)
-admin.site.register(Membro, MembroAdmin)
-
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro
@@ -44,9 +42,9 @@ class CirculoMembroCirculoInline(admin.TabularInline):
 
 class CirculoEventoCirculoInline(admin.TabularInline):
     model = CirculoEvento
-    extra = 1
+    extra = 0
     verbose_name = u'Evento do Círculo'
-    verbose_name_plural = u'Círculos do Membro'
+    verbose_name_plural = u'Eventos do Círculo'
 
     def get_readonly_fields(self, request, obj=None):
         if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists()):
@@ -56,6 +54,7 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
 class CirculoAdmin(admin.ModelAdmin):
     list_filter = ('uf',)
+    list_fields = ('titulo','tipo','uf','oficial',)
 
     fieldsets_owner = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
@@ -78,7 +77,7 @@ class CirculoAdmin(admin.ModelAdmin):
                 circulo = obj,
                 administrador = True,
             ).save()
-    
+
     def get_inline_instances(self, request, obj=None):
         if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
             self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
@@ -93,7 +92,7 @@ class CirculoAdmin(admin.ModelAdmin):
             return flatten_fieldsets(self.get_fieldsets(request, obj))
 
 admin.site.register(Circulo, CirculoAdmin)
-
-
+admin.site.register(CirculoEvento)
+admin.site.register(Membro, MembroAdmin)
 admin.site.register(UF)
 admin.site.register(Pessoa)

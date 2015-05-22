@@ -8,25 +8,11 @@ from django.conf import settings
 from django.db.models import signals
 from django.dispatch import receiver
 
+from municipios.models import UF
 #from smart_selects.db_fields import ChainedForeignKey
 #from utils.models import BRDateField, BRDecimalField
 #from utils.fields import formata_nome_do_arquivo, nome_arquivo_aberto
 #from utils.email import sendmail
-
-REGIAO_UF = (
-    ('N',  u'Norte'),
-    ('NE', u'Nordeste'),
-    ('S',  u'Sul'),
-    ('SE', u'Sudeste'),
-    ('CO', u'Centro Oeste'),
-)
-class UF(models.Model):
-    codigo = models.CharField(max_length=2, primary_key=True)
-    nome = models.CharField(max_length=30)
-    regiao = models.CharField(max_length=2, choices=REGIAO_UF)
-
-    def __unicode__(self):
-        return u'%s' % self.nome
 
 
 GENDER = (

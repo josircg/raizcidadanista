@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib.admin.util import flatten_fieldsets
 
-from models import Membro, Circulo, CirculoMembro, CirculoEvento, UF, Pessoa
+from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
 
 class CirculoMembroMembroInline(admin.TabularInline):
@@ -94,5 +94,4 @@ class CirculoAdmin(admin.ModelAdmin):
 admin.site.register(Circulo, CirculoAdmin)
 admin.site.register(CirculoEvento)
 admin.site.register(Membro, MembroAdmin)
-admin.site.register(UF)
 admin.site.register(Pessoa)

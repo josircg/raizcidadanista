@@ -56,27 +56,43 @@ class CirculoAdmin(admin.ModelAdmin):
     list_filter = ('uf',)
     list_fields = ('titulo','tipo','uf','oficial',)
 
-    fieldsets_owner = (
+    fieldsets_comissao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
     )
+
+    fieldsets_owner = (
+        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo',),},),
+    )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', ),}, ),
+        (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser or obj==None:
-            return self.fieldsets_owner
+            if request.user.groups.filter(name=u'Comissão').exists():
+                return self.fieldsets_comissao
+            else:
+                return self.fieldsets_owner
         return self.fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Comissão').exists()):
+            return ()
+        else:
+            return ('titulo','descricao','tipo','uf','municipio','dtcadastro','site_externo')
 
     def save_model(self, request, obj, form, change):
         obj.save()
-        if not change:
-            membro = Membro.objects.get(usuario=request.user)
-            CirculoMembro(
-                membro = membro,
-                circulo = obj,
-                administrador = True,
-            ).save()
+#        if not change:
+#            try:
+#                membro = Membro.objects.get(usuario=request.user)
+#                CirculoMembro(
+#                    membro = membro,
+#                    circulo = obj,
+#                    administrador = True,
+#                ).save()
+#            except Membro.DoesNotExists:
+#                return
 
     def get_inline_instances(self, request, obj=None):
         if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():

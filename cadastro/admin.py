@@ -84,12 +84,15 @@ class CirculoAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.save()
         if not change:
-            membro = Membro.objects.get(usuario=request.user)
-            CirculoMembro(
-                membro = membro,
-                circulo = obj,
-                administrador = True,
-            ).save()
+            try:
+                membro = Membro.objects.get(usuario=request.user)
+                CirculoMembro(
+                    membro = membro,
+                    circulo = obj,
+                    administrador = True,
+                ).save()
+            except Membro.DoesNotExists:
+                return
 
     def get_inline_instances(self, request, obj=None):
         if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():

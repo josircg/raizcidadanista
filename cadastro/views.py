@@ -1,9 +1,26 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 
+from models import Circulo
+from municipios.models import UF
 from forms import NewsletterForm, MembroForm
+
+
+class IndexView(TemplateView):
+    template_name = 'site/index.html'
+
+    def get_context_data(self, **kwargs):
+        circulos = {}
+        for uf in UF.objects.all():
+            municipios = Circulo.objects.filter(uf=uf).values_list('municipio', flat=True)
+            if municipios:
+                circulos[uf.nome] = u"Cidades: %s" % (u", ".join(municipios))
+            else:
+                circulos[uf.nome] = u"Não existe nenhum círculo neste estado."
+        kwargs['circulos'] = circulos
+        return super(IndexView, self).get_context_data(**kwargs)
 
 
 class NewsletterView(FormView):

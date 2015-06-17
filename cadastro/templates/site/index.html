@@ -24,7 +24,7 @@
         <script type="text/javascript" src="{% static 'site/js/jquery.min.js' %}"></script>
         <style type="text/css">
             * {margin:0; padding: 0;}
-            html, body {height:100%;}
+            html, body {height:100%; background: #94C11E}
             /** formata elementos que tem backgrounds parallax **/
             .bgParallax {
                 font-family: 'Arial', cursive;
@@ -33,7 +33,6 @@
                 width: 100%;
                 max-width: 1920px;
                 position: relative;
-                min-height: 100%;
                 background-position: 50% 0;
                 background-attachment: fixed;
             }
@@ -63,9 +62,10 @@
                 margin:0 auto;
                 padding:30% 0 0;
             }
+            table td {padding: 10px;}
             /** formata texto **/
             article img {font-size:18px; text-align: left; }
-            article h1 {font-size:18px; width: 60%; text-align: center;}
+            article h1 {font-size:18px; text-align: center;}
             article p {line-height: 30px; font-size:14px; margin-top:0px; width: 60%; text-align: center;}
             article p a {color:#FFF; text-decoration:none; font-size:30px;}
             article p a:hover {color: #900; text-decoration:none; font-size:30px;}
@@ -101,13 +101,10 @@
     <body>
         <div id="quemsomos" class="bgParallax" data-speed="10">
             <article>
-                <br />
-                <p>
-                    <br />  <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> Clique e leia  a Carta Cidadanista na integra</a>
-                </p>
-                <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> <img src="{% static 'site/img/chamada_lancamento.jpg' %}" width="600px" height="510px"></a>
-                <h1> 27 de março de 2015 - ás 16h. - Teatro Commune <br /> Rua da Consolação 2018 - Consolação - SP </h1>
-                <br /><br />
+                <div id="logo">
+                    <a href="/"><img src="{% static 'site/img/logo.png' %}"></a>
+                </div>
+                <br>
                 <p>    "...unidos com ousadia, semeando, confiando, compartilhando.
                     Por uma sociedade de mulheres e homens livres,
                     de gente unida entre si e unida ao planeta.
@@ -118,28 +115,64 @@
                 <p>
                     <br />   <iframe width="560" height="315" src="https://www.youtube.com/embed/8WrFOj2UP8M?rel=0" frameborder="0" allowfullscreen></iframe>
                 </p>
+                <p>
+                    <br />  <a href="https://loomio-attachments.s3.amazonaws.com/uploads/00ca66d27149a7cec9cf849fc931c050/carta-cidadanista-web.pdf"> Clique e leia  a Carta Cidadanista na integra</a>
+                </p>
                 <br /><br />
             </article>
         </div>
         <div id="quemsomos2" class="bgParallax" data-speed="10">
             <article>
-                <br /><br />
-                <br /><iframe width="600px" height="600px" src="//e.issuu.com/embed.html#1328343/12149111" frameborder="0" allowfullscreen></iframe>
+                <br />
+                <iframe width="100%" height="300px" src="//e.issuu.com/embed.html#1328343/12149111" frameborder="0" allowfullscreen></iframe>
             </article>
         </div>
         <div id="quemsomos" class="bgParallax" data-speed="15">
            <article>
                 <table>
                     <tr>
-                        <td><br/><br/><h1>Cadastre-se para receber os nossos informes</h1></td>
-                        <td><br/><br/><a href="/newsletter/">Clique aqui</a>
+                        <td width="30%">
+                            <h1>Cadastre-se para receber os nossos informes</h1>
+                        </td>
+                        <td>
+                            <a href="/newsletter/"><img src="{% static 'site/img/newsletter.png' %}" height="120px"></a>
+                        </td>
                     </tr>
                     <tr>
-                        <td><br/><br/><h1>Siga nossa página no Facebook</h1></td>
-                        <td><a href="https://www.facebook.com/RaizMovimentoCidadanista/"> <img src="{% static 'site/img/facebook.png' %}" width="120px" height="120px" alt="raiz Movimento cidadanista"> </a></td>
+                        <td>
+                            <h1>Siga nossa página no Facebook</h1>
+                        </td>
+                        <td>
+                            <a href="https://www.facebook.com/RaizMovimentoCidadanista/"> <img src="{% static 'site/img/facebook.png' %}" width="120px" height="120px" alt="raiz Movimento cidadanista"> </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h1>Veja se já exista um círculo em sua região</h1>
+                        </td>
+                        <td>
+                            <label>
+                                Selecione o seu estado:<br>
+                                <select id="select-uf-circulo">
+                                    <option cidades="">---</option>
+                                    {% for uf, cidades in circulos.items %}
+                                    <option cidades="{{ cidades }}">{{ uf }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                            <br><br>
+                            <label id="box-cidades">
+                            </label>
+                        </td>
                     </tr>
                 </table>
             </article>
+            <br/><br/><br/>
         </div>
+    <script type="text/javascript">
+        $('#select-uf-circulo').change(function(event) {
+            $('#box-cidades').html($(this).find('option:selected').attr('cidades'));
+        });
+    </script>
     </body>
 </html>

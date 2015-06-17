@@ -14,12 +14,12 @@ from municipios.models import UF
 #from utils.fields import formata_nome_do_arquivo, nome_arquivo_aberto
 #from utils.email import sendmail
 
-
 GENDER = (
     ('M', u'Masculino'),
     ('F', u'Feminino'),
     ('O', u'Outros'),
 )
+
 class Pessoa(models.Model):
     class Meta:
         ordering = ['nome',]
@@ -31,7 +31,7 @@ class Pessoa(models.Model):
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
-    dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
+    dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
@@ -39,8 +39,8 @@ class Pessoa(models.Model):
 class Membro(Pessoa):
     class Meta:
         ordering = ['nome',]
-        verbose_name = u'Membro'
-        verbose_name_plural = u'Membros'
+        verbose_name = u'Colaborador'
+        verbose_name_plural = u'Colaboradores'
 
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
@@ -94,8 +94,8 @@ class Circulo(models.Model):
     uf = models.ForeignKey(UF, blank=True, null=True)
     municipio = models.CharField(u'Município',max_length=150, blank=True, null=True)
     oficial = models.BooleanField(u'Grupo Oficial', default=False)
-    dtcadastro = models.DateField(u'Dt.Cadastro')
-    site_externo = models.URLField(u'Site/Blog/Fanpage', blank=True, null=True)
+    dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
+    site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
 
     def __unicode__(self):
         return u'Círculo %s' % self.titulo

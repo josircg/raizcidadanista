@@ -14,7 +14,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(admin.ModelAdmin):
     list_filter = ('uf',)
     search_fields = ('nome','email',)
-    list_display = ('nome', 'email', 'dtcadastro', 'aprovador',)
+    list_display = ('nome', 'email', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao',)
 
@@ -32,7 +32,7 @@ class MembroAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return ()
         else:
-            return ('dtcadastro',' usuario', 'facebook_id', 'aprovador',)
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro

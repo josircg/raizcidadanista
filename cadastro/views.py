@@ -13,7 +13,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         circulos = {}
-        for uf in UF.objects.all():
+        for uf in UF.objects.all().order_by('nome'):
             queryset = Circulo.objects.filter(uf=uf)
             if queryset:
                 cidades = []

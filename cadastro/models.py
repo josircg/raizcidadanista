@@ -81,6 +81,7 @@ class Membro(Pessoa):
 
 CIRCULO_TIPO = (
     ('R', u'Regional'),
+    ('G', u'GT'),
     ('T', u'Temático'),
 )
 
@@ -125,6 +126,10 @@ class CirculoEvento(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nome
+
+    class Meta:
+        verbose_name = u'Evento do Círculo'
+        verbose_name_plural = u'Eventos dos círculos'
 
 # Fóruns - Baseado no modelo de dados do Loomio
 

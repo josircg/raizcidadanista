@@ -12,7 +12,7 @@ class IndexView(TemplateView):
     template_name = 'site/index.html'
 
     def get_context_data(self, **kwargs):
-        circulos = {}
+        circulos = []
         for uf in UF.objects.all().order_by('nome'):
             queryset = Circulo.objects.filter(uf=uf)
             if queryset:
@@ -22,9 +22,9 @@ class IndexView(TemplateView):
                         cidades.append(u'<a href="%s" target="_blank">%s</a>' % (query.site_externo, query.municipio, ))
                     else:
                         cidades.append(query.municipio)
-                circulos[uf.nome] = u"Cidades: %s" % (u", ".join(cidades))
+                circulos.append((uf.nome, u"Cidades: %s" % (u", ".join(cidades))))
             else:
-                circulos[uf.nome] = u"Ainda não existe nenhum círculo em seu estado."
+                circulos.append((uf.nome, u"Ainda não existe nenhum círculo em seu estado."))
         kwargs['circulos'] = circulos
         return super(IndexView, self).get_context_data(**kwargs)
 

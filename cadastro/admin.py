@@ -32,7 +32,7 @@ class MembroAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return ()
         else:
-            return ('usuario', 'facebook_id','aprovador',)
+            return ('dtcadastro',' usuario', 'facebook_id', 'aprovador',)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro
@@ -60,11 +60,11 @@ class CirculoAdmin(admin.ModelAdmin):
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
     )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo',),}, ),
+        (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', ),}, ),
     )
 
     def get_fieldsets(self, request, obj=None):
-        if request.user.is_superuser:
+        if request.user.is_superuser or obj==None:
             return self.fieldsets_owner
         return self.fieldsets
 

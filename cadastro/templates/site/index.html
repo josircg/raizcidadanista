@@ -17,6 +17,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{% static 'site/icon/favicon-32x32.png' %}">
         <link rel="icon" type="image/png" sizes="96x96" href="{% static 'site/icon/favicon-96x96.png' %}">
         <link rel="icon" type="image/png" sizes="16x16" href="{% static 'site/icon/favicon-16x16.png' %}">
+        <link rel="icon" type="image/png" href="{% static 'site/icon/favicon.ico' %}">
         <link rel="manifest" href="{% static 'site/icon/manifest.json' %}">
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="msapplication-TileImage" content="{% static 'site/icon/ms-icon-144x144.png' %}">
@@ -69,6 +70,9 @@
             article p {line-height: 30px; font-size:14px; margin-top:0px; width: 60%; text-align: center;}
             article p a {color:#FFF; text-decoration:none; font-size:30px;}
             article p a:hover {color: #900; text-decoration:none; font-size:30px;}
+
+            #box-cidades{ width: 275px; border: 3px #4D772F solid; padding: 10px; display: none;}
+            #select-uf-circulo {font-size: 18px;}
         </style>
         <script type="text/javascript">
             $(document).ready(function(){
@@ -101,9 +105,9 @@
     <body>
         <div id="quemsomos" class="bgParallax" data-speed="10">
             <article>
-                <div id="logo">
+                <p id="logo" style="text-align: center">
                     <a href="/"><img src="{% static 'site/img/logo.png' %}"></a>
-                </div>
+                </p>
                 <br>
                 <p>    "...unidos com ousadia, semeando, confiando, compartilhando.
                     Por uma sociedade de mulheres e homens livres,
@@ -128,7 +132,7 @@
             </article>
         </div>
         <div id="quemsomos" class="bgParallax" data-speed="15">
-           <article>
+           <article style="height: 400px">
                 <table>
                     <tr>
                         <td width="30%">
@@ -160,9 +164,9 @@
                                     {% endfor %}
                                 </select>
                             </label>
-                            <br><br>
-                            <label id="box-cidades">
-                            </label>
+                            <br>
+                            <div id="box-cidades">
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -171,6 +175,7 @@
         </div>
     <script type="text/javascript">
         $('#select-uf-circulo').change(function(event) {
+            $('#box-cidades').show();
             $('#box-cidades').html($(this).find('option:selected').attr('cidades'));
         });
     </script>

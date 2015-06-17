@@ -14,11 +14,17 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         circulos = {}
         for uf in UF.objects.all():
-            municipios = Circulo.objects.filter(uf=uf).values_list('municipio', flat=True)
-            if municipios:
-                circulos[uf.nome] = u"Cidades: %s" % (u", ".join(municipios))
+            queryset = Circulo.objects.filter(uf=uf)
+            if queryset:
+                cidades = []
+                for query in queryset:
+                    if query.site_externo:
+                        cidades.append(u'<a href="%s" target="_blank">%s</a>' % (query.site_externo, query.municipio, ))
+                    else:
+                        cidades.append(query.municipio)
+                circulos[uf.nome] = u"Cidades: %s" % (u", ".join(cidades))
             else:
-                circulos[uf.nome] = u"Não existe nenhum círculo neste estado."
+                circulos[uf.nome] = u"Ainda não existe nenhum círculo em seu estado."
         kwargs['circulos'] = circulos
         return super(IndexView, self).get_context_data(**kwargs)
 

@@ -60,9 +60,9 @@ target/
 *.sqlite3
 
 # Statics files
-/public/static/
+/raizcidadanista/media/
 
 # Production
-config/production.py
+raizcidadanista/settings/production.py
 manage.py
 fabfile.py

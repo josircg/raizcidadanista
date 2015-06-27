@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% load i18n admin_tools_menu_tags cms_tags %}
+
+{% block title %}{% site_name %} | {{ title }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% if user.is_active and user.is_staff %}
+{% if not is_popup %}
+{% admin_tools_render_menu_css %}
+{% endif %}
+{% endif %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lightbox/themes/default/jquery.lightbox.css" />
+<!--[if IE 6]>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lightbox/themes/default/jquery.lightbox.ie6.css" />
+<![endif]-->
+<script type="text/javascript" src="{{ STATIC_URL }}lightbox/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}lightbox/jquery.lightbox.min.js"></script>
+
+<script type="text/javascript">
+    $('.lightbox').lightbox();
+</script>
+
+<style type="text/css">
+    #header { background: #94c11e !important; }
+    #header #branding h1 { background: transparent url({{ STATIC_URL }}admin_tools/images/logo.png) 10px 5px no-repeat !important; }
+    .site-name {}
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"></h1>
+{% endblock %}
+
+{% block nav-global %}
+{% if user.is_active and user.is_staff %}
+{% if not is_popup %}
+{% admin_tools_render_menu %}
+{% endif %}
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}<div id="footer" style="text-align: center" >&copy; {% now "Y" %} - {% version %}</div>{% endblock %}

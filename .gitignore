@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # Database
-raizcidadanista/*.sqlite3
+raizcidadanista/raizcidadanista.sqlite
 
 # Statics files
 /raizcidadanista/media/

@@ -150,7 +150,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
 )
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'filebrowser',
     'admin_tools',
     'admin_tools.theming',
@@ -180,8 +180,12 @@ INSTALLED_APPS = (
     'smart_selects',
     'compressor',
     'django.contrib.sitemaps',
-    'theme',
-)
+]
+
+if os.path.exists(os.path.join(PROJECT_DIR, 'theme')):
+    INSTALLED_APPS += [
+        'theme',
+    ]
 
 COMPRESS_CSS_FILTERS = [
     'compressor.filters.cssmin.CSSMinFilter',

@@ -30,10 +30,10 @@ def get_article(context, slug):
 
 
 @register.assignment_tag(takes_context=True)
-def get_section_articles(context, slug):
+def get_section_articles(context, slug, num=5):
     try:
         section = Section.objects.get(slug=slug)
-        return section.get_articles()
+        return section.get_articles()[:num]
     except Section.DoesNotExist:
         return []
 
@@ -47,7 +47,7 @@ def get_last_comments(context, num=5):
 def get_sections(context):
     sections = []
     for section in Section.objects.exclude(order=0):
-        if section.have_perm(context.get('request').user) and section.num_articles() > 0:
+        if section.have_perm(context.get('request').user):
             sections.append(section)
     return sections
 

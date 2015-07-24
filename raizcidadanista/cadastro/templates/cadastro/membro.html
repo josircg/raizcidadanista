@@ -1,5 +1,5 @@
-{% extends 'site/base.html' %}
-{% load bootstrap %}
+{% extends 'base.html' %}
+{% load bootstrap static %}
 
 {% block title %}Cadastro pré-Fundador e Loomio - {% endblock %}
 {% block ogtitle %}Cadastro pré-Fundador e Loomio - {% endblock %}
@@ -7,8 +7,8 @@
 {% block description %}Cadastro pré-Fundador e Loomio - {% endblock %}
 {% block ogdescription %}Cadastro pré-Fundador e Loomio - {% endblock %}
 
-{% block content %}
-    <h2>Cadastro pré-Fundador e Loomio</h2>
+{% block main_content %}
+    <h3>Cadastro pré-Fundador e Loomio</h3>
     <p>Este Cadastro destina-se ao Recadastramento dos integrantes do Loomio, bem como a novos membros. Esta plataforma Loomio é o palco da estruturação organizacional da Raiz, espaço de discussões e deliberações "internas" no atual estágio de construção. O preenchimento deste formulário ratifica o compromisso dos membros com a construção do partido, assim como a subscrição da Carta Cidadanista. Esta base de cadastrados é a primeira aproximação para a formação do grupo de Fundadores da Raiz Movimento Cidadanista.</p>
     <form action="" method="POST" role="form">{% csrf_token %}
         <div class="panel panel-default">
@@ -40,6 +40,7 @@
 
 
 {% block css %}
+<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 <style type="text/css">
     .has-error .form-control-feedback {
         margin-top: -6px;

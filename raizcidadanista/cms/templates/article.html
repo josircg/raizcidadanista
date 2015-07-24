@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load cms_tags bootstrap_google %}
+
+{% block title %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
+{% block ogtitle %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
+
+{% block description %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
+{% block ogdescription %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
+
+{% block main_content %}
+    <h3>{{ article.title }}</h3>
+    {{ article.content|safe }}
+    
+    {% if article.allow_comments != 'N' %}
+        <h4>Comentários</h4>
+        {% for comment in article.articlecomment_set.all %}
+            <div class="bs-callout">
+                <h5>{{ comment.author }}</h5>
+                <div class="demo-crumbs mdl-color-text--grey-500">{{ comment.created_at|date:"d \d\e F \d\e Y" }}</div>
+                <p>{{ comment.comment }}</p>
+            </div>
+        {% endfor %}
+
+        {% if article.allow_comments == 'A' %}
+        <form class="form-comment" action="" method="POST">{% csrf_token %}
+            {% for field in form %}
+                <div class="{% if field.errors %} is-invalid{% endif %}">
+                    <div class="mdl-textfield mdl-js-textfield textfield-demo">
+                    {% if field|btischeckbox %}
+                        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="id_{{ field.name }}">
+                            {{ field|btform }}
+                            <span class="mdl-checkbox__label">{{ field.label }}</span>
+                        </label>
+                    {% else %}
+                        {{ field|btform }}
+                        <label class="mdl-textfield__label" for="id_{{ field.name }}">{{ field.label }}</label>
+                    {% endif %}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <span class="mdl-textfield__error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <button  type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+              Comentar
+            </button>
+        </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .bs-callout {
+        padding: 10px 20px;
+        border-left: 3px solid #eee;
+    }
+</style>
+{% endblock %}

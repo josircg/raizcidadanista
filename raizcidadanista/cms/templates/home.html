@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% load cms_tags %}
+
+{% block main_content %}
+    {% get_article 'home' as home %}
+    <h3>{{ home.title }}</h3>
+    {{ home.content|safe }}
+{% endblock %}

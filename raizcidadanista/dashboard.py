@@ -59,7 +59,6 @@ class CustomIndexDashboard(Dashboard):
                     [_(u'Portal'), '/'],
                     [_(u'PowerPost'), reverse('admin:cms_article_add_power')],
                     [_(u'Alterar password'), reverse('admin:password_change')],
-                    [_(u'Atualizar PowerCMS'), reverse('update')],
                     [_(u'Sair'), reverse('admin:logout')],
                 ]
             ),

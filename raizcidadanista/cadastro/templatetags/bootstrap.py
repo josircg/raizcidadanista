@@ -9,13 +9,7 @@ register = template.Library()
 def btform(field):
     html = u'%s' % field
     if (not 'type="radio"' in html) and (not 'type="checkbox"' in html):
-        html = html.replace('name', 'class="mdl-textfield__input" name')
-    elif 'type="checkbox"' in html:
-        html = html.replace('name', 'class="mdl-checkbox__input" name')
-    elif 'type="radio"' in html:
-        html = html.replace('name', 'class="mdl-radio__input" name')
-    if field.help_text:
-        html = html.replace('name', 'placeholder="%s" name' % field.help_text)
+        html = html.replace('name=', 'class="form-control" name=')
     return mark_safe(html)
 
 @register.filter(name='btischeckbox')

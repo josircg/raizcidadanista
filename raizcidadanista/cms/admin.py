@@ -28,9 +28,9 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from models import Menu, Section, Article, SectionItem, URLMigrate, \
     FileDownload, ArticleArchive, ArticleComment, EmailAgendado, Recurso, \
-    Theme, Permissao, GroupType, GroupItem
+    Permissao, GroupType, GroupItem
 
-from forms import ThemeForm, CustomGroupForm, PowerArticleForm
+from forms import CustomGroupForm, PowerArticleForm
 
 from django.core.files.base import ContentFile
 import os, zipfile, StringIO
@@ -342,96 +342,6 @@ admin.site.register(EmailAgendado, EmailAgendadoAdmin)
 class RecursoAdmin(PowerModelAdmin):
     list_display = ('recurso', 'ativo',)
 admin.site.register(Recurso, RecursoAdmin)
-
-
-class ThemeAdmin(PowerModelAdmin):
-    list_display = ('name', 'example', 'active',)
-    multi_search = (
-        ('q1', u'Nome', ['name']),
-        ('q2', u'Descrição', ['description']),
-    )
-    fieldsets_add = (
-        (None, { 'fields': ['name', 'active', 'description', ] }),
-        (u'Arquivo', { 'fields': ['path_name', 'theme', ] }),
-    )
-    fieldsets_edit = (
-        (None, { 'fields': ['name', 'active', 'description', ] }),
-        (u'Arquivos', { 'fields': ['treepath', ] }),
-    )
-    form = ThemeForm
-
-    def get_actions(self, request):
-        return []
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            self.prepopulated_fields = {}
-            return ('name', 'treepath', )
-        self.prepopulated_fields = {'path_name': ('name',)}
-        return super(ThemeAdmin, self).get_readonly_fields(request, obj)
-
-    def get_fieldsets(self, request, obj=None):
-        if not obj:
-            return self.fieldsets_add
-        return self.fieldsets_edit
-
-    def get_form(self, request, obj=None, **kwargs):
-        defaults = {
-            "form": self.form if not obj else forms.ModelForm,
-            "fields": flatten_fieldsets(self.get_fieldsets(request, obj)),
-            "exclude": self.get_readonly_fields(request, obj),
-            "formfield_callback": partial(self.formfield_for_dbfield, request=request),
-        }
-        defaults.update(kwargs)
-        return modelform_factory(self.model, **defaults)
-
-    def has_delete_permission(self, request, obj=None):
-        if obj and obj.active:
-            return False
-        return super(ThemeAdmin, self).has_delete_permission(request, obj)
-
-    def save_model(self, request, obj, form, change):
-        if obj.active:
-            Theme.objects.exclude(pk=obj.pk).update(active=False)
-        return super(ThemeAdmin, self).save_model(request, obj, form, change)
-
-    def backup(self, request, object_id):
-        theme = get_object_or_404(Theme, pk=object_id)
-        try:
-            buffer = StringIO.StringIO()
-            zip = zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED)
-
-            for root, dirs, files in os.walk(theme.path):
-                for file in files:
-                    zip.write(os.path.join(root, file), os.path.join(root.replace(theme.path, ''), file))
-
-            zip.close()
-            buffer.flush()
-            ret_zip = buffer.getvalue()
-            buffer.close()
-
-            response = HttpResponse(ret_zip, mimetype='application/octet-stream')
-            response['Content-Disposition'] = 'filename=%s.zip' % theme.path_name
-            return response
-        except:
-            messages.error(request, u'Erro ao criar .zip do tema!')
-            return HttpResponseRedirect(reverse('admin:cms_theme_change', args=(object_id,)))
-
-    def get_urls(self):
-        urls = super(ThemeAdmin, self).get_urls()
-        return patterns('',
-            url(r'^backup/(?P<object_id>\d+)/$', self.wrap(self.backup), name='cms_theme_backup'),
-        ) + urls
-
-    def get_buttons(self, request, object_id):
-        buttons = super(ThemeAdmin, self).get_buttons(request, object_id)
-        if object_id:
-            obj = self.get_object(request, object_id)
-            buttons.append(PowerButton(url='%s?&dir=%s' % (reverse('filebrowser:fb_browse'), obj.media_path()), label=u'Editar'))
-            buttons.append(PowerButton(url=reverse('admin:cms_theme_backup', kwargs={'object_id': object_id, }), label=u'Backup'))
-        return buttons
-
-admin.site.register(Theme, ThemeAdmin)
 
 
 ### Nova tela do Group ###

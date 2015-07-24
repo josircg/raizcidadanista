@@ -4,8 +4,6 @@ from views import *
 from cms.sitemap import sitemaps
 
 urlpatterns = patterns('',
-    url(r'^update/$', UpdateView.as_view(), name='update'),
-
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^pesquisa/$', SearchView.as_view(), name='search'),
     url(r'^section/(?P<slug>[-_\w]+)/$', SectionDetailView.as_view(), name='section'),

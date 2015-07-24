@@ -15,7 +15,7 @@ from datetime import datetime, date
 from captcha.fields import CaptchaField
 from ckeditor.widgets import CKEditorWidget
 
-from models import SectionItem, ArticleComment, Recurso, Theme, Article, \
+from models import SectionItem, ArticleComment, Recurso, Article, \
     GroupType, EmailAgendado
 from cms.email import sendmail
 
@@ -60,68 +60,6 @@ class ArticleCommentForm(forms.ModelForm):
                 template=menssagem,
                 headers={'Reply-To': self.cleaned_data['email']}
             )
-
-
-class ThemeForm(forms.ModelForm):
-    class Meta:
-        model = Theme
-
-    theme = forms.FileField(
-        label=u'Template',
-        help_text=mark_safe(u'''Arquivo .zip com a seguinte estrutura:<br>
-            PASTA<br>
-            &nbsp&nbsp&nbsp&nbsptemplatetags/<br>
-            &nbsp&nbsp&nbsp&nbsptemplates/<br>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsphome.html<br>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsparticle.html<br>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspsession.html<br>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspsearch.html<br>
-            &nbsp&nbsp&nbsp&nbspstatic/<br>
-            &nbsp&nbsp&nbsp&nbspviews.py<br>
-            &nbsp&nbsp&nbsp&nbspurl.py<br>
-            &nbsp&nbsp&nbsp&nbsp__init__.py''')
-    )
-
-    def _path_nome(self, zip):
-        first_dir = zip.namelist()[0]
-        return first_dir
-
-    def have_first_dir(self, zip):
-        first_dir = zip.namelist()[0]
-        for filename in zip.namelist():
-            if not first_dir in filename:
-                return False
-        return True
-
-    def clean_theme(self):
-        theme = self.cleaned_data.get('theme')
-        if theme.name.split('.')[-1].lower() != 'zip':
-            raise forms.ValidationError(u'Envie um arquivo .zip. Siga as instruções abaixo.')
-        
-        try:
-            zip = zipfile.ZipFile(theme, 'r')
-        except:
-            raise forms.ValidationError(u'O arquivo .zip está corrompido.')
-        
-        if not self.have_first_dir(zip):
-            raise forms.ValidationError(u'O template enviado não possui uma pasta inicial.')
-        return theme
-
-    def save(self, commit=True):
-        theme = self.cleaned_data.get('theme')
-        zip = zipfile.ZipFile(theme, 'r')
-
-        # Cria diretório do theme
-        dirname = os.path.join(settings.MEDIA_ROOT, 'uploads', 'themes')
-        if not os.path.isdir(dirname):
-            os.makedirs(dirname)
-
-        # Extrai o zip do template
-        with zipfile.ZipFile(self.cleaned_data.get('theme'), "r") as z:
-            z.extractall(dirname)
-        self.instance.path = os.path.join(dirname, self._path_nome(zip))
-        self.instance.path_name = self._path_nome(zip)
-        return super(ThemeForm, self).save(commit)
 
 
 class CustomGroupForm(forms.ModelForm):

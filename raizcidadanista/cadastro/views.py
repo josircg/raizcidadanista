@@ -9,8 +9,8 @@ from forms import NewsletterForm, MembroForm
 
 
 class NewsletterView(FormView):
-    template_name = 'site/newsletter.html'
-    template_success_name = 'site/bem-vindo.html'
+    template_name = 'cadastro/newsletter.html'
+    template_success_name = 'cadastro/bem-vindo.html'
     form_class = NewsletterForm
 
     def form_valid(self, form):
@@ -28,8 +28,8 @@ class NewsletterView(FormView):
 
 
 class MembroView(FormView):
-    template_name = 'site/membro.html'
-    template_success_name = 'site/bem-vindo.html'
+    template_name = 'cadastro/membro.html'
+    template_success_name = 'cadastro/bem-vindo.html'
     form_class = MembroForm
 
     def form_valid(self, form):

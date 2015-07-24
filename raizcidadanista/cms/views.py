@@ -13,52 +13,9 @@ from django.db.models import Q
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
-from forms import ArticleCommentForm, UpdateForm, CMSUserCreationForm
+from forms import ArticleCommentForm, CMSUserCreationForm
 
 import mimetypes, os
-
-
-class LoginRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
-        return login_required(view)
-
-
-class UpdateView(LoginRequiredMixin, View):
-    title = u'Atualizar PowerCMS'
-    form_class = UpdateForm
-    template_name='admin/cms/update.html'
-
-    def post(self, *args, **kwargs):
-        form = self.form_class(self.request.POST)
-        if form.is_valid():
-            version = form.cleaned_data.get('version')
-            os.system('git pull')
-            if version:
-                os.system('git checkout %s' % version)
-            os.system("%(PROJECT_DIR)s/../../bin/python %(PROJECT_DIR)s/../manage.py syncdb --settings=raizcidadanista.settings.production" % {
-                'PROJECT_DIR': settings.PROJECT_DIR,
-            })
-            os.system("%(PROJECT_DIR)s/../../bin/python %(PROJECT_DIR)s/../manage.py migrate --settings=raizcidadanista.settings.production" % {
-                'PROJECT_DIR': settings.PROJECT_DIR,
-            })
-            os.system("%(PROJECT_DIR)s/../../bin/python %(PROJECT_DIR)s/../manage.py syncdb --all --settings=raizcidadanista.settings.production" % {
-                'PROJECT_DIR': settings.PROJECT_DIR,
-            })
-            os.popen('supervisorctl restart %s' % settings.PROJECT_DIR.split('/')[-2])
-            messages.info(self.request, u'Sistema atualizado com sucesso!')
-        return render(self.request, self.template_name, {
-            'form': form,
-            'title': self.title,
-        })
-
-    def get(self, *args, **kwargs):
-        form = self.form_class()
-        return render(self.request, self.template_name, {
-            'form': form,
-            'title': self.title,
-        })
 
 
 class ArticleDetailView(DetailView):

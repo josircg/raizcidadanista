@@ -7,7 +7,7 @@
 {% block description %}Cadastro Mailing e Face - {% endblock %}
 {% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
 
-{% block main_content %}
+{% block main %}
     <h3>Cadastro Mailing e Face</h3>
     <p>Estes dados não serão divulgados em nenhuma circunstância. Seu email será cadastrado em futuro mailing da Raiz Movimento Cidadanista. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook.</a></p>
     <form action="" method="POST" role="form">{% csrf_token %}
@@ -40,10 +40,12 @@
 
 
 {% block css %}
-<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 <style type="text/css">
     .has-error .form-control-feedback {
         margin-top: -6px;
     }
+    #id_nome, #id_email {max-width: 500px;}
+    #id_uf, #id_sexo {max-width: 165px;}
+    #id_municipio, #id_celular, #id_residencial {max-width: 300px;}
 </style>
 {% endblock %}

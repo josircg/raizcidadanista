@@ -39,18 +39,15 @@
             {{ header.header|safe }}
           </div>
 
-          <div class="panel panel-default">
-            {% get_sections as sections %}
-            <div class="list-group">
-              {% for section in sections %}
-              {% if section.slug != 'news' and section.get_articles %}
-              <h4>{{ section.title }}</h4>
-              {% for article in section.get_articles %}
-              <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
-              {% endfor %}
-              {% endif %}
-              {% endfor %}
-            </div>
+          {% get_sections as sections %}
+          <div class="list-group">
+            {% for section in sections %}
+            {% if section.slug != 'news' and section.get_articles %}
+            {% for article in section.get_articles %}
+            <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
           </div>
         </div>
         <div class="col-md-9">

@@ -17,7 +17,10 @@ a:focus, a:hover, .pagination>li>a, .pagination>li>span, .pagination>li>a:focus,
   background-color: #2f7a35;
   border-color: #2f7a35
 }
-
+h3 {
+  color: #951911 !important;
+  font-weight: bold;
+}
 .bs-callout-info {
     border-color: #2f7a35;
 }
@@ -66,19 +69,23 @@ a:focus, a:hover, .pagination>li>a, .pagination>li>span, .pagination>li>a:focus,
   text-align: center;
 }
 
-.list-group a {
-  color: #2f7a35;
-  font-weight: bold;
+.list-group {
+  border: 0;
 }
-
-.list-group h4 {
+.list-group a {
+  border: 0px;
+  border-bottom-right-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  color: #5a5a5a !important;
   font-weight: bold;
-  margin-left: 10px;
+  border-bottom: 3px #5a5a5a solid;
 }
 
 .list-group a.active, .list-group a:hover, .list-group a.active:hover {
-  background-color: #94C11E;
-  border-color: #94C11E;
+  background-color: #fff;
+  color: #951911 !important;
+  font-weight: bold;
+  border-bottom: 3px #951911 solid;
 }
 
 .navbar-default .navbar-nav>.active>a {

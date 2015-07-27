@@ -3,6 +3,5 @@
 
 {% block main %}
     {% get_article 'home' as home %}
-    <h3>{{ home.title }}</h3>
     {{ home.content|safe }}
 {% endblock %}

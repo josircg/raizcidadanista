@@ -12,28 +12,32 @@
 {% endblock %}
 
 {% block main %}
-<section class="mdl-card mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--12-col mdl-cell--12-col-desktop">
-    <div class="mdl-card mdl-cell mdl-cell--12-col">
-      <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
-        <h4 class="mdl-cell mdl-cell--12-col">{{ section.title }}</h4>
-        {% for article in articles %}
-          <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-            <h5>{{ article.title }}</h5>
-            {{ article.header|safe }}<a href="{{ article.get_absolute_url }}">Leia mais</a>.
-          </div>
-        {% endfor %}
-      </div>
-
-      {% if articles.has_previous or articles.has_next %}        
-      <div class="mdl-card__actions" style="text-align: center">
-        {% if articles.has_previous %}
-            <a href="?page={{ articles.previous_page_number }}" class="mdl-button">Antes</a>
-        {% endif %}
-        {% if articles.has_next %}
-            <a href="?page={{ articles.next_page_number }}"class="mdl-button">mais notícias</a>
-        {% endif %}
-      </div>
-    {% endif %}
+<h2>{{ section.title }}</h2>
+{{ section.header|safe }}
+{% for article in articles %}
+    <div class="bs-callout bs-callout-info">
+        <h3><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
+        <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+        <p>{{ article.header|safe}}</p>
     </div>
-</section>
+{% empty %}
+    <div class="bs-callout bs-callout-info">
+        <h3>Nada encontrado...</h3>
+    </div>
+{% endfor %}
+{% if articles.has_previous or articles.has_next %}
+<div align="center">
+    <ul class="pagination">
+        {% if articles.has_previous %}
+            <li><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+        {% endif %}
+
+        <li class="active"><a href="#">{{ articles.number }} de {{ articles.paginator.num_pages }}<span class="sr-only"></span></a></li>
+
+        {% if articles.has_next %}
+            <li><a href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}

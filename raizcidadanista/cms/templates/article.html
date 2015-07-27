@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load cms_tags bootstrap_google %}
+{% load cms_tags bootstrap %}
 
 {% block title %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
 {% block ogtitle %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
@@ -7,55 +7,47 @@
 {% block description %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
 {% block ogdescription %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
 
-{% block main_content %}
+{% block main %}
     <h3>{{ article.title }}</h3>
     {{ article.content|safe }}
     
     {% if article.allow_comments != 'N' %}
-        <h4>Comentários</h4>
+        <h3>Comentários</h3>
         {% for comment in article.articlecomment_set.all %}
-            <div class="bs-callout">
-                <h5>{{ comment.author }}</h5>
-                <div class="demo-crumbs mdl-color-text--grey-500">{{ comment.created_at|date:"d \d\e F \d\e Y" }}</div>
+            <div class="bs-callout bs-callout-info">
+                <h4>{{ comment.author }}</h4>
+                <small>{{ comment.created_at|date:"d \d\e F \d\e Y" }}</small>
                 <p>{{ comment.comment }}</p>
             </div>
         {% endfor %}
 
         {% if article.allow_comments == 'A' %}
-        <form class="form-comment" action="" method="POST">{% csrf_token %}
-            {% for field in form %}
-                <div class="{% if field.errors %} is-invalid{% endif %}">
-                    <div class="mdl-textfield mdl-js-textfield textfield-demo">
-                    {% if field|btischeckbox %}
-                        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="id_{{ field.name }}">
-                            {{ field|btform }}
-                            <span class="mdl-checkbox__label">{{ field.label }}</span>
-                        </label>
-                    {% else %}
-                        {{ field|btform }}
-                        <label class="mdl-textfield__label" for="id_{{ field.name }}">{{ field.label }}</label>
-                    {% endif %}
-                    {% if field.errors %}
-                        {% for error in field.errors %}
-                            <span class="mdl-textfield__error">{{ error }}</span>
+            <form action="" method="POST">{% csrf_token %}
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        {% for field in form %}
+                            <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                {% if field|btischeckbox %}
+                                    {{ field|btform }}
+                                    <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}</label>
+                                {% else %}
+                                    <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}</label>
+                                    {{ field|btform }}
+                                {% endif %}
+                                {% if field.errors %}
+                                    <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+                                    <ul class="list-unstyled">
+                                    {% for error in field.errors %}
+                                      <li class="text-error"><small>{{ error }}</small></li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
                         {% endfor %}
-                    {% endif %}
+                        <button style="float: right;" type="submit" class="btn btn-default btn-primary">Comentar</button>
                     </div>
                 </div>
-            {% endfor %}
-            <button  type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
-              Comentar
-            </button>
-        </form>
+            </form>
         {% endif %}
     {% endif %}
-{% endblock %}
-
-{% block css %}
-<style type="text/css">
-    .bs-callout {
-        padding: 10px 20px;
-        border-left: 3px solid #eee;
-    }
-</style>
 {% endblock %}

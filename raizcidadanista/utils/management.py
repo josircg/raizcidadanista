@@ -10,11 +10,13 @@ def update_contenttypes(app, **kwargs):
         app = app.__name__.split('.')[-2]
 
     for ct in ContentType.objects.filter(app_label=app):
-        name = smart_unicode(ct.model_class()._meta.verbose_name_raw)
-        if ct.name != name:
-            print "Updating ContentType's name: '%s' -> '%s'" % (ct.name, name)
-            ct.name=name
-            ct.save()
+        try:
+            name = smart_unicode(ct.model_class()._meta.verbose_name_raw)
+            if ct.name != name:
+                print "Updating ContentType's name: '%s' -> '%s'" % (ct.name, name)
+                ct.name=name
+                ct.save()
+        except: pass
 
 # Se tiver a aplicação south no INSTALLED_APPS,
 # ele conecta o update_contenttypes ao post_migrate

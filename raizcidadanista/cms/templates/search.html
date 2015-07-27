@@ -13,28 +13,31 @@
 
 
 {% block main %}
-<section class="mdl-card mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--12-col mdl-cell--12-col-desktop">
-    <div class="mdl-card mdl-cell mdl-cell--12-col">
-      <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
-        <h4 class="mdl-cell mdl-cell--12-col">Pesquisando por "{{ q }}"</h4>
-        {% for result in results %}
-          <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-            <h5>{{ result.object.title }}</h5>
-            {{ result.object.header|safe }}<a href="{{ result.object.get_absolute_url }}">Leia mais</a>.
-          </div>
-        {% endfor %}
-      </div>
-
-      {% if results.has_previous or results.has_next %}      
-      <div class="mdl-card__actions" style="text-align: center">
-        {% if results.has_previous %}
-            <a href="?page={{ results.previous_page_number }}&q={{ q }}" class="mdl-button">Antes</a>
-        {% endif %}
-        {% if results.has_next %}
-            <a href="?page={{ results.next_page_number }}&q={{ q }}"class="mdl-button">mais notícias</a>
-        {% endif %}
-      </div>
-    {% endif %}
+<h2>Pesquisando por "{{ q }}"</h2>
+{% for result in results %}
+    <div class="bs-callout bs-callout-info">
+        <h3><a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a></h3>
+        <small>{{ result.object.created_at|date:"d \d\e F \d\e Y" }}</small>
+        <p>{{ result.object.header|safe }}</p>
     </div>
-</section>
+{% empty %}
+    <div class="bs-callout bs-callout-info">
+        <h3>Nada encontrado...</h3>
+    </div>
+{% endfor %}
+{% if results.has_previous or results.has_next %}
+<div align="center">
+    <ul class="pagination">
+        {% if results.has_previous %}
+            <li><a href="?page={{ results.previous_page_number }}&q={{ q }}">&laquo;</a></li>
+        {% endif %}
+
+        <li class="active"><a href="#">{{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span></a></li>
+
+        {% if results.has_next %}
+            <li><a href="?page={{ results.next_page_number }}&q={{ q }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,303 +1,200 @@
-/**
- * Copyright 2015 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* GLOBAL STYLES
+-------------------------------------------------- */
+/* Padding below the footer and lighter body text */
 
-html, body {
-  font-family: 'Roboto', 'Helvetica', sans-serif;
-  margin: 0;
-  padding: 0;
+body {
+  padding-bottom: 40px;
+  color: #5a5a5a;
 }
-.mdl-demo .mdl-layout__header-row {
-  padding-left: 40px;
-  height: 100%;
+
+a {
+  color: #2f7a35;
 }
-.mdl-demo .mdl-layout.is-small-screen .mdl-tabs-container {
-  display: none;
+a:focus, a:hover, .pagination>li>a, .pagination>li>span, .pagination>li>a:focus, .pagination>li>a:hover, .pagination>li>span:focus, .pagination>li>span:hover {
+  color: #2f7a35;
 }
-.mdl-demo .mdl-layout.is-small-screen .mdl-layout__header-row {
-  padding-left: 60px;
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+  background-color: #2f7a35;
+  border-color: #2f7a35
 }
-.mdl-demo .mdl-layout.is-small-screen .mdl-layout__header-row h3 {
-  font-size: inherit;
+
+.bs-callout-info {
+    border-color: #2f7a35;
 }
-.mdl-demo .mdl-tabs-button {
-  display: none;
+.bs-callout {
+    margin: 20px 0;
+    padding: 20px;
+    border-left: 4px solid #2f7a35;
 }
-.mdl-demo .mdl-layout:not(.is-small-screen) .mdl-layout__drawer-button {
-  display: none;
+
+
+/* CUSTOMIZE THE NAVBAR
+-------------------------------------------------- */
+
+/* Special class on .container surrounding .navbar, used for positioning it into place. */
+.navbar-wrapper {
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
 }
-.mdl-demo .is-small-screen .mdl-layout__header-row {
-  display: none;
+
+.navbar-search {
+  margin: 31px 0px;
 }
-.mdl-layout__drawer {
-  background: rgb(148,193,30);
+
+/* Flip around the padding for proper display in narrow viewports */
+.navbar-wrapper > .container {
+  padding-right: 0;
+  padding-left: 0;
 }
-.mdl-layout__drawer img {
-  width: 100%;
+.navbar-wrapper .navbar {
+  padding-right: 15px;
+  padding-left: 15px;
+  background-color: #94C11E;
 }
-.mdl-demo .mdl-tabs-container {
-  overflow: visible;
-  height: 64px;
+.navbar-wrapper .navbar .container {
+  width: auto;
 }
-.mdl-demo .mdl-tabs {
-  overflow: visible;
-  position: relative;
-  padding: 0;
-  padding-left: 16px;
-  height: 100%;
-  width: 100%;
+
+.navbar-default .navbar-nav>li>a {
+  color: #2f7a35;
+  font-weight: bold;
 }
-.mdl-demo .mdl-tabs .mdl-layout__tab {
-  height: 67px;
-  line-height: 64px;
+
+.logo {
+  background-color: #94C11E;
+  text-align: center;
 }
-.mdl-demo .mdl-tabs .mdl-layout__tab.is-active::after {
-  background-color: white;
-  height: 4px;
+
+.list-group a {
+  color: #2f7a35;
+  font-weight: bold;
 }
-.mdl-demo main > .mdl-layout__tab-panel {
-  padding: 8px;
-  padding-top: 48px;
+
+.list-group h4 {
+  font-weight: bold;
+  margin-left: 10px;
 }
-.mdl-demo .mdl-card {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
+
+.list-group a.active, .list-group a:hover, .list-group a.active:hover {
+  background-color: #94C11E;
+  border-color: #94C11E;
 }
-.mdl-demo .mdl-card > * {
-  height: auto;
+
+.navbar-default .navbar-nav>.active>a {
+  background-color: #2f7a35;
+  color: #94C11E;
 }
-.mdl-demo .mdl-card .mdl-card__supporting-text {
-  margin: 40px;
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  padding: 0;
-  color: inherit;
-  width: calc(100% - 80px);
+.navbar-default .navbar-nav>.active>a:hover {
+  color: #333;
+  background-color: #2f7a35;
 }
-.mdl-demo.mdl-demo .mdl-card__supporting-text h4 {
-  margin-top: 0;
+
+
+/* CUSTOMIZE THE CAROUSEL
+-------------------------------------------------- */
+
+/* Carousel base class */
+.carousel {
+  height: 500px;
+  margin-bottom: 60px;
+}
+/* Since positioning the image, we need to help out the caption */
+.carousel-caption {
+  z-index: 10;
+}
+
+/* Declare heights because of positioning of img element */
+.carousel .item {
+  height: 500px;
+}
+.carousel-inner > .item > img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  height: 500px;
+}
+
+
+/* MARKETING CONTENT
+-------------------------------------------------- */
+
+/* Center align the text within the three columns below the carousel */
+.marketing .col-lg-4 {
   margin-bottom: 20px;
+  text-align: center;
 }
-.mdl-demo .mdl-card__actions {
-  margin: 0;
-  padding: 4px 40px;
-  color: inherit;
+.marketing h2 {
+  font-weight: normal;
 }
-.mdl-demo .mdl-card__actions a {
-  color: #00BCD4;
-  margin: 0;
-}
-.mdl-demo .mdl-card__actions a:hover,
-.mdl-demo .mdl-card__actions a:active {
-  color: inherit;
-  background-color: transparent;
-}
-.mdl-demo .mdl-card__supporting-text + .mdl-card__actions {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-.mdl-demo #add {
-  position: absolute;
-  right: 40px;
-  top: 36px;
-  z-index: 999;
+.marketing .col-lg-4 p {
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
-.mdl-demo section.mdl-content {
-  padding: 40px;
-}
-.mdl-demo section.mdl-content img{
-  max-width: 100%;
-}
-.mdl-demo .mdl-layout__content section:not(:last-of-type) {
-  position: relative;
-  margin-bottom: 48px;
-}
-.mdl-demo #features section.section--center {
-  max-width: 620px;
-}
-.mdl-demo section > header{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-}
-.mdl-demo section > .section__play-btn {
-  min-height: 200px;
-}
-.mdl-demo section > header > .material-icons {
-  font-size: 3rem;
-}
-.mdl-demo section > button {
-  position: absolute;
-  z-index: 99;
-  top: 8px;
-  right: 8px;
-}
-.mdl-demo section .section__circle {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-flex: 0;
-  -webkit-flex-grow: 0;
-      -ms-flex-positive: 0;
-          flex-grow: 0;
-  -webkit-flex-shrink: 1;
-      -ms-flex-negative: 1;
-          flex-shrink: 1;
-}
-.mdl-demo section .section__text {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  -webkit-flex-shrink: 0;
-      -ms-flex-negative: 0;
-          flex-shrink: 0;
-  padding-top: 8px;
-}
-.mdl-demo .section__text h5 {
-  font-size: inherit;
-  margin: 0;
-  margin-bottom: 0.5em;
-}
-.mdl-demo .section__text a {
-  text-decoration: none;
-}
-.mdl-demo section .section__circle-container > .section__circle-container__circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
-  margin: 8px 0;
-}
-.mdl-demo section.section--footer .section__circle--big {
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  margin: 8px 32px;
-}
-.mdl-demo .is-small-screen section.section--footer .section__circle--big {
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
-  margin: 8px 16px;
-}
-.mdl-demo section.section--footer {
-  padding: 64px 0;
-  margin: 0 -8px -8px -8px;
-}
-.mdl-demo section.section--center .section__text:not(:last-child) {
-  border-bottom: 1px solid rgba(0,0,0,.13);
-}
-.mdl-demo .mdl-card .mdl-card__supporting-text > h3:first-child {
-  margin-bottom: 24px;
-}
-.mdl-demo .mdl-layout__tab-panel:not(#overview) {
-  background-color: white;
-}
-.mdl-demo #features section {
-  margin-bottom: 72px;
-}
-.mdl-demo #features h4, #features h5 {
-  margin-bottom: 16px;
-}
-.mdl-demo .toc {
-  border-left: 4px solid #C1EEF4;
-  margin: 24px;
-  padding: 0;
-  padding-left: 8px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-}
-.mdl-demo .toc h4 {
-  font-size: 0.9rem;
-  margin-top: 0;
-}
-.mdl-demo .toc a {
-  color: #4DD0E1;
-  text-decoration: none;
-  font-size: 16px;
-  line-height: 28px;
-  display: block;
-}
-.mdl-demo .mdl-menu__container {
-  z-index: 99;
+
+/* Featurettes
+------------------------- */
+
+.featurette-divider {
+  margin: 80px 0; /* Space out the Bootstrap <hr> more */
 }
 
-.raiz-search-box {
-  -webkit-box-ordinal-group: 3;
-  -webkit-order: 2;
-      -ms-flex-order: 2;
-          order: 2;
-  margin-left: 16px;
-  margin-right: 16px;
+/* Thin out the marketing headings */
+.featurette-heading {
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
 }
-  .raiz-search-box .mdl-textfield__input {
-    color: rgba(0, 0, 0, 0.87);
+
+footer ul {
+  list-style: none;
+  width: 100%;
+  padding: 0px;
+}
+footer ul li {
+  display: inline-block;
+  width: 24%;
+  text-align: center;
+}
+
+
+/* RESPONSIVE CSS
+-------------------------------------------------- */
+
+@media (min-width: 768px) {
+
+  /* Navbar positioning foo */
+  .navbar-wrapper .container {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+  .navbar-wrapper .navbar {
+    padding-right: 0;
+    padding-left: 0;
   }
 
-  .raiz-search-box.is-focused ~ .raiz-navigation-container {
-    opacity: 0;
-    width: 100px;
+  /* The navbar becomes detached from the top, so we round the corners */
+  .navbar-wrapper .navbar {
+    border-radius: 4px;
   }
 
-  .raiz-search-box.is-focused ~ .raiz-mobile-title {
-    opacity: 0;
+  /* Bump up size of carousel content */
+  .carousel-caption p {
+    margin-bottom: 20px;
+    font-size: 21px;
+    line-height: 1.4;
   }
 
-  .raiz-search-box .mdl-textfield__expandable-holder {
-    width: 100%;
+  .featurette-heading {
+    font-size: 50px;
   }
+}
 
-  .raiz-search-box .mdl-button {
-    bottom: 15px;
+@media (min-width: 992px) {
+  .featurette-heading {
+    margin-top: 120px;
   }
-
-  .form-comment .mdl-textfield {
-    width: 100%;
-  }
+}

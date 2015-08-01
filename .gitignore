@@ -64,5 +64,6 @@ raizcidadanista/raizcidadanista.sqlite
 
 # Production
 raizcidadanista/settings/production.py
+raizcidadanista/settings/local.py
 manage.py
 fabfile.py

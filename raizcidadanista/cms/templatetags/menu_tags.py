@@ -1,22 +1,26 @@
 # coding: utf-8
 from django import template
-from cms.models import Menu
+from cms.models import Menu, TipoMenu
+from django.template import loader, Context
 from urlparse import urlparse
 
 
 register = template.Library()
 
 
-@register.inclusion_tag('includes/menu.html', takes_context=True)
-def show_menu(context):
+@register.simple_tag(takes_context=True)
+def show_menu(context, name, template='includes/menu.html'):
     menu_itens_pk = []
-    for menu in Menu.objects.filter(is_active=True):
+    for menu in Menu.objects.filter(tipo__name=name, is_active=True):
         if menu.have_perm(context.get('request').user):
             menu_itens_pk.append(menu.pk)
-    return {
-        'request': context.get('request', None),
-        'menu_itens': Menu.objects.filter(pk__in=menu_itens_pk),
-    }
+
+    return loader.get_template(template).render(Context({
+            'request': context.get('request', None),
+            'menu_itens': Menu.objects.filter(pk__in=menu_itens_pk),
+            'template': template,
+        })
+    )
 
 
 @register.filter

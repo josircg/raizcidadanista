@@ -31,7 +31,7 @@
     <link href="{% static 'site/css/styles.css' %}" rel="stylesheet">
     {% block css %}{% endblock %}
   </head>
-  <body>    
+  <body>
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3">
@@ -41,9 +41,7 @@
 
           {% get_section 'Lateral' as lateral %}
           <div class="list-group">
-            {% for article in lateral.get_articles %}
-            <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
-            {% endfor %}
+            {% show_menu 'Lateral' template='includes/menu_lateral.html' %}
           </div>
           <br>
           {% get_section_articles 'news' as articles_news %}
@@ -89,7 +87,7 @@
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                   <ul class="nav navbar-nav">
-                    {% show_menu %}
+                    {% show_menu 'Topo' %}
                   </ul>
                 </div>
                 {% endblock %}
@@ -107,7 +105,7 @@
                   {% endfor %}
               {% endif %}
           {% endblock messages %}
-          
+
           <div class="main">
           {% block main %}
           {% endblock %}

@@ -1,0 +1,12 @@
+﻿{% extends "admin/edit_form.html" %}
+
+{% block extrahead %}{{ block.super }}
+<style type="text/css">
+.field-name input, .field-parent select, .field-link input, .field-section select, .field-article select {
+    max-width: 15em;
+}
+.field-order input {
+    max-width: 3em;
+}
+</style>
+{% endblock %}

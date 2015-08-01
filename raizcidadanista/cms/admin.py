@@ -28,7 +28,7 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from models import Menu, Section, Article, SectionItem, URLMigrate, \
     FileDownload, ArticleArchive, ArticleComment, EmailAgendado, Recurso, \
-    Permissao, GroupType, GroupItem
+    Permissao, GroupType, GroupItem, TipoMenu
 
 from forms import CustomGroupForm, PowerArticleForm
 
@@ -310,10 +310,24 @@ class ArticleArchiveAdmin(PowerModelAdmin):
 admin.site.register(ArticleArchive, ArticleArchiveAdmin)
 
 
-class MenuAdmin(TreeAdmin):
-    list_display = ('name', 'is_active', )
-    list_editable = ('is_active', )
-admin.site.register(Menu, MenuAdmin)
+class MenuInline(admin.TabularInline):
+    model = Menu
+    extra = 1
+    fields = ('name_display', 'name', 'parent', 'link', 'section', 'order', 'article', 'is_active', )
+    readonly_fields = ('name_display', )
+
+    def queryset(self, request):
+        queryset = super(MenuInline, self).queryset(request)
+        # always order by (tree_id, left)
+        tree_id = queryset.model._mptt_meta.tree_id_attr
+        left = queryset.model._mptt_meta.left_attr
+        return queryset.order_by('order', tree_id, left, )
+
+class TipoMenuAdmin(PowerModelAdmin):
+    list_display = ('name', )
+    inlines = (MenuInline, )
+admin.site.register(TipoMenu, TipoMenuAdmin)
+admin.site.register(Menu)
 
 
 class EmailAgendadoAdmin(PowerModelAdmin):

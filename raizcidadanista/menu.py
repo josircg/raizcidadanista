@@ -35,7 +35,7 @@ class CustomAppList(items.AppList):
 
 
 class CustomMenu(Menu):
-    
+
     def __init__(self, **kwargs):
         Menu.__init__(self, **kwargs)
 
@@ -45,7 +45,7 @@ class CustomMenu(Menu):
             CustomAppList(
                 _(u'Portal'),
                 exclude=('cms.models.EmailAgendado', 'cms.models.Recurso', 'cms.models.Theme', ),
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
+                models=('cms.models.Section', 'cms.models.Article', 'cms.models.TipoMenu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
             ),CustomAppList(
                 _(u'Configurações'),
                 models=('cms.models.Recurso', 'cms.models.Theme', ),

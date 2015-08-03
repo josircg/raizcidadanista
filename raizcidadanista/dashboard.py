@@ -30,7 +30,7 @@ class CustomIndexDashboard(Dashboard):
             modules.ModelList(
                 _(u'Portal'),
                 exclude=('cms.models.EmailAgendado', 'cms.models.Recurso', 'cms.models.Theme', ),
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.TipoMenu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
+                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
             ),
             modules.ModelList(
                 _(u'Configurações'),

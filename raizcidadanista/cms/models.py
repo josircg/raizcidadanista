@@ -123,30 +123,11 @@ class ArticleComment(models.Model):
     def __unicode__(self):
         return u"%s" % (self.author, )
 
-
-class TipoMenu(models.Model):
-    class Meta:
-        verbose_name = u'Menu'
-        verbose_name_plural = u'Menus'
-
-    name = models.SlugField(u'Nome', max_length=50)
-
-    def __unicode__(self):
-        return self.name
-
-
 class Menu(MPTTModel):
-    class Meta:
-        verbose_name = u'Item do menu'
-        verbose_name_plural = u'Itens do menu'
-        ordering = ('order', 'pk', )
-
-    tipo = models.ForeignKey(TipoMenu, blank=True, null=True)
     name = models.CharField(u'Nome', max_length=50)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', verbose_name=u'Pai')
     link = models.CharField(u'URL', max_length=250, null=True, blank=True)
     section = models.ForeignKey('Section', null=True, blank=True, verbose_name=u'Seção')
-    order = models.PositiveIntegerField(u'Ordem', default=0)
     article = ChainedForeignKey(
         Article,
         chained_field='section',
@@ -161,16 +142,6 @@ class Menu(MPTTModel):
     is_active = models.BooleanField(u'Está ativo?', default=True)
 
     objects = ItemManager()
-
-    def name_display(self):
-        parent_name = u''
-        parent = self.parent
-        while parent:
-            parent_name += '---'
-            parent = parent.parent
-        return u'%s %s' % (parent_name, self.name, )
-    name_display.short_description = u'Nome'
-    name_display.admin_order_field = 'name'
 
     def __unicode__(self):
         return self.name

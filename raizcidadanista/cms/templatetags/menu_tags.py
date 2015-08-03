@@ -1,6 +1,6 @@
 # coding: utf-8
 from django import template
-from cms.models import Menu, TipoMenu
+from cms.models import Menu
 from django.template import loader, Context
 from urlparse import urlparse
 
@@ -9,9 +9,13 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def show_menu(context, name, template='includes/menu.html'):
+def show_menu(context, name=None, template='includes/menu.html'):
     menu_itens_pk = []
-    for menu in Menu.objects.filter(tipo__name=name, is_active=True):
+    itens = Menu.objects.filter(is_active=True)
+    if name:
+        parent = Menu.objects.get_or_create(name=name)[0]
+        itens = parent.get_descendants()
+    for menu in itens:
         if menu.have_perm(context.get('request').user):
             menu_itens_pk.append(menu.pk)
 

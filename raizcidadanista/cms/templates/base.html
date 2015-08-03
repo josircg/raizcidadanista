@@ -38,10 +38,8 @@
           <div class="logo panel panel-default">
             {{ header.header|safe }}
           </div>
-
-          {% get_section 'Lateral' as lateral %}
           <div class="list-group">
-            {% show_menu 'Lateral' template='includes/menu_lateral.html' %}
+            {% show_menu 'Menu Lateral' template='includes/menu_lateral.html' %}
           </div>
           <br>
           {% get_section_articles 'news' as articles_news %}
@@ -87,7 +85,7 @@
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                   <ul class="nav navbar-nav">
-                    {% show_menu 'Topo' %}
+                    {% show_menu 'Menu Topo' %}
                   </ul>
                 </div>
                 {% endblock %}

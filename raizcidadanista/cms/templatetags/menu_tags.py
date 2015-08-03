@@ -14,7 +14,7 @@ def show_menu(context, name=None, template='includes/menu.html'):
     itens = Menu.objects.filter(is_active=True)
     if name:
         parent = Menu.objects.get_or_create(name=name)[0]
-        itens = parent.get_descendants()
+        itens = parent.get_descendants().filter(is_active=True)
     for menu in itens:
         if menu.have_perm(context.get('request').user):
             menu_itens_pk.append(menu.pk)

@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
 from django.contrib.admin.util import flatten_fieldsets
+from django.forms.models import modelform_factory
+
+from functools import partial
 
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
@@ -53,8 +56,8 @@ class CirculoEventoCirculoInline(admin.TabularInline):
             return ()
 
 class CirculoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('uf',)
-    list_fields = ('titulo','tipo','uf','oficial',)
 
     fieldsets_comissao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
@@ -79,10 +82,20 @@ class CirculoAdmin(admin.ModelAdmin):
         if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Comissão').exists()):
             return ()
         else:
-            return ('titulo','descricao','tipo','uf','municipio','dtcadastro','site_externo')
+            return ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo')
+
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {
+            "form": self.form,
+            "fields": flatten_fieldsets(self.get_fieldsets(request, obj)),
+            "exclude": self.get_readonly_fields(request, obj),
+            "formfield_callback": partial(self.formfield_for_dbfield, request=request),
+        }
+        defaults.update(kwargs)
+        return modelform_factory(self.model, **defaults)
 
     def save_model(self, request, obj, form, change):
-        obj.save()
+        return super(CirculoAdmin, self).save_model(request, obj, form, change)
 #        if not change:
 #            try:
 #                membro = Membro.objects.get(usuario=request.user)

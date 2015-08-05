@@ -2,6 +2,21 @@
 {% load cms_tags %}
 
 {% block main %}
-    {% get_article 'home' as home %}
-    {{ home.content|safe }}
+    {% get_section_articles 'home' as articles %}
+
+        <div class="row">
+    {% for article in articles %}
+
+          <div class="col-sm-6 col-md-6">
+            <div class="thumbnail">
+              <div class="caption">
+                <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                <p>{{ article.header|safe}}</p>
+                <p><a href="{{ article.get_absolute_url }}" class="btn btn-primary" role="button">Leia mais</a></p>
+              </div>
+            </div>
+          </div>
+    {% endfor %}
+        </div>
 {% endblock %}

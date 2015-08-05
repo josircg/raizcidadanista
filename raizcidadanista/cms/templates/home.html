@@ -4,19 +4,34 @@
 {% block main %}
     {% get_section_articles 'home' as articles %}
 
-        <div class="row">
-    {% for article in articles %}
-
-          <div class="col-sm-6 col-md-6">
+    <div class="row">
+        <div class="col-md-6">
+        {% for article in articles %}
+            {% if forloop.counter == 1 or forloop.counter|divisibleby:"3" %}
             <div class="thumbnail">
-              <div class="caption">
-                <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
-                <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-                <p>{{ article.header|safe}}</p>
-                <p><a href="{{ article.get_absolute_url }}" class="btn btn-primary" role="button">Leia mais</a></p>
-              </div>
+                <div class="caption">
+                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                    <p>{{ article.header|safe}}</p>
+                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-primary" role="button">Leia mais</a></p>
+                </div>
             </div>
-          </div>
-    {% endfor %}
+            {% endif %}
+        {% endfor %}
         </div>
+        <div class="col-md-6">
+        {% for article in articles %}
+            {% if forloop.counter|divisibleby:"2" %}
+            <div class="thumbnail">
+                <div class="caption">
+                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                    <p>{{ article.header|safe}}</p>
+                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-primary" role="button">Leia mais</a></p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
 {% endblock %}

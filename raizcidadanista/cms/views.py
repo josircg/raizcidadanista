@@ -11,12 +11,36 @@ from django.contrib import messages
 from django.conf import settings
 from django.db.models import Q
 
+from municipios.models import UF
+from cadastro.models import Circulo
+
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
 from forms import ArticleCommentForm, CMSUserCreationForm
 
 import mimetypes, os
 
+
+class CirculosView(TemplateView):
+    template_name = 'circulos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CirculosView, self).get_context_data(**kwargs)
+        circulos = []
+        for uf in UF.objects.all().order_by('nome'):
+            queryset = Circulo.objects.filter(uf=uf)
+            if queryset:
+                cidades = []
+                for query in queryset:
+                    if query.site_externo:
+                        cidades.append(u'<a href="%s" target="_blank">%s</a>' % (query.site_externo, query.municipio, ))
+                    else:
+                        cidades.append(query.municipio)
+                circulos.append((uf.nome, u"Cidades: %s" % (u", ".join(cidades))))
+            else:
+                circulos.append((uf.nome, u"Ainda não existe nenhum círculo em seu estado."))
+        context['circulos'] = circulos
+        return context
 
 class ArticleDetailView(DetailView):
     model = Article

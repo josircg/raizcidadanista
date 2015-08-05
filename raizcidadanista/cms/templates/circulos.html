@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title></title>
+    <style type="text/css" media="screen">
+        #box-cidades{width: 275px; padding: 10px; display: none;}
+    </style>
+</head>
+<body>
+    <label>
+        Selecione o seu estado:<br>
+        <select id="select-uf-circulo">
+            <option cidades="">---</option>
+            {% for uf, cidades in circulos %}
+            <option cidades="{{ cidades }}">{{ uf }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <br>
+    <div id="box-cidades">
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('#select-uf-circulo').change(function(event) {
+            $('#box-cidades').show();
+            $('#box-cidades').html($(this).find('option:selected').attr('cidades'));
+        });
+    </script>
+</body>
+</html>

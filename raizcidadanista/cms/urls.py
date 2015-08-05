@@ -6,6 +6,7 @@ from cms.sitemap import sitemaps
 urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^pesquisa/$', SearchView.as_view(), name='search'),
+    url(r'^circulos/$', CirculosView.as_view(), name='circulos'),
     url(r'^section/(?P<slug>[-_\w]+)/$', SectionDetailView.as_view(), name='section'),
     url(r'^download/(?P<file_uuid>[-_\w]+)/$', FileDownloadView.as_view(), name='download'),
     url(r'^link/a/(?P<article_slug>[-_\w]+)/$', LinkConversionView.as_view(), name='link'),
@@ -25,6 +26,6 @@ urlpatterns = patterns('',
         kwargs={'template_name': 'auth/password_reset_confirm.html',},
         name='cms_password_reset_confirm'),
     url(r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete', kwargs={'template_name': 'auth/password_reset_complete.html',}, name='cms_password_reset_complete'),
-    
+
     url(r'^(?P<slug>[-_\w]+)/$', ArticleDetailView.as_view(), name='article'),
 )

@@ -61,7 +61,7 @@ class Membro(Pessoa):
             return
 
         if not self.usuario:
-            grupo = Group.objects.get(name='Membro')
+            grupo = Group.objects.get_or_create(name=u'Colaborador')[0]
             login = self.email.split('@')[0]
             cont = 1
             while User.objects.filter(username=login).count() > 0:

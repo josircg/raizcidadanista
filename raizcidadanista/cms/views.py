@@ -33,10 +33,10 @@ class CirculosView(TemplateView):
                 cidades = []
                 for query in queryset:
                     if query.site_externo:
-                        cidades.append(u'<a href="%s" target="_blank">%s</a>' % (query.site_externo, query.municipio, ))
+                        cidades.append(u'<li><a href="%s" target="_blank">%s%s</a></li>' % (query.site_externo, query.titulo, u'(%s)' % query.municipio if query.municipio else '', ))
                     else:
-                        cidades.append(query.municipio)
-                circulos.append((uf.nome, u"Cidades: %s" % (u", ".join(cidades))))
+                        cidades.append(u'<li>%s%s</li>' % (query.titulo, u'(%s)' % query.municipio if query.municipio else ''))
+                circulos.append((uf.nome, u"Circulos:<br><ul>%s</ul>" % u''.join(cidades)))
             else:
                 circulos.append((uf.nome, u"Ainda não existe nenhum círculo em seu estado."))
         context['circulos'] = circulos

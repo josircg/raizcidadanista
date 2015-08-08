@@ -34,6 +34,25 @@ h3, .title-news b {
     border-left: 4px solid #2f7a35;
 }
 
+.btn-success {
+    color: #2f7a35;
+    background-color: #94C11E;
+    font-weight: bold;
+    border: 0;
+    border-radius: 0;
+    text-transform: uppercase;
+
+}
+.btn-success:hover, .btn-success:active {
+    color: #333;
+    background-color: #94C11E;
+    font-weight: bold;
+    border: 0;
+    border-radius: 0;
+    text-transform: uppercase;
+
+}
+
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 

@@ -56,7 +56,7 @@
           <div class="list-group">
             <h3 class="title-news">REDES SOCIAIS</h3>
             {% for article in articles_redes_sociais %}
-            <a class="list-group-item">{{ article.header|safe }}</a>
+            {{ article.header|safe }}
             {% endfor %}
           </div>
           {% endif %}

@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from django.http import HttpResponseRedirect
 # PYTHON IMPORTS
 import os
 from tempfile import NamedTemporaryFile
@@ -86,3 +86,12 @@ def rotate_180(request, fileobjects):
     transpose_image(request, fileobjects, 3)
 rotate_180.short_description = _(u'Rotate 180°')
 rotate_180.applies_to = applies_to_all_images
+
+
+def move(request, fileobjects):
+    if request.POST.get('path_to'):
+        old = fileobjects[0].path_full
+        to = os.path.join(request.POST.get('path_to'), fileobjects[0].filename)
+        os.rename(old, to)
+move.short_description = _(u'Mover')
+move.applies_to = applies_to_all_images

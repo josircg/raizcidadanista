@@ -10,6 +10,23 @@
     <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
 {% endblock %}
 
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function($) {
+            $('.path_to').hide();
+            $('#id_custom_action').change(function(event) {
+                if($(this).val() == 'move'){
+                    $('.path_to').show();
+                    $('.submit-row input[name="_continue"]').hide();
+                }else{
+                    $('.path_to').hide();
+                    $('.submit-row input[name="_continue"]').show();
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
 <!-- COLTYPE/BODYCLASS -->
 {% block bodyclass %}change-form filebrowser{% if query.pop %} popup{% endif %}{% endblock %}
 {% block coltype %}colM{% endblock %}
@@ -42,6 +59,14 @@
                         <label class="required" for="id_custom_action">{{ form.custom_action.label }}</label>
                         {{ form.custom_action }}
                         {% if form.custom_action.help_text %}<p class="help">{{ form.custom_action.help_text|safe }}</p>{% endif %}
+                    </div>
+                </div>
+                <div class="form-row path_to {% if form.path_to.errors %}errors{% endif %}">
+                    {% if form.path_to.errors %}{{ form.path_to.errors }}{% endif %}
+                    <div>
+                        <label class="required" for="id_path_to">{{ form.path_to.label }}</label>
+                        {{ form.path_to }}
+                        {% if form.path_to.help_text %}<p class="help">{{ form.path_to.help_text|safe }}</p>{% endif %}
                     </div>
                 </div>
             </fieldset>

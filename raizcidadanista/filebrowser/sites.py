@@ -476,36 +476,36 @@ class FileBrowserSite(object):
                 new_name = form.cleaned_data['name']
                 new_file = form.cleaned_data['file']
                 action_name = form.cleaned_data['custom_action']
-                try:
-                    action_response = None
-                    if action_name:
-                        action = self.get_action(action_name)
-                        # Pre-action signal
-                        signals.filebrowser_actions_pre_apply.send(sender=request, action_name=action_name, fileobject=[fileobject], site=self)
-                        # Call the action to action
-                        action_response = action(request=request, fileobjects=[fileobject])
-                        # Post-action signal
-                        signals.filebrowser_actions_post_apply.send(sender=request, action_name=action_name, fileobject=[fileobject], result=action_response, site=self)
-                    if new_name != fileobject.filename:
-                        signals.filebrowser_pre_rename.send(sender=request, path=fileobject.path, name=fileobject.filename, new_name=new_name, site=self)
-                        fileobject.delete_versions()
-                        self.storage.move(fileobject.path, os.path.join(fileobject.head, new_name))
-                        signals.filebrowser_post_rename.send(sender=request, path=fileobject.path, name=fileobject.filename, new_name=new_name, site=self)
-                        messages.add_message(request, messages.SUCCESS, _('Renaming was successful.'))
-                        return HttpResponseRedirect('%s?dir=%s&filename=%s' % (reverse('fb_detail'), query.get('dir', ''), new_name))
+                # try:
+                action_response = None
+                if action_name:
+                    action = self.get_action(action_name)
+                    # Pre-action signal
+                    signals.filebrowser_actions_pre_apply.send(sender=request, action_name=action_name, fileobject=[fileobject], site=self)
+                    # Call the action to action
+                    action_response = action(request=request, fileobjects=[fileobject])
+                    # Post-action signal
+                    signals.filebrowser_actions_post_apply.send(sender=request, action_name=action_name, fileobject=[fileobject], result=action_response, site=self)
+                if new_name != fileobject.filename:
+                    signals.filebrowser_pre_rename.send(sender=request, path=fileobject.path, name=fileobject.filename, new_name=new_name, site=self)
+                    fileobject.delete_versions()
+                    self.storage.move(fileobject.path, os.path.join(fileobject.head, new_name))
+                    signals.filebrowser_post_rename.send(sender=request, path=fileobject.path, name=fileobject.filename, new_name=new_name, site=self)
+                    messages.add_message(request, messages.SUCCESS, _('Renaming was successful.'))
+                    return HttpResponseRedirect('%s?dir=%s&filename=%s' % (reverse('fb_detail'), query.get('dir', ''), new_name))
 
-                    if new_file != fileobject.read:
-                        fileobject.write(new_file)
-                        messages.add_message(request, messages.SUCCESS, u'Arquivo editado com sucesso!')
-                    if isinstance(action_response, HttpResponse):
-                        return action_response
-                    if "_continue" in request.POST:
-                        redirect_url = reverse("filebrowser:fb_detail", current_app=self.name) + query_helper(query, "filename="+new_name, "filename")
-                    else:
-                        redirect_url = reverse("filebrowser:fb_browse", current_app=self.name) + query_helper(query, "", "filename")
-                    return HttpResponseRedirect(redirect_url)
-                except OSError:
-                    form.errors['name'] = forms.util.ErrorList([_('Error.')])
+                if fileobject.filetype == "Code" and new_file != fileobject.read:
+                    fileobject.write(new_file)
+                    messages.add_message(request, messages.SUCCESS, u'Arquivo editado com sucesso!')
+                if isinstance(action_response, HttpResponse):
+                    return action_response
+                if "_continue" in request.POST:
+                    redirect_url = reverse("filebrowser:fb_detail", current_app=self.name) + query_helper(query, "filename="+new_name, "filename")
+                else:
+                    redirect_url = reverse("filebrowser:fb_browse", current_app=self.name) + query_helper(query, "", "filename")
+                return HttpResponseRedirect(redirect_url)
+                # except OSError:
+                #     form.errors['name'] = forms.util.ErrorList([_('Error.')])
         else:
             form = ChangeForm(initial={"name": fileobject.filename}, path=path, fileobject=fileobject, filebrowser_site=self)
 
@@ -595,9 +595,10 @@ storage = DefaultStorage()
 site = FileBrowserSite(name='filebrowser', storage=storage)
 
 # Default actions
-from filebrowser.actions import flip_horizontal, flip_vertical, rotate_90_clockwise, rotate_90_counterclockwise, rotate_180
+from filebrowser.actions import flip_horizontal, flip_vertical, rotate_90_clockwise, rotate_90_counterclockwise, rotate_180, move
 site.add_action(flip_horizontal)
 site.add_action(flip_vertical)
 site.add_action(rotate_90_clockwise)
 site.add_action(rotate_90_counterclockwise)
 site.add_action(rotate_180)
+site.add_action(move)

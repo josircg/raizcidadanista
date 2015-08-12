@@ -9,7 +9,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 # FILEBROWSER IMPORTS
-from filebrowser.settings import FOLDER_REGEX
+from filebrowser.settings import FOLDER_REGEX, DIRECTORY, MEDIA_ROOT
 from filebrowser.utils import convert_filename
 
 ALNUM_NAME_RE = re.compile(FOLDER_REGEX, re.U)
@@ -55,6 +55,7 @@ class ChangeForm(forms.Form):
     """
 
     custom_action = forms.ChoiceField(label=_(u'Actions'), required=False)
+    path_to = forms.ChoiceField(label=u'Para', required=False)
     name = forms.CharField(widget=forms.TextInput(attrs=dict({'class': 'vTextField'}, max_length=50, min_length=3)), label=_(u'Name'), help_text=_(u'Only letters, numbers, underscores, spaces and hyphens are allowed.'), required=True)
     file = forms.CharField(widget=forms.TextInput(attrs=dict({'class': 'vLargeTextField'})), label=_(u'Arquivo'), required=False)
 
@@ -65,10 +66,17 @@ class ChangeForm(forms.Form):
         super(ChangeForm, self).__init__(*args, **kwargs)
 
         # Initialize choices of custom action
-        choices = [("", u"-----")]
+        custom_action_choices = [("", u"-----")]
         for name, action in self.site.applicable_actions(self.fileobject):
-            choices.append((name, action.short_description))
-        self.fields['custom_action'].choices = choices
+            custom_action_choices.append((name, action.short_description))
+        self.fields['custom_action'].choices = custom_action_choices
+        # Initialize choices of path_to
+        path_to_choices = [("", u"-----")]
+        FULL_DIRECTORY = os.path.join(MEDIA_ROOT, DIRECTORY)
+        for path in os.walk(FULL_DIRECTORY):
+            path_to_choices.append((path[0], path[0].replace(FULL_DIRECTORY, '/')))
+        self.fields['path_to'].choices = path_to_choices
+
 
     def clean_name(self):
         "validate name"

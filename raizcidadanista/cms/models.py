@@ -86,6 +86,12 @@ class Article(models.Model):
             images.append(img_rex[3])
         return images
 
+    def first_image(self):
+        images = self.get_images()
+        if images:
+            return images[0]
+        return None
+
     def get_comments(self):
         return self.articlecomment_set.filter(active=True)
 

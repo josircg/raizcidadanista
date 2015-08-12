@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load cms_tags bootstrap %}
+{% load cms_tags bootstrap thumbnail %}
 
 {% block title %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
 {% block ogtitle %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}

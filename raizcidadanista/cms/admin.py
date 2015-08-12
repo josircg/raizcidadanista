@@ -150,28 +150,12 @@ class ArticleCommentInline(admin.TabularInline):
 class ArticleAdmin(PowerModelAdmin):
     list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
     list_editable = ('is_active', )
-<<<<<<< HEAD
-    list_filter = ('created_at', )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    multi_search = (
-       ('q1', 'Título', ['title']),
-       ('q2', 'Conteúdo', ['content']),
-       ('q3', 'Seção', ['sectionitem__section__title']),
-   )
-=======
-    multi_search = ('title', 'keywords', )
->>>>>>> 1651c9a... Multi-Search no artigo
-=======
-=======
->>>>>>> 890cad0... Multi-Search Artigo
     multi_search = (
        ('q1', 'Título', ['title']),
        ('q2', 'Conteúdo', ['content']),
        ('q3', 'Palavras Chaves', ['keywords']),
        ('q4', 'Seção', ['sectionitem__section__title']),
     )
->>>>>>> 2f4dba2... Multi-Search Artigo
     prepopulated_fields = {'slug': ('title',)}
     fieldsets = (
         (None, {

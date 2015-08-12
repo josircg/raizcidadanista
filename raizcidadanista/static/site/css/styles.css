@@ -98,10 +98,12 @@ h3, .title-news b {
 .logo {
   background-color: #94C11E;
   text-align: center;
+  min-height: 164px;
 }
 
 .logo img {
   width: 100%;
+  margin-top: 20px;
 }
 
 .list-group {

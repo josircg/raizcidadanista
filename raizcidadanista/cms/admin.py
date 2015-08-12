@@ -151,7 +151,11 @@ class ArticleAdmin(PowerModelAdmin):
     list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
     list_editable = ('is_active', )
     list_filter = ('created_at', )
-    multi_search = ('title', 'keywords', )
+    multi_search = (
+       ('q1', 'Título', ['title']),
+       ('q2', 'Conteúdo', ['content']),
+       ('q3', 'Palavras Chaves', ['keywords']),
+    )
     prepopulated_fields = {'slug': ('title',)}
     fieldsets = (
         (None, {

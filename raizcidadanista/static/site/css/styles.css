@@ -100,6 +100,10 @@ h3, .title-news b {
   text-align: center;
 }
 
+.logo img {
+  width: 100%;
+}
+
 .list-group {
   border: 0;
 }

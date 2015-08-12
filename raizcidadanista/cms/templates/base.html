@@ -32,7 +32,7 @@
     {% block css %}{% endblock %}
   </head>
   <body>
-    <div class="container-fluid">
+    <div class="container-fluid body">
       <div class="row">
         <div class="col-md-3">
           <div class="logo panel panel-default">
@@ -42,10 +42,10 @@
             {% show_menu 'Menu Lateral' template='includes/menu_lateral.html' %}
           </div>
           <br>
-          {% get_section_articles 'news' as articles_news %}
+          {% get_section_articles 'principios' as articles_principios %}
           <div class="list-group">
-            <h3 class="title-news"><b>RAíZ</b> NOTÍCIAS</h3>
-            {% for article in articles_news %}
+            <h3 class="title-news">PRINCÍPIOS DA <b>RAiZ</b></h3>
+            {% for article in articles_principios %}
             <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
             {% endfor %}
           </div>

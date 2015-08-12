@@ -100,6 +100,10 @@ h3, .title-news b {
   text-align: center;
 }
 
+.logo img {
+  width: 100%;
+}
+
 .list-group {
   border: 0;
 }
@@ -126,6 +130,15 @@ h3, .title-news b {
   background-color: #2f7a35;
 }
 
+
+@media (min-width: 992px){
+  .body .col-md-3 {
+      width: 20% !important;
+  }
+  .body .col-md-9 {
+      width: 80% !important;
+  }
+}
 
 /* main
 ------------------------- */

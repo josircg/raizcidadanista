@@ -107,7 +107,7 @@ h3, .title-news b {
 .list-group {
   border: 0;
 }
-.list-group a {
+.list-group .list-group-item {
   border: 0px;
   border-bottom-right-radius: 0px !important;
   border-bottom-left-radius: 0px !important;
@@ -116,7 +116,7 @@ h3, .title-news b {
   margin-bottom: 0px;
 }
 
-.list-group a.active, .list-group a:hover, .list-group a.active:hover {
+.list-group .list-group-item.active, .list-group .list-group-item:hover, .list-group .list-group-item.active:hover {
   background-color: #fff;
   color: #A6CE39 !important;
 }
@@ -129,7 +129,6 @@ h3, .title-news b {
   color: #333;
   background-color: #2f7a35;
 }
-
 
 @media (min-width: 992px){
   .body .col-md-3 {

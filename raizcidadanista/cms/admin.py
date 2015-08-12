@@ -148,7 +148,7 @@ class ArticleCommentInline(admin.TabularInline):
     readonly_fields = ('created_at', 'author', 'comment')
 
 class ArticleAdmin(PowerModelAdmin):
-    list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
+    list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', 'get_images', )
     list_editable = ('is_active', )
     multi_search = (
        ('q1', 'Título', ['title']),

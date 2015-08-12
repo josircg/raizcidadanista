@@ -58,7 +58,12 @@
       <div class="list-group">
         <h3 class="title-news">ÚLTIMAS NOTÍCIAS</h3>
         {% for article in articles_news %}
-        <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
+            <div class="list-group-item">
+                {% if article.get_images %}<img src="{{ article.get_images|first }}" height="60px" align="left" style="margin-right: 10px;">{% endif %}
+                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a><br>
+                <span>Por: {% firstof article.author.get_full_name article.author.username %}</span><br>
+                <span>{{ article.created_at }}</span><br>
+            </div>
         {% endfor %}
       </div>
     </div>

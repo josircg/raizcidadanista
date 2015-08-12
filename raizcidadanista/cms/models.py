@@ -18,7 +18,7 @@ from fields import ListField
 from datetime import datetime
 from email import resendmail_email_agendado
 
-import os, shutil
+import os, shutil, re
 
 
 class ItemManager(models.Manager):
@@ -60,6 +60,7 @@ class Article(models.Model):
         verbose_name = u'Artigo'
         ordering = ['-created_at', ]
 
+
     def get_absolute_url(self):
         return reverse('article', kwargs={'slug': self.slug})
 
@@ -77,6 +78,13 @@ class Article(models.Model):
             if user.groups.filter(pk__in=section.permissao_set.values_list('pk', flat=True)).exists():
                 return True
         return False
+
+    def get_images(self):
+        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.]*)(".*)(>)')
+        images = []
+        for img_rex in rex.findall(self.content):
+            images.append(img_rex[3])
+        return images
 
     def get_comments(self):
         return self.articlecomment_set.filter(active=True)

@@ -152,6 +152,7 @@ class ArticleAdmin(PowerModelAdmin):
     list_editable = ('is_active', )
     list_filter = ('created_at', )
 <<<<<<< HEAD
+<<<<<<< HEAD
     multi_search = (
        ('q1', 'Título', ['title']),
        ('q2', 'Conteúdo', ['content']),
@@ -160,6 +161,13 @@ class ArticleAdmin(PowerModelAdmin):
 =======
     multi_search = ('title', 'keywords', )
 >>>>>>> 1651c9a... Multi-Search no artigo
+=======
+    multi_search = (
+       ('q1', 'Título', ['title']),
+       ('q2', 'Conteúdo', ['content']),
+       ('q3', 'Palavras Chaves', ['keywords']),
+    )
+>>>>>>> 2f4dba2... Multi-Search Artigo
     prepopulated_fields = {'slug': ('title',)}
     fieldsets = (
         (None, {

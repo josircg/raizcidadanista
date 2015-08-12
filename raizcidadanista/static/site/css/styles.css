@@ -131,6 +131,15 @@ h3, .title-news b {
 }
 
 
+@media (min-width: 992px){
+  .body .col-md-3 {
+      width: 20% !important;
+  }
+  .body .col-md-9 {
+      width: 80% !important;
+  }
+}
+
 /* main
 ------------------------- */
 

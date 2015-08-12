@@ -32,7 +32,7 @@
     {% block css %}{% endblock %}
   </head>
   <body>
-    <div class="container-fluid">
+    <div class="container-fluid body">
       <div class="row">
         <div class="col-md-3">
           <div class="logo panel panel-default">
@@ -44,7 +44,7 @@
           <br>
           {% get_section_articles 'principios' as articles_principios %}
           <div class="list-group">
-            <h3 class="title-news">PRINCÍPIOS <b>RAíZ</b></h3>
+            <h3 class="title-news">PRINCÍPIOS DA <b>RAIZ</b></h3>
             {% for article in articles_principios %}
             <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
             {% endfor %}

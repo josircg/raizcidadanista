@@ -56,7 +56,7 @@
     <div class="col-md-4">
       {% get_section_articles 'news' as articles_news %}
       <div class="list-group">
-        <h3 class="title-news"><b>RAíZ</b> NOTÍCIAS</h3>
+        <h3 class="title-news"><b>RAIZ</b> NOTÍCIAS</h3>
         {% for article in articles_news %}
         <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
         {% endfor %}

@@ -99,6 +99,7 @@ class SectionItemActiveInline(admin.TabularInline):
 class PermissaoSectionInline(admin.TabularInline):
     model = Permissao
     extra = 1
+
 class SectionAdmin(PowerModelAdmin):
     list_display = ['title', 'views', 'conversions', 'num_articles', 'order']
     prepopulated_fields = {'slug': ('title',)}
@@ -121,6 +122,7 @@ admin.site.register(Section, SectionAdmin)
 class GroupItemGroupTypeInline(admin.TabularInline):
     model = GroupItem
     extra = 1
+
 class GroupTypeAdmin(PowerModelAdmin):
     list_display = ['name', 'order']
     search_fields = ('name', )
@@ -138,20 +140,22 @@ class SectionItemInline(admin.TabularInline):
     model = SectionItem
     extra = 0
     verbose_name_plural = u'Seções'
+
 class ArticleCommentInline(admin.TabularInline):
     model = ArticleComment
     extra = 0
     fields = ('created_at', 'author', 'comment', 'active')
     readonly_fields = ('created_at', 'author', 'comment')
+
 class ArticleAdmin(PowerModelAdmin):
     list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
     list_editable = ('is_active', )
-    list_filter = ('created_at', )
     multi_search = (
        ('q1', 'Título', ['title']),
        ('q2', 'Conteúdo', ['content']),
-       ('q3', 'Seção', ['sectionitem__section__title']),
-   )
+       ('q3', 'Palavras Chaves', ['keywords']),
+       ('q4', 'Seção', ['sectionitem__section__title']),
+    )
     prepopulated_fields = {'slug': ('title',)}
     fieldsets = (
         (None, {

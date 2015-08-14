@@ -335,11 +335,10 @@ class EmailAgendadoAdmin(PowerModelAdmin):
         ('q2', 'Assunto', ['subject']),
     )
 
-    class Media:
-        js = [
-            'tiny_mce/tiny_mce.js',
-            'tiny_mce/tiny_mce_settings.js',
-        ]
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ['html']:
+            kwargs['widget'] = CKEditorWidget()
+        return super(EmailAgendadoAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def renviar(self, request, queryset):
         for q in queryset:

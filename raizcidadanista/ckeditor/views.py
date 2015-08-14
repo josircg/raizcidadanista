@@ -53,17 +53,18 @@ def get_thumb_filename(file_name):
 
 
 def create_thumbnail(filename):
-    image = Image.open(filename)
+    if os.path.splitext(filename)[1].lower() in ('png', 'jpg', 'gif', 'jpeg'):
+        image = Image.open(filename)
 
-    # Convert to RGB if necessary
-    # Thanks to Limodou on DjangoSnippets.org
-    # http://www.djangosnippets.org/snippets/20/
-    if image.mode not in ('L', 'RGB'):
-        image = image.convert('RGB')
+        # Convert to RGB if necessary
+        # Thanks to Limodou on DjangoSnippets.org
+        # http://www.djangosnippets.org/snippets/20/
+        if image.mode not in ('L', 'RGB'):
+            image = image.convert('RGB')
 
-    # scale and crop to thumbnail
-    imagefit = ImageOps.fit(image, THUMBNAIL_SIZE, Image.ANTIALIAS)
-    imagefit.save(get_thumb_filename(filename))
+        # scale and crop to thumbnail
+        imagefit = ImageOps.fit(image, THUMBNAIL_SIZE, Image.ANTIALIAS)
+        imagefit.save(get_thumb_filename(filename))
 
 
 def get_media_url(path):
@@ -159,6 +160,8 @@ def get_image_files(user=None):
         for filename in [os.path.join(root, x) for x in files]:
             # bypass for thumbs
             if os.path.splitext(filename)[0].endswith('_thumb'):
+                continue
+            if not os.path.splitext(filename)[1].lower() in ('.png', '.jpg', '.gif', '.jpeg'):
                 continue
             yield filename
 

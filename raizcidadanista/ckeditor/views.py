@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from urlparse import urlparse, urlunparse
 from datetime import datetime
 
@@ -53,7 +54,7 @@ def get_thumb_filename(file_name):
 
 
 def create_thumbnail(filename):
-    if os.path.splitext(filename)[1].lower() in ('png', 'jpg', 'gif', 'jpeg'):
+    if os.path.splitext(filename)[1].lower() in ('.png', '.jpg', '.gif', '.jpeg'):
         image = Image.open(filename)
 
         # Convert to RGB if necessary
@@ -141,7 +142,32 @@ def upload(request):
     </script>""" % (request.GET['CKEditorFuncNum'], url))
 
 
-def get_image_files(user=None):
+def get_json_files(user=None):
+    def path_to_dict(path):
+        if os.path.isdir(path):
+            d = {
+                'name': os.path.basename(path),
+                'path': path.replace(settings.CKEDITOR_UPLOAD_PATH, ''),
+                'type': "folder"
+            }
+            items = []
+            for sub in os.listdir(path):
+                item = path_to_dict(os.path.join(path, sub))
+                if item:
+                    items.append(item)
+            d['items'] = items
+            return d
+        elif os.path.splitext(path)[1].lower() in ('.png', '.jpg', '.gif', '.jpeg') and not '_thumb' in path:
+            d = {
+                'name': os.path.basename(path),
+                'path': path.replace(settings.CKEDITOR_UPLOAD_PATH, ''),
+                'thumb': get_media_url(get_thumb_filename(path)),
+                'src': get_media_url(path),
+                'size': os.path.getsize(path),
+                'type': "file"
+            }
+            return d
+
     """
     Recursively walks all dirs under upload dir and generates a list of
     full paths for each file found.
@@ -156,33 +182,11 @@ def get_image_files(user=None):
 
     browse_path = os.path.join(settings.CKEDITOR_UPLOAD_PATH, user_path)
 
-    for root, dirs, files in os.walk(browse_path):
-        for filename in [os.path.join(root, x) for x in files]:
-            # bypass for thumbs
-            if os.path.splitext(filename)[0].endswith('_thumb'):
-                continue
-            if not os.path.splitext(filename)[1].lower() in ('.png', '.jpg', '.gif', '.jpeg'):
-                continue
-            yield filename
-
-
-def get_image_browse_urls(user=None):
-    """
-    Recursively walks all dirs under upload dir and generates a list of
-    thumbnail and full image URL's for each file found.
-    """
-    images = []
-    for filename in get_image_files(user=user):
-        images.append({
-            'thumb': get_media_url(get_thumb_filename(filename)),
-            'src': get_media_url(filename)
-        })
-
-    return images
+    return json.dumps(path_to_dict(browse_path))
 
 
 def browse(request):
-    context = RequestContext(request, {
-        'images': get_image_browse_urls(request.user),
-    })
-    return render_to_response('browse.html', context)
+    if request.GET.get('type') == 'json':
+        return HttpResponse(get_json_files(request.user), mimetype='application/json')
+    return render_to_response('browse.html', {
+    }, context_instance=RequestContext(request))

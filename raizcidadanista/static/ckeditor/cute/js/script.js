@@ -356,11 +356,19 @@ $(function(){
 
 					var name = u.split('/');
 
+
 					if (i !== breadcrumbsUrls.length - 1) {
-						url += '<a href="'+u+'">' + name[name.length-1] + '</a> › ';
-					}
-					else {
-						url += '<span class="folderName">' + name[name.length-1] + '</span>';
+						if(name[name.length-1] == ''){
+							url += '<a href="'+u+'">uploads</a> › ';
+						}else{
+							url += '<a href="'+u+'">' + name[name.length-1] + '</a> › ';
+						}
+					}else {
+						if(name[name.length-1] == ''){
+							url += '<span class="folderName">uploads</span>';
+						}else{
+							url += '<span class="folderName">' + name[name.length-1] + '</span>';
+						}
 					}
 
 				});

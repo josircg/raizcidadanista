@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^admin/filebrowser/', include(site.urls)),
     url(r'^admin-tools/', include('admin_tools.urls')),
     url(r'^municipios/', include('municipios.urls')),
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico')),
     url(r'^', include('cadastro.urls')),
     #CMS
     url(r'^', include('cms.urls')),

@@ -80,31 +80,31 @@ class Membro(Pessoa):
                 self.usuario.save()
 
 CIRCULO_TIPO = (
-    ('R', u'Regional'),
-    ('G', u'GT'),
-    ('T', u'Temático'),
+    ('R', u'Círculo Regional'),
+    ('G', u'Grupo de Trabalho (GT)'),
+    ('T', u'Círculo Temático'),
 )
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Círculo'
+        verbose_name = u'Grupo'
 
     titulo = models.CharField(u'Título', max_length=80)
     descricao = models.TextField(u'Descricao') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
     uf = models.ForeignKey(UF, blank=True, null=True)
     municipio = models.CharField(u'Município',max_length=150, blank=True, null=True)
-    oficial = models.BooleanField(u'Grupo Oficial', default=False)
+    oficial = models.BooleanField(u'Oficial', default=False)
     dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
 
     def __unicode__(self):
-        return u'Círculo %s' % self.titulo
+        return u'%s %s' % (self.tipo, self.titulo)
 
 class CirculoMembro(models.Model):
     class Meta:
-        verbose_name = u'Círculo do Membro'
-        verbose_name_plural = u'Círculos do Membro'
+        verbose_name = u'Colaborador do Círculo'
+        verbose_name_plural = u'Colaboradores do Círculo'
 
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
@@ -132,31 +132,78 @@ class CirculoEvento(models.Model):
         verbose_name_plural = u'Eventos dos círculos'
 
 # Fóruns - Baseado no modelo de dados do Loomio
-
 '''
+def formata_arquivo_forum(objeto, nome_arquivo):
+    nome, extensao = os.path.splitext(nome_arquivo)
+    return os.path.join('forum', str(uuid.uuid4()) + extensao.lower())
+
 STATUS_DISCUSSAO = (
     ('A', u'Aberto'),
     ('F', u'Fechado'),
-    ('V', u'Votação Iniciada'),
-    ('X', u'Votação Finalizada'),
+    )
+
+STATUS_NOTIFICACAO = (
+    ('N', u'Nenhum'),
+    ('R', u'Resumo Diário'),
+    ('I', u'Intenso'),
+    ('V', u'Somente votações'),
+    )
+
+TIPO_VOTO =  (
+    ('A', u'De acordo'),
+    ('S', u'Abstém'),
+    ('D', u'Em desacordo'),
+    ('B', u'Bloqueia'),
+    )
+
+TIPO_CURTIDA = (
+    ('C', u'Curtiu'),
+    ('N', u'Não curtiu'),
     )
 
 class Topico(models.Model):
-    criador = models.ForeignKey(Membro)
     titulo = models.CharField(u'Título', max_length=200)
+    grupo = models.ForeignKey(Circulo)
     status = models.CharField(u'Status', max_length=1, choices=STATUS_DISCUSSAO)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
+    criador = models.ForeignKey(Membro)
+
+    class Meta:
+        verbose_name = u'Tópico'
+        verbose_name_plural = u'Tópicos'
+
+class TopicoOuvinte(models.Model):
+    topico = models.ForeignKey(Topico)
+    colaborador = models.ForeignKey(Colaborador)
+    notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO)
+    dtentrada = models.DateTimeField(u'Data de criação', auto_now_add=True)
+
+    class Meta:
+        verbose_name = u'Participante'
+        verbose_name_plural = u'Participantes'
 
 class Conversa(models.Model):
-    discussao = models.ForeignKey(Topico)
+    topico = models.ForeignKey(Topico)
     autor = models.ForeignKey(Membro)
     texto = models.TextField()
     dt_criacao = models.DateTimeField(u'Data de criação', auto_now_add=True)
-    proposta = models.BooleanField(u'Proposta')
+    arquivo = models.FileField('Arquivo opcional com descrição ',upload_to=formata_arquivo_forum, blank=True, null=True)
 
-class Votacao(models.Model):
-    discussao = models.ForeignKey(Conversa)
+class ConversaCurtida(models.Model):
+    conversa = models.ForeignKey(Conversa)
+    colaborador = models.ForeignKey(Colaborador)
+    curtida = models.CharField(u'', max_length=1, choices=STATUS_CURTIDA)
+
+# Conversa sujeita a votação
+class Proposta(Conversa):
+    dt_encerramento = models.DateTimeField(u'Data de encerramento')
+    status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA)
+
+# Voto na proposta
+class Voto(models.Model):
+    discussao = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(Membro)
-    voto = models.CharField(u'Tipo de Votação',max_length=1)
+    voto = models.CharField(u'Tipo de Votação',max_length=1, choices=TIPO_VOTO)
+
 '''

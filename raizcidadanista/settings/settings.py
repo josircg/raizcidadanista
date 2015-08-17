@@ -11,12 +11,11 @@ LOCAL = True
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-SITE_NAME = 'Raiz Cidadanista'
+SITE_NAME = 'Movimento Raiz Cidadanista'
 SITE_HOST = 'http://127.0.0.1:8000'
 
 ADMINS = (
     (u'Josir', 'josircg@gmail.com'),
-    (u'Leonardo', 'leonardocsantoss@gmail.com'),
 )
 
 MANAGERS = ADMINS

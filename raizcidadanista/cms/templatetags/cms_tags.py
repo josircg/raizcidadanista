@@ -55,7 +55,7 @@ def get_sections(context):
 @register.assignment_tag(takes_context=True)
 def get_last_articles(context, num=10):
     articles = []
-    for article in Article.objects.filter(is_active=True).order_by('-created_at', '-pk')[:num]:
+    for article in Article.objects.filter(is_active=True).order_by('sectionitem__order', '-created_at', '-pk')[:num]:
         if article.have_perm(context.get('request').user):
             articles.append(article)
     return articles

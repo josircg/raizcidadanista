@@ -220,9 +220,9 @@ class Section(models.Model):
         return False
 
     def get_articles(self, query=None):
-        articles = self.articles.filter(is_active=True).order_by('-created_at', '-updated_at')
+        articles = self.articles.filter(is_active=True).order_by('sectionitem__order', '-created_at', '-updated_at')
         if query:
-            articles = articles.filter(title__icontains=query).order_by('-created_at', '-updated_at')
+            articles = articles.filter(title__icontains=query).order_by('sectionitem__order', '-created_at', '-updated_at')
         return articles
 
     def num_articles(self):

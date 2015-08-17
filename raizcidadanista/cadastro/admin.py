@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
+from django.http import HttpResponse
 
 from functools import partial
 
@@ -58,7 +59,6 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 class CirculoAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('uf',)
-
     fieldsets_comissao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
     )
@@ -69,6 +69,20 @@ class CirculoAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
+    actions = ('export_csv', )
+
+    def export_csv(self, request, queryset):
+        csv = u'"Título";"Município";"UF"\n'
+        for q in queryset:
+            csv += u'"%(titulo)s";"%(municipio)s";"%(uf)s"\n' % {
+                'titulo': q.titulo,
+                'municipio': u'%s' % q.municipio,
+                'uf': q.uf if q.uf else u'',
+            }
+        response = HttpResponse(csv, mimetype='application/csv; charset=utf-8', )
+        response['Content-Disposition'] = 'filename=circulos.csv'
+        return response
+    export_csv.short_description = u"Gerar arquivo de exportação"
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser or obj==None:

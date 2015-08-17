@@ -99,7 +99,7 @@ class Circulo(models.Model):
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s %s' % (self.tipo, self.titulo)
+        return u'%s %s' % (self.get_tipo_display(), self.titulo)
 
 class CirculoMembro(models.Model):
     class Meta:

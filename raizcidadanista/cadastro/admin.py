@@ -8,6 +8,7 @@ from functools import partial
 
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
+from poweradmin.admin import PowerModelAdmin, PowerButton
 
 class CirculoMembroMembroInline(admin.TabularInline):
     model = CirculoMembro
@@ -56,9 +57,9 @@ class CirculoEventoCirculoInline(admin.TabularInline):
         else:
             return ()
 
-class CirculoAdmin(admin.ModelAdmin):
+class CirculoAdmin(PowerModelAdmin):
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
-    list_filter = ('uf',)
+    list_filter = ('tipo','uf',)
     fieldsets_comissao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
     )

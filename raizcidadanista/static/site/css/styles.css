@@ -137,6 +137,9 @@ h3, .title-news b {
   .body .col-md-9 {
       width: 77% !important;
   }
+  .col-main {
+      float: right;
+  }
 }
 
 /* main

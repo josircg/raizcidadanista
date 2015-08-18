@@ -19,7 +19,6 @@ class NewsletterView(FormView):
         return self.response_class(
             request=self.request,
             template=self.template_success_name,
-            using=self.template_engine,
         )
 
     def form_invalid(self, form):

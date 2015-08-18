@@ -32,15 +32,11 @@
                 done: function (e, data) {
                     $('.qq-upload-list').show();
                     $('<div class=" qq-upload-success"><span class="qq-upload-file">'+data.result.filename+'</span></div>').appendTo('.qq-upload-list');
-                    $('.progress-bar').hide();
+                    $('#progress-bar').html('');
                 },
                 progressall: function (e, data) {
                     var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $('.progress-bar').show();
-                    $('.progress-bar .content').css('width', progress + '%');
-                    if(progress == 100){
-                        $('.progress-bar').hide();
-                    }
+                    $('#progress-bar').html('<div class="progress-bar"><div class="content" style="width: '+progress+'%;"></div></div>')
                 }
             }).prop('disabled', !$.support.fileInput)
                 .parent().addClass($.support.fileInput ? undefined : 'disabled');
@@ -68,8 +64,8 @@
                             Enviar
                             <input id="fileupload" type="file" name="files" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
                         </div>
+                        <div id="progress-bar"></div>
                         <div class="qq-upload-list" style="display: none">
-                            <div class="progress-bar" style="display: none"><div class="content" style="width: 100%;"></div></div>
                         </div>
                     </div>
                 </div>

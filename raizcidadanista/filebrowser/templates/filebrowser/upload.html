@@ -14,78 +14,37 @@
 <!-- JAVASCRIPTS -->
 {% block extrahead %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/collapse.min.js" %}"></script>
-    <script type="text/javascript" src="../../jsi18n/"></script>
-    <script type="text/javascript" src="{% static "filebrowser/js/fileuploader.js" %}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="{% static "filebrowser/file-upload/js/vendor/jquery.ui.widget.js" %}"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="{% static "filebrowser/file-upload/js/jquery.iframe-transport.js" %}"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="{% static "filebrowser/file-upload/js/jquery.fileupload.js" %}"></script>
+
     <script type="text/javascript">
-    (function($){
         $(document).ready(function() {
-            var uploader = new qq.FileUploader({
-                element: $('#file-uploader > div').get(0),
-                action: '{% url 'filebrowser:fb_do_upload' %}',
-
-                template: '<div class="qq-uploader">' +
-                    '<div class="qq-upload-drop-area"><span>{% trans "Drop files here to upload" %}</span></div>' +
-                    '<div class="qq-upload-button">{% trans "Upload a file" %}</div>' +
-                    '<div class="qq-upload-list"></div>' +
-                '</div>',
-
-                fileTemplate: '<div>' +
-                    '<span class="qq-upload-file"></span>' +
-                    '<span class="qq-upload-spinner"></span>' +
-                    '<span class="qq-upload-size"></span>' +
-                    '<a class="qq-upload-cancel" href="#">{% trans "Cancel" %}</a>' +
-                    '<span class="qq-upload-failed-text">{% trans "Failed" %}</span>' +
-                    '<div class="progress-bar"><div class="content"></div></div>' +
-                    '<span class="qq-upload-complete-text" style="display: none;">{% trans "Complete" %}</span>' +
-                '</div>',
-
-                params: { 'csrf_token': '{{ csrf_token }}',
-                          'csrf_name': 'csrfmiddlewaretoken',
-                          'csrf_xname': 'X-CSRFToken',
-                          'folder': '{{ query.dir|escapejs }}', },
-
-                allowedExtensions: {% get_file_extensions request.GET %},
-                sizeLimit: {{ settings_var.MAX_UPLOAD_SIZE|unlocalize }},
-                minSizeLimit: 0,
-                debug: false,
-                // messages
-                messages: {
-                    typeError: "{% trans "{file} has invalid extension. Only {extensions} are allowed." %}",
-                    sizeError: "{% trans "{file} is too large, maximum file size is {sizeLimit}." %}",
-                    minSizeError: "{% trans "{file} is too small, minimum file size is {minSizeLimit}." %}",
-                    emptyError: "{% trans "{file} is empty, please select files again without it." %}",
-                    onLeave: "{% trans "The files are being uploaded, if you leave now the upload will be cancelled." %}"
+            $('#fileupload').fileupload({
+                url: '{% url 'filebrowser:fb_do_upload' %}?folder={{ query.dir|escapejs }}',
+                dataType: 'json',
+                limitMultiFileUploadSize: {{ settings_var.MAX_UPLOAD_SIZE|unlocalize }},
+                done: function (e, data) {
+                    $('.qq-upload-list').show();
+                    $('<div class=" qq-upload-success"><span class="qq-upload-file">'+data.result.filename+'</span></div>').appendTo('.qq-upload-list');
+                    $('.progress-bar').hide();
                 },
-
-                getItem: function(id) {
-                    var items = $(this.element).find('.qq-upload-list > div').get();
-                    var item = items.pop();
-
-                    while (typeof item != "undefined") {
-                        if (item.qqFileId == id) {
-                            return $(item);
-                        }
-                        item = items.pop();
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('.progress-bar').show();
+                    $('.progress-bar .content').css('width', progress + '%');
+                    if(progress == 100){
+                        $('.progress-bar').hide();
                     }
-                },
-                onProgress: function(id, fileName, loaded, total){
-                    var bar = this.getItem(id).find('.progress-bar .content');
-                    var new_width = '' + (loaded/total * 100) + '%';
-                    bar.css('width', new_width);
-                },
-                onComplete: function(id, fileName, resp){
-                    this.getItem(id).find('.qq-upload-complete-text').show();
-                    // if (resp.success) {
-                    //     this.getItem(id).fadeOut('slow');
-                    // }
-                },
-                showMessage: function(message){ alert(message); }
-            });
+                }
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
         });
-    })(django.jQuery);
     </script>
 {% endblock %}
 
@@ -104,9 +63,15 @@
             <fieldset class="module aligned">
             <div class="form-row" id="file-uploader">
                 <div>
-                    <noscript>
-                        {% trans "Please enable Javascript to upload files." %}
-                    </noscript>
+                    <div class="qq-uploader">
+                        <div class="qq-upload-button" style="position: relative; overflow: hidden; direction: ltr;">
+                            Enviar
+                            <input id="fileupload" type="file" name="files" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
+                        </div>
+                        <div class="qq-upload-list" style="display: none">
+                            <div class="progress-bar" style="display: none"><div class="content" style="width: 100%;"></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             </fieldset>
@@ -144,7 +109,7 @@
                     </div>
                 {% endif %}
             </fieldset>
-            <div class="qq-upload-button"><a href="{% url 'filebrowser:fb_browse' %}{% query_string %}" style="color:#fff;">{% trans "Done" %}</a></div>
+            <div class="qq-upload-button"><a href="{% url 'filebrowser:fb_browse' %}{% query_string %}" style="color:#fff;">{% trans "Feito" %}</a></div>
         </div>
     </form>
 </div>

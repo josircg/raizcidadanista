@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Cadastro Mailing e Face - {% endblock %}
-{% block ogtitle %}Cadastro Mailing e Face - {% endblock %}
+{% block title %}Cadastro Newsletter - {% endblock %}
+{% block ogtitle %}Cadastro Newsletter - {% endblock %}
 
 {% block description %}Cadastro Mailing e Face - {% endblock %}
 {% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
 
 {% block main %}
-    <h3>Cadastro Mailing e Face</h3>
-    <p>Estes dados não serão divulgados em nenhuma circunstância. Seu email será cadastrado em futuro mailing da Raiz Movimento Cidadanista. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook.</a></p>
+    <h3>Cadastro para Mala Direta e Facebook</h3>
+    <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
     <form action="" method="POST" role="form">{% csrf_token %}
         <div class="panel panel-default">
             <div class="panel-body">

@@ -586,6 +586,8 @@ class FileBrowserSite(object):
             elif file_name.split('.')[-1].lower() == 'png':
                 os.system('optipng %s' % self.storage.path(file_path))
 
+            os.system('chmod 775 %s' % self.storage.path(file_path))
+
             # let Ajax Upload know whether we saved it or not
             ret_json = {'success': True, 'filename': file_name}
             return HttpResponse(json.dumps(ret_json))

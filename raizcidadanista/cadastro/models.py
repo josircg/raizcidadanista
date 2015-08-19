@@ -112,7 +112,7 @@ class Circulo(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
     imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
-        upload_to='circulo', storage=UuidFileSystemStorage)
+        upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
 
     def __unicode__(self):

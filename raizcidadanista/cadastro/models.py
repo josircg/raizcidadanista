@@ -9,9 +9,9 @@ from django.db.models import signals
 from django.dispatch import receiver
 
 from municipios.models import UF
+from utils.storage import UuidFileSystemStorage
 #from smart_selects.db_fields import ChainedForeignKey
 #from utils.models import BRDateField, BRDecimalField
-#from utils.fields import formata_nome_do_arquivo, nome_arquivo_aberto
 #from utils.email import sendmail
 
 GENDER = (
@@ -107,13 +107,13 @@ class Circulo(models.Model):
     descricao = models.TextField(u'Descricao') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
     uf = models.ForeignKey(UF, blank=True, null=True)
-    municipio = models.CharField(u'Município',max_length=150, blank=True, null=True)
+    municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     oficial = models.BooleanField(u'Oficial', default=False)
     dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
     imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
-        upload_to=formata_arquivo_upload)
-    status = models.CharField('Situação',choices=CIRCULO_STATUS,default='A')
+        upload_to='circulo', storage=UuidFileSystemStorage)
+    status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)

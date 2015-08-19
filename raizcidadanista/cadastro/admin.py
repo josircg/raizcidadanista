@@ -61,7 +61,7 @@ class CirculoAdmin(PowerModelAdmin):
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('tipo','uf',)
     fieldsets_comissao = (
-        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo',),},),
+        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', ),},),
     )
 
     fieldsets_owner = (

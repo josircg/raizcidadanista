@@ -42,6 +42,16 @@ class CirculosView(TemplateView):
         context['circulos'] = circulos
         return context
 
+
+class GTsView(TemplateView):
+    template_name = 'gts.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(GTsView, self).get_context_data(**kwargs)
+        context['gts'] = Circulo.objects.filter(tipo='G', oficial=True)
+        return context
+
+
 class ArticleDetailView(DetailView):
     model = Article
     form = ArticleCommentForm

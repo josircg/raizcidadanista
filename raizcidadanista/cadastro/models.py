@@ -20,6 +20,14 @@ GENDER = (
     ('O', u'Outros'),
 )
 
+STATUS_EMAIL = (
+    ('A', u'Ativo'),
+    ('N', u'Não confirmado'),
+    ('S', u'SPAM'),
+    ('I', u'Inválido'),
+    ('O', u'Opt-out'),
+)
+
 class Pessoa(models.Model):
     class Meta:
         ordering = ['nome',]
@@ -32,6 +40,7 @@ class Pessoa(models.Model):
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
+    status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='A')
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
@@ -85,6 +94,11 @@ CIRCULO_TIPO = (
     ('T', u'Círculo Temático'),
 )
 
+CIRCULO_STATUS = (
+    ('A', u'Ativo'),
+    ('I', u'Desativado'),
+)
+
 class Circulo(models.Model):
     class Meta:
         verbose_name = u'Grupo'
@@ -97,6 +111,9 @@ class Circulo(models.Model):
     oficial = models.BooleanField(u'Oficial', default=False)
     dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
+    imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
+        upload_to=formata_arquivo_upload)
+    status = models.CharField('Situação',choices=CIRCULO_STATUS,default='A')
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
@@ -112,7 +129,7 @@ class CirculoMembro(models.Model):
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
 
-# Só mostrar o Oficial se o usuário for do grupo Diretoria
+# Só mostrar o campo Oficial se o usuário for do grupo Diretoria
 # Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
         return u'#%s' % self.pk
@@ -175,7 +192,7 @@ class Topico(models.Model):
 
 class TopicoOuvinte(models.Model):
     topico = models.ForeignKey(Topico)
-    colaborador = models.ForeignKey(Colaborador)
+    ouvinte = models.ForeignKey(Colaborador)
     notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO)
     dtentrada = models.DateTimeField(u'Data de criação', auto_now_add=True)
 
@@ -189,6 +206,7 @@ class Conversa(models.Model):
     texto = models.TextField()
     dt_criacao = models.DateTimeField(u'Data de criação', auto_now_add=True)
     arquivo = models.FileField('Arquivo opcional com descrição ',upload_to=formata_arquivo_forum, blank=True, null=True)
+    conversa_pai = ForeignKey('Conversa')
 
 class ConversaCurtida(models.Model):
     conversa = models.ForeignKey(Conversa)

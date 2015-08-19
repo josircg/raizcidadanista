@@ -48,7 +48,7 @@ class GTsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(GTsView, self).get_context_data(**kwargs)
-        context['gts'] = Circulo.objects.filter(tipo='G', oficial=True)
+        context['gts'] = Circulo.objects.filter(tipo='G', oficial=True).order_by('titulo')
         return context
 
 

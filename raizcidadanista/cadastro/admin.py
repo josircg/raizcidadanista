@@ -63,10 +63,6 @@ class CirculoAdmin(PowerModelAdmin):
     fieldsets_comissao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', ),},),
     )
-
-    fieldsets_owner = (
-        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo',),},),
-    )
     fieldsets = (
         (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
@@ -86,11 +82,8 @@ class CirculoAdmin(PowerModelAdmin):
     export_csv.short_description = u"Gerar arquivo de exportação"
 
     def get_fieldsets(self, request, obj=None):
-        if request.user.is_superuser or obj==None:
-            if request.user.groups.filter(name=u'Comissão').exists():
-                return self.fieldsets_comissao
-            else:
-                return self.fieldsets_owner
+        if request.user.groups.filter(name=u'Comissão').exists() or request.user.is_superuser:
+            return self.fieldsets_comissao
         return self.fieldsets
 
     def get_readonly_fields(self, request, obj=None):

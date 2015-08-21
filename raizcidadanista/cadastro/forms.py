@@ -7,14 +7,13 @@ from models import Pessoa, Membro
 class NewsletterForm(forms.ModelForm):
     class Meta:
         model = Pessoa
-        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', )
+        fields = ('nome', 'email', 'uf', 'municipio', )
 
 class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'uf', 'municipio', 'email', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', 'rg', 'titulo_eleitoral',
-            'uf_eleitoral', 'municipio_eleitoral', 'filiacao_partidaria', )
+            'atividade_profissional', 'dtnascimento', )
 
 class FiliadoForm(forms.ModelForm):
     class Meta:

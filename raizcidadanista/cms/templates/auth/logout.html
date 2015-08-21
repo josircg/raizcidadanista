@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}Sair | {% endblock %}
+{% block ogtitle %}Sair | {% endblock %}
+
+{% block main %}
+<h3>Sair</h3>
+<div id="content-left">
+    <div id="texto-content">
+        <span>
+            <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+            <p><a href="{% url 'cms_login' %}">{% trans 'Log in again' %}</a></p>
+        </span>
+    </div>
+</div>
+{% endblock %}

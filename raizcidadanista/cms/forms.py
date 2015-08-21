@@ -7,7 +7,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.template import loader
 from django.utils.http import int_to_base36
@@ -102,44 +102,6 @@ class UpdateForm(forms.Form):
             if float(settings.VERSION.replace('v', '')) > float(version.replace('v', '')):
                 raise forms.ValidationError(u'Não é possível atualizar para uma versão inferior a %s' % settings.VERSION)
         return version
-
-
-class CMSUserCreationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ("username", "first_name", "last_name", "email", )
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError(u'Esse email já está cadastrado.')
-        return email
-
-    def __init__(self, *args, **kwargs):
-        super(CMSUserCreationForm, self).__init__(*args, **kwargs)
-        for grouptype in GroupType.objects.all():
-            self.fields['grouptype_%s' % grouptype.pk] = forms.ModelChoiceField(label=grouptype.name, queryset=grouptype.groupitem_set.all())
-
-    def save(self, commit=True):
-        super(CMSUserCreationForm, self).save(commit)
-
-        self.instance.is_staff = False
-        self.instance.is_active = False
-        if Group.objects.filter(name=u'Pendente').exists():
-            self.instance.groups.add(Group.objects.get(name=u'Pendente'))
-
-        for grouptype in GroupType.objects.all():
-            self.instance.groups.add(self.cleaned_data['grouptype_%s' % grouptype.pk].group)
-        self.instance.save()
-
-        today = date.today()
-        if not EmailAgendado.objects.filter(subject=u'Novo usuário solicitou o registro no site', date__year=today.year, date__month=today.month, date__day=today.day).exists():
-            menssagem = u'Novo usuário solicitou o registro no site. Clique <a href="%s%s?is_active__exact=0">aqui</a> para visualizar.' % (settings.SITE_HOST, reverse('admin:auth_user_changelist'))
-            sendmail(
-                subject=u'Novo usuário solicitou o registro no site',
-                to=Recurso.objects.get_or_create(recurso=u'EMAILADMIN')[0].valor.split('\n'),
-                template=menssagem
-            )
 
 
 class CustomPasswordResetForm(PasswordResetForm):

@@ -16,7 +16,7 @@ from cadastro.models import Circulo
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
-from forms import ArticleCommentForm, CMSUserCreationForm
+from forms import ArticleCommentForm
 
 import mimetypes, os
 
@@ -223,18 +223,3 @@ class RobotsView(View):
         if robots.ativo:
             return HttpResponse(u'User-agent: *\nAllow: *', content_type='text/plain')
         return HttpResponse(u'User-agent: *\nDisallow: *', content_type='text/plain')
-
-
-class SignupView(FormView):
-    form_class = CMSUserCreationForm
-    template_name = 'auth/signup.html'
-    template_name_done = 'auth/signup_done.html'
-
-    def form_valid(self, form):
-        form.save()
-        form = self.form_class()
-        return self.response_class(
-            request=self.request,
-            template=self.template_name_done,
-            context=self.get_context_data(form=form),
-        )

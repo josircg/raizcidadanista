@@ -75,8 +75,13 @@
                     <div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>
                   </div>
                 </form>
-                <form class="navbar-form navbar-left" action="{% url 'admin:index' %}">
-                  <button type="submit" class="btn">Login</button>
+                <form class="navbar-form navbar-left" action="{% if not user.is_authenticated %}{% url 'cms_login' %}{% else %}{% url 'admin:index' %}{% endif %}">
+                  {% if not user.is_authenticated %}
+                    <button type="submit" class="btn">Login</button>
+                  {% else %}
+                    Seja bem vindo, {% firstof user.first_name user.username %}!
+                    <button type="submit" class="btn">Admin</button>
+                  {% endif %}
                 </form>
 
               </div>

@@ -7,7 +7,11 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.tokens import default_token_generator
+from django.template import loader
+from django.utils.http import int_to_base36
+from django.contrib.sites.models import get_current_site
 from django.utils.html import mark_safe
 from django.core.urlresolvers import reverse
 from datetime import datetime, date
@@ -118,7 +122,7 @@ class CMSUserCreationForm(UserCreationForm):
 
     def save(self, commit=True):
         super(CMSUserCreationForm, self).save(commit)
-        
+
         self.instance.is_staff = False
         self.instance.is_active = False
         if Group.objects.filter(name=u'Pendente').exists():
@@ -135,4 +139,41 @@ class CMSUserCreationForm(UserCreationForm):
                 subject=u'Novo usuário solicitou o registro no site',
                 to=Recurso.objects.get_or_create(recurso=u'EMAILADMIN')[0].valor.split('\n'),
                 template=menssagem
+            )
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def save(self, domain_override=None,
+        subject_template_name='registration/password_reset_subject.txt',
+        email_template_name='registration/password_reset_email.html',
+        use_https=False, token_generator=default_token_generator,
+        from_email=None, request=None):
+        """
+        Generates a one-use only link for resetting password and sends to the
+        user.
+        """
+        for user in self.users_cache:
+            if not domain_override:
+                current_site = get_current_site(request)
+                site_name = current_site.name
+                domain = current_site.domain
+            else:
+                site_name = domain = domain_override
+            c = {
+                'email': user.email,
+                'domain': domain,
+                'site_name': site_name,
+                'uid': int_to_base36(user.id),
+                'user': user,
+                'token': token_generator.make_token(user),
+                'protocol': use_https and 'https' or 'http',
+            }
+            subject = loader.render_to_string(subject_template_name, c)
+            # Email subject *must not* contain newlines
+            subject = ''.join(subject.splitlines())
+            sendmail(
+                subject=subject,
+                to=[user.email],
+                params=c,
+                template=email_template_name,
             )

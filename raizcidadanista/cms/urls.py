@@ -1,6 +1,7 @@
 # coding: utf-8
 from django.conf.urls import patterns, include, url
 from views import *
+from forms import CustomPasswordResetForm
 from cms.sitemap import sitemaps
 
 urlpatterns = patterns('',
@@ -20,7 +21,11 @@ urlpatterns = patterns('',
     url(r'^signup/$', SignupView.as_view(), name='cms_signup'),
     url(r'^password_change/$', 'django.contrib.auth.views.password_change', kwargs={'template_name': 'auth/password_change_form.html'}, name='cms_password_change'),
     url(r'^password_change/done/$', 'django.contrib.auth.views.password_change_done', kwargs={'template_name': 'auth/password_change_done.html',}, name='cms_password_change_done'),
-    url(r'^password_reset/$', 'django.contrib.auth.views.password_reset', kwargs={'template_name': 'auth/password_reset_form.html', 'email_template_name': 'auth/password_reset_email.html'}, name='cms_password_reset'),
+    url(r'^password_reset/$', 'django.contrib.auth.views.password_reset', kwargs={
+        'template_name': 'auth/password_reset_form.html',
+        'email_template_name': 'auth/password_reset_email.html',
+        'password_reset_form': CustomPasswordResetForm,
+    }, name='cms_password_reset'),
     url(r'^password_reset/done/$', 'django.contrib.auth.views.password_reset_done', kwargs={'template_name': 'auth/password_reset_done.html',}, name='cms_password_reset_done'),
     url(r'^reset/(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         'django.contrib.auth.views.password_reset_confirm',

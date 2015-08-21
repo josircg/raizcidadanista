@@ -54,7 +54,7 @@
     </div>
 
     <div class="col-md-4">
-      {% get_section_articles 'news' as articles_news %}
+      {% get_section_articles 'news' 10 as articles_news %}
       <div class="list-group">
         <h3 class="title-news">ÚLTIMAS NOTÍCIAS</h3>
         {% for article in articles_news %}

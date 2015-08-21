@@ -9,17 +9,30 @@ class NewsletterForm(forms.ModelForm):
         model = Pessoa
         fields = ('nome', 'email', 'uf', 'municipio', )
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Pessoa.objects.filter(email=email).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse email. Se você já é colaborador ou filiado, você já irá receber os nossos informes.')
+        return email
+
 class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'uf', 'municipio', 'email', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', )
+        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+            'atividade_profissional', )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Membro.objects.filter(email=email).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.')
+        return email
+
 
 class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'uf', 'municipio', 'email', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', 'rg', 'titulo_eleitoral',
+        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+            'atividade_profissional', 'dtnascimento', 'titulo_eleitoral',
             'uf_eleitoral', 'municipio_eleitoral', 'filiacao_partidaria', )
 
     def clean_email(self):

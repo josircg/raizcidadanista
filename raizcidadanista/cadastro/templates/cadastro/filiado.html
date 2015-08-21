@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Cadastro pré-Fundador e Loomio - {% endblock %}
-{% block ogtitle %}Cadastro pré-Fundador e Loomio - {% endblock %}
+{% block title %}Cadastro de Filiados - {% endblock %}
+{% block ogtitle %}Cadastro de Filiados - {% endblock %}
 
-{% block description %}Cadastro pré-Fundador e Loomio - {% endblock %}
-{% block ogdescription %}Cadastro pré-Fundador e Loomio - {% endblock %}
+{% block description %}Cadastro de Filiados - {% endblock %}
+{% block ogdescription %}Cadastro de Filiados - {% endblock %}
 
 {% block main %}
-    <h3>Cadastro de Colaboradores</h3>
-    <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o movimento. O preenchimento deste formulário ratifica o compromisso dos membro com a construção do partido, assim como a subscrição da Carta Cidadanista.</p>
+    <h3>Cadastro de Filiados</h3>
+    <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em afiliar-se ao movimento.</a></p>
     <form action="" method="POST" role="form">{% csrf_token %}
         <div class="panel panel-default">
             <div class="panel-body">
@@ -49,6 +49,7 @@
     #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria {max-width: 300px;}
 </style>
 {% endblock %}
+
 
 {% block js %}
 <script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>

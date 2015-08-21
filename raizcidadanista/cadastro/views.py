@@ -25,6 +25,7 @@ class NewsletterView(FormView):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(NewsletterView, self).form_invalid(form)
 
+
 class MembroView(FormView):
     template_name = 'cadastro/membro.html'
     template_success_name = 'cadastro/bem-vindo.html'
@@ -36,12 +37,12 @@ class MembroView(FormView):
         return self.response_class(
             request=self.request,
             template=self.template_success_name,
-            using=self.template_engine,
         )
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(MembroView, self).form_invalid(form)
+
 
 class FiliadoView(FormView):
     template_name = 'cadastro/filiado.html'
@@ -54,9 +55,8 @@ class FiliadoView(FormView):
         return self.response_class(
             request=self.request,
             template=self.template_success_name,
-            using=self.template_engine,
         )
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
-        return super(MembroView, self).form_invalid(form)
+        return super(FiliadoView, self).form_invalid(form)

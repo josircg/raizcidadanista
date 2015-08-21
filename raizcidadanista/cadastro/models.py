@@ -58,11 +58,11 @@ class Membro(Pessoa):
     uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True)
     municipio_eleitoral= models.CharField(u'Município Eleitoral', max_length=150, blank=True, null=True)
     filiacao_partidaria = models.CharField(u'Filiação Partidária', max_length=100, blank=True, null=True)
-
     usuario = models.ForeignKey(User, related_name='membro', verbose_name=u'Usuário', blank=True, null=True)
     facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
+    filiado = models.BooleanField(u'É filiado?', default=False)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

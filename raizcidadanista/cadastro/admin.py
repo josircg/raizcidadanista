@@ -17,9 +17,9 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(admin.ModelAdmin):
-    list_filter = ('uf',)
-    search_fields = ('nome','email',)
-    list_display = ('nome', 'email', 'dtcadastro', 'aprovador', )
+    list_filter = ('uf', 'filiado', )
+    search_fields = ('nome', 'email',)
+    list_display = ('nome', 'email', 'dtcadastro', 'filiado', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao',)
 
@@ -30,7 +30,6 @@ class MembroAdmin(admin.ModelAdmin):
             if rec.aprovador is None:
                 rec.aprovador = request.user
                 rec.save()
-
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
 
     def get_readonly_fields(self, request, obj=None):

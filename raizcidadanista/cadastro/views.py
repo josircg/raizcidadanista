@@ -5,7 +5,7 @@ from django.contrib import messages
 
 from models import Circulo
 from municipios.models import UF
-from forms import NewsletterForm, MembroForm
+from forms import NewsletterForm, MembroForm, FiliadoForm
 
 
 class NewsletterView(FormView):

@@ -75,14 +75,8 @@
                     <div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>
                   </div>
                 </form>
-                <form class="navbar-form navbar-left">
-                  <div class="form-group" action="{% url 'admin:index' %}" method="POST">{% csrf_token %}
-                    <input type="text" placeholder="Login" name="username" class="form-control">
-                  </div>
-                  <div class="form-group">
-                    <input type="password" placeholder="Senha" name="" class="form-control">
-                  </div>
-                  <button type="submit" class="btn">Entrar</button>
+                <form class="navbar-form navbar-left" action="{% url 'admin:index' %}">
+                  <button type="submit" class="btn">Login</button>
                 </form>
 
               </div>

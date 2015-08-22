@@ -49,3 +49,28 @@
     #id_municipio, #id_celular, #id_residencial {max-width: 300px;}
 </style>
 {% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_municipio').remove();
+        $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+
+        function get_municipios(id_uf, id_municipios){
+            url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
+            $.getJSON(url, function(data){
+                $(id_municipios).html('');
+                $.each(data, function(key, val ) {
+                    $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                });
+            });
+        }
+
+        get_municipios('#id_uf', '#id_municipio');
+        $("#id_uf").change(function(){
+            get_municipios('#id_uf', '#id_municipio');
+        });
+    });
+</script>
+{% endblock %}

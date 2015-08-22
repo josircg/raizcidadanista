@@ -57,6 +57,8 @@ class Membro(Pessoa):
     titulo_eleitoral = models.CharField(u'Título Eleitoral', max_length=50, blank=True, null=True)
     uf_eleitoral = models.ForeignKey(UF, verbose_name=u'UF do Domicílio Eleitoral', blank=True, null=True)
     municipio_eleitoral= models.CharField(u'Município Eleitoral', max_length=150, blank=True, null=True)
+    zona_eleitoral= models.CharField(u'Zona Eleitoral', max_length=50, blank=True, null=True)
+    secao_eleitoral= models.CharField(u'Seção Eleitoral', max_length=50, blank=True, null=True)
     filiacao_partidaria = models.CharField(u'Filiação Partidária', max_length=100, blank=True, null=True)
     usuario = models.ForeignKey(User, related_name='membro', verbose_name=u'Usuário', blank=True, null=True)
     facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)

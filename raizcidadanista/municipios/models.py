@@ -51,4 +51,4 @@ class Municipio(models.Model):
         objects = models.GeoManager()
 
     def __str__(self):
-        return '%s - %s' % (self.nome, self.uf_sigla)
+        return '%s' % (self.nome, )

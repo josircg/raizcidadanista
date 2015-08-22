@@ -18,7 +18,6 @@
     <div class="bs-callout bs-callout-info">
         <h3><a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a></h3>
         <small>{{ result.object.created_at|date:"d \d\e F \d\e Y" }}</small>
-        <p>{{ result.object.header|safe }}</p>
     </div>
 {% empty %}
     <div class="bs-callout bs-callout-info">

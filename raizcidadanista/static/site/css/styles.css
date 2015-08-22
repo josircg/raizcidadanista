@@ -26,12 +26,12 @@ h3, .title-news b {
   font-weight: lighter;
 }
 .bs-callout-info {
-    border-color: #2f7a35;
+  border-color: #2f7a35;
 }
 .bs-callout {
-    margin: 20px 0;
-    padding: 20px;
-    border-left: 4px solid #2f7a35;
+  margin: 10px 0px;
+  padding: 5px 15px;
+  border-left: 4px solid #2f7a35;
 }
 
 .btn-success {

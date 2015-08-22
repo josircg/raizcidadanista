@@ -18,7 +18,6 @@
     <div class="bs-callout bs-callout-info">
         <h3><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
         <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-        <p>{{ article.header|safe}}</p>
     </div>
 {% empty %}
     <div class="bs-callout bs-callout-info">

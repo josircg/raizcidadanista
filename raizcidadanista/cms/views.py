@@ -108,7 +108,7 @@ class SectionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         articles_list = self.object.get_articles()
-        paginator = Paginator(articles_list, 5)
+        paginator = Paginator(articles_list, 10)
 
         page = self.request.GET.get('page')
         try:
@@ -203,7 +203,7 @@ class SearchView(TemplateView):
                 })
             results_list = sorted(results_list, key=lambda k: k['title'])
 
-        paginator = Paginator(results_list, 5)
+        paginator = Paginator(results_list, 10)
         page = self.request.GET.get('page')
         try:
             results = paginator.page(page)

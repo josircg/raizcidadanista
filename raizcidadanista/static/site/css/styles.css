@@ -97,12 +97,12 @@ h3, .title-news b {
 .logo {
   background-color: #94C11E;
   text-align: center;
-  min-height: 164px;
+  height: 164px;
   display: none;
 }
 
 .logo img {
-  width: 100%;
+  max-width: 100% !important;
 }
 
 .title-logo {

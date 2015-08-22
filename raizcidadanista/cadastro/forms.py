@@ -19,7 +19,7 @@ class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', )
+            'atividade_profissional', 'filiacao_partidaria',)
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -32,8 +32,8 @@ class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', 'titulo_eleitoral',
-            'uf_eleitoral', 'municipio_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', )
+            'atividade_profissional', 'dtnascimento',
+            'uf_eleitoral', 'municipio_eleitoral', ('titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral'),  )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

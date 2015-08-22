@@ -156,6 +156,9 @@ h3, .title-news b {
   max-width: 100%;
   height: auto !important;
 }
+.main iframe {
+  max-width: 100% !important;
+}
 
 
 /* Footer

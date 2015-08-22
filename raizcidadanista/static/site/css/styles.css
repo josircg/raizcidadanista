@@ -98,10 +98,17 @@ h3, .title-news b {
   background-color: #94C11E;
   text-align: center;
   min-height: 164px;
+  display: none;
 }
 
 .logo img {
   width: 100%;
+}
+
+.title-logo {
+  color: #2F7A35;
+  text-align: center;
+  display: block;
 }
 
 .list-group {
@@ -165,6 +172,9 @@ footer ul li {
   text-align: center;
 }
 
+.navbar-search {
+  display: none;
+}
 
 /* RESPONSIVE CSS
 -------------------------------------------------- */
@@ -184,6 +194,20 @@ footer ul li {
   /* The navbar becomes detached from the top, so we round the corners */
   .navbar-wrapper .navbar {
     border-radius: 4px;
+  }
+
+  .navbar-search {
+    display: block;
+  }
+
+  .logo {
+    display: block;
+  }
+
+  .title-logo {
+    color: #2F7A35;
+    text-align: center;
+    display: none;
   }
 }
 

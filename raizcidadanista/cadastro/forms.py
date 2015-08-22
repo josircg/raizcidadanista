@@ -33,7 +33,7 @@ class FiliadoForm(forms.ModelForm):
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento',
-            'uf_eleitoral', 'municipio_eleitoral', ('titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral'),  )
+            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral',  )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

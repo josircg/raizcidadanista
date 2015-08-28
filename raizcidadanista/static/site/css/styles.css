@@ -119,6 +119,7 @@ h3, .title-news b {
 .list-group {
   border: 0;
 }
+
 .list-group .list-group-item {
   border: 0px;
   border-bottom-right-radius: 0px !important;
@@ -126,6 +127,9 @@ h3, .title-news b {
   color: #808285 !important;
   border-bottom: 2px #f4777b solid;
   margin-bottom: 0px;
+}
+
+.box-news .list-group-item {
   min-height: 80px;
 }
 

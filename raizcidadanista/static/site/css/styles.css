@@ -60,6 +60,11 @@ h3, .title-news b {
   color: #808285 !important;
 }
 
+.section-inline-title {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 
@@ -126,6 +131,9 @@ h3, .title-news b {
 .list-group .list-group-item.active, .list-group .list-group-item:hover, .list-group .list-group-item.active:hover {
   background-color: #fff;
   color: #A6CE39 !important;
+}
+.list-group .list-group-item span {
+  font-size: 11px !important;
 }
 
 .navbar-default .navbar-nav>.active>a {

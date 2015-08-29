@@ -106,7 +106,8 @@ CIRCULO_STATUS = (
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Grupo'
+        verbose_name = u'Círculo/GT'
+        verbose_name_plural = u'Círculos e Grupos de Trabalho'
 
     titulo = models.CharField(u'Título', max_length=80)
     descricao = models.TextField(u'Descricao') # HTML
@@ -125,8 +126,8 @@ class Circulo(models.Model):
 
 class CirculoMembro(models.Model):
     class Meta:
-        verbose_name = u'Colaborador do Círculo'
-        verbose_name_plural = u'Colaboradores do Círculo'
+        verbose_name = u'Colaborador do Círculo/GT'
+        verbose_name_plural = u'Colaboradores do Círculo/GT'
 
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
@@ -154,7 +155,7 @@ class CirculoEvento(models.Model):
         verbose_name_plural = u'Eventos dos círculos'
 
 # Fóruns - Baseado no modelo de dados do Loomio
-'''
+
 def formata_arquivo_forum(objeto, nome_arquivo):
     nome, extensao = os.path.splitext(nome_arquivo)
     return os.path.join('forum', str(uuid.uuid4()) + extensao.lower())
@@ -183,10 +184,12 @@ TIPO_CURTIDA = (
     ('N', u'Não curtiu'),
     )
 
+'''
 class Topico(models.Model):
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Circulo)
     status = models.CharField(u'Status', max_length=1, choices=STATUS_DISCUSSAO)
+    dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
     criador = models.ForeignKey(Membro)

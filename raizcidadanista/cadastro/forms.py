@@ -23,7 +23,7 @@ class MembroForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
-        self.fields['filiacao_partidaria'].verbose_name = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
+        self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -36,8 +36,8 @@ class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'nome_da_mae', )
+            'atividade_profissional', 'dtnascimento', 'nome_da_mae',
+            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',)
 
     cpf = BRCPFField(
         label='CPF',
@@ -51,6 +51,7 @@ class FiliadoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)
         self.fields['nome_da_mae'].required = True
+        self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

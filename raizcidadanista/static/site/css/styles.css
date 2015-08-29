@@ -65,8 +65,22 @@ h3, .title-news b {
   margin-bottom: 0px;
 }
 
-button.input-group-addon {
+.input-group-addon {
   padding: 9px 12px;
+}
+
+
+.form-inline {
+  margin-bottom: 15px;
+}
+
+.form-inline .form-control, .form-inline .input-group{
+  display: block;
+  width: 100%;
+}
+
+.form-inline .form-group{
+  margin-right: 15px;
 }
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */

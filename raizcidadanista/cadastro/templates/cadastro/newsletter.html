@@ -17,9 +17,9 @@
                     <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
                         {% if field|btischeckbox %}
                             {{ field|btform }}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}</label>
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
                         {% else %}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}</label>
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
                             {{ field|btform }}
                         {% endif %}
                         {% if field.errors %}

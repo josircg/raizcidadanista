@@ -60,6 +60,14 @@ h3, .title-news b {
   color: #808285 !important;
 }
 
+.section-inline-title {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
+button.input-group-addon {
+  padding: 9px 12px;
+}
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 
@@ -114,6 +122,7 @@ h3, .title-news b {
 .list-group {
   border: 0;
 }
+
 .list-group .list-group-item {
   border: 0px;
   border-bottom-right-radius: 0px !important;
@@ -123,9 +132,16 @@ h3, .title-news b {
   margin-bottom: 0px;
 }
 
+.box-news .list-group-item {
+  min-height: 80px;
+}
+
 .list-group .list-group-item.active, .list-group .list-group-item:hover, .list-group .list-group-item.active:hover {
   background-color: #fff;
   color: #A6CE39 !important;
+}
+.list-group .list-group-item span {
+  font-size: 11px !important;
 }
 
 .navbar-default .navbar-nav>.active>a {

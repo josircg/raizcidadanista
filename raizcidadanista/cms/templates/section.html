@@ -12,31 +12,47 @@
 {% endblock %}
 
 {% block main %}
-<h2>{{ section.title }}</h2>
-{{ section.header|safe }}
-{% for article in articles %}
-    <div class="bs-callout bs-callout-info">
-        <h3><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
-        <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-    </div>
-{% empty %}
-    <div class="bs-callout bs-callout-info">
-        <h3>Nada encontrado...</h3>
-    </div>
-{% endfor %}
-{% if articles.has_previous or articles.has_next %}
-<div align="center">
-    <ul class="pagination">
-        {% if articles.has_previous %}
-            <li><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+    <div class="col-md-8">
+        <h2>{{ section.title }}</h2>
+        {{ section.header|safe }}
+        {% for article in articles %}
+            <div class="bs-callout bs-callout-info">
+                <h3 class='section-inline-title'><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
+                <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+            </div>
+        {% empty %}
+            <div class="bs-callout bs-callout-info">
+                <h3 class='section-inline-title'>Nada encontrado...</h3>
+            </div>
+        {% endfor %}
+        {% if articles.has_previous or articles.has_next %}
+        <div align="center">
+            <ul class="pagination">
+                {% if articles.has_previous %}
+                    <li><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+
+                <li class="active"><a href="#">{{ articles.number }} de {{ articles.paginator.num_pages }}<span class="sr-only"></span></a></li>
+
+                {% if articles.has_next %}
+                    <li><a href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
         {% endif %}
 
-        <li class="active"><a href="#">{{ articles.number }} de {{ articles.paginator.num_pages }}<span class="sr-only"></span></a></li>
-
-        {% if articles.has_next %}
-            <li><a href="?page={{ articles.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</div>
-{% endif %}
+    </div>
+    <div class="col-md-4">
+      {% get_section_articles 'news' 10 as articles_news %}
+      <div class="list-group box-news">
+        <h3 class="title-news">ÚLTIMAS NOTÍCIAS</h3>
+        {% for article in articles_news %}
+            <div class="list-group-item">
+                {% if article.get_images %}<img src="{{ article.get_images|first }}" align="left" style="margin-right: 10px;height: 60px !important">{% endif %}
+                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a><br>
+                <span>{{ article.created_at }}</span><br>
+            </div>
+        {% endfor %}
+      </div>
+    </div>
 {% endblock %}

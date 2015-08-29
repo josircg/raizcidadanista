@@ -23,7 +23,6 @@
                             {{ field|btform }}
                         {% endif %}
                         {% if field.errors %}
-                        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                         <ul class="list-unstyled">
                         {% for error in field.errors %}
                           <li class="text-error"><small>{{ error }}</small></li>

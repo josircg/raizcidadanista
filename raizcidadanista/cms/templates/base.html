@@ -109,23 +109,6 @@
           <!-- END MENU -->
         </div>
 
-        <div class="col-md-9 col-main">
-          {% block messages %}
-              {% if messages %}
-                  {% for message in messages %}
-                      <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
-                          {{ message }}
-                      </div>
-                  {% endfor %}
-              {% endif %}
-          {% endblock messages %}
-
-          <div id="main" class="main">
-          {% block main %}
-          {% endblock %}
-          </div>
-        </div>
-
         <div class="col-md-3">
           <div class="list-group">
             {% show_menu 'Menu Lateral' template='includes/menu_lateral.html' %}
@@ -150,6 +133,23 @@
             {% endfor %}
           </div>
           {% endif %}
+        </div>
+
+        <div class="col-md-9 col-main">
+          {% block messages %}
+              {% if messages %}
+                  {% for message in messages %}
+                      <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                          {{ message }}
+                      </div>
+                  {% endfor %}
+              {% endif %}
+          {% endblock messages %}
+
+          <div id="main" class="main">
+          {% block main %}
+          {% endblock %}
+          </div>
         </div>
       </div>
 

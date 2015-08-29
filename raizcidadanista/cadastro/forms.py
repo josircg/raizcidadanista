@@ -21,6 +21,10 @@ class MembroForm(forms.ModelForm):
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'filiacao_partidaria',)
 
+    def __init__(self, *args, **kwargs):
+        super(MembroForm, self).__init__(*args, **kwargs)
+        self.fields['filiacao_partidaria'].verbose_name = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if Membro.objects.filter(email=email).exists():

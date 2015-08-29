@@ -94,6 +94,7 @@ CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
+    ('I', u'Círculo Identitários'),
 )
 
 CIRCULO_STATUS = (

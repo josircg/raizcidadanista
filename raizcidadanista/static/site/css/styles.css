@@ -65,6 +65,9 @@ h3, .title-news b {
   margin-bottom: 0px;
 }
 
+button.input-group-addon {
+  padding: 9px 12px;
+}
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 

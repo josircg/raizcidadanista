@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-
+from django.contrib.localflavor.br.forms import BRCPFField
 from models import Pessoa, Membro
 
 
@@ -31,9 +31,22 @@ class MembroForm(forms.ModelForm):
 class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral',  )
+            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'nome_da_mae', )
+
+    cpf = BRCPFField(
+        label='CPF',
+        error_messages={
+            'invalid':u'Preencha corretamente o seu CPF.',
+            'max_digits': u'Certifique-se de que o valor tenha no máximo 11 números no formato: XXX.XXX.XXX-XX.',
+            'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
+        }
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(FiliadoForm, self).__init__(*args, **kwargs)
+        self.fields['nome_da_mae'].required = True
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

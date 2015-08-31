@@ -82,6 +82,10 @@ h3, .title-news b {
 .form-inline .form-group{
   margin-right: 15px;
 }
+
+.menu-redes-sociais p {
+  display: inline-block;
+}
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 

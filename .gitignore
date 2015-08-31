@@ -57,12 +57,13 @@ docs/_build/
 target/
 
 # Database
-*.sqlite3
+raizcidadanista/raizcidadanista.sqlite
 
 # Statics files
-/public/static/
+/raizcidadanista/media/
 
 # Production
-config/production.py
+raizcidadanista/settings/production.py
+raizcidadanista/settings/local.py
 manage.py
 fabfile.py

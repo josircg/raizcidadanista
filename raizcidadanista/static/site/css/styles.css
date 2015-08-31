@@ -1,0 +1,247 @@
+/* GLOBAL STYLES
+-------------------------------------------------- */
+/* Padding below the footer and lighter body text */
+
+body {
+  padding-bottom: 40px;
+  color: #5a5a5a;
+}
+
+a {
+  color: #2f7a35;
+}
+a:focus, a:hover, .pagination>li>a, .pagination>li>span, .pagination>li>a:focus, .pagination>li>a:hover, .pagination>li>span:focus, .pagination>li>span:hover {
+  color: #2f7a35;
+}
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+  background-color: #2f7a35;
+  border-color: #2f7a35
+}
+h3, .title-news b {
+  color: #951911 !important;
+  font-weight: bold;
+}
+.title-news {
+  color: #2f7a35 !important;
+  font-weight: lighter;
+}
+.bs-callout-info {
+  border-color: #2f7a35;
+}
+.bs-callout {
+  margin: 10px 0px;
+  padding: 5px 15px;
+  border-left: 4px solid #2f7a35;
+}
+
+.btn-success {
+    color: #2f7a35;
+    background-color: #94C11E;
+    font-weight: bold;
+    border: 0;
+    border-radius: 0;
+    text-transform: uppercase;
+
+}
+.btn-success:hover, .btn-success:active {
+    color: #333;
+    background-color: #94C11E;
+    font-weight: bold;
+    border: 0;
+    border-radius: 0;
+    text-transform: uppercase;
+
+}
+
+.main p, .main span {
+  font-family: Arial !important;
+  font-size: 14px !important;
+  line-height: 1.42857143 !important;
+  color: #808285 !important;
+}
+
+.section-inline-title {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
+.input-group-addon {
+  padding: 9px 12px;
+}
+
+
+.form-inline {
+  margin-bottom: 15px;
+}
+
+.form-inline .form-control, .form-inline .input-group{
+  display: block;
+  width: 100%;
+}
+
+.form-inline .form-group{
+  margin-right: 15px;
+}
+/* CUSTOMIZE THE NAVBAR
+-------------------------------------------------- */
+
+/* Special class on .container surrounding .navbar, used for positioning it into place. */
+.navbar-wrapper {
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.navbar-search {
+  margin: 31px 0px;
+}
+
+/* Flip around the padding for proper display in narrow viewports */
+.navbar-wrapper > .container {
+  padding-right: 0;
+  padding-left: 0;
+}
+.navbar-wrapper .navbar {
+  padding-right: 15px;
+  padding-left: 15px;
+  background-color: #94C11E;
+}
+.navbar-wrapper .navbar .container {
+  width: auto;
+}
+
+.navbar-default .navbar-nav>li>a {
+  color: #2f7a35;
+  font-weight: bold;
+}
+
+.logo {
+  background-color: #94C11E;
+  text-align: center;
+  height: 164px;
+  display: none;
+}
+
+.logo img {
+  max-width: 100% !important;
+}
+
+.title-logo {
+  color: #2F7A35;
+  text-align: center;
+  display: block;
+}
+
+.list-group {
+  border: 0;
+}
+
+.list-group .list-group-item {
+  border: 0px;
+  border-bottom-right-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  color: #808285 !important;
+  border-bottom: 2px #f4777b solid;
+  margin-bottom: 0px;
+}
+
+.box-news .list-group-item {
+  min-height: 80px;
+}
+
+.list-group .list-group-item.active, .list-group .list-group-item:hover, .list-group .list-group-item.active:hover {
+  background-color: #fff;
+  color: #A6CE39 !important;
+}
+.list-group .list-group-item span {
+  font-size: 11px !important;
+}
+
+.navbar-default .navbar-nav>.active>a {
+  background-color: #2f7a35;
+  color: #94C11E;
+}
+.navbar-default .navbar-nav>.active>a:hover {
+  color: #333;
+  background-color: #2f7a35;
+}
+
+@media (min-width: 992px){
+  .body .col-md-3 {
+      width: 23% !important;
+  }
+  .body .col-md-9 {
+      width: 77% !important;
+  }
+}
+
+/* main
+------------------------- */
+
+.main img {
+  max-width: 100%;
+  height: auto !important;
+}
+.main iframe {
+  max-width: 100% !important;
+}
+
+
+/* Footer
+------------------------- */
+
+footer ul {
+  list-style: none;
+  width: 100%;
+  padding: 0px;
+}
+footer ul li {
+  display: inline-block;
+  width: 24%;
+  text-align: center;
+}
+
+.navbar-search {
+  display: none;
+}
+
+/* RESPONSIVE CSS
+-------------------------------------------------- */
+
+@media (min-width: 768px) {
+
+  /* Navbar positioning foo */
+  .navbar-wrapper .container {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+  .navbar-wrapper .navbar {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  /* The navbar becomes detached from the top, so we round the corners */
+  .navbar-wrapper .navbar {
+    border-radius: 4px;
+  }
+
+  .navbar-search {
+    display: block;
+  }
+
+  .logo {
+    display: block;
+  }
+
+  .title-logo {
+    color: #2F7A35;
+    text-align: center;
+    display: none;
+  }
+}
+
+/* GTs */
+.body-gts li {
+  margin-bottom: 15px;
+}

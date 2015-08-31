@@ -1,0 +1,32 @@
+{% load i18n adminmedia %}
+{% if multi_search and multi_search_keys %}
+<div><!-- DIV needed for valid HTML -->
+    <form action="" method="get" class="changelist-search" id="changelist-search">
+    <label for="searchbar"><img src="{% admin_media_prefix %}img/icon_searchbox.png" alt="Search" /></label>
+    {% for field in multi_search_keys %}
+            <label for="searchbar{{ forloop.counter }}">
+                {{ field.label|capfirst }}
+            </label>
+            <input type="text" name="{{ field.name }}" value="{{ field.value }}" id="searchbar{{ forloop.counter }}" {{ field.attributes|safe }} />
+
+            {% for pair in cl.params.items %}
+                {% ifnotequal pair.0 search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}"/>{% endifnotequal %}
+            {% endfor %}
+    {% endfor %}
+        <input type="submit" value="{% trans 'Search' %}" />
+    </form>
+</div>
+<script type="text/javascript">
+    (function($) {
+        $(function() {
+            $("input[id^=searchbar]:first").click();
+            $("input[id^=searchbar]").each(function() {
+                var $this = $(this);
+                if($this.val()) {
+                    $this.click();
+                }
+            });
+        });
+    })(django.jQuery);
+</script>
+{% endif %}

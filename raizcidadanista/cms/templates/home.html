@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load cms_tags %}
+
+{% block css %}
+<style type="text/css" media="screen">
+    .logo {
+        display: block;
+    }
+    .title-logo {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+    {% get_section_articles 'home' 9 as articles %}
+
+    <div class="row">
+        <div class="col-md-4">
+        {% for article in articles %}
+            {% if forloop.counter == 1 or forloop.counter == 4 or forloop.counter == 7 %}
+            <div class="thumbnail">
+                <div class="caption">
+                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                    <p>{{ article.header|safe}}</p>
+                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="col-md-4">
+        {% for article in articles %}
+            {% if forloop.counter == 2 or forloop.counter == 5 or forloop.counter == 8 %}
+            <div class="thumbnail">
+                <div class="caption">
+                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                    <p>{{ article.header|safe}}</p>
+                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="col-md-4">
+        {% for article in articles %}
+            {% if forloop.counter == 3 or forloop.counter == 6 or forloop.counter == 9 %}
+            <div class="thumbnail">
+                <div class="caption">
+                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
+                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                    <p>{{ article.header|safe}}</p>
+                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

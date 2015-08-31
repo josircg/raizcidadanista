@@ -1,0 +1,112 @@
+{% extends "admin/base_site.html" %}
+
+<!-- LOADING -->
+{% load admin_static i18n l10n fb_tags %}
+{% load url from future %}
+
+<!-- STYLESHEETS -->
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "filebrowser/css/filebrowser.css" %}" />
+{% endblock %}
+
+<!-- JAVASCRIPTS -->
+{% block extrahead %}
+    {{ block.super }}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="{% static "filebrowser/file-upload/js/vendor/jquery.ui.widget.js" %}"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="{% static "filebrowser/file-upload/js/jquery.iframe-transport.js" %}"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="{% static "filebrowser/file-upload/js/jquery.fileupload.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#fileupload').fileupload({
+                url: '{% url 'filebrowser:fb_do_upload' %}?folder={{ query.dir|escapejs }}',
+                dataType: 'json',
+                limitMultiFileUploadSize: {{ settings_var.MAX_UPLOAD_SIZE|unlocalize }},
+                done: function (e, data) {
+                    $('.qq-upload-list').show();
+                    $('<div class=" qq-upload-success"><span class="qq-upload-file">'+data.result.filename+'</span></div>').appendTo('.qq-upload-list');
+                    $('#progress-bar').html('');
+                },
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress-bar').html('<div class="progress-bar"><div class="content" style="width: '+progress+'%;"></div></div>')
+                }
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        });
+    </script>
+{% endblock %}
+
+<!-- COLTYPE/BODYCLASS -->
+{% block bodyclass %}change-form filebrowser{% if query.pop %} popup{% endif %}{% endblock %}
+{% block coltype %}colM{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}{% include "filebrowser/include/breadcrumbs.html" %}{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+<div id="content-main">
+    <form>
+        <div>
+            <fieldset class="module aligned">
+            <div class="form-row" id="file-uploader">
+                <div>
+                    <div class="qq-uploader">
+                        <div class="qq-upload-button" style="position: relative; overflow: hidden; direction: ltr;">
+                            Enviar
+                            <input id="fileupload" type="file" name="files" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
+                        </div>
+                        <div id="progress-bar"></div>
+                        <div class="qq-upload-list" style="display: none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </fieldset>
+            <fieldset class="module aligned">
+                <h2>{% trans "Help" %}</h2>
+                <div class="form-row">
+                    <div>
+                        <label class="required">{% trans "Allowed" %}</label>
+                        <p>
+                        {% for extension in settings_var.EXTENSIONS.items %}
+                            {% ifnotequal extension.0 'Folder' %}
+                                <strong>{% trans extension.0|safe %}</strong> ({{ extension.1|join:", "|safe }})<br />
+                            {% endifnotequal %}
+                        {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="required">{% trans "Max. Filesize" %}</label>
+                        <p>{{ settings_var.MAX_UPLOAD_SIZE|filesizeformat }}</p>
+                    </div>
+                </div>
+                {% if settings_var.NORMALIZE_FILENAME or settings_var.CONVERT_FILENAME %}
+                    <div class="form-row">
+                        <div>
+                            <label class="required">{% trans "Filename" %}</label>
+                            {% if settings_var.NORMALIZE_FILENAME %}
+                                <p>{% trans "The Name will be normalized by converting or stripping all non-standard characters." %}</p>
+                            {% endif %}
+                            {% if settings_var.CONVERT_FILENAME %}
+                                <p>{% trans "The Name will be converted to lowercase. Spaces will be replaced with underscores." %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </fieldset>
+            <div class="qq-upload-button"><a href="{% url 'filebrowser:fb_browse' %}{% query_string %}" style="color:#fff;">{% trans "Feito" %}</a></div>
+        </div>
+    </form>
+</div>
+{% endblock %}

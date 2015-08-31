@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Cadastro de Filiados - {% endblock %}
+{% block ogtitle %}Cadastro de Filiados - {% endblock %}
+
+{% block description %}Cadastro de Filiados - {% endblock %}
+{% block ogdescription %}Cadastro de Filiados - {% endblock %}
+
+{% block main %}
+    <h3>Cadastro de Filiados</h3>
+    <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em afiliar-se ao movimento.</a></p>
+    <form action="" method="POST" role="form">{% csrf_token %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group{% if form.nome.errors %} has-error has-feedback{% endif %} group-{{ form.nome.name }}">
+                    <label class="control-label label-{{ form.nome.name }}" for="id_{{ form.nome.name }}">{{ form.nome.label }}{% if form.nome.field.required %}*{% endif %}</label>
+                    {{ form.nome|btform }}
+                    {% if form.nome.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.nome.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
+                    <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
+                    {{ form.email|btform }}
+                    {% if form.email.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.email.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.cpf.errors %} has-error has-feedback{% endif %} group-{{ form.cpf.name }}">
+                    <label class="control-label label-{{ form.cpf.name }}" for="id_{{ form.cpf.name }}">{{ form.cpf.label }}{% if form.cpf.field.required %}*{% endif %}</label>
+                    {{ form.cpf|btform }}
+                    {% if form.cpf.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.cpf.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.uf.errors %} has-error has-feedback{% endif %} group-{{ form.uf.name }}">
+                    <label class="control-label label-{{ form.uf.name }}" for="id_{{ form.uf.name }}">{{ form.uf.label }}{% if form.uf.field.required %}*{% endif %}</label>
+                    {{ form.uf|btform }}
+                    {% if form.uf.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.uf.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.municipio.errors %} has-error has-feedback{% endif %} group-{{ form.municipio.name }}">
+                    <label class="control-label label-{{ form.municipio.name }}" for="id_{{ form.municipio.name }}">{{ form.municipio.label }}{% if form.municipio.field.required %}*{% endif %}</label>
+                    {{ form.municipio|btform }}
+                    {% if form.municipio.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.municipio.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.sexo.errors %} has-error has-feedback{% endif %} group-{{ form.sexo.name }}">
+                    <label class="control-label label-{{ form.sexo.name }}" for="id_{{ form.sexo.name }}">{{ form.sexo.label }}{% if form.sexo.field.required %}*{% endif %}</label>
+                    {{ form.sexo|btform }}
+                    {% if form.sexo.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.sexo.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.celular.errors %} has-error has-feedback{% endif %} group-{{ form.celular.name }}">
+                    <label class="control-label label-{{ form.celular.name }}" for="id_{{ form.celular.name }}">{{ form.celular.label }}{% if form.celular.field.required %}*{% endif %}</label>
+                    {{ form.celular|btform }}
+                    {% if form.celular.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.celular.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.residencial.errors %} has-error has-feedback{% endif %} group-{{ form.residencial.name }}">
+                    <label class="control-label label-{{ form.residencial.name }}" for="id_{{ form.residencial.name }}">{{ form.residencial.label }}{% if form.residencial.field.required %}*{% endif %}</label>
+                    {{ form.residencial|btform }}
+                    {% if form.residencial.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.residencial.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group{% if form.atividade_profissional.errors %} has-error has-feedback{% endif %} group-{{ form.atividade_profissional.name }}">
+                    <label class="control-label label-{{ form.atividade_profissional.name }}" for="id_{{ form.atividade_profissional.name }}">{{ form.atividade_profissional.label }}{% if form.atividade_profissional.field.required %}*{% endif %}</label>
+                    {{ form.atividade_profissional|btform }}
+                    {% if form.atividade_profissional.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.atividade_profissional.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Dados Eleitorais</h3>
+                <div class="form-inline">
+                    <div class="form-group{% if form.dtnascimento.errors %} has-error has-feedback{% endif %} group-{{ form.dtnascimento.name }}">
+                        <label class="control-label label-{{ form.dtnascimento.name }}" for="id_{{ form.dtnascimento.name }}">{{ form.dtnascimento.label }}{% if form.dtnascimento.field.required %}*{% endif %}</label>
+                        {{ form.dtnascimento|btform }}
+                        {% if form.dtnascimento.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.dtnascimento.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.nome_da_mae.errors %} has-error has-feedback{% endif %} group-{{ form.nome_da_mae.name }}">
+                        <label class="control-label label-{{ form.nome_da_mae.name }}" for="id_{{ form.nome_da_mae.name }}">{{ form.nome_da_mae.label }}{% if form.nome_da_mae.field.required %}*{% endif %}</label>
+                        {{ form.nome_da_mae|btform }}
+                        {% if form.nome_da_mae.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.nome_da_mae.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <div class="form-group{% if form.uf_eleitoral.errors %} has-error has-feedback{% endif %} group-{{ form.uf_eleitoral.name }}">
+                        <label class="control-label label-{{ form.uf_eleitoral.name }}" for="id_{{ form.uf_eleitoral.name }}">{{ form.uf_eleitoral.label }}{% if form.uf_eleitoral.field.required %}*{% endif %}</label>
+                        {{ form.uf_eleitoral|btform }}
+                        {% if form.uf_eleitoral.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.uf_eleitoral.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.municipio_eleitoral.errors %} has-error has-feedback{% endif %} group-{{ form.municipio_eleitoral.name }}">
+                        <label class="control-label label-{{ form.municipio_eleitoral.name }}" for="id_{{ form.municipio_eleitoral.name }}">{{ form.municipio_eleitoral.label }}{% if form.municipio_eleitoral.field.required %}*{% endif %}</label>
+                        {{ form.municipio_eleitoral|btform }}
+                        {% if form.municipio_eleitoral.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.municipio_eleitoral.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <div class="form-group{% if form.zona_eleitoral.errors %} has-error has-feedback{% endif %} group-{{ form.zona_eleitoral.name }}">
+                            <label class="control-label label-{{ form.zona_eleitoral.name }}" for="id_{{ form.zona_eleitoral.name }}">{{ form.zona_eleitoral.label }}{% if form.zona_eleitoral.field.required %}*{% endif %}</label>
+                            {{ form.zona_eleitoral|btform }}
+                        {% if form.zona_eleitoral.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.zona_eleitoral.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.secao_eleitoral.errors %} has-error has-feedback{% endif %} group-{{ form.secao_eleitoral.name }}">
+                            <label class="control-label label-{{ form.secao_eleitoral.name }}" for="id_{{ form.secao_eleitoral.name }}">{{ form.secao_eleitoral.label }}{% if form.secao_eleitoral.field.required %}*{% endif %}</label>
+                            {{ form.secao_eleitoral|btform }}
+                        {% if form.secao_eleitoral.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.secao_eleitoral.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.titulo_eleitoral.errors %} has-error has-feedback{% endif %} group-{{ form.titulo_eleitoral.name }}">
+                        <label class="control-label label-{{ form.titulo_eleitoral.name }}" for="id_{{ form.titulo_eleitoral.name }}">{{ form.titulo_eleitoral.label }}{% if form.titulo_eleitoral.field.required %}*{% endif %}</label>
+                        <div class="input-group">
+                            {{ form.titulo_eleitoral|btform }}
+                            <a class="input-group-addon" href="http://www.tse.jus.br/eleitor/servicos/titulo-e-local-de-votacao/consulta-por-nome" target="_blank">Consulta ao TSE</a>
+                        </div>
+                        {% if form.titulo_eleitoral.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.titulo_eleitoral.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group{% if form.filiacao_partidaria.errors %} has-error has-feedback{% endif %} group-{{ form.filiacao_partidaria.name }}">
+                    <label class="control-label label-{{ form.filiacao_partidaria.name }}" for="id_{{ form.filiacao_partidaria.name }}">{{ form.filiacao_partidaria.label }}{% if form.filiacao_partidaria.field.required %}*{% endif %}</label>
+                    {{ form.filiacao_partidaria|btform }}
+                    {% if form.filiacao_partidaria.errors %}
+                    <ul class="list-unstyled">
+                    {% for error in form.filiacao_partidaria.errors %}
+                      <li class="text-error"><small>{{ error }}</small></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default">Cadastrar</button>
+    </form>
+{% endblock %}
+
+
+{% block css %}
+<style type="text/css">
+    .has-error .form-control-feedback {
+        margin-top: -6px;
+    }
+    #id_nome, #id_email, #id_atividade_profissional, #id_nome_da_mae {max-width: 500px;}
+    @media (min-width: 992px){
+        #id_nome_da_mae {width: 500px;}
+    }
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf {max-width: 165px;}
+    #id_zona_eleitoral, #id_secao_eleitoral {max-width: 80px;}
+    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria {max-width: 300px;}
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_dtnascimento').mask('00/00/0000');
+        $('#id_celular, #id_residencial').mask('(00)00000-0000');
+        $('#id_cpf').mask('000.000.000-00');
+
+        $('#id_municipio').remove();
+        $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+
+        $('#id_municipio_eleitoral').remove();
+        $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
+
+        function get_municipios(id_uf, id_municipios){
+            url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
+            $.getJSON(url, function(data){
+                $(id_municipios).html('');
+                $.each(data, function(key, val ) {
+                    $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                });
+            });
+        }
+
+        get_municipios('#id_uf', '#id_municipio');
+        $("#id_uf").change(function(){
+            get_municipios('#id_uf', '#id_municipio');
+        });
+
+        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+        $("#id_uf_eleitoral").change(function(){
+            get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+        });
+    });
+</script>
+{% endblock %}

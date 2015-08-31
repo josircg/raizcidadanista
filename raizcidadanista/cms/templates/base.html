@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  {% load url from future %}
+  {% load menu_tags cms_tags compress static %}
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% get_article 'header' as header %}
+    <title>{% block title %}{% endblock %}{{ header.title }}</title>
+
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'site/icon/apple-icon-57x57.png' %}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'site/icon/apple-icon-60x60.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'site/icon/apple-icon-72x72.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'site/icon/apple-icon-76x76.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'site/icon/apple-icon-114x114.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'site/icon/apple-icon-120x120.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'site/icon/apple-icon-144x144.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'site/icon/apple-icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'site/icon/apple-icon-180x180.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'site/icon/android-icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'site/icon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'site/icon/favicon-96x96.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'site/icon/favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'site/icon/favicon.ico' %}">
+    <meta property="og:title" content="{% spaceless %}{% block ogtitle %}{% endblock %}{{ header.title }}{% endspaceless %}">
+    <meta property="og:description" content="{% spaceless %}{% block ogdescription %}{% endblock %}{% endspaceless %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{% spaceless %}{% block allogimage %}http://{{ request.get_host }}{% block ogimage %}{% endblock %}{% endblock %}{% endspaceless %}">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="{{ header.title }}">
+    <meta property="og:type" content="website">
+    <meta property="fb:app_id" content="">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="{% static 'site/css/styles.css' %}?v1.6" rel="stylesheet">
+    {% block css %}{% endblock %}
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66401597-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+  </head>
+  <body>
+    <div class="container-fluid body">
+      <div class="row">
+        <div class="col-md-3">
+          <h2 class="title-logo">RAiZ</h2>
+          <div class="logo panel panel-default">
+            {{ header.header|safe }}
+          </div>
+        </div>
+
+        <div class="col-md-9">
+          <!-- MENU -->
+          <div class="navbar-wrapper">
+            <nav class="navbar navbar-default">
+              <div class="container-fluid navbar-search">
+                <form class="navbar-form navbar-left" action="{% url 'search' %}" method="GET">
+                  <div class="input-group">
+                    <input type="text" placeholder="Pesquisar" name="q" class="form-control">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>
+                  </div>
+                </form>
+                <form class="navbar-form navbar-left" action="{% if not user.is_authenticated %}{% url 'cms_login' %}{% else %}{% url 'admin:index' %}{% endif %}">
+                  {% if not user.is_authenticated %}
+                    <button type="submit" class="btn">Login</button>
+                  {% else %}
+                    Seja bem vindo, {% firstof user.first_name user.username %}!
+                    <button type="submit" class="btn">Admin</button>
+                  {% endif %}
+                </form>
+
+              </div>
+
+              <div class="container-fluid">
+                {% block menu %}
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                  <ul class="nav navbar-nav">
+                    {% show_menu 'Menu Topo' %}
+                  </ul>
+                </div>
+                {% endblock %}
+              </div>
+            </nav>
+          </div>
+          <!-- END MENU -->
+        </div>
+
+        <div class="col-md-3 col-left">
+          <div class="list-group">
+            {% show_menu 'Menu Lateral' template='includes/menu_lateral.html' %}
+          </div>
+          <br>
+          {% get_section_articles 'principios' as articles_principios %}
+          {% if articles_principios %}
+          <div class="list-group">
+            <h3 class="title-news">PRINCÍPIOS DA <b>RAiZ</b></h3>
+            {% for article in articles_principios %}
+            <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <br>
+          {% get_section_articles 'redes-sociais' as articles_redes_sociais %}
+          {% if articles_redes_sociais %}
+          <div class="list-group">
+            <h3 class="title-news">REDES SOCIAIS</h3>
+            {% for article in articles_redes_sociais %}
+            {{ article.header|safe }}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-9 col-main">
+          {% block messages %}
+              {% if messages %}
+                  {% for message in messages %}
+                      <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                          {{ message }}
+                      </div>
+                  {% endfor %}
+              {% endif %}
+          {% endblock messages %}
+
+          <div id="main" class="main">
+          {% block main %}
+          {% endblock %}
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <!-- FOOTER -->
+      <footer>
+        {% get_article 'footer' as footer %}
+        {{ footer.header|safe }}
+      </footer>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block js %}{% endblock %}
+  </body>
+</html>

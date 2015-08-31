@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Cadastro Newsletter - {% endblock %}
+{% block ogtitle %}Cadastro Newsletter - {% endblock %}
+
+{% block description %}Cadastro Mailing e Face - {% endblock %}
+{% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
+
+{% block main %}
+    <h3>Cadastro para Mala Direta e Facebook</h3>
+    <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
+    <form action="" method="POST" role="form">{% csrf_token %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% for field in form %}
+                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                        {% if field|btischeckbox %}
+                            {{ field|btform }}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                        {% else %}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {{ field|btform }}
+                        {% endif %}
+                        {% if field.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in field.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default">Cadastrar</button>
+    </form>
+{% endblock %}
+
+
+{% block css %}
+<style type="text/css">
+    .has-error .form-control-feedback {
+        margin-top: -6px;
+    }
+    #id_nome, #id_email {max-width: 500px;}
+    #id_uf, #id_sexo {max-width: 165px;}
+    #id_municipio, #id_celular, #id_residencial {max-width: 300px;}
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_municipio').remove();
+        $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+
+        function get_municipios(id_uf, id_municipios){
+            url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
+            $.getJSON(url, function(data){
+                $(id_municipios).html('');
+                $.each(data, function(key, val ) {
+                    $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                });
+            });
+        }
+
+        get_municipios('#id_uf', '#id_municipio');
+        $("#id_uf").change(function(){
+            get_municipios('#id_uf', '#id_municipio');
+        });
+    });
+</script>
+{% endblock %}

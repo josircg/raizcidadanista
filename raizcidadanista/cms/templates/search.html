@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load cms_tags %}
+
+{% block title %}Pesquisando por "{{ q }}"... / {% endblock %}
+{% block ogtitle %}Pesquisando por "{{ q }}"... / {% endblock %}
+
+{% block description %}Pesquisando por "{{ q }}"... / {% endblock %}
+{% block ogdescription %}Pesquisando por "{{ q }}"... / {% endblock %}
+
+{% block keywords %}
+    {{ q }}
+{% endblock %}
+
+
+{% block main %}
+<h2>Pesquisando por "{{ q }}"</h2>
+{% for result in results %}
+    <div class="bs-callout bs-callout-info">
+        <h3><a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a></h3>
+        <small>{{ result.object.created_at|date:"d \d\e F \d\e Y" }}</small>
+    </div>
+{% empty %}
+    <div class="bs-callout bs-callout-info">
+        <h3>Nada encontrado...</h3>
+    </div>
+{% endfor %}
+{% if results.has_previous or results.has_next %}
+<div align="center">
+    <ul class="pagination">
+        {% if results.has_previous %}
+            <li><a href="?page={{ results.previous_page_number }}&q={{ q }}">&laquo;</a></li>
+        {% endif %}
+
+        <li class="active"><a href="#">{{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span></a></li>
+
+        {% if results.has_next %}
+            <li><a href="?page={{ results.next_page_number }}&q={{ q }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

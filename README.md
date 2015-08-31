@@ -1,6 +1,6 @@
 # raizcidadanista
 
-Sistema de Gerenciamento do Raiz Movimento Cidadanista
+Sistema de Gerenciamento de Membros do Raiz Movimento Cidadanista
 
 http://www.raizmovimentocidadanista.org.br/
 

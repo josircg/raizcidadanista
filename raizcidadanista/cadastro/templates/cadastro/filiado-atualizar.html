@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Cadastro de Filiados - {% endblock %}
-{% block ogtitle %}Cadastro de Filiados - {% endblock %}
+{% block title %}Atualização de Cadastro do Raíz - {% endblock %}
+{% block ogtitle %}Atualização de Cadastro do Raíz - {% endblock %}
 
-{% block description %}Cadastro de Filiados - {% endblock %}
-{% block ogdescription %}Cadastro de Filiados - {% endblock %}
+{% block description %}Atualização de Cadastro do Raíz - {% endblock %}
+{% block ogdescription %}Atualização de Cadastro do Raíz - {% endblock %}
 
 {% block main %}
-    <h3>Cadastro de Filiados</h3>
-    <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em afiliar-se ao movimento.</p>
+    <h3>Atualização de Cadastro do Raíz</h3>
+    <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
     <form action="" method="POST" role="form">{% csrf_token %}
         <div class="panel panel-default">
             <div class="panel-body">
@@ -216,7 +216,7 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-default">Cadastrar</button>
+        <button type="submit" class="btn btn-default">Atualizar</button>
     </form>
 {% endblock %}
 
@@ -270,22 +270,6 @@
         $("#id_uf_eleitoral").change(function(){
             get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
         });
-
-        $("#id_email").change(function(){
-            $.ajax({
-              dataType: "json",
-              url: '{% url filiado %}',
-              data: {'email': $(this).val()},
-              success: function(data){
-                $(".group-email .list-unstyled").remove();
-                $(".group-email").removeClass('has-error');
-                if(data.msg != ""){
-                    $(".group-email").addClass('has-error');
-                    $(".group-email").append('<ul class="list-unstyled"><li class="text-error"><small>'+data.msg+'</small></li></ul>');
-                }
-              }
-            });
-        })
     });
 </script>
 {% endblock %}

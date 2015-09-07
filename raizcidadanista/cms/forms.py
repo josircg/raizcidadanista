@@ -139,3 +139,25 @@ class CustomPasswordResetForm(PasswordResetForm):
                 params=c,
                 template=email_template_name,
             )
+
+
+class ContatoForm(forms.Form):
+    nome = forms.CharField(u'Nome')
+    email = forms.EmailField(u'Email')
+    mensagem = forms.CharField(u'Mensagem', widget=forms.Textarea())
+
+
+    def sendemail(self):
+        nome = self.cleaned_data.get('nome')
+        email = self.cleaned_data.get('email')
+        mensagem = self.cleaned_data.get('mensagem')
+        sendmail(
+            subject = u'Raiz Cidadanista - Formulário de contato',
+            to = ['correio@raiz.org.br', ],
+            params = {
+                'nome': nome,
+                'email': email,
+                'mensagem': mensagem,
+            },
+            template = 'emails/contato.html',
+        )

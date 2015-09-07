@@ -66,7 +66,7 @@ class Membro(Pessoa):
     facebook_id = models.CharField(u'Facebook ID', max_length=120, editable=False, blank=True, null=True)
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
-    filiado = models.BooleanField(u'É filiado?', default=False)
+    filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

@@ -107,7 +107,11 @@ class SectionDetailView(DetailView):
         ]
 
     def get_context_data(self, **kwargs):
-        articles_list = self.object.get_articles()
+        articles_list = []
+        for article in self.object.get_articles():
+            if article.have_perm(self.request.user):
+                articles_list.append(article)
+
         paginator = Paginator(articles_list, 10)
 
         page = self.request.GET.get('page')
@@ -197,10 +201,11 @@ class SearchView(TemplateView):
                 Q(keywords__icontains=q)
             ).distinct()
             for article in articles_list:
-                results_list.append({
-                    'title': article.title,
-                    'object': article,
-                })
+                if article.have_perm(self.request.user):
+                    results_list.append({
+                        'title': article.title,
+                        'object': article,
+                    })
             results_list = sorted(results_list, key=lambda k: k['title'])
 
         paginator = Paginator(results_list, 10)

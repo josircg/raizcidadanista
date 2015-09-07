@@ -13,27 +13,33 @@ register = template.Library()
 def get_section(context, slug):
     try:
         section = Section.objects.get(slug=slug)
-    except Section.DoesNotExist:
-        section = None
-
-    return section
+        if section.have_perm(context.get('request').user):
+            return section
+    except Section.DoesNotExist: pass
+    return None
 
 
 @register.assignment_tag(takes_context=True)
 def get_article(context, slug):
     try:
-        section = Article.objects.get(slug=slug)
-    except Article.DoesNotExist:
-        section = None
+        article = Article.objects.get(slug=slug)
+        if article.have_perm(context.get('request').user):
+            return article
+    except Article.DoesNotExist: pass
 
-    return section
+    return None
 
 
 @register.assignment_tag(takes_context=True)
 def get_section_articles(context, slug, num=5):
+    articles = []
     try:
         section = Section.objects.get(slug=slug)
-        return section.get_articles()[:num]
+        for article in section.get_articles():
+            if article.have_perm(context.get('request').user):
+                articles.append(article)
+            if len(articles) == num: break
+        return articles
     except Section.DoesNotExist:
         return []
 

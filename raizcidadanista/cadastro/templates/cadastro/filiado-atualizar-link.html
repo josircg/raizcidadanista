@@ -8,26 +8,28 @@
 {% block ogdescription %}Atualização de Cadastro do Raíz - {% endblock %}
 
 {% block main %}
-    <h3>Atualização de Cadastro do Raíz</h3>
-    <p>Informe o seu email cadastrado. Enviaremos um link para que você possa atualizar os seus dados.</p>
-    <form action="" method="POST" role="form">{% csrf_token %}
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
-                    <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
-                    {{ form.email|btform }}
-                    {% if form.email.errors %}
-                    <ul class="list-unstyled">
-                    {% for error in form.email.errors %}
-                      <li class="text-error"><small>{{ error }}</small></li>
-                    {% endfor %}
-                    </ul>
-                    {% endif %}
+    <div class="col-article">
+        <h3>Atualização de Cadastro do Raíz</h3>
+        <p>Informe o seu email cadastrado. Enviaremos um link para que você possa atualizar os seus dados.</p>
+        <form action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
+                        <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
+                        {{ form.email|btform }}
+                        {% if form.email.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.email.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-default">Enviar</button>
-    </form>
+            <button type="submit" class="btn btn-default">Enviar</button>
+        </form>
+    </div>
 {% endblock %}
 
 
@@ -38,4 +40,7 @@
     }
     #id_email {max-width: 500px;}
 </style>
+{% endblock %}
+
+{% block colleft %}
 {% endblock %}

@@ -8,33 +8,35 @@
 {% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
 
 {% block main %}
-    <h3>Cadastro para Mala Direta e Facebook</h3>
-    <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
-    <form action="" method="POST" role="form">{% csrf_token %}
-        <div class="panel panel-default">
-            <div class="panel-body">
-                {% for field in form %}
-                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                        {% if field|btischeckbox %}
-                            {{ field|btform }}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                        {% else %}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {{ field|btform }}
-                        {% endif %}
-                        {% if field.errors %}
-                        <ul class="list-unstyled">
-                        {% for error in field.errors %}
-                          <li class="text-error"><small>{{ error }}</small></li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+    <div class="col-article">
+        <h3>Cadastro para Mala Direta e Facebook</h3>
+        <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
+        <form action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% for field in form %}
+                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                            {% if field|btischeckbox %}
+                                {{ field|btform }}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {% else %}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                {{ field|btform }}
+                            {% endif %}
+                            {% if field.errors %}
+                            <ul class="list-unstyled">
+                            {% for error in field.errors %}
+                              <li class="text-error"><small>{{ error }}</small></li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-default">Cadastrar</button>
-    </form>
+            <button type="submit" class="btn btn-default">Cadastrar</button>
+        </form>
+    </div>
 {% endblock %}
 
 
@@ -72,4 +74,7 @@
         });
     });
 </script>
+{% endblock %}
+
+{% block colleft %}
 {% endblock %}

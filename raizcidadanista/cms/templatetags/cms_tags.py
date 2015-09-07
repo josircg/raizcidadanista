@@ -53,7 +53,7 @@ def get_last_comments(context, num=5):
 def get_sections(context):
     sections = []
     for section in Section.objects.exclude(order=0):
-        if section.have_perm(context.get('request').user):
+        if section.have_perm(context.get('request').user) and section.num_articles() > 0:
             sections.append(section)
     return sections
 

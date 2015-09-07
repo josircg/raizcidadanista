@@ -25,9 +25,9 @@
                         </ul>
                         {% endif %}
                     </div>
+                    <button type="submit" class="btn btn-success">Enviar</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-default">Enviar</button>
         </form>
     </div>
 {% endblock %}
@@ -39,8 +39,8 @@
         margin-top: -6px;
     }
     #id_email {max-width: 500px;}
+    @media (max-width: 992px){
+        .col-left {display: none; }
+    }
 </style>
-{% endblock %}
-
-{% block colleft %}
 {% endblock %}

@@ -16,7 +16,7 @@ from cadastro.models import Circulo
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
-from forms import ArticleCommentForm
+from forms import ArticleCommentForm, ContatoForm
 
 import mimetypes, os
 
@@ -50,6 +50,27 @@ class GTsView(TemplateView):
         context = super(GTsView, self).get_context_data(**kwargs)
         context['gts'] = Circulo.objects.filter(tipo='G', oficial=True).order_by('titulo')
         return context
+
+
+class ContatoView(FormView):
+    template_name = 'contato.html'
+    template_success_name = 'contato.html'
+    form_class = ContatoForm
+
+    def form_valid(self, form):
+        form.sendemail()
+        messages.info(self.request, u"Mensagem enviada com sucesso!")
+        return self.response_class(
+            request=self.request,
+            template=self.template_success_name,
+            context={
+                'form': self.form_class(),
+            }
+        )
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os dados!")
+        return super(ContatoView, self).form_invalid(form)
 
 
 class ArticleDetailView(DetailView):

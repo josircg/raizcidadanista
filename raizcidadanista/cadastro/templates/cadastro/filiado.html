@@ -215,9 +215,9 @@
                         </ul>
                         {% endif %}
                     </div>
+                    <button type="submit" class="btn btn-success">Cadastrar</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-default">Cadastrar</button>
         </form>
     </div>
 {% endblock %}
@@ -235,7 +235,9 @@
     #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf {max-width: 165px;}
     #id_zona_eleitoral, #id_secao_eleitoral {max-width: 80px;}
     #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria {max-width: 300px;}
-    .col-left {display: none; }
+    @media (max-width: 992px){
+        .col-left {display: none; }
+    }
 </style>
 {% endblock %}
 
@@ -291,7 +293,4 @@
         })
     });
 </script>
-{% endblock %}
-
-{% block colleft %}
 {% endblock %}

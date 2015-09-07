@@ -75,9 +75,9 @@ class Article(models.Model):
         for section in self.sections.all():
             if not section.permissao_set.count():
                 return True
-            if user.groups.filter(pk__in=section.permissao_set.values_list('pk', flat=True)).exists():
-                return True
-        return False
+            if not user.groups.filter(pk__in=section.permissao_set.values_list('pk', flat=True)).exists():
+                return False
+        return True
 
     def get_images(self):
         rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.]*)(".*)(>)')

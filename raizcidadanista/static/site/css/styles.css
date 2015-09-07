@@ -69,6 +69,9 @@ h3, .title-news b {
   padding: 9px 12px;
 }
 
+.navbar-search .input-group-addon {
+  padding: 8px 12px;
+}
 
 .form-inline {
   margin-bottom: 15px;

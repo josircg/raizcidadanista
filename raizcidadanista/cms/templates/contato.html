@@ -10,7 +10,7 @@
 {% block main %}
     <div class="col-article">
         <h3>Contato</h3>
-        <p>Deixe sua mensagem.</p>
+        <p>Envie aqui a sua mensagem para nós</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -32,9 +32,9 @@
                             {% endif %}
                         </div>
                     {% endfor %}
+                    <button type="submit" class="btn btn-success">Enviar</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-success">Enviar</button>
         </form>
     </div>
 {% endblock %}

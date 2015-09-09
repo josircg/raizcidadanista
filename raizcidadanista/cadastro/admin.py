@@ -10,6 +10,11 @@ from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
+class PessoaAdmin(PowerModelAdmin):
+    list_filter = ('uf', 'dtcadastro')
+    search_fields = ('nome', 'email',)
+    list_display = ('nome', 'email', 'dtcadastro', )
+
 class CirculoMembroMembroInline(admin.TabularInline):
     model = CirculoMembro
     extra = 1
@@ -130,4 +135,4 @@ class CirculoAdmin(PowerModelAdmin):
 admin.site.register(Circulo, CirculoAdmin)
 admin.site.register(CirculoEvento)
 admin.site.register(Membro, MembroAdmin)
-admin.site.register(Pessoa)
+admin.site.register(Pessoa, PessoaAdmin)

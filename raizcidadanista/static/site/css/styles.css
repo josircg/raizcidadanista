@@ -86,6 +86,11 @@ h3, .title-news b {
   margin-right: 15px;
 }
 
+.text-error a {
+  font-weight: bold;
+  font-size: 14px;
+}
+
 .menu-redes-sociais p {
   display: inline-block;
 }

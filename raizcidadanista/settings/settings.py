@@ -256,15 +256,6 @@ ADMIN_TOOLS_MENU = 'raizcidadanista.menu.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'raizcidadanista.dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'raizcidadanista.dashboard.CustomAppIndexDashboard'
 
-#Configurations for send email
-REPLY_TO_EMAIL = 'raizmovimentocidanista@gmail.com'
-DEFAULT_FROM_EMAIL = 'Raiz Cidadanista<raizmovimentocidanista@gmail.com>'
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'cursoradix'
-EMAIL_HOST_PASSWORD = 'radix99'
-EMAIL_SUBJECT_PREFIX = u'Raiz Cidadanista - '
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

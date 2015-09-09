@@ -256,6 +256,7 @@ ADMIN_TOOLS_MENU = 'raizcidadanista.menu.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'raizcidadanista.dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'raizcidadanista.dashboard.CustomAppIndexDashboard'
 
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

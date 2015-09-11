@@ -62,6 +62,7 @@ class CirculoEventoCirculoInline(admin.TabularInline):
             return ()
 
 class CirculoAdmin(PowerModelAdmin):
+    search_fields = ('titulo',)
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('tipo','uf',)
     fieldsets_comissao = (

@@ -58,7 +58,6 @@ target/
 
 # Database
 raizcidadanista/raizcidadanista.sqlite
-raizcidadanista/settings/dev.py
 
 # Statics files
 /raizcidadanista/media/
@@ -66,5 +65,7 @@ raizcidadanista/settings/dev.py
 # Production
 raizcidadanista/settings/production.py
 raizcidadanista/settings/local.py
+raizcidadanista/settings/dev.py
+raizcidadanista/settings/test.py
 manage.py
 fabfile.py

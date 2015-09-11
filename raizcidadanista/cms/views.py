@@ -51,6 +51,13 @@ class GTsView(TemplateView):
         context['gts'] = Circulo.objects.filter(tipo='G', oficial=True).order_by('titulo')
         return context
 
+class CirculosTematicos(TemplateView):
+    template_name = 'circulos-tematicos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CirculosTematicos, self).get_context_data(**kwargs)
+        context['circulos'] = Circulo.objects.filter(tipo__in=('T','I'), oficial=True).order_by('titulo')
+        return context
 
 class ContatoView(FormView):
     template_name = 'contato.html'

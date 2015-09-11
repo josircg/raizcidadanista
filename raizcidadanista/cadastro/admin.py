@@ -35,6 +35,12 @@ class MembroAdmin(PowerModelAdmin):
             if rec.aprovador is None:
                 rec.aprovador = request.user
                 rec.save()
+                sendmail( subject=u'Seja bem-vindo à Raiz Movimento Cidadanista',
+                          to=[ rec.email ],
+                          template='',
+                          params={ 'filiado': rec,
+                                   'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar')),
+                                    }, )
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
 
     def get_readonly_fields(self, request, obj=None):
@@ -62,6 +68,7 @@ class CirculoEventoCirculoInline(admin.TabularInline):
             return ()
 
 class CirculoAdmin(PowerModelAdmin):
+    search_fields = ('titulo',)
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('tipo','uf',)
     fieldsets_comissao = (

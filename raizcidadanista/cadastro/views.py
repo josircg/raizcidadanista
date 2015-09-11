@@ -59,7 +59,7 @@ class MembroView(FormView):
 class FiliadoAtualizarLinkView(FormView):
     template_name = 'cadastro/filiado-atualizar-link.html'
     template_success_name = 'cadastro/bem-vindo.html'
-    template_email_name = 'cadastro/emails/filiado-atualizar.html'
+    template_email_name = 'emails/filiado-atualizar.html'
     form_class = FiliadoAtualizarLinkForm
 
     def get_form_kwargs(self):

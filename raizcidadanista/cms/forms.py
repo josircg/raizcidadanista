@@ -142,10 +142,9 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 
 class ContatoForm(forms.Form):
-    nome = forms.CharField(u'Nome')
-    email = forms.EmailField(u'Email')
-    mensagem = forms.CharField(u'Mensagem', widget=forms.Textarea())
-
+    nome = forms.CharField(u'Nome', required=True)
+    email = forms.EmailField(u'Email', required=True)
+    mensagem = forms.CharField(u'Mensagem', widget=forms.Textarea(), required=True)
 
     def sendemail(self):
         nome = self.cleaned_data.get('nome')

@@ -257,13 +257,15 @@
         $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
 
         function get_municipios(id_uf, id_municipios){
-            url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
-            $.getJSON(url, function(data){
-                $(id_municipios).html('');
-                $.each(data, function(key, val ) {
-                    $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+            $(id_municipios).html('');
+            if($(id_uf).val() != ''){
+                url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
+                $.getJSON(url, function(data){
+                    $.each(data, function(key, val ) {
+                        $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                    });
                 });
-            });
+            }
         }
 
         get_municipios('#id_uf', '#id_municipio');

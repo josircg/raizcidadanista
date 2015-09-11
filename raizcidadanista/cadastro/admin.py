@@ -3,12 +3,13 @@ from django.contrib import admin
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
-
 from functools import partial
 
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
+from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
+
 
 class PessoaAdmin(PowerModelAdmin):
     list_filter = ('uf', 'dtcadastro')
@@ -31,17 +32,19 @@ class MembroAdmin(PowerModelAdmin):
     def aprovacao(self, request, queryset):
         contador = 0
         for rec in queryset:
-            contador += 1
             if rec.aprovador is None:
+                contador += 1
                 rec.aprovador = request.user
                 rec.save()
-                sendmail( subject=u'Seja bem-vindo à Raiz Movimento Cidadanista',
-                          to=[ rec.email ],
-                          template='',
-                          params={ 'filiado': rec,
-                                   'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar')),
-                                    }, )
+                sendmail(
+                    subject=u'Seja bem-vindo à Raiz Movimento Cidadanista',
+                    to=[rec.email, ],
+                    template='emails/bemvindo-colaborador.html',
+                    params={
+                    },
+                )
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
+    aprovacao.short_description = u'Aprovação'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

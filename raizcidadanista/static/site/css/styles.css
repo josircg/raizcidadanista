@@ -94,6 +94,14 @@ h3, .title-news b {
 .menu-redes-sociais p {
   display: inline-block;
 }
+
+.share-links {
+  margin-top: 20px;
+  text-align: right;
+}
+.share-links .twitter-share-button {
+  vertical-align: bottom;
+}
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 

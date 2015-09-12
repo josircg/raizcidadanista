@@ -10,7 +10,13 @@
 
 {% block main %}
     <div class="col-md-8 col-article">
-        <h3>{{ article.title }}</h3>
+        <div class="col-md-8 col-article">
+            <h3>{{ article.title }}</h3>
+        </div>
+        <div class="col-md-4 col-article share-links">
+            <div class="fb-like" layout="button_count"></div>
+            <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+        </div>
         {{ article.content|safe }}
 
         {% if article.allow_comments != 'N' %}

@@ -1,12 +1,21 @@
 # -*- coding:utf-8 -*-
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
-from django.http import HttpResponse
+from django.conf.urls.defaults import patterns, url
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
+from django.http import HttpResponse, HttpResponseRedirect
 from functools import partial
+from datetime import datetime
 
+import csv
+
+from forms import MembroImport
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
+from municipios.models import UF
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
@@ -51,6 +60,75 @@ class MembroAdmin(PowerModelAdmin):
             return ()
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
+
+    def import_membros(self, request, form_class=MembroImport, template_name='admin/core/membro/import.html'):
+        if not request.user.is_superuser:
+            raise PermissionDenied()
+
+        form = form_class()
+        if request.method == 'POST':
+            form = form_class(request.POST, request.FILES)
+            if form.is_valid():
+                var = {
+                    'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
+                    'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_eleitoral': 11, 'zona_secao_eleitoral': 12, 'municipio_eleitoral': 13,
+                    'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria': 16,
+                }
+                lidos = 0
+                importados = 0
+                atualizados = 0
+                erros = 0
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
+                    if len(record) >= 16:
+                        lidos += 1
+                        try:
+                            uf = UF.objects.filter(uf__icontains=record[var['uf']]).latest('pk')
+                        except UF.DoesNotExist:
+                            messages.error(request, u'Estado(%s) do colaborador/visitante %s não foi encontrado.' % (record[var['uf']], record[var['email']]))
+                            erros += 1
+                            continue
+                        try:
+                            # Atualiza o Membro
+                            membro = Membro.objects.get(email=record[var['email']])
+                            if not membro.nome:
+                                membro.nome = record[var['nome']]
+                            if not membro.uf:
+                                membro.uf = uf
+                            if not membro.municipio:
+                                membro.municipio = record[var['municipio']]
+                            membro.save()
+                            atualizados += 1
+                        except Membro.DoesNotExist:
+                            # Importa o Membro
+                            Membro(
+                                email=record[var['email']],
+                                nome=record[var['nome']],
+                                uf=uf,
+                                municipio=record[var['municipio']],
+                                dtcadastro=datetime.strptime(record[var['dtcadastro']], '%d/%m/%Y %H:%M:%S')
+                            ).save()
+                            importados += 1
+                messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
+                return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))
+
+        return render_to_response(template_name, {
+            'title': u'Importar visitantes e colaboradores',
+            'form': form,
+        },context_instance=RequestContext(request))
+
+    def get_urls(self):
+        urls_originais = super(MembroAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^import/$', self.wrap(self.import_membros), name='cadastro_membros_import_membros'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(MembroAdmin, self).get_buttons(request, object_id)
+        if not object_id and request.user.is_superuser:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar visitantes e colaboradores'))
+        return buttons
+
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro

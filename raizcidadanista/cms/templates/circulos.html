@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {% load static %}
+    {% load static cadastro_tags %}
     <title></title>
     <style type="text/css" media="screen">
-        #box-cidades{width: 275px; padding: 10px 0; display: none;}
+        #box-cidades {padding: 10px 0; }
+        #box-cidades .circulo{display: none;}
+        .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
+        .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
+        .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
     </style>
     <!-- Bootstrap core CSS -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -16,24 +20,70 @@
     <link href="/static/site/css/styles.css" rel="stylesheet">
 </head>
 <body>
+    <br>
+    {% block messages %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock messages %}
     <label>
-        Selecione o seu estado:<br>
+        Selecione o seu estado:
         <select id="select-uf-circulo">
             <option cidades="">---</option>
-            {% for uf, cidades in circulos %}
-            <option cidades="{{ cidades }}">{{ uf }}</option>
+            {% for uf in estados %}
+            <option box="id_estado_{{ uf.pk }}">{{ uf.nome }}</option>
             {% endfor %}
         </select>
     </label>
-    <br>
+
     <div id="box-cidades">
+        {% for uf in estados %}
+            <div class="circulo" id="id_estado_{{ uf.pk }}">
+            {% if uf.circulo_set.all %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Cículos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for circulo in uf.circulo_set.all %}
+                        <tr>
+                        {% if circulo.site_externo %}
+                            <td width="80%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
+                        {% else %}
+                            <td width="80%"><a>{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            {% if circulo|is_membro:user %}
+                                <td width="20%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                            {% else %}
+                                <td width="20%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                            {% endif %}
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                Ainda não existe nenhum círculo em seu estado.
+            {% endif %}
+            </div>
+        {% endfor %}
     </div>
+    {% if not user.is_authenticated %}
+    <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
+    {% endif %}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">
         $('#select-uf-circulo').change(function(event) {
-            $('#box-cidades').show();
-            $('#box-cidades').html($(this).find('option:selected').attr('cidades'));
+            $('#box-cidades .circulo').hide();
+            $('#box-cidades #'+$(this).find('option:selected').attr('box')).show();
         });
     </script>
 </body>

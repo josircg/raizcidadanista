@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {% load static %}
+    {% load static cadastro_tags %}
     <title>Círculos Temáticos e Identitários</title>
     <!-- Bootstrap core CSS -->
     <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -11,25 +11,58 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="{% static 'site/css/styles.css' %}" rel="stylesheet">
+    <style type="text/css" media="screen">
+        .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
+        .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
+        .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
+    </style>
 </head>
 <body>
     <div class="container-fluid body body-gts">
-        <div class="row">
-            <ul class="list-unstyled">
-                {% for item in circulos %}
-                    <li>
-                        <b>
-                            {% if item.site_externo %}
-                                <a href="{{ item.site_externo }}" target="_blank">{{ item.titulo }}</a>
-                            {% else %}
-                                {{ item.titulo }}
-                            {% endif %}
-                        </b><br>
-                        {{ item.descricao|safe }}
-                    </li>
+        {% block messages %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                        {{ message }}
+                    </div>
                 {% endfor %}
-            </ul>
-        </div>
+            {% endif %}
+        {% endblock messages %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2">Cículos Temáticos</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for circulo in circulos %}
+                <tr>
+                {% if circulo.site_externo %}
+                    <td width="80%">
+                        <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a><br>
+                        {{ circulo.descricao|safe }}
+                    </td>
+                {% else %}
+                    <td width="80%">
+                        <a>{{ circulo.titulo }}</a><br>
+                        {{ circulo.descricao|safe }}
+                    </td>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    {% if circulo|is_membro:user %}
+                        <td width="20%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                    {% else %}
+                        <td width="20%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                    {% endif %}
+                {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if not user.is_authenticated %}
+        <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
+        {% endif %}
     </div>
 </body>
 </html>

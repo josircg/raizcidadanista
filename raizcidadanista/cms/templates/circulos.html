@@ -9,7 +9,6 @@
         .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
         .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
         .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
-        ul li {line-height: 30px;}
     </style>
     <!-- Bootstrap core CSS -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -31,9 +30,6 @@
             {% endfor %}
         {% endif %}
     {% endblock messages %}
-    {% if not user.is_authenticated %}
-    <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
-    {% endif %}
     <label>
         Selecione o seu estado:
         <select id="select-uf-circulo">
@@ -43,36 +39,45 @@
             {% endfor %}
         </select>
     </label>
-    <br>
+
     <div id="box-cidades">
         {% for uf in estados %}
             <div class="circulo" id="id_estado_{{ uf.pk }}">
             {% if uf.circulo_set.all %}
-                <b>Círculos:</b><br>
-                <ul>
-                {% for circulo in uf.circulo_set.all %}
-                    <li>
-                    {% if circulo.site_externo %}
-                        <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a>
-                    {% else %}
-                        {{ circulo.titulo }} {% firstof circulo.municipio '' %}
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                        {% if circulo|is_membro:user %}
-                            <span class="button-membro">Membro do Grupo</span>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Cículos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for circulo in uf.circulo_set.all %}
+                        <tr>
+                        {% if circulo.site_externo %}
+                            <td width="80%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
                         {% else %}
-                            <a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a>
+                            <td width="80%"><a>{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
                         {% endif %}
-                    {% endif %}
-                    </li>
-                {% endfor %}
-                </ul>
+                        {% if user.is_authenticated %}
+                            {% if circulo|is_membro:user %}
+                                <td width="20%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                            {% else %}
+                                <td width="20%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                            {% endif %}
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
                 Ainda não existe nenhum círculo em seu estado.
             {% endif %}
             </div>
         {% endfor %}
     </div>
+    {% if not user.is_authenticated %}
+    <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
+    {% endif %}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">

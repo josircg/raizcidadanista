@@ -44,7 +44,7 @@ class CirculosTematicos(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CirculosTematicos, self).get_context_data(**kwargs)
-        context['circulos'] = Circulo.objects.filter(tipo__in=('T','I'), oficial=True).order_by('titulo')
+        context['circulos'] = Circulo.objects.filter(tipo__in=('T', 'I'), oficial=True).order_by('titulo')
         return context
 
 

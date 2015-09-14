@@ -19,6 +19,15 @@
 </head>
 <body>
     <div class="container-fluid body body-gts">
+        {% block messages %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endblock messages %}
         <table class="table table-hover">
             <thead>
                 <tr>

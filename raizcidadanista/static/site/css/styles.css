@@ -264,3 +264,12 @@ footer ul li {
 .body-gts li {
   margin-bottom: 15px;
 }
+
+
+.bullets{
+  padding:6px 0 6px 40px;
+  float: left;
+  background:url(../icon/bullet.jpg) no-repeat center left;
+}
+
+.bullets img{display:none;}

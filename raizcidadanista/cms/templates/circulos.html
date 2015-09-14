@@ -56,10 +56,12 @@
                     {% else %}
                         {{ circulo.titulo }} {% firstof circulo.municipio '' %}
                     {% endif %}
-                    {% if circulo|is_membro:user %}
-                        <span class="button-membro">Membro do Grupo</span>
-                    {% else %}
-                        <a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a>
+                    {% if user.is_authenticated %}
+                        {% if circulo|is_membro:user %}
+                            <span class="button-membro">Membro do Grupo</span>
+                        {% else %}
+                            <a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a>
+                        {% endif %}
                     {% endif %}
                     </li>
                 {% endfor %}

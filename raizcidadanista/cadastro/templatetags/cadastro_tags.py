@@ -7,4 +7,6 @@ register = template.Library()
 
 @register.filter
 def is_membro(circulo, user):
-    return circulo.circulomembro_set.filter(membro__usuario=user).exists()
+    if user.is_authenticated:
+        return circulo.circulomembro_set.filter(membro__usuario=user).exists()
+    return False

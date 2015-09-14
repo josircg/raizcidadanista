@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, View
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
+from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 
-from models import Circulo, Membro
+from models import Circulo, Membro, CirculoMembro
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
 
@@ -54,6 +55,17 @@ class MembroView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(MembroView, self).form_invalid(form)
+
+
+class MembroEntrarCirculoView(View):
+    def get(self, request, circulo_id, *args, **kwargs):
+        circulo = get_object_or_404(Circulo, pk=circulo_id)
+        membro = get_object_or_404(Membro, usuario=request.user)
+
+        CirculoMembro.objects.create(circulo=circulo, membro=membro)
+
+        messages.info(request, u'Você agora faz parte do Círculo %s.' % circulo.titulo)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class FiliadoAtualizarLinkView(FormView):

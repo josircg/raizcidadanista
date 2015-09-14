@@ -121,6 +121,9 @@ class Circulo(models.Model):
         upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
 
+    def get_absolute_entrar_url(self):
+        return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
+
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
 

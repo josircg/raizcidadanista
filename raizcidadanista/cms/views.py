@@ -26,20 +26,7 @@ class CirculosView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CirculosView, self).get_context_data(**kwargs)
-        circulos = []
-        for uf in UF.objects.all().order_by('nome'):
-            queryset = Circulo.objects.filter(uf=uf)
-            if queryset:
-                cidades = []
-                for query in queryset:
-                    if query.site_externo:
-                        cidades.append(u'<li><a href="%s" target="_blank">%s%s</a></li>' % (query.site_externo, query.titulo, u'(%s)' % query.municipio if query.municipio else '', ))
-                    else:
-                        cidades.append(u'<li>%s%s</li>' % (query.titulo, u'(%s)' % query.municipio if query.municipio else ''))
-                circulos.append((uf.nome, u"Círculos:<br><ul>%s</ul>" % u''.join(cidades)))
-            else:
-                circulos.append((uf.nome, u"Ainda não existe nenhum círculo em seu estado."))
-        context['circulos'] = circulos
+        context['estados'] = UF.objects.all().order_by('nome')
         return context
 
 

@@ -57,8 +57,8 @@ class CustomIndexDashboard(Dashboard):
                 collapsible=True,
                 children=[
                     [_(u'Portal'), '/'],
-                    [_(u'PowerPost'), reverse('admin:cms_article_add_power')],
-                    [_(u'Alterar password'), reverse('admin:password_change')],
+                    [_(u'Sugerir Artigo'), reverse('admin:cms_article_add_power')],
+                    [_(u'Alterar Senha'), reverse('admin:password_change')],
                     [_(u'Sair'), reverse('admin:logout')],
                 ]
             ),

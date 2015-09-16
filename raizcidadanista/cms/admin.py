@@ -8,6 +8,8 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.shortcuts import get_object_or_404
 
+from django.core.exceptions import PermissionDenied
+
 from django.contrib.admin import helpers
 from django.db import models, transaction
 from django.contrib.admin.util import flatten_fieldsets
@@ -178,6 +180,12 @@ class ArticleAdmin(PowerModelAdmin):
             kwargs['queryset'] = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
             return db_field.formfield(**kwargs)
         return super(ArticleAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def queryset(self, request):
+        qs = super(ArticleAdmin, self).queryset(request)
+#        if request.user.has_perm('manage_articles'):
+#            qs = qs.filter(author=request.user)
+        return qs
 
     def clone(self, request, id):
         article_clone = Article.objects.get(pk=id)

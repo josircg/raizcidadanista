@@ -163,7 +163,7 @@ def formata_arquivo_forum(objeto, nome_arquivo):
     nome, extensao = os.path.splitext(nome_arquivo)
     return os.path.join('forum', str(uuid.uuid4()) + extensao.lower())
 
-STATUS_DISCUSSAO = (
+STATUS_TOPICO = (
     ('A', u'Aberto'),
     ('F', u'Fechado'),
     )
@@ -191,11 +191,11 @@ TIPO_CURTIDA = (
 class Topico(models.Model):
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Circulo)
-    status = models.CharField(u'Status', max_length=1, choices=STATUS_DISCUSSAO)
+    status = models.CharField(u'Status', max_length=1, choices=STATUS_TOPICO)
+    criador = models.ForeignKey(Membro)
     dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
-    criador = models.ForeignKey(Membro)
 
     class Meta:
         verbose_name = u'Tópico'

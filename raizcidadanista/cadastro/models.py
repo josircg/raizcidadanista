@@ -33,9 +33,9 @@ class Pessoa(models.Model):
         ordering = ['nome',]
 
     nome = models.CharField(u'Nome Completo',max_length=150)
-    uf = models.ForeignKey(UF)
-    municipio = models.CharField(u'Município', max_length=150)
     email = models.EmailField(u'Email')
+    uf = models.ForeignKey(UF)
+    municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')

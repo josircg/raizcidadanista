@@ -15,7 +15,7 @@ import csv
 from forms import MembroImport
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
 
-from municipios.models import UF
+from municipios.models import UF, Municipio
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
@@ -34,7 +34,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(PowerModelAdmin):
     list_filter = ('uf', 'filiado',)
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'dtcadastro', 'filiado', 'aprovador', )
+    list_display = ('nome', 'email', 'municipio', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao',)
 
@@ -82,11 +82,20 @@ class MembroAdmin(PowerModelAdmin):
                     if len(record) >= 16:
                         lidos += 1
                         try:
-                            uf = UF.objects.filter(uf__icontains=record[var['uf']]).latest('pk')
+                            uf = UF.objects.get(uf=record[var['uf']])
+                            municipio = Municipio.objects.get(uf=uf, nome=record[var['municipio']])
+
                         except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) do colaborador/visitante %s não foi encontrado.' % (record[var['uf']], record[var['email']]))
-                            erros += 1
-                            continue
+                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (record[var['uf']], record[var['email']]))
+                            uf = None
+
+                        except Municipio.DoesNotExist:
+                            municipio = None
+                            uf = None
+
+                        if not uf:
+                            uf = UF.objects.get(uf='SP')
+
                         try:
                             # Atualiza o Membro
                             membro = Membro.objects.get(email=record[var['email']])
@@ -94,18 +103,22 @@ class MembroAdmin(PowerModelAdmin):
                                 membro.nome = record[var['nome']]
                             if not membro.uf:
                                 membro.uf = uf
-                            if not membro.municipio:
-                                membro.municipio = record[var['municipio']]
+                            if municipio and not membro.municipio:
+                                membro.municipio = municipio
                             membro.save()
                             atualizados += 1
                         except Membro.DoesNotExist:
+                            # atualiza data
+                            dtcadastro = record[var['dtcadastro']].split(' ')[0]
+                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro
                             Membro(
                                 email=record[var['email']],
                                 nome=record[var['nome']],
                                 uf=uf,
-                                municipio=record[var['municipio']],
-                                dtcadastro=datetime.strptime(record[var['dtcadastro']], '%d/%m/%Y %H:%M:%S')
+                                municipio=municipio,
+                                municipio_eleitoral = record[var['municipio']],
+                                dtcadastro=dtcadastro
                             ).save()
                             importados += 1
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
@@ -220,7 +233,17 @@ class CirculoAdmin(PowerModelAdmin):
         else:
             return flatten_fieldsets(self.get_fieldsets(request, obj))
 
+class MunicipioAdmin(PowerModelAdmin):
+    search_fields = ('nome',)
+    list_display = ('uf', 'nome', )
+    list_filter = ('uf',)
+    list_per_page = 20
+
+
 admin.site.register(Circulo, CirculoAdmin)
 admin.site.register(CirculoEvento)
 admin.site.register(Membro, MembroAdmin)
 admin.site.register(Pessoa, PessoaAdmin)
+admin.site.register(UF)
+admin.site.register(Municipio, MunicipioAdmin)
+

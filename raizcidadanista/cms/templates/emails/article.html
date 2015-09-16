@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Existe um artigo para ser aprovado</title>
+</head>
+<body>
+    <p>
+        O colaborador {% firstof article.author.first_name article.author %} enviou um artigo para ser aprovado:
+    </p>
+    <p>
+        <a href="{{ HOST }}{% url admin:cms_article_change article.pk %}">Clique aqui</a> para visualizar o artigo.
+    </p>
+    <p>
+        A partir daí, basta o editor aprovar o artigo.
+    </p>
+</body>
+</html>

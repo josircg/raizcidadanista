@@ -12,7 +12,7 @@ from django.core.exceptions import PermissionDenied
 
 from django.contrib.admin import helpers
 from django.db import models, transaction
-from django.contrib.admin.util import flatten_fieldsets
+from django.contrib.admin.util import unquote, flatten_fieldsets
 from django.forms.models import modelform_factory
 from django import forms
 from functools import partial
@@ -169,6 +169,18 @@ class ArticleAdmin(PowerModelAdmin):
     actions = ('reset_views', )
     inlines = (SectionItemInline, ArticleCommentInline, )
 
+    @transaction.commit_on_success
+    def add_view(self, request, form_url='', extra_context=None):
+        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+            return HttpResponseRedirect(reverse('admin:cms_article_add_power'))
+        return super(ArticleAdmin, self).add_view(request, form_url, extra_context)
+
+    @transaction.commit_on_success
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+            return HttpResponseRedirect(reverse('admin:cms_article_change_power', args=(object_id, )))
+        return super(ArticleAdmin, self).change_view(request, object_id, form_url, extra_context)
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name in ['header', 'content']:
             kwargs['widget'] = CKEditorWidget()
@@ -183,8 +195,8 @@ class ArticleAdmin(PowerModelAdmin):
 
     def queryset(self, request):
         qs = super(ArticleAdmin, self).queryset(request)
-#        if request.user.has_perm('manage_articles'):
-#            qs = qs.filter(author=request.user)
+        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+            qs = qs.filter(author=request.user)
         return qs
 
     def clone(self, request, id):
@@ -220,6 +232,7 @@ class ArticleAdmin(PowerModelAdmin):
             form = ModelForm(request.POST, request.FILES)
             if form.is_valid():
                 new_object = self.save_form(request, form, change=False)
+                new_object.is_active = False
                 self.save_model(request, new_object, form, False)
                 for section in form.cleaned_data.get('sections'):
                     SectionItem(section=section, article=new_object).save()
@@ -249,10 +262,60 @@ class ArticleAdmin(PowerModelAdmin):
         context.update(extra_context or {})
         return self.render_change_form(request, context, form_url=form_url, add=True)
 
+    @transaction.commit_on_success
+    def change_power_view(self, request, object_id, form_url='', extra_context=None):
+        model = self.model
+        opts = model._meta
+
+        obj = self.get_object(request, unquote(object_id))
+
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+
+        ModelForm = PowerArticleForm
+        form = ModelForm(instance=obj)
+        if request.method == 'POST':
+            form = ModelForm(request.POST, request.FILES, instance=obj)
+            if form.is_valid():
+                new_object = self.save_form(request, form, change=True)
+                new_object.is_active = False
+                self.save_model(request, new_object, form, True)
+
+                for section in form.cleaned_data.get('sections'):
+                    SectionItem(section=section, article=new_object).save()
+                change_message = self.construct_change_message(request, form, [])
+                self.log_change(request, new_object, change_message)
+                return self.response_change(request, new_object)
+
+        fieldsets = (
+            (None, {
+                'fields': [('title', 'slug'), 'content', 'sections',]
+            }),
+        )
+        adminForm = helpers.AdminForm(form, list(fieldsets), {'slug': ('title',)}, [], model_admin=self)
+        media = self.media + adminForm.media
+
+        context = {
+            'title': u'Editar %s' % obj,
+            'adminform': adminForm,
+            'object_id': object_id,
+            'original': obj,
+            'is_popup': "_popup" in request.REQUEST,
+            'media': media,
+            'show_delete': False,
+            'inline_admin_formsets': [],
+            'errors': helpers.AdminErrorList(form, []),
+            'app_label': opts.app_label,
+        }
+        context.update(extra_context or {})
+        return self.render_change_form(request, context, form_url=form_url, add=True)
+
+
     def get_urls(self):
         urls = super(ArticleAdmin, self).get_urls()
         return patterns('',
             url(r'^add-power/$', self.wrap(self.add_power_view), name='cms_article_add_power'),
+            url(r'^power/(.+)/$', self.wrap(self.change_power_view), name='cms_article_change_power'),
             url(r'^clone/(?P<id>\d+)/$', self.wrap(self.clone), name='cms_article_clone'),
         ) + urls
 

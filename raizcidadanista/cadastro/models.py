@@ -149,6 +149,7 @@ class CirculoEvento(models.Model):
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Local do Evento')
+    privado = models.BooleanField(u'Privado', default=True)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -163,6 +164,7 @@ def formata_arquivo_forum(objeto, nome_arquivo):
     nome, extensao = os.path.splitext(nome_arquivo)
     return os.path.join('forum', str(uuid.uuid4()) + extensao.lower())
 
+'''
 STATUS_TOPICO = (
     ('A', u'Aberto'),
     ('F', u'Fechado'),
@@ -187,7 +189,6 @@ TIPO_CURTIDA = (
     ('N', u'Não curtiu'),
     )
 
-'''
 class Topico(models.Model):
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Circulo)
@@ -231,7 +232,7 @@ class Proposta(Conversa):
 
 # Voto na proposta
 class Voto(models.Model):
-    discussao = models.ForeignKey(Proposta)
+    proposta = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(Membro)
     voto = models.CharField(u'Tipo de Votação',max_length=1, choices=TIPO_VOTO)
 

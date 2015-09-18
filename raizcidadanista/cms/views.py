@@ -243,5 +243,5 @@ class RobotsView(View):
     def get(self, request, *args, **kwargs):
         robots = Recurso.objects.get_or_create(recurso='ROBOTS')[0]
         if robots.ativo:
-            return HttpResponse(u'User-agent: *\nAllow: *', content_type='text/plain')
+            return HttpResponse(u'User-agent: *\nAllow: *\nSitemap: %s%s' % (settings.SITE_HOST, reverse('sitemap')), content_type='text/plain')
         return HttpResponse(u'User-agent: *\nDisallow: *', content_type='text/plain')

@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^download/(?P<file_uuid>[-_\w]+)/$', FileDownloadView.as_view(), name='download'),
     url(r'^link/a/(?P<article_slug>[-_\w]+)/$', LinkConversionView.as_view(), name='link'),
     url(r'^link/s/(?P<section_slug>[-_\w]+)/$', LinkConversionView.as_view(), name='link'),
-    url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
+    url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}, name="sitemap"),
     url(r'^robots\.txt$', RobotsView.as_view(), name="robots"),
 
     url(r'^login/$', 'django.contrib.auth.views.login', kwargs={'template_name': 'auth/login.html',}, name='cms_login'),

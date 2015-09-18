@@ -134,6 +134,12 @@ def upload(request):
 
     create_thumbnail(upload_filename)
 
+    # Comprimir imagens
+    if upload_filename.split('.')[-1].lower() in ('jpg', 'jpeg'):
+        os.system('jpegoptim --strip-all %s' % upload_filename)
+    elif upload_filename.split('.')[-1].lower() == 'png':
+        os.system('optipng %s' % upload_filename)
+
     # Respond with Javascript sending ckeditor upload url.
     url = get_media_url(upload_filename)
     return HttpResponse("""

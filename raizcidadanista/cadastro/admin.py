@@ -210,7 +210,7 @@ class CirculoAdmin(PowerModelAdmin):
         return self.fieldsets
 
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Comissão').exists()):
+        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Cadastro').exists()):
             return ()
         else:
             return ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo')

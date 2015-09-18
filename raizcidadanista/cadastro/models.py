@@ -33,9 +33,9 @@ class Pessoa(models.Model):
         ordering = ['nome',]
 
     nome = models.CharField(u'Nome Completo',max_length=150)
-    uf = models.ForeignKey(UF)
-    municipio = models.CharField(u'Município', max_length=150)
     email = models.EmailField(u'Email')
+    uf = models.ForeignKey(UF)
+    municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
@@ -149,6 +149,7 @@ class CirculoEvento(models.Model):
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Local do Evento')
+    privado = models.BooleanField(u'Privado', default=True)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -163,7 +164,8 @@ def formata_arquivo_forum(objeto, nome_arquivo):
     nome, extensao = os.path.splitext(nome_arquivo)
     return os.path.join('forum', str(uuid.uuid4()) + extensao.lower())
 
-STATUS_DISCUSSAO = (
+'''
+STATUS_TOPICO = (
     ('A', u'Aberto'),
     ('F', u'Fechado'),
     )
@@ -187,15 +189,14 @@ TIPO_CURTIDA = (
     ('N', u'Não curtiu'),
     )
 
-'''
 class Topico(models.Model):
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Circulo)
-    status = models.CharField(u'Status', max_length=1, choices=STATUS_DISCUSSAO)
+    status = models.CharField(u'Status', max_length=1, choices=STATUS_TOPICO)
+    criador = models.ForeignKey(Membro)
     dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
-    criador = models.ForeignKey(Membro)
 
     class Meta:
         verbose_name = u'Tópico'
@@ -231,7 +232,7 @@ class Proposta(Conversa):
 
 # Voto na proposta
 class Voto(models.Model):
-    discussao = models.ForeignKey(Proposta)
+    proposta = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(Membro)
     voto = models.CharField(u'Tipo de Votação',max_length=1, choices=TIPO_VOTO)
 

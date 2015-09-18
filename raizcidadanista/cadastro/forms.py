@@ -130,3 +130,13 @@ class FiliadoAtualizarForm(forms.ModelForm):
     def save(self, commit=True):
         self.instance.filiado = True
         return super(FiliadoAtualizarForm, self).save(commit)
+
+
+class MembroImport(forms.Form):
+    arquivo = forms.FileField()
+
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data['arquivo']
+        if arquivo.name.split('.')[-1].lower() != 'csv':
+            raise forms.ValidationError(u'Envie um arquivo .csv.')
+        return arquivo

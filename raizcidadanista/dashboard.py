@@ -33,15 +33,20 @@ class CustomIndexDashboard(Dashboard):
                 models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
             ),
             modules.ModelList(
+                u'Cadastro', [
+                    'cadastro.models.*',
+                ]
+            ),
+            modules.ModelList(
+                u'Municípios', [
+                    'municipios.models.*',
+                ]
+            ),
+            modules.ModelList(
                 _(u'Configurações'),
                 models=('cms.models.Recurso', 'cms.models.Theme', ),
                 extra=[
                     {'title': u'Visualizador de Arquivos', 'add_url': reverse('filebrowser:fb_upload'), 'change_url': reverse('filebrowser:fb_browse')},
-                ]
-            ),
-            modules.ModelList(
-                u'Cadastro', [
-                    'cadastro.models.*',
                 ]
             ),
             modules.ModelList(
@@ -57,8 +62,8 @@ class CustomIndexDashboard(Dashboard):
                 collapsible=True,
                 children=[
                     [_(u'Portal'), '/'],
-                    [_(u'PowerPost'), reverse('admin:cms_article_add_power')],
-                    [_(u'Alterar password'), reverse('admin:password_change')],
+                    [_(u'Sugerir Artigo'), reverse('admin:cms_article_add_power')],
+                    [_(u'Alterar Senha'), reverse('admin:password_change')],
                     [_(u'Sair'), reverse('admin:logout')],
                 ]
             ),

@@ -1,12 +1,12 @@
 # coding: utf-8
 from django.core.urlresolvers import reverse
 from django.db.models import signals
+from django.dispatch import receiver
 from django.core.cache import cache
 from django.utils import timezone
 from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import Group
-
+from django.contrib.auth.models import Group, User
 
 from mptt.models import MPTTModel, TreeForeignKey
 from smart_selects.db_fields import ChainedForeignKey
@@ -16,7 +16,7 @@ from easy_thumbnails.files import get_thumbnailer
 from signals import slug_pre_save
 from fields import ListField
 from datetime import datetime
-from email import resendmail_email_agendado
+from email import sendmail, resendmail_email_agendado
 
 import os, shutil, re
 
@@ -59,6 +59,9 @@ class Article(models.Model):
     class Meta:
         verbose_name = u'Artigo'
         ordering = ['-created_at', ]
+        permissions = (
+            ("manage_articles", u"Administrar artigos"),
+        )
 
 
     def get_absolute_url(self):

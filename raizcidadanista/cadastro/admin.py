@@ -183,7 +183,7 @@ class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('tipo','uf',)
-    fieldsets_comissao = (
+    fieldsets_edicao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', ),},),
     )
     fieldsets = (
@@ -205,15 +205,15 @@ class CirculoAdmin(PowerModelAdmin):
     export_csv.short_description = u"Gerar arquivo de exportação"
 
     def get_fieldsets(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or request.user.is_superuser:
-            return self.fieldsets_comissao
+        if request.user.groups.filter(name=u'Cadastro').exists() or request.user.is_superuser:
+            return self.fieldsets_edicao
         return self.fieldsets
 
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Cadastro').exists()):
+        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
             return ()
         else:
-            return ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo')
+            return flatten_fieldsets(self.get_fieldsets(request, obj))
 
     def get_form(self, request, obj=None, **kwargs):
         defaults = {
@@ -239,17 +239,11 @@ class CirculoAdmin(PowerModelAdmin):
 #                return
 
     def get_inline_instances(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
+        if request.user.is_superuser or request.user.groups.filter(name=u'Comissão').exists():
             self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
         else:
             self.inlines = [CirculoEventoCirculoInline,]
         return [inline(self.model, self.admin_site) for inline in self.inlines]
-
-    def get_readonly_fields(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
-            return ()
-        else:
-            return flatten_fieldsets(self.get_fieldsets(request, obj))
 
 class MunicipioAdmin(PowerModelAdmin):
     search_fields = ('nome',)

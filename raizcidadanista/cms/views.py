@@ -103,14 +103,17 @@ class ArticleDetailView(DetailView):
         return self.get(*args, **kwargs)
 
     def get(self, *args, **kwargs):
-        response = super(ArticleDetailView, self).get(*args, **kwargs)
-        # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
-        if not self.object.have_perm(self.request.user):
-            messages.error(self.request, u'Você não tem permissão para acessar esse artigo!')
-            return HttpResponseRedirect(reverse('home'))
-        self.object.views += 1
-        self.object.save()
-        return response
+        try:
+            response = super(ArticleDetailView, self).get(*args, **kwargs)
+            # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
+            if not self.object.have_perm(self.request.user):
+                messages.error(self.request, u'Você não tem permissão para acessar esse artigo!')
+                return HttpResponseRedirect(reverse('home'))
+            self.object.views += 1
+            self.object.save()
+            return response
+        except Http404:
+            return URLMigrateView().get(self.request, old_url=self.request.path_info)
 
 
 class SectionDetailView(DetailView):

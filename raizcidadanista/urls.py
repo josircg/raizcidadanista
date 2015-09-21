@@ -5,6 +5,7 @@ from django.conf import settings
 
 from filebrowser.sites import site
 from cms.forms import CustomPasswordResetForm
+from cms.views import URLMigrateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -26,9 +27,16 @@ urlpatterns = patterns('',
     url(r'^chaining/', include('smart_selects.urls')),
     url(r'^captcha/', include('captcha.urls')),
 )
+
 if 'theme' in settings.INSTALLED_APPS:
     urlpatterns += patterns('', url(r'^', include('theme.urls')))
 
 if settings.LOCAL:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+#Migrate URLs
+urlpatterns += patterns('',
+    url(r'^(.*)$', URLMigrateView.as_view(), name='cms_url_migrate'),
+)

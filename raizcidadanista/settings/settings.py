@@ -157,6 +157,7 @@ INSTALLED_APPS = [
     'south',
     'municipios',
     'cadastro',
+    'forum',
 
     #CMS
     'cms',

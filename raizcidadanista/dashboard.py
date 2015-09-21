@@ -43,6 +43,11 @@ class CustomIndexDashboard(Dashboard):
                 ]
             ),
             modules.ModelList(
+                u'Forum', [
+                    'forum.models.*',
+                ]
+            ),
+            modules.ModelList(
                 _(u'Configurações'),
                 models=('cms.models.Recurso', 'cms.models.Theme', ),
                 extra=[

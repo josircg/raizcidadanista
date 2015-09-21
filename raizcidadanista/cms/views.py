@@ -184,7 +184,6 @@ class LinkConversionView(View):
 
 class URLMigrateView(View):
     def get(self, request, old_url, *args, **kwargs):
-        print old_url
         url = get_object_or_404(URLMigrate, old_url=old_url)
         url.views += 1
         url.save()

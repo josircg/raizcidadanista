@@ -36,7 +36,7 @@ if settings.LOCAL:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
-#Ignore 404
+#Migrate URLs
 urlpatterns += patterns('',
     url(r'^(.*)$', URLMigrateView.as_view(), name='cms_url_migrate'),
 )

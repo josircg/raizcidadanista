@@ -10,6 +10,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from functools import partial
 from datetime import datetime
 
+from django.contrib.admin.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
+
 import csv
 
 from forms import MembroImport
@@ -227,6 +230,16 @@ class CirculoAdmin(PowerModelAdmin):
 
     def save_model(self, request, obj, form, change):
         return super(CirculoAdmin, self).save_model(request, obj, form, change)
+#        if not change:
+#            try:
+#                membro = Membro.objects.get(usuario=request.user)
+#                CirculoMembro(
+#                    membro = membro,
+#                    circulo = obj,
+#                    administrador = True,
+#                ).save()
+#            except Membro.DoesNotExists:
+#                return
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser or request.user.groups.filter(name=u'Comissão').exists():
@@ -241,6 +254,24 @@ class MunicipioAdmin(PowerModelAdmin):
     list_filter = ('uf',)
     list_per_page = 20
 
+class LogEntryAdmin(PowerModelAdmin):
+    search_fields = ('object_repr', 'change_message', 'user__username', )
+    list_filter = ('action_time', 'content_type', 'action_flag',)
+    list_display = ('action_time', 'user', 'content_type', 'tipo', 'object_repr', 'change_message', )
+    fields = ('action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'tipo', 'change_message', )
+    readonly_fields = ('action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'tipo', 'change_message', )
+    multi_search = (
+        ('q1', u'Repr. do Objeto', ['object_repr', ]),
+        ('q2', u'Mensagem', ['change_message', ]),
+        ('q3', u'User', ['user__username', ]),
+    )
+    def tipo(self, obj):
+        if obj.is_addition():
+            return u"1-Adicionado"
+        elif obj.is_change():
+            return u"2-Modificado"
+        elif obj.is_deletion():
+            return u"3-Deletado"
 
 admin.site.register(Circulo, CirculoAdmin)
 admin.site.register(CirculoEvento)
@@ -248,4 +279,5 @@ admin.site.register(Membro, MembroAdmin)
 admin.site.register(Pessoa, PessoaAdmin)
 admin.site.register(UF)
 admin.site.register(Municipio, MunicipioAdmin)
+admin.site.register(LogEntry, LogEntryAdmin)
 

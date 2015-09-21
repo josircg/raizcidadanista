@@ -79,7 +79,7 @@ class MembroAdmin(PowerModelAdmin):
                 atualizados = 0
                 erros = 0
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
-                    if len(record) >= 16:
+                    if len(record) >= 14:
                         lidos += 1
                         try:
                             uf = UF.objects.get(uf=record[var['uf']])
@@ -99,6 +99,7 @@ class MembroAdmin(PowerModelAdmin):
                         try:
                             # Atualiza o Membro
                             membro = Membro.objects.get(email=record[var['email']])
+                            print membro.nome
                             if not membro.nome:
                                 membro.nome = record[var['nome']]
                             if not membro.uf:
@@ -109,18 +110,35 @@ class MembroAdmin(PowerModelAdmin):
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
+                            print 'adicionando %s' % record[var['nome']]
                             dtcadastro = record[var['dtcadastro']].split(' ')[0]
                             dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro
-                            Membro(
+                            membro = Membro(
                                 email=record[var['email']],
                                 nome=record[var['nome']],
                                 uf=uf,
                                 municipio=municipio,
                                 municipio_eleitoral = record[var['municipio']],
-                                dtcadastro=dtcadastro
-                            ).save()
+                                dtcadastro=dtcadastro)
+                            membro.celular = record[var['celular']]
+                            membro.telefone = record[var['residencial']]
+                            membro.atividade_profissional = record[var['atividade_profissional']]
+                            membro.rg = record[var['rg']]
+                            membro.titulo_eleitoral = record[var['titulo_eleitoral']]
+                            membro.filiacao_partidaria = record[var['filiacao_partidaria']]
+
+                            dtnascimento = record[var['dtnascimento']]
+                            if dtnascimento:
+                                try:
+                                    membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+                                except:
+                                    print record[var['dtnascimento']]
+                            membro.save()
                             importados += 1
+#'zona_secao_eleitoral': 12, 'municipio_eleitoral',
+#'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria'
+
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
                 return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))
 
@@ -165,7 +183,7 @@ class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
     list_display = ('titulo', 'tipo', 'uf', 'oficial',)
     list_filter = ('tipo','uf',)
-    fieldsets_comissao = (
+    fieldsets_edicao = (
         (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', ),},),
     )
     fieldsets = (
@@ -187,15 +205,15 @@ class CirculoAdmin(PowerModelAdmin):
     export_csv.short_description = u"Gerar arquivo de exportação"
 
     def get_fieldsets(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or request.user.is_superuser:
-            return self.fieldsets_comissao
+        if request.user.groups.filter(name=u'Cadastro').exists() or request.user.is_superuser:
+            return self.fieldsets_edicao
         return self.fieldsets
 
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() and not request.user.groups.filter(name=u'Comissão').exists()):
+        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
             return ()
         else:
-            return ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'dtcadastro', 'site_externo')
+            return flatten_fieldsets(self.get_fieldsets(request, obj))
 
     def get_form(self, request, obj=None, **kwargs):
         defaults = {
@@ -209,29 +227,13 @@ class CirculoAdmin(PowerModelAdmin):
 
     def save_model(self, request, obj, form, change):
         return super(CirculoAdmin, self).save_model(request, obj, form, change)
-#        if not change:
-#            try:
-#                membro = Membro.objects.get(usuario=request.user)
-#                CirculoMembro(
-#                    membro = membro,
-#                    circulo = obj,
-#                    administrador = True,
-#                ).save()
-#            except Membro.DoesNotExists:
-#                return
 
     def get_inline_instances(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
+        if request.user.is_superuser or request.user.groups.filter(name=u'Comissão').exists():
             self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
         else:
             self.inlines = [CirculoEventoCirculoInline,]
         return [inline(self.model, self.admin_site) for inline in self.inlines]
-
-    def get_readonly_fields(self, request, obj=None):
-        if request.user.groups.filter(name=u'Comissão').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
-            return ()
-        else:
-            return flatten_fieldsets(self.get_fieldsets(request, obj))
 
 class MunicipioAdmin(PowerModelAdmin):
     search_fields = ('nome',)

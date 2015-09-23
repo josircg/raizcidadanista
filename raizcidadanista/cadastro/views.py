@@ -8,7 +8,7 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 
-from models import Circulo, Membro, CirculoMembro
+from models import Circulo, Membro, CirculoMembro, Pessoa
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
 
@@ -193,3 +193,12 @@ class FiliadoView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(FiliadoView, self).form_invalid(form)
+
+
+class ValidarEmailView(View):
+    def get(self, request, pessoa_id, *args, **kwargs):
+        pessoa = get_object_or_404(Pessoa, pk=pessoa_id, email=request.GET.get('email'))
+        pessoa.status_email = 'A'
+        pessoa.save()
+        messages.info(self.request, u"Email validado com sucesso!")
+        return HttpResponseRedirect(reverse('home'))

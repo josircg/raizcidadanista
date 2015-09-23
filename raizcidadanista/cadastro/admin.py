@@ -7,12 +7,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
-from functools import partial
-from datetime import datetime
+from django.conf import settings
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
 
+from datetime import datetime
+from functools import partial
 import csv
 
 from forms import MembroImport
@@ -24,9 +25,27 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 
 class PessoaAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'dtcadastro')
+    list_display = ('nome', 'email', 'status_email', 'dtcadastro', )
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'dtcadastro', )
+    list_filter = ('uf', 'dtcadastro')
+    actions = ('validar_email', )
+
+    def validar_email(self, request, queryset):
+        contador = 0
+        for rec in queryset:
+            if rec.status_email == 'N':
+                contador += 1
+                sendmail(
+                    subject=u'Raiz Movimento Cidadanista - Validação de email',
+                    to=[rec.email, ],
+                    template='emails/validar-email.html',
+                    params={
+                        'pessoa': rec,
+                        'SITE_HOST': settings.SITE_HOST,
+                    },
+                )
+        self.message_user(request, 'Total de emails enviados para aprovação: %d' % contador)
+    validar_email.short_description = u'Validar Emails'
 
 class CirculoMembroMembroInline(admin.TabularInline):
     model = CirculoMembro
@@ -39,7 +58,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao',)
+    actions = ('aprovacao', )
 
     def aprovacao(self, request, queryset):
         contador = 0

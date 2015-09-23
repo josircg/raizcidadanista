@@ -10,9 +10,9 @@ from django.dispatch import receiver
 
 from municipios.models import UF
 from utils.storage import UuidFileSystemStorage
+from cms.email import sendmail
 #from smart_selects.db_fields import ChainedForeignKey
 #from utils.models import BRDateField, BRDecimalField
-#from utils.email import sendmail
 
 GENDER = (
     ('M', u'Masculino'),
@@ -40,10 +40,22 @@ class Pessoa(models.Model):
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
-    status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='A')
+    status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
+@receiver(signals.post_save, sender=Pessoa)
+def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created and instance.status_email == 'N':
+        sendmail(
+            subject=u'Raiz Movimento Cidadanista - Validação de email',
+            to=[instance.email, ],
+            template='emails/validar-email.html',
+            params={
+                'pessoa': instance,
+                'SITE_HOST': settings.SITE_HOST,
+            },
+        )
 
 class Membro(Pessoa):
     class Meta:

@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Raiz Movimento Cidadanista - Validação de email</title>
+    <title>Validação de email</title>
 </head>
 <body>
-<h3>Raiz Movimento Cidadanista - Validação de email</h3>
+<h3>Validação de email e cadastro</h3>
 
 <p>
-    Falta pouco para concluir o seu cadastro. Clique <a href="{{ SITE_HOST }}{% url validar_email pessoa.pk %}?email={{ pessoa.email }}">aqui</a> para validar o seu email.
+Para que possamos concluir o seu cadastro, pedimos que <a href="{{ SITE_HOST }}{% url validar_email pessoa.pk %}?email={{ pessoa.email }}">clique aqui</a> para validar o seu email.
 </p>
 
-<p>E caso tenha alguma dúvida, fique a vontade de nos perguntar.</p>
+<p>E caso tenha alguma dúvida, envie email para correio@raiz.org.br</p>
 
 <p>
-Atenciosamente,<br>
-Raiz Movimento Cidadanista
+Saudações Cidadanistas!<br>
 </p>
 </body>
 </html>

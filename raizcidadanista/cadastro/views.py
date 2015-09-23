@@ -25,8 +25,8 @@ class NewsletterView(FormView):
             request=self.request,
             template=self.template_success_name,
             context={
-                'title': u'Bem vindo',
-                'msg': u'Obrigado por se cadastrar!',
+                'title': u'Cadastro Efetuado.',
+                'msg': u'Você receberá um email para que possa confirmar seus dados.',
             }
         )
 
@@ -47,8 +47,8 @@ class MembroView(FormView):
             request=self.request,
             template=self.template_success_name,
             context={
-                'title': u'Bem vindo',
-                'msg': u'Obrigado por se cadastrar!',
+                'title': u'Cadastro Efetuado.',
+                'msg': u'Você receberá um email para que possa confirmar seus dados.',
             }
         )
 
@@ -185,8 +185,8 @@ class FiliadoView(FormView):
             request=self.request,
             template=self.template_success_name,
             context={
-                'title': u'Bem vindo',
-                'msg': u'Obrigado por se cadastrar!',
+                'title': u'Cadastro Efetuado.',
+                'msg': u'Você receberá um email para que possa confirmar seus dados.',
             }
         )
 
@@ -195,10 +195,18 @@ class FiliadoView(FormView):
         return super(FiliadoView, self).form_invalid(form)
 
 
-class ValidarEmailView(View):
+class ValidarEmailView(TemplateView):
+    template_name = 'cadastro/bem-vindo.html'
     def get(self, request, pessoa_id, *args, **kwargs):
         pessoa = get_object_or_404(Pessoa, pk=pessoa_id, email=request.GET.get('email'))
         pessoa.status_email = 'A'
         pessoa.save()
         messages.info(self.request, u"Email validado com sucesso!")
-        return HttpResponseRedirect(reverse('home'))
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context={
+                'title': u'Email validado com sucesso!',
+                'msg': u'Obrigado por confirmar seus dados.',
+            }
+        )

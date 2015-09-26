@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from threading import Thread
 from time import sleep
 
-#Envia email    
+#Envia email
 def sendmail(subject='', to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
     from models import Recurso
     ativo = Recurso.objects.get_or_create(recurso='EMAIL')[0].ativo
@@ -33,33 +33,30 @@ def sendmail(subject='', to=[], params={}, template='', mimetype='text/html; cha
         try:
             template_content = get_template(template)
         except:
-            try:
-                template_content = Template(template)
-            except:
-                email.html = u'Erro ao criar HTML.'
-                email.status = 'E'
-                email.save()
+            email.html = u'Erro ao criar HTML.'
+            email.status = 'E'
+            email.save()
 
-                try:
-                    #Enviar email para os administradores.
-                    error_message = """
-                        Erro ao criar HTML para email.<br>
-                        <b>DADOS</b><br>
-                        <b>to:</b> %s<br>
-                        <b>template:</b> %s<br>
-                        <b>params:</b> %s<br>
-                        <b>e-mail:</b>%s%s<br>
-                    """ % (to, template, params, settings.SITE_URL, reverse('admin:cms_emailagendado_change', args=(email.pk, )) )
-                    msg = EmailMultiAlternatives(
-                        u'Erro ao criar HTML para email.',
-                        error_message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        bcc=[admin[1] for admin in settings.ADMINS]
-                    )
-                    msg.attach_alternative(error_message, mimetype)
-                    msg.send()
-                except: pass
-                return
+            try:
+                #Enviar email para os administradores.
+                error_message = """
+                    Erro ao criar HTML para email.<br>
+                    <b>DADOS</b><br>
+                    <b>to:</b> %s<br>
+                    <b>template:</b> %s<br>
+                    <b>params:</b> %s<br>
+                    <b>e-mail:</b>%s%s<br>
+                """ % (to, template, params, settings.SITE_URL, reverse('admin:cms_emailagendado_change', args=(email.pk, )) )
+                msg = EmailMultiAlternatives(
+                    u'Erro ao criar HTML para email.',
+                    error_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    bcc=[admin[1] for admin in settings.ADMINS]
+                )
+                msg.attach_alternative(error_message, mimetype)
+                msg.send()
+            except: pass
+            return
 
         html_content = template_content.render(Context(params))
         email.html = html_content

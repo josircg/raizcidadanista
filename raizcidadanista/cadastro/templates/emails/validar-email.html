@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validação de email</title>
+</head>
+<body>
+<h3>Validação de email e cadastro</h3>
+
+<p>
+Para que possamos concluir o seu cadastro, pedimos que <a href="{{ SITE_HOST }}{% url validar_email pessoa.pk %}?email={{ pessoa.email }}">clique aqui</a> para validar o seu email.
+</p>
+
+<p>E caso tenha alguma dúvida, envie email para correio@raiz.org.br</p>
+
+<p>
+Saudações Cidadanistas!<br>
+</p>
+</body>
+</html>

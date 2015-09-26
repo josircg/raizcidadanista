@@ -64,6 +64,7 @@ class CustomIndexDashboard(Dashboard):
                     [_(u'Portal'), '/'],
                     [_(u'Sugerir Artigo'), reverse('admin:cms_article_add_power')],
                     [_(u'Alterar Senha'), reverse('admin:password_change')],
+                    [_('Reset Menu'), reverse('admin:reset_dashboard')],
                     [_(u'Sair'), reverse('admin:logout')],
                 ]
             ),

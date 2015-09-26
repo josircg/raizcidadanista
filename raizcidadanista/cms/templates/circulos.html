@@ -47,16 +47,16 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th colspan="2">Cículos</th>
+                            <th colspan="2">Círculos</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for circulo in uf.circulo_set.all %}
                         <tr>
                         {% if circulo.site_externo %}
-                            <td width="80%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
+                            <td width="80%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
                         {% else %}
-                            <td width="80%"><a>{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a></td>
+                            <td width="80%"><a>{{ circulo.titulo }}</a></td>
                         {% endif %}
                         {% if user.is_authenticated %}
                             {% if circulo|is_membro:user %}
@@ -70,7 +70,7 @@
                     </tbody>
                 </table>
             {% else %}
-                Ainda não existe nenhum círculo em seu estado.
+                Ainda não existe nenhum círculo no estado {{ uf.nome }}.
             {% endif %}
             </div>
         {% endfor %}

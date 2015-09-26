@@ -7,9 +7,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
-from functools import partial
-from datetime import datetime
+from django.conf import settings
 
+from django.contrib.admin.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
+
+from datetime import datetime
+from functools import partial
 import csv
 
 from forms import MembroImport
@@ -21,9 +25,27 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 
 class PessoaAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'dtcadastro')
+    list_display = ('nome', 'email', 'status_email', 'dtcadastro', )
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'dtcadastro', )
+    list_filter = ('uf', 'dtcadastro')
+    actions = ('validar_email', )
+
+    def validar_email(self, request, queryset):
+        contador = 0
+        for rec in queryset:
+            if rec.status_email == 'N':
+                contador += 1
+                sendmail(
+                    subject=u'Raiz Movimento Cidadanista - Validação de email',
+                    to=[rec.email, ],
+                    template='emails/validar-email.html',
+                    params={
+                        'pessoa': rec,
+                        'SITE_HOST': settings.SITE_HOST,
+                    },
+                )
+        self.message_user(request, 'Total de emails enviados para aprovação: %d' % contador)
+    validar_email.short_description = u'Validar Emails'
 
 class CirculoMembroMembroInline(admin.TabularInline):
     model = CirculoMembro
@@ -36,7 +58,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao',)
+    actions = ('aprovacao', )
 
     def aprovacao(self, request, queryset):
         contador = 0
@@ -251,6 +273,24 @@ class MunicipioAdmin(PowerModelAdmin):
     list_filter = ('uf',)
     list_per_page = 20
 
+class LogEntryAdmin(PowerModelAdmin):
+    search_fields = ('object_repr', 'change_message', 'user__username', )
+    list_filter = ('action_time', 'content_type', 'action_flag',)
+    list_display = ('action_time', 'user', 'content_type', 'tipo', 'object_repr', 'change_message', )
+    fields = ('action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'tipo', 'change_message', )
+    readonly_fields = ('action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'tipo', 'change_message', )
+    multi_search = (
+        ('q1', u'Repr. do Objeto', ['object_repr', ]),
+        ('q2', u'Mensagem', ['change_message', ]),
+        ('q3', u'User', ['user__username', ]),
+    )
+    def tipo(self, obj):
+        if obj.is_addition():
+            return u"1-Adicionado"
+        elif obj.is_change():
+            return u"2-Modificado"
+        elif obj.is_deletion():
+            return u"3-Deletado"
 
 admin.site.register(Circulo, CirculoAdmin)
 admin.site.register(CirculoEvento)
@@ -258,4 +298,5 @@ admin.site.register(Membro, MembroAdmin)
 admin.site.register(Pessoa, PessoaAdmin)
 admin.site.register(UF)
 admin.site.register(Municipio, MunicipioAdmin)
+admin.site.register(LogEntry, LogEntryAdmin)
 

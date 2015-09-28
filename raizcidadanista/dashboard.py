@@ -28,9 +28,8 @@ class CustomIndexDashboard(Dashboard):
 
         self.children += [
             modules.ModelList(
-                _(u'Portal'),
-                exclude=('cms.models.EmailAgendado', 'cms.models.Recurso', 'cms.models.Theme', ),
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
+                u'Portal',
+                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'cms.models.URLMigrate', 'cms.models.FileDownload', ),
             ),
             modules.ModelList(
                 u'Cadastro', [
@@ -50,7 +49,7 @@ class CustomIndexDashboard(Dashboard):
                 ]
             ),
             modules.ModelList(
-                _(u'Administração'),
+                u'Administração',
                 models=('django.contrib.*', 'utils.models.*', 'cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),
             ),
@@ -61,14 +60,14 @@ class CustomIndexDashboard(Dashboard):
                 deletable=True,
                 collapsible=True,
                 children=[
-                    [_(u'Portal'), '/'],
-                    [_(u'Sugerir Artigo'), reverse('admin:cms_article_add_power')],
-                    [_(u'Alterar Senha'), reverse('admin:password_change')],
-                    [_('Reset Menu'), reverse('admin:reset_dashboard')],
-                    [_(u'Sair'), reverse('admin:logout')],
+                    [u'Portal', '/'],
+                    [u'Sugerir Artigo', reverse('admin:cms_article_add_power')],
+                    [u'Alterar Senha', reverse('admin:password_change')],
+                    [u'Reset Menu', reverse('admin:reset_dashboard')],
+                    [u'Sair', reverse('admin:logout')],
                 ]
             ),
-            modules.RecentActions(_('Recent Actions'), 5),
+            modules.RecentActions(u'Últimas mudanças', 5),
         ]
 
 

@@ -31,9 +31,9 @@ class CustomIndexDashboard(Dashboard):
                 models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'cms.models.URLMigrate', 'cms.models.FileDownload', ),
             ),
             modules.ModelList(
-                u'Cadastro', [
-                    'cadastro.models.*',
-                ]
+                u'Cadastro',
+                models=('cadastro.models.*', ),
+                exclude=('cadastro.models.ListaCadastro', ),
             ),
             modules.ModelList(
                 u'Municípios', [

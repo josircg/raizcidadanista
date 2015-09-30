@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import FormView, TemplateView, View, DetailView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
@@ -7,10 +7,15 @@ from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
+from django.conf import settings
 
-from models import Circulo, Membro, CirculoMembro, Pessoa
+from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
+
+import cStringIO as StringIO
+from PIL import Image
+
 
 
 class NewsletterView(FormView):
@@ -210,3 +215,20 @@ class ValidarEmailView(TemplateView):
                 'msg': u'Obrigado por confirmar seus dados.',
             }
         )
+
+
+class CampanhaView(DetailView):
+    model = Campanha
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.qtde_views += 1
+        self.object.save()
+
+        response = HttpResponse(mimetype='image')
+        img = Image.open(u"%s/img/1x1.png" % settings.MEDIA_ROOT)
+        img_temp = StringIO.StringIO()
+        img.save(img_temp, 'JPEG')
+        img_temp.seek(0)
+        response.write(img_temp.getvalue())
+        return response

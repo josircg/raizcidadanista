@@ -55,7 +55,8 @@ class CustomMenu(Menu):
             ),
             CustomAppList(
                  _(u'Cadastro'),
-                models=('cadastro.models.*', )
+                models=('cadastro.models.*', ),
+                exclude=('cadastro.models.ListaCadastro', ),
             ),
             CustomAppList(
                 _(u'Adminstração'),

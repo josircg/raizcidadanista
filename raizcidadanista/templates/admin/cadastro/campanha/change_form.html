@@ -1,0 +1,60 @@
+{% extends "admin/edit_form.html" %}
+{% load i18n admin_modify adminmedia %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style type="text/css">
+    #id_assunto {
+        width: 720px;
+    }
+    #id_template {
+        width: 835px;
+        height: 400px;
+    }
+    .field-template_html .html{
+        border: 1px #ccc solid;
+        width: 840px;
+        height: 400px;
+    }
+    #cke_id_template {
+        margin-left: 105px;
+    }
+</style>
+<script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}ckeditor/ckeditor/ckeditor.js"></script>
+
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function($) {
+            $('.button-ckeditor').click(function(event) {
+                if($(this).attr('status') == 'disable'){
+                    CKEDITOR.replace("id_template", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "contentsCss": ["{{ STATIC_URL }}ckeditor_config/content.css"], "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/?path=", "height": 291, "width": 835, "filebrowserBrowseUrl": "/ckeditor/browse/?path=", "skin": "moono", "filebrowserWindowHeight": 725, "stylesSet": "my_styles:{{ STATIC_URL }}ckeditor_config/styles.js", "toolbar": [{"items": ["Source", "-", "Preview"], "name": "document"}, {"items": ["Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "-", "RemoveFormat"], "name": "basicstyles", "groups": ["basicstyles", "cleanup"]}, {"items": ["NumberedList", "BulletedList", "-", "Outdent", "Indent", "-", "Blockquote", "CreateDiv", "-", "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock"], "name": "paragraph", "groups": ["list", "indent", "blocks", "align"]}, "/", {"items": ["Styles", "Format"], "name": "styles"}, {"items": ["TextColor", "BGColor"], "name": "colors"}, {"items": ["Maximize", "ShowBlocks"], "name": "tools"}, {"items": ["Link", "Unlink", "Anchor"], "name": "links"}, {"items": ["Image", "Table", "HorizontalRule"], "name": "insert"}]});
+                    $(this).attr('status', 'enable');
+                }else{
+                    CKEDITOR.instances.id_template.destroy();
+                    $(this).attr('status', 'disable');
+                }
+            });
+        });
+    })(django.jQuery);
+</script>
+
+{% if change %}
+<div id="box-teste_de_envio" style="display:none">
+    <h3>Informe um email para teste:</h3><br>
+    <form action="{% url admin:cadastro_campanha_teste_de_envio original.pk %}" method="POST">{% csrf_token %}
+        <label>
+            <input type="email" name="email" style="width:220px">
+        </label>
+        <input type="submit" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;" />
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li><a href="javascript://" status="disable" class="historylink button-ckeditor">CKEditor</a></li>
+{% endblock %}

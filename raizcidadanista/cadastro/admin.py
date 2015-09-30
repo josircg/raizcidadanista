@@ -2,10 +2,12 @@
 from django.contrib import admin, messages
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
+from django.utils.encoding import force_unicode
 from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import Template
+from django.template.context import RequestContext, Context
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
@@ -17,7 +19,7 @@ from functools import partial
 import csv
 
 from forms import MembroImport
-from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa
+from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
 
 from municipios.models import UF, Municipio
 from cms.email import sendmail
@@ -46,6 +48,8 @@ class PessoaAdmin(PowerModelAdmin):
                 )
         self.message_user(request, 'Total de emails enviados para aprovação: %d' % contador)
     validar_email.short_description = u'Validar Emails'
+admin.site.register(Pessoa, PessoaAdmin)
+
 
 class CirculoMembroMembroInline(admin.TabularInline):
     model = CirculoMembro
@@ -56,7 +60,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(PowerModelAdmin):
     list_filter = ('uf', 'filiado',)
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'municipio', 'aprovador', )
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', )
 
@@ -74,6 +78,12 @@ class MembroAdmin(PowerModelAdmin):
                     params={
                     },
                 )
+
+                if Lista.objects.filter(nome=u'Colaboradores').exists():
+                    ListaCadastro(
+                        lista = Lista.objects.get(nome=u'Colaboradores'),
+                        pessoa = rec,
+                    ).save()
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
     aprovacao.short_description = u'Aprovação'
 
@@ -84,6 +94,14 @@ class MembroAdmin(PowerModelAdmin):
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/core/membro/import.html'):
+        var = {
+            'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
+            'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,
+            'uf_eleitoral': 13, 'foi_filiacao_partidaria': 14, 'filiacao_partidaria': 15,
+        }
+        def _get_data(record, name):
+            return force_unicode(record[var[name]].strip())
+
         if not request.user.is_superuser:
             raise PermissionDenied()
 
@@ -91,11 +109,6 @@ class MembroAdmin(PowerModelAdmin):
         if request.method == 'POST':
             form = form_class(request.POST, request.FILES)
             if form.is_valid():
-                var = {
-                    'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
-                    'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_eleitoral': 11, 'zona_secao_eleitoral': 12, 'municipio_eleitoral': 13,
-                    'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria': 16,
-                }
                 lidos = 0
                 importados = 0
                 atualizados = 0
@@ -104,26 +117,36 @@ class MembroAdmin(PowerModelAdmin):
                     if len(record) >= 14:
                         lidos += 1
                         try:
-                            uf = UF.objects.get(uf=record[var['uf']])
-                            municipio = Municipio.objects.get(uf=uf, nome=record[var['municipio']])
+                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
 
                         except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (record[var['uf']], record[var['email']]))
+                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
                             uf = None
 
                         except Municipio.DoesNotExist:
                             municipio = None
-                            uf = None
+
+                        try:
+                            uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
+                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio_eleitoral'))
+
+                        except UF.DoesNotExist:
+                            messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
+                            uf_eleitoral = None
+                            municipio_eleitoral = None
+
+                        except Municipio.DoesNotExist:
+                            municipio_eleitoral = None
 
                         if not uf:
                             uf = UF.objects.get(uf='SP')
 
                         try:
                             # Atualiza o Membro
-                            membro = Membro.objects.get(email=record[var['email']])
-                            print membro.nome
+                            membro = Membro.objects.get(email=_get_data(record, 'email'))
                             if not membro.nome:
-                                membro.nome = record[var['nome']]
+                                membro.nome = _get_data(record, 'nome')
                             if not membro.uf:
                                 membro.uf = uf
                             if municipio and not membro.municipio:
@@ -132,34 +155,46 @@ class MembroAdmin(PowerModelAdmin):
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
-                            print 'adicionando %s' % record[var['nome']]
-                            dtcadastro = record[var['dtcadastro']].split(' ')[0]
+                            print 'adicionando %s' % _get_data(record, 'nome')
+                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
                             dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro
                             membro = Membro(
-                                email=record[var['email']],
-                                nome=record[var['nome']],
+                                email=_get_data(record, 'email'),
+                                nome=_get_data(record, 'nome'),
                                 uf=uf,
                                 municipio=municipio,
-                                municipio_eleitoral = record[var['municipio']],
-                                dtcadastro=dtcadastro)
-                            membro.celular = record[var['celular']]
-                            membro.telefone = record[var['residencial']]
-                            membro.atividade_profissional = record[var['atividade_profissional']]
-                            membro.rg = record[var['rg']]
-                            membro.titulo_eleitoral = record[var['titulo_eleitoral']]
-                            membro.filiacao_partidaria = record[var['filiacao_partidaria']]
-
-                            dtnascimento = record[var['dtnascimento']]
-                            if dtnascimento:
-                                try:
-                                    membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                                except:
-                                    print record[var['dtnascimento']]
-                            membro.save()
+                                municipio_eleitoral = _get_data(record, 'municipio'),
+                                dtcadastro=dtcadastro,
+                                status_email = 'N')
+                            membro.celular = _get_data(record, 'celular')
+                            membro.telefone = _get_data(record, 'residencial')
+                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
+                            membro.rg = _get_data(record, 'rg')
                             importados += 1
-#'zona_secao_eleitoral': 12, 'municipio_eleitoral',
-#'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria'
+
+                        if not membro.uf_eleitoral:
+                            membro.uf_eleitoral = uf_eleitoral
+                            membro.municipio_eleitoral = municipio_eleitoral
+                            membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
+                            if len(membro.titulo_eleitoral.split('/')) > 1:
+                                try:
+                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1]
+                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2]
+                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0]
+                                except:
+                                    print membro.titulo_eleitoral
+
+                            membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
+
+                        dtnascimento = _get_data(record, 'dtnascimento')
+                        if not membro.dtnascimento and dtnascimento:
+                            try:
+                                membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+                            except:
+                                print _get_data(record, 'dtnascimento')
+
+                        membro.save()
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
                 return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))
@@ -179,8 +214,9 @@ class MembroAdmin(PowerModelAdmin):
     def get_buttons(self, request, object_id):
         buttons = super(MembroAdmin, self).get_buttons(request, object_id)
         if not object_id and request.user.is_superuser:
-            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar visitantes e colaboradores'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
+admin.site.register(Membro, MembroAdmin)
 
 
 class CirculoMembroCirculoInline(admin.TabularInline):
@@ -266,12 +302,16 @@ class CirculoAdmin(PowerModelAdmin):
         else:
             self.inlines = [CirculoEventoCirculoInline,]
         return [inline(self.model, self.admin_site) for inline in self.inlines]
+admin.site.register(Circulo, CirculoAdmin)
+
 
 class MunicipioAdmin(PowerModelAdmin):
     search_fields = ('nome',)
     list_display = ('uf', 'nome', )
     list_filter = ('uf',)
     list_per_page = 20
+admin.site.register(Municipio, MunicipioAdmin)
+
 
 class LogEntryAdmin(PowerModelAdmin):
     search_fields = ('object_repr', 'change_message', 'user__username', )
@@ -291,12 +331,135 @@ class LogEntryAdmin(PowerModelAdmin):
             return u"2-Modificado"
         elif obj.is_deletion():
             return u"3-Deletado"
-
-admin.site.register(Circulo, CirculoAdmin)
-admin.site.register(CirculoEvento)
-admin.site.register(Membro, MembroAdmin)
-admin.site.register(Pessoa, PessoaAdmin)
-admin.site.register(UF)
-admin.site.register(Municipio, MunicipioAdmin)
 admin.site.register(LogEntry, LogEntryAdmin)
 
+
+class ListaCadastroAdmin(PowerModelAdmin):
+    list_display = ('lista', 'pessoa', 'dtinclusao')
+    list_filter = ('lista', 'dtinclusao', )
+    multi_search = (
+        ('q1', u'Pessoa', ['pessoa__nome', 'pessoa__email',]),
+    )
+    raw_id_fields = ('lista', 'pessoa')
+    fieldsets = [
+        (None, {
+            'fields': (
+                'lista', 'pessoa',
+            )
+        }),
+    ]
+admin.site.register(ListaCadastro, ListaCadastroAdmin)
+
+
+class ListaAdmin(PowerModelAdmin):
+    list_display = ('nome', 'validade', 'status', )
+    list_filter = ('validade', 'status', )
+    multi_search = (
+        ('q1', u'Nome', ['nome', ]),
+    )
+    readonly_fields = ('num_cadastros', )
+    actions = ('inativar', )
+
+    fieldsets = [
+        (None, {
+            'fields': (
+               'nome', 'validade', 'num_cadastros', 'status', 'seo', 'analytics'
+            )
+        }),
+    ]
+
+    def inativar(self, request, queryset):
+        count = queryset.count()
+        queryset.update(status=u'I')
+        messages.info(request, u'%s lista(s) inativada(s).' % count)
+    inativar.short_description = u'Inativar'
+
+    def get_buttons(self, request, object_id):
+        buttons = super(ListaAdmin, self).get_buttons(request, object_id)
+        if object_id:
+            buttons.append(PowerButton(url="%s?lista__id__exact=%s" % (reverse('admin:cadastro_listacadastro_changelist'), object_id), label=u'Cadastros'))
+        return buttons
+admin.site.register(Lista, ListaAdmin)
+
+
+class CampanhaAdmin(PowerModelAdmin):
+    list_display = ('lista', 'dtenvio', 'assunto', 'qtde_envio', 'qtde_erros', 'qtde_views',)
+    list_filter = ('dtenvio', )
+    raw_id_fields = ('lista', )
+    multi_search = (
+        ('q1', u'Assunto', ['assunto', ]),
+        ('q2', u'Lista', ['lista__nome', ]),
+    )
+    fieldsets = [
+        (None, { 'fields': ('lista', 'assunto', 'template', 'template_html', ), },),
+    ]
+    fieldsets_readonly = [
+        (None, { 'fields': ('lista', 'assunto', ('qtde_envio', 'qtde_erros', 'qtde_views',), 'dtenvio', 'template', 'template_html',), },),
+    ]
+    readonly_fields = ('template_html', )
+
+    def get_fieldsets(self, request, obj=None):
+        if obj and obj.dtenvio:
+            return self.fieldsets_readonly
+        return self.fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.dtenvio:
+            return ('lista', 'qtde_envio', 'dtenvio', 'qtde_erros', 'qtde_views', 'template_html', )
+        return ('template_html', )
+
+    def teste_de_envio(self, request, id_campanha):
+        campanha = get_object_or_404(Campanha, pk=id_campanha)
+        if request.method == 'POST' and request.POST.get('email'):
+            email = request.POST.get('email')
+            campanha.send_email_test(to=[email, ])
+            messages.info(request, u'O email enviado com sucesso!')
+        else:
+            messages.error(request, u'Preencha corretamento o campo email na hora de testar o envio.')
+        return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
+
+    def envio(self, request, id_campanha):
+        campanha = get_object_or_404(Campanha, pk=id_campanha)
+        campanha.send_emails()
+        messages.info(request, u'Os emails estão sendo enviados!')
+        return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
+
+    def template(self, request, id_campanha):
+        campanha = get_object_or_404(Campanha, pk=id_campanha)
+        template_content = Template(campanha.template)
+        html_content = template_content.render(Context({}))
+        return HttpResponse(html_content)
+
+    def copiar(self, request, id_campanha):
+        campanha = get_object_or_404(Campanha, pk=id_campanha)
+        nova_campanha = Campanha.objects.create(
+            assunto = campanha.assunto,
+            template = campanha.template,
+        )
+        messages.info(request, u'Cópia da campanha %s criada com sucesso!' % campanha)
+        return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(nova_campanha.pk, )))
+
+    def get_urls(self):
+        urls_originais = super(CampanhaAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<id_campanha>\d+)/teste-de-envio/$', self.wrap(self.teste_de_envio), name='cadastro_campanha_teste_de_envio'),
+            url(r'^(?P<id_campanha>\d+)/envio/$', self.wrap(self.envio), name='cadastro_campanha_envio'),
+            url(r'^(?P<id_campanha>\d+)/template/$', self.wrap(self.template), name='cadastro_campanha_template'),
+            url(r'^(?P<id_campanha>\d+)/copiar/$', self.wrap(self.copiar), name='cadastro_campanha_copiar'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(CampanhaAdmin, self).get_buttons(request, object_id)
+        if object_id:
+            objeto = self.get_object(request, object_id)
+            buttons.append(PowerButton(url='?lightbox[width]=280&lightbox[height]=90#box-teste_de_envio', attrs={'class': 'historylink lightbox', }, label=u'Teste de Envio'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_envio', kwargs={'id_campanha': object_id, }), label=u'Envio'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
+        return buttons
+admin.site.register(Campanha, CampanhaAdmin)
+
+
+
+admin.site.register(CirculoEvento)
+admin.site.register(UF)

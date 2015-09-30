@@ -1,18 +1,28 @@
 # coding:utf-8
 from datetime import datetime, timedelta, date
 
-from django.db import models
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.conf import settings
-from django.db.models import signals
+from django.db.models import signals, F
 from django.dispatch import receiver
+
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Template
+from django.template.context import Context
+from threading import Thread
+from time import sleep
 
 from municipios.models import UF
 from utils.storage import UuidFileSystemStorage
-from cms.email import sendmail
+from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
 #from utils.models import BRDateField, BRDecimalField
+
 
 GENDER = (
     ('M', u'Masculino'),
@@ -44,9 +54,10 @@ class Pessoa(models.Model):
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
+
 @receiver(signals.post_save, sender=Pessoa)
 def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if created and instance.status_email == 'N':
+    if created and (instance.status_email is None or instance.status_email == 'N'):
         sendmail(
             subject=u'Raiz Movimento Cidadanista - Validação de email',
             to=[instance.email, ],
@@ -103,6 +114,18 @@ class Membro(Pessoa):
             if self.usuario.email != self.email:
                 self.usuario.email = self.email
                 self.usuario.save()
+@receiver(signals.post_save, sender=Membro)
+def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created and (instance.status_email is None or instance.status_email == 'N'):
+        sendmail(
+            subject=u'Raiz Movimento Cidadanista - Validação de email',
+            to=[instance.email, ],
+            template='emails/validar-email.html',
+            params={
+                'pessoa': instance,
+                'SITE_HOST': settings.SITE_HOST,
+            },
+        )
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),
@@ -169,3 +192,164 @@ class CirculoEvento(models.Model):
     class Meta:
         verbose_name = u'Evento do Círculo'
         verbose_name_plural = u'Eventos dos círculos'
+
+
+STATUS_LISTA = (
+    ('A', u'Ativo'),
+    ('P', u'Privado'),
+    ('I', u'Inativo'),
+)
+class Lista(models.Model):
+    nome = models.CharField(max_length=100)
+    validade = models.DateField(u'Data Limite para cadastro')
+    status = models.CharField(max_length=1, choices=STATUS_LISTA, default=u'A')
+    seo = models.TextField('SEO Content', blank=True, null=True)
+    analytics = models.TextField('Analytics', blank=True, null=True)
+
+    def num_cadastros(self):
+        return self.listacadastro_set.count()
+    num_cadastros.short_description = u"Nº de cadastros"
+
+    def __unicode__(self):
+        return u"%s" % self.nome
+
+
+class ListaCadastro(models.Model):
+    class Meta:
+        ordering = ('lista', 'pessoa__nome', )
+        verbose_name = u'Lista › Cadastro'
+        verbose_name_plural = u'Lista › Cadastros'
+
+    lista = models.ForeignKey(Lista)
+    pessoa = models.ForeignKey(Pessoa)
+    dtinclusao = models.DateTimeField(u'Inclusão', auto_now_add=True)
+
+    def __unicode__(self):
+        return u"%s - %s" % (self.lista, self.pessoa)
+
+
+class Campanha(models.Model):
+    class Meta:
+        ordering = ('dtenvio', )
+
+    lista = models.ForeignKey(Lista, null=True, on_delete=models.SET_NULL)
+    dtenvio = models.DateTimeField(u'Dt. Envio', blank=True, null=True)
+    assunto = models.CharField(u'Assunto', max_length=255)
+    template = models.TextField(u'Template')
+    qtde_envio = models.PositiveIntegerField(u'Qtd de emails enviados', default=0)
+    qtde_erros = models.PositiveIntegerField(u'Qtd de emails que deu erro', default=0)
+    qtde_views = models.PositiveIntegerField(u'Qtd de visualizações', default=0)
+
+    def template_html(self):
+        return u'<iframe class="html" src="%s"></iframe>' % reverse('admin:cadastro_campanha_template', kwargs={'id_campanha': self.pk,})
+    template_html.allow_tags = True
+    template_html.short_description = u'Template'
+
+    def get_qtde_views_url(self):
+        return reverse('campanha_views', kwargs={'pk': self.pk, })
+
+    def send_email_test(self, to):
+        send_email_thread(subject=self.assunto, to=to, template=self.template)
+
+    def send_emails(self):
+        def _send_campanha_thread(campanha_id, from_email=settings.DEFAULT_FROM_EMAIL):
+            def splip_emails(emails, ite=200):
+                ini = 0
+                for i in range(ite, len(emails), ite):
+                    yield emails[ini:i]
+                    ini = i
+                if len(emails) > ini:
+                    yield emails[ini:len(emails)]
+
+            campanha = Campanha.objects.get(pk=campanha_id)
+            subject = campanha.assunto
+            text_content = subject
+            user = User.objects.get_or_create(username="sys")[0]
+            campanha_ct = ContentType.objects.get_for_model(campanha)
+
+            # Renderiza o template, se não consegui mata a thread
+            template = u'%s<img src="%s%s" />' % (campanha.template, settings.SITE_HOST, campanha.get_qtde_views_url())
+            try: template_content = get_template(template)
+            except:
+                try: template_content = Template(template)
+                except:
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = campanha_ct.pk,
+                        object_id = campanha.pk,
+                        object_repr = u"%s" % campanha,
+                        action_flag = CHANGE,
+                        change_message = u'[ERROR] Erro ao montar template para envio.'
+                    )
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=F('qtde_erros')+len(emails))
+                    return
+            html_content = template_content.render(Context({}))
+
+            LogEntry.objects.log_action(
+                user_id = user.pk,
+                content_type_id = campanha_ct.pk,
+                object_id = campanha.pk,
+                object_repr = u"%s" % campanha,
+                action_flag = CHANGE,
+                change_message = u'[INFO] Iniciado o envio de emails.'
+            )
+            for emails in splip_emails(campanha.lista.listacadastro_set.values_list('pessoa__email', flat=True)):
+                # Cria a mensagem
+                msg = EmailMultiAlternatives(subject, text_content, from_email, bcc=emails)
+                msg.attach_alternative(html_content, 'text/html; charset=UTF-8')
+
+                # Realiza até 3 tentativas de enviar
+                tentativas = 0
+                while tentativas < 3:
+                    try:
+                        msg.send()
+                        LogEntry.objects.log_action(
+                            user_id = user.pk,
+                            content_type_id = campanha_ct.pk,
+                            object_id = campanha.pk,
+                            object_repr = u"%s" % campanha,
+                            action_flag = CHANGE,
+                            change_message = u'[INFO] Emails enviados com sucesso para: %s.' % u", ".join(emails)
+                        )
+                        # Atualiza o número de envios
+                        Campanha.objects.filter(pk=campanha_id).update(qtde_envio=F('qtde_envio')+len(emails))
+                        break
+                    except:
+                        LogEntry.objects.log_action(
+                            user_id = user.pk,
+                            content_type_id = campanha_ct.pk,
+                            object_id = campanha.pk,
+                            object_repr = u"%s" % campanha,
+                            action_flag = CHANGE,
+                            change_message = u'[ERROR] Falha na %sª/3 tentativa de envio para: %s.' % (tentativas+1, u", ".join(emails), )
+                        )
+                        tentativas += 1
+                        sleep(60)
+
+                if tentativas == 3:
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = campanha_ct.pk,
+                        object_id = campanha.pk,
+                        object_repr = u"%s" % campanha,
+                        action_flag = CHANGE,
+                        change_message = u'[ERROR] Erro ao enviar emails para: %s.' % u", ".join(emails)
+                    )
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=F('qtde_erros')+len(emails))
+
+            LogEntry.objects.log_action(
+                user_id = user.pk,
+                content_type_id = campanha_ct.pk,
+                object_id = campanha.pk,
+                object_repr = u"%s" % campanha,
+                action_flag = CHANGE,
+                change_message = u'[INFO] Finalizado o envio de emails.'
+            )
+        self.dtenvio = datetime.now()
+        self.save()
+
+        th=Thread(target=_send_campanha_thread, kwargs={'campanha_id': self.pk,})
+        th.start()
+
+    def __unicode__(self):
+        return self.assunto

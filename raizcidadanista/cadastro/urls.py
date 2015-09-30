@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^filiado/atualizar/$', views.FiliadoAtualizarLinkView.as_view(), name="filiado_atualizar_link"),
     url(r'^filiado/atualizar/(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,20})/$', views.FiliadoAtualizarView.as_view(), name="filiado_atualizar"),
     url(r'^validar-email/(?P<pessoa_id>\d+)/$', views.ValidarEmailView.as_view(), name="validar_email"),
+    url(r'^campanha/(?P<pk>\d+)/$', views.CampanhaView.as_view(), name='campanha_views'),
 ]

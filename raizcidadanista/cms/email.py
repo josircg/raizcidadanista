@@ -100,3 +100,32 @@ def resendmail_email_agendado(email, mimetype='text/html; charset=UTF-8', header
         email.status = 'K'
     except: email.status = 'E'
     email.save()
+
+
+def send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
+    def _send_email_thread(subject='', to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
+        try: template_content = get_template(template)
+        except:
+            try: template_content = Template(template)
+            except:
+                print 'Erro!'
+
+        text_content = subject
+        html_content = template_content.render(Context(params))
+
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to, headers=headers)
+        msg.attach_alternative(html_content, mimetype)
+
+        tentativas = 0
+        while tentativas < 3:
+            try:
+                msg.send()
+                print 'Deu certo!'
+                break
+            except:
+                print 'Nova tentativa'
+                tentativas += 1
+                sleep(60)
+
+    th=Thread(target=_send_email_thread, args=(subject, to, params, template, mimetype, headers))
+    th.start()

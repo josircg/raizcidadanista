@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import FormView, TemplateView, View, DetailView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
@@ -7,10 +7,18 @@ from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
+from django.conf import settings
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
-from models import Circulo, Membro, CirculoMembro, Pessoa
+from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
+
+import cStringIO as StringIO
+from PIL import Image
+
 
 
 class NewsletterView(FormView):
@@ -39,6 +47,14 @@ class MembroView(FormView):
     template_name = 'cadastro/membro.html'
     template_success_name = 'cadastro/bem-vindo.html'
     form_class = MembroForm
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('email'):
+            json = {'msg': ''}
+            if Membro.objects.filter(email=request.GET.get('email')).exists():
+                json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.'
+            return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
+        return super(MembroView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.save()
@@ -201,6 +217,21 @@ class ValidarEmailView(TemplateView):
         pessoa = get_object_or_404(Pessoa, pk=pessoa_id, email=request.GET.get('email'))
         pessoa.status_email = 'A'
         pessoa.save()
+        LogEntry.objects.log_action(
+            user_id = User.objects.get_or_create(username="sys")[0],
+            content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+            object_id = pessoa.pk,
+            object_repr = u'%s' % pessoa,
+            action_flag = CHANGE,
+            change_message = u'Email validado'
+        )
+
+        if Lista.objects.filter(nome=u'Visitantes').exists():
+            ListaCadastro(
+                lista = Lista.objects.get(nome=u'Visitantes'),
+                pessoa = pessoa,
+            ).save()
+
         messages.info(self.request, u"Email validado com sucesso!")
         return self.response_class(
             request=self.request,
@@ -210,3 +241,20 @@ class ValidarEmailView(TemplateView):
                 'msg': u'Obrigado por confirmar seus dados.',
             }
         )
+
+
+class CampanhaView(DetailView):
+    model = Campanha
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.qtde_views += 1
+        self.object.save()
+
+        response = HttpResponse(mimetype='image')
+        img = Image.open(u"%s/img/1x1.png" % settings.MEDIA_ROOT)
+        img_temp = StringIO.StringIO()
+        img.save(img_temp, 'JPEG')
+        img_temp.seek(0)
+        response.write(img_temp.getvalue())
+        return response

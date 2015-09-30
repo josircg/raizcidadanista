@@ -8,6 +8,7 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
+from django.contrib.admin.models import LogEntry
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha
 from municipios.models import UF
@@ -214,6 +215,15 @@ class ValidarEmailView(TemplateView):
         pessoa = get_object_or_404(Pessoa, pk=pessoa_id, email=request.GET.get('email'))
         pessoa.status_email = 'A'
         pessoa.save()
+        LogEntry.objects.log_action(
+                user_id = User.objects.get_or_create(username="sys")[0],
+                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                object_id = pessoa.pk,
+                object_repr = u'%s' % pessoa,
+                action_flag = CHANGE,
+                change_message = u'Email validado'
+            )
+
         messages.info(self.request, u"Email validado com sucesso!")
         return self.response_class(
             request=self.request,

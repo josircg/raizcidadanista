@@ -113,7 +113,18 @@ class MembroAdmin(PowerModelAdmin):
 
                         except Municipio.DoesNotExist:
                             municipio = None
-                            uf = None
+
+                        try:
+                            uf_eleitoral = UF.objects.get(uf=record[var['uf_eleitoral']])
+                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=record[var['municipio_eleitoral']])
+
+                        except UF.DoesNotExist:
+                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (record[var['uf_eleitoral']], record[var['email']]))
+                            uf_eleitoral = None
+                            municipio_eleitoral = None
+
+                        except Municipio.DoesNotExist:
+                            municipio_eleitoral = None
 
                         if not uf:
                             uf = UF.objects.get(uf='SP')
@@ -147,19 +158,30 @@ class MembroAdmin(PowerModelAdmin):
                             membro.telefone = record[var['residencial']]
                             membro.atividade_profissional = record[var['atividade_profissional']]
                             membro.rg = record[var['rg']]
+                            importados += 1
+
+                        if not membro.uf_eleitoral:
+                            membro.uf_eleitoral = uf_eleitoral
+                            membro.municipio_eleitoral = municipio_eleitoral
                             membro.titulo_eleitoral = record[var['titulo_eleitoral']]
+                            if len(membro.titulo_eleitoral.split('/')) > 1:
+                                try:
+                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1]
+                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2]
+                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0]
+                                except:
+                                    print membro.titulo_eleitoral
+
                             membro.filiacao_partidaria = record[var['filiacao_partidaria']]
 
-                            dtnascimento = record[var['dtnascimento']]
-                            if dtnascimento:
-                                try:
-                                    membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                                except:
-                                    print record[var['dtnascimento']]
-                            membro.save()
-                            importados += 1
-#'zona_secao_eleitoral': 12, 'municipio_eleitoral',
-#'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria'
+                        dtnascimento = record[var['dtnascimento']]
+                        if not membro.dtnascimento and dtnascimento:
+                            try:
+                                membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+                            except:
+                                print record[var['dtnascimento']]
+
+                        membro.save()
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
                 return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))
@@ -179,7 +201,7 @@ class MembroAdmin(PowerModelAdmin):
     def get_buttons(self, request, object_id):
         buttons = super(MembroAdmin, self).get_buttons(request, object_id)
         if not object_id and request.user.is_superuser:
-            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar visitantes e colaboradores'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
 
 

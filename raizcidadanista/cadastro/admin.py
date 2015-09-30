@@ -2,6 +2,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
+from django.utils.encoding import force_unicode
 from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -87,6 +88,14 @@ class MembroAdmin(PowerModelAdmin):
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/core/membro/import.html'):
+        var = {
+            'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
+            'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,
+            'uf_eleitoral': 13, 'foi_filiacao_partidaria': 14, 'filiacao_partidaria': 15,
+        }
+        def _get_data(record, name):
+            return force_unicode(record[var[name]].strip())
+
         if not request.user.is_superuser:
             raise PermissionDenied()
 
@@ -94,11 +103,6 @@ class MembroAdmin(PowerModelAdmin):
         if request.method == 'POST':
             form = form_class(request.POST, request.FILES)
             if form.is_valid():
-                var = {
-                    'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
-                    'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_eleitoral': 11, 'zona_secao_eleitoral': 12, 'municipio_eleitoral': 13,
-                    'uf_eleitoral': 14, 'foi_filiacao_partidaria': 15, 'filiacao_partidaria': 16,
-                }
                 lidos = 0
                 importados = 0
                 atualizados = 0
@@ -107,22 +111,22 @@ class MembroAdmin(PowerModelAdmin):
                     if len(record) >= 14:
                         lidos += 1
                         try:
-                            uf = UF.objects.get(uf=record[var['uf']])
-                            municipio = Municipio.objects.get(uf=uf, nome=record[var['municipio']])
+                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
 
                         except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (record[var['uf']], record[var['email']]))
+                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
                             uf = None
 
                         except Municipio.DoesNotExist:
                             municipio = None
 
                         try:
-                            uf_eleitoral = UF.objects.get(uf=record[var['uf_eleitoral']])
-                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=record[var['municipio_eleitoral']])
+                            uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
+                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio_eleitoral'))
 
                         except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (record[var['uf_eleitoral']], record[var['email']]))
+                            messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
                             uf_eleitoral = None
                             municipio_eleitoral = None
 
@@ -134,9 +138,9 @@ class MembroAdmin(PowerModelAdmin):
 
                         try:
                             # Atualiza o Membro
-                            membro = Membro.objects.get(email=record[var['email']])
+                            membro = Membro.objects.get(email=_get_data(record, 'email'))
                             if not membro.nome:
-                                membro.nome = record[var['nome']]
+                                membro.nome = _get_data(record, 'nome')
                             if not membro.uf:
                                 membro.uf = uf
                             if municipio and not membro.municipio:
@@ -145,28 +149,28 @@ class MembroAdmin(PowerModelAdmin):
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
-                            print 'adicionando %s' % record[var['nome']]
-                            dtcadastro = record[var['dtcadastro']].split(' ')[0]
+                            print 'adicionando %s' % _get_data(record, 'nome')
+                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
                             dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro
                             membro = Membro(
-                                email=record[var['email']],
-                                nome=record[var['nome']],
+                                email=_get_data(record, 'email'),
+                                nome=_get_data(record, 'nome'),
                                 uf=uf,
                                 municipio=municipio,
-                                municipio_eleitoral = record[var['municipio']],
+                                municipio_eleitoral = _get_data(record, 'municipio'),
                                 dtcadastro=dtcadastro,
                                 status_email = 'N')
-                            membro.celular = record[var['celular']]
-                            membro.telefone = record[var['residencial']]
-                            membro.atividade_profissional = record[var['atividade_profissional']]
-                            membro.rg = record[var['rg']]
+                            membro.celular = _get_data(record, 'celular')
+                            membro.telefone = _get_data(record, 'residencial')
+                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
+                            membro.rg = _get_data(record, 'rg')
                             importados += 1
 
                         if not membro.uf_eleitoral:
                             membro.uf_eleitoral = uf_eleitoral
                             membro.municipio_eleitoral = municipio_eleitoral
-                            membro.titulo_eleitoral = record[var['titulo_eleitoral']]
+                            membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
                             if len(membro.titulo_eleitoral.split('/')) > 1:
                                 try:
                                     membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1]
@@ -175,14 +179,14 @@ class MembroAdmin(PowerModelAdmin):
                                 except:
                                     print membro.titulo_eleitoral
 
-                            membro.filiacao_partidaria = record[var['filiacao_partidaria']]
+                            membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
 
-                        dtnascimento = record[var['dtnascimento']]
+                        dtnascimento = _get_data(record, 'dtnascimento')
                         if not membro.dtnascimento and dtnascimento:
                             try:
                                 membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
                             except:
-                                print record[var['dtnascimento']]
+                                print _get_data(record, 'dtnascimento')
 
                         membro.save()
 

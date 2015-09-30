@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.localflavor.br.forms import BRCPFField
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -37,6 +40,28 @@ class MembroForm(forms.ModelForm):
         if Membro.objects.filter(email=email).exists():
             raise forms.ValidationError(u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.')
         return email
+
+    def save(self, commit=True):
+        email = self.cleaned_data.get('email')
+
+        # Converte Pessoa em Membro
+        if Pessoa.objects.filter(email=email).exists():
+            pessoa = Pessoa.objects.get(email=email)
+            self.instance.pessoa_ptr = pessoa
+            self.instance.status_email = pessoa.status_email
+
+            if self.instance.nome != pessoa.nome:
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                    object_id = pessoa.pk,
+                    object_repr = u"%s" % pessoa,
+                    action_flag = CHANGE,
+                    change_message = u'Nome alterado de %s para %s pelo cadastro de Membro.' % (pessoa.nome, self.instance.nome)
+                )
+
+        return super(MembroForm, self).save(commit)
 
 
 class FiliadoForm(forms.ModelForm):

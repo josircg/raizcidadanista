@@ -114,6 +114,18 @@ class Membro(Pessoa):
             if self.usuario.email != self.email:
                 self.usuario.email = self.email
                 self.usuario.save()
+@receiver(signals.post_save, sender=Membro)
+def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created and (instance.status_email is None or instance.status_email == 'N'):
+        sendmail(
+            subject=u'Raiz Movimento Cidadanista - Validação de email',
+            to=[instance.email, ],
+            template='emails/validar-email.html',
+            params={
+                'pessoa': instance,
+                'SITE_HOST': settings.SITE_HOST,
+            },
+        )
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),

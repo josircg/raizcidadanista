@@ -8,9 +8,11 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
-from django.contrib.admin.models import LogEntry, CHANGE
+
+from django.contrib.admin.models import LogEntry
+from django.contrib.auth.models import User, Group
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
@@ -218,13 +220,13 @@ class ValidarEmailView(TemplateView):
         pessoa.status_email = 'A'
         pessoa.save()
         LogEntry.objects.log_action(
-            user_id = User.objects.get_or_create(username="sys")[0],
-            content_type_id = ContentType.objects.get_for_model(pessoa).pk,
-            object_id = pessoa.pk,
-            object_repr = u'%s' % pessoa,
-            action_flag = CHANGE,
-            change_message = u'Email validado'
-        )
+                user_id = User.objects.get_or_create(username="sys")[0].pk,
+                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                object_id = pessoa.pk,
+                object_repr = u'%s' % pessoa,
+                action_flag = CHANGE,
+                change_message = u'Email validado'
+            )
 
         if Lista.objects.filter(nome=u'Visitantes').exists():
             ListaCadastro(

@@ -12,7 +12,7 @@ from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha
+from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
 
@@ -225,6 +225,12 @@ class ValidarEmailView(TemplateView):
             action_flag = CHANGE,
             change_message = u'Email validado'
         )
+
+        if Lista.objects.filter(nome=u'Visitantes').exists():
+            ListaCadastro(
+                lista = Lista.objects.get(nome=u'Visitantes'),
+                pessoa = pessoa,
+            ).save()
 
         messages.info(self.request, u"Email validado com sucesso!")
         return self.response_class(

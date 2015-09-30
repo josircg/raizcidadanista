@@ -56,7 +56,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(PowerModelAdmin):
     list_filter = ('uf', 'filiado',)
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'municipio', 'aprovador', )
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', )
 
@@ -121,7 +121,6 @@ class MembroAdmin(PowerModelAdmin):
                         try:
                             # Atualiza o Membro
                             membro = Membro.objects.get(email=record[var['email']])
-                            print membro.nome
                             if not membro.nome:
                                 membro.nome = record[var['nome']]
                             if not membro.uf:
@@ -142,7 +141,8 @@ class MembroAdmin(PowerModelAdmin):
                                 uf=uf,
                                 municipio=municipio,
                                 municipio_eleitoral = record[var['municipio']],
-                                dtcadastro=dtcadastro)
+                                dtcadastro=dtcadastro,
+                                status_email = 'N')
                             membro.celular = record[var['celular']]
                             membro.telefone = record[var['residencial']]
                             membro.atividade_profissional = record[var['atividade_profissional']]

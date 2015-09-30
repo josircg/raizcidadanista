@@ -365,11 +365,11 @@ class FileDownload(models.Model):
 
 
 STATUS_EMAIL = (
-    ("A", u"Aguardando envio manual..."),
-    ("S", u"Enviando..."),
-    ("R", u"Re-enviando"),
-    ("E", u"Erro ao enviar"),
-    ("K", u"Enviado"),
+    ("A", u'Aguardando envio manual...'),
+    ("S", u'Enviando...'),
+    ("R", u'Re-enviando'),
+    ("E", u'Erro ao enviar'),
+    ("K", u'Enviado'),
 )
 class EmailAgendado(models.Model):
     class Meta:

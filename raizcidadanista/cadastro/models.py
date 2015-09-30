@@ -44,9 +44,10 @@ class Pessoa(models.Model):
 
     def __unicode__(self):
         return u'%s (%s)' % (self.nome, self.email)
+
 @receiver(signals.post_save, sender=Pessoa)
 def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if created and instance.status_email == 'N':
+    if created and (instance.status_email is None or instance.status_email == 'N'):
         sendmail(
             subject=u'Raiz Movimento Cidadanista - Validação de email',
             to=[instance.email, ],

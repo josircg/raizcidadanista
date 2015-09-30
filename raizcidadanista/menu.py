@@ -43,9 +43,9 @@ class CustomMenu(Menu):
             items.MenuItem('', reverse('admin:index')),
             items.Bookmarks(_('Favoritos')),
             CustomAppList(
-                _(u'Portal'),
+                u'CMS',
                 exclude=('cms.models.EmailAgendado', 'cms.models.Recurso', 'cms.models.Theme', ),
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
+                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', ),
             ),CustomAppList(
                 _(u'Configurações'),
                 models=('cms.models.Recurso', 'cms.models.Theme', ),

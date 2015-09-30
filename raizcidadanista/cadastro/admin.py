@@ -78,6 +78,12 @@ class MembroAdmin(PowerModelAdmin):
                     params={
                     },
                 )
+
+                if Lista.objects.filter(nome=u'Colaboradores').exists():
+                    ListaCadastro(
+                        lista = Lista.objects.get(nome=u'Colaboradores'),
+                        pessoa = rec,
+                    ).save()
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
     aprovacao.short_description = u'Aprovação'
 

@@ -2,7 +2,7 @@ django<1.5
 mysql-python
 gunicorn
 South==0.8.4
-django-admin-tools==0.5.1
+django-admin-tools==0.5.2
 
 #CMS
 django-mptt==0.6.0

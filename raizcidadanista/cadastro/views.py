@@ -8,13 +8,19 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
+<<<<<<< HEAD
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
+=======
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+>>>>>>> 55494b8c6f30d758cac0e336c495025a26c3a716
 
-from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha
+from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
 
@@ -49,6 +55,14 @@ class MembroView(FormView):
     template_name = 'cadastro/membro.html'
     template_success_name = 'cadastro/bem-vindo.html'
     form_class = MembroForm
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('email'):
+            json = {'msg': ''}
+            if Membro.objects.filter(email=request.GET.get('email')).exists():
+                json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.'
+            return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
+        return super(MembroView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.save()
@@ -219,6 +233,12 @@ class ValidarEmailView(TemplateView):
                 action_flag = CHANGE,
                 change_message = u'Email validado'
             )
+
+        if Lista.objects.filter(nome=u'Visitantes').exists():
+            ListaCadastro(
+                lista = Lista.objects.get(nome=u'Visitantes'),
+                pessoa = pessoa,
+            ).save()
 
         messages.info(self.request, u"Email validado com sucesso!")
         return self.response_class(

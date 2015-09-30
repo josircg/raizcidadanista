@@ -28,7 +28,7 @@ class CustomIndexDashboard(Dashboard):
         self.children += [
             modules.ModelList(
                 u'Portal',
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'cms.models.URLMigrate', 'cms.models.FileDownload', ),
+                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', 'raizcidadanista.cms.models.URLMigrate', 'raizcidadanista.cms.models.FileDownload', ),
             ),
             modules.ModelList(
                 u'Cadastro',
@@ -47,14 +47,14 @@ class CustomIndexDashboard(Dashboard):
             ),
             modules.ModelList(
                 u'Configurações',
-                models=('cms.models.Recurso', 'cms.models.Theme', ),
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
                 extra=[
                     {'title': u'Visualizador de Arquivos', 'add_url': reverse('filebrowser:fb_upload'), 'change_url': reverse('filebrowser:fb_browse')},
                 ]
             ),
             modules.ModelList(
                 u'Administração',
-                models=('django.contrib.*', 'utils.models.*', 'cms.models.EmailAgendado', ),
+                models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),
             ),
             modules.LinkList(

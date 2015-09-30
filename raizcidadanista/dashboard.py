@@ -11,7 +11,6 @@ And to activate the app index dashboard::
     ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
 """
 
-from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
 from admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
@@ -29,12 +28,12 @@ class CustomIndexDashboard(Dashboard):
         self.children += [
             modules.ModelList(
                 u'Portal',
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'cms.models.URLMigrate', 'cms.models.FileDownload', ),
+                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', 'raizcidadanista.cms.models.URLMigrate', 'raizcidadanista.cms.models.FileDownload', ),
             ),
             modules.ModelList(
-                u'Cadastro', [
-                    'cadastro.models.*',
-                ]
+                u'Cadastro',
+                models=('cadastro.models.*', ),
+                exclude=('cadastro.models.ListaCadastro', ),
             ),
             modules.ModelList(
                 u'Municípios', [
@@ -42,15 +41,20 @@ class CustomIndexDashboard(Dashboard):
                 ]
             ),
             modules.ModelList(
-                _(u'Configurações'),
-                models=('cms.models.Recurso', 'cms.models.Theme', ),
+                u'Fórum', [
+                    'forum.models.*',
+                ]
+            ),
+            modules.ModelList(
+                u'Configurações',
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
                 extra=[
                     {'title': u'Visualizador de Arquivos', 'add_url': reverse('filebrowser:fb_upload'), 'change_url': reverse('filebrowser:fb_browse')},
                 ]
             ),
             modules.ModelList(
                 u'Administração',
-                models=('django.contrib.*', 'utils.models.*', 'cms.models.EmailAgendado', ),
+                models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),
             ),
             modules.LinkList(
@@ -86,7 +90,7 @@ class CustomAppIndexDashboard(AppIndexDashboard):
         self.children += [
             modules.ModelList(self.app_title, self.models),
             modules.RecentActions(
-                _('Recent Actions'),
+                u'Ações Recentes',
                 include_list=self.get_app_content_types(),
                 limit=5
             )

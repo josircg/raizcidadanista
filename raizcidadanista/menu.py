@@ -40,26 +40,27 @@ class CustomMenu(Menu):
         Menu.__init__(self, **kwargs)
 
         self.children += [
-            items.MenuItem('', reverse('admin:index')),
+            items.MenuItem(' ', reverse('admin:index')),
             items.Bookmarks(_('Favoritos')),
             CustomAppList(
-                _(u'Portal'),
-                exclude=('cms.models.EmailAgendado', 'cms.models.Recurso', 'cms.models.Theme', ),
-                models=('cms.models.Section', 'cms.models.Article', 'cms.models.Menu', 'ckeditor.models.*', 'filer.models.*', 'cms.models.*', ),
+                u'CMS',
+                exclude=('raizcidadanista.cms.models.EmailAgendado', 'raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
+                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', ),
             ),CustomAppList(
                 _(u'Configurações'),
-                models=('cms.models.Recurso', 'cms.models.Theme', ),
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
                 extra=[
                     items.MenuItem(title=_(u'Visualizador de Arquivos'), url=reverse('filebrowser:fb_browse'))
                 ]
             ),
             CustomAppList(
                  _(u'Cadastro'),
-                models=('cadastro.models.*', )
+                models=('cadastro.models.*', ),
+                exclude=('cadastro.models.ListaCadastro', ),
             ),
             CustomAppList(
                 _(u'Adminstração'),
-                models=('django.contrib.*', 'utils.models.*', 'cms.models.EmailAgendado', ),
+                models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),
             ),
         ]

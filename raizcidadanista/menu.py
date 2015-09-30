@@ -40,7 +40,7 @@ class CustomMenu(Menu):
         Menu.__init__(self, **kwargs)
 
         self.children += [
-            items.MenuItem('', reverse('admin:index')),
+            items.MenuItem(' ', reverse('admin:index')),
             items.Bookmarks(_('Favoritos')),
             CustomAppList(
                 u'CMS',

@@ -45,6 +45,14 @@ class MembroView(FormView):
     template_success_name = 'cadastro/bem-vindo.html'
     form_class = MembroForm
 
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('email'):
+            json = {'msg': ''}
+            if Membro.objects.filter(email=request.GET.get('email')).exists():
+                json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.'
+            return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
+        return super(MembroView, self).get(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.save()
         messages.info(self.request, u"Cadastro realizado com sucesso!")

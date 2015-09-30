@@ -80,6 +80,22 @@
         $("#id_uf").change(function(){
             get_municipios('#id_uf', '#id_municipio');
         });
+
+        $("#id_email").change(function(){
+            $.ajax({
+              dataType: "json",
+              url: '{% url membro %}',
+              data: {'email': $(this).val()},
+              success: function(data){
+                $(".group-email .list-unstyled").remove();
+                $(".group-email").removeClass('has-error');
+                if(data.msg != ""){
+                    $(".group-email").addClass('has-error');
+                    $(".group-email").append('<ul class="list-unstyled"><li class="text-error"><small>'+data.msg+'</small></li></ul>');
+                }
+              }
+            });
+        })
     });
 </script>
 {% endblock %}

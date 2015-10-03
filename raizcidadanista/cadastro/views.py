@@ -8,17 +8,11 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
-<<<<<<< HEAD
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
-=======
-from django.contrib.admin.models import LogEntry, CHANGE
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
->>>>>>> 55494b8c6f30d758cac0e336c495025a26c3a716
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF

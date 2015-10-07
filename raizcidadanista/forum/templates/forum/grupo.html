@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block description %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3>Fórum › Tópicos: {{ object }}</h3>
+
+        {% for topico in topicos %}
+        <blockquote>
+          <p>{{ topico }}</p>
+          <footer><a href="#">Ver mais</a></footer>
+        </blockquote>
+        {% endfor %}
+
+        <nav>
+          <ul class="pager">
+            {% if topicos.has_previous %}
+                <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+            {% endif %}
+
+            {% if topicos.has_next %}
+                <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+            {% endif %}
+          </ul>
+        </nav>
+    </div>
+
+{% endblock %}

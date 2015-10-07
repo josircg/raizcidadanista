@@ -1,11 +1,25 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
 
-
-from models import Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto
+from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto
 
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
+
+
+class GrupoUsuarioInline(admin.TabularInline):
+    model = GrupoUsuario
+    extra = 1
+class GrupoAdmin(PowerModelAdmin):
+    list_display = ('nome', )
+    multi_search = (
+       ('q1', 'Nome', ['nome']),
+    )
+    inlines = (GrupoUsuarioInline, )
+    fieldsets = (
+        (None, {"fields" : ('nome',),}, ),
+    )
+admin.site.register(Grupo, GrupoAdmin)
 
 
 class TopicoOuvinteTopicoInline(admin.TabularInline):

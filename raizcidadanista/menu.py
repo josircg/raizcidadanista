@@ -59,6 +59,10 @@ class CustomMenu(Menu):
                 exclude=('cadastro.models.ListaCadastro', ),
             ),
             CustomAppList(
+                 _(u'Fórum'),
+                models=('forum.models.*', ),
+            ),
+            CustomAppList(
                 _(u'Adminstração'),
                 models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),

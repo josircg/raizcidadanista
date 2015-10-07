@@ -11,6 +11,8 @@
     <div class="col-article">
         <h3>Fórum › Tópicos: {{ object }}</h3>
 
+        {{ object.descricao|safe }}
+
         {% for topico in topicos %}
         <blockquote>
           <p>{{ topico }}</p>

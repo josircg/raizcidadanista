@@ -18,6 +18,7 @@ from threading import Thread
 from time import sleep
 
 from municipios.models import UF
+from forum.models import Grupo, GrupoUsuario
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
@@ -155,12 +156,14 @@ class Circulo(models.Model):
     imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
         upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
+    grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
 
     def get_absolute_entrar_url(self):
         return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
+
 
 class CirculoMembro(models.Model):
     class Meta:
@@ -170,6 +173,7 @@ class CirculoMembro(models.Model):
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
     administrador = models.BooleanField(default=False)
+    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
 
@@ -177,6 +181,15 @@ class CirculoMembro(models.Model):
 # Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
         return u'#%s' % self.pk
+@receiver(signals.pre_save, sender=CirculoMembro)
+def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
+    if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
+        instance.grupousuario = GrupoUsuario.objects.create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)
+@receiver(signals.post_delete, sender=CirculoMembro)
+def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
+    if instance.grupousuario:
+        instance.grupousuario.delete()
+
 
 # Eventos que devem ser divulgados no site
 class CirculoEvento(models.Model):

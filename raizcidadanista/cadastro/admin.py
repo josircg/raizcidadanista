@@ -21,6 +21,7 @@ import csv
 from forms import MembroImport
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
 
+from forum.models import Grupo, GrupoUsuario
 from municipios.models import UF, Municipio
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
@@ -247,7 +248,7 @@ class CirculoAdmin(PowerModelAdmin):
     fieldsets = (
         (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
-    actions = ('export_csv', )
+    actions = ('export_csv', 'criar_forum')
 
     def export_csv(self, request, queryset):
         csv = u'"Título";"Município";"UF"\n'
@@ -261,6 +262,26 @@ class CirculoAdmin(PowerModelAdmin):
         response['Content-Disposition'] = 'filename=circulos.csv'
         return response
     export_csv.short_description = u"Gerar arquivo de exportação"
+
+    def criar_forum(self, request, queryset):
+        contador = 0
+        for circulo in queryset:
+            if circulo.grupo is None:
+                contador += 1
+                circulo.grupo = Grupo.objects.create(nome=circulo.titulo, descricao=circulo.descricao)
+                circulo.save()
+                for cmembro in circulo.circulomembro_set.all():
+                    if cmembro.membro.usuario and not cmembro.grupousuario:
+                        cmembro.grupousuario = GrupoUsuario.objects.create(grupo=circulo.grupo, usuario=cmembro.membro.usuario)
+                        cmembro.save()
+        self.message_user(request, 'Total de Fórums criados: %d' % contador)
+    criar_forum.short_description = u'Criar Fórum de Discussão'
+
+    def get_actions(self, request):
+        actions = super(CirculoAdmin, self).get_actions(request)
+        if not request.user.is_superuser:
+            del actions['delete_selected']
+        return actions
 
     def get_fieldsets(self, request, obj=None):
         if request.user.groups.filter(name=u'Cadastro').exists() or request.user.is_superuser:

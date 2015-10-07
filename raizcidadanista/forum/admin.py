@@ -13,11 +13,11 @@ class GrupoUsuarioInline(admin.TabularInline):
 class GrupoAdmin(PowerModelAdmin):
     list_display = ('nome', )
     multi_search = (
-       ('q1', 'Nome', ['nome']),
+       ('q1', 'Nome', ['nome',]),
     )
     inlines = (GrupoUsuarioInline, )
     fieldsets = (
-        (None, {"fields" : ('nome',),}, ),
+        (None, {"fields" : ('nome', 'descricao', ),}, ),
     )
 admin.site.register(Grupo, GrupoAdmin)
 

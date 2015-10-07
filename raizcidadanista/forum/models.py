@@ -11,6 +11,7 @@ class Grupo(models.Model):
         verbose_name_plural = "Grupos"
 
     nome = models.CharField(u'Nome', max_length=60)
+    descricao = models.TextField(u'Descricao')
 
     def get_absolute_url(self):
         return reverse('forum_grupo', kwargs={'pk': self.pk, })

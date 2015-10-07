@@ -6,5 +6,5 @@ from django.contrib.auth.decorators import login_required
 from forum import views
 
 urlpatterns = [
-    url(r'^grupo/(?P<pk>\d+)/$', views.GrupoView.as_view(), name='forum_grupo'),
+    url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),
 ]

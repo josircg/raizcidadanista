@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'forum/base.html' %}
 {% load bootstrap %}
 
 {% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
@@ -14,10 +14,12 @@
         {{ object.descricao|safe }}
 
         {% for topico in topicos %}
-        <blockquote>
-          <p>{{ topico }}</p>
-          <footer><a href="#">Ver mais</a></footer>
-        </blockquote>
+        <a href="#">
+            <blockquote>
+              <h4>{{ topico }}</h4>
+              <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+            </blockquote>
+        </a>
         {% endfor %}
 
         <nav>

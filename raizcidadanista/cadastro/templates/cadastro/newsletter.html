@@ -63,8 +63,9 @@
 
         function get_municipios(id_uf, id_municipios){
             $(id_municipios).html('');
-            if($(id_uf).val() != ''){
-                url = "/chaining/filter/municipios/municipio/uf/"+$(id_uf).val()+"/";
+            uf = parseInt($(id_uf).val());
+            if(uf){
+                url = "/chaining/filter/municipios/municipio/uf/"+uf+"/";
                 $.getJSON(url, function(data){
                     $.each(data, function(key, val ) {
                         $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');

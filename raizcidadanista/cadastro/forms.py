@@ -28,6 +28,7 @@ class NewsletterForm(forms.ModelForm):
             raise forms.ValidationError(u'Já existe um cadastro com esse email. Se você já é colaborador ou filiado, você já irá receber os nossos informes.')
         return email
 
+
 class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
@@ -125,7 +126,6 @@ class FiliadoAtualizarLinkForm(forms.Form):
                 'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar', kwargs={'uidb36': int_to_base36(filiado.pk), 'token': create_token(filiado)})),
             },
         )
-
 
 
 class FiliadoAtualizarForm(forms.ModelForm):

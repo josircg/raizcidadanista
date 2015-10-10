@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
-
 from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto
 
+from ckeditor.widgets import CKEditorWidget
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
@@ -19,6 +19,11 @@ class GrupoAdmin(PowerModelAdmin):
     fieldsets = (
         (None, {"fields" : ('nome', 'descricao', ),}, ),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name ==  'descricao':
+            kwargs['widget'] = CKEditorWidget()
+        return super(GrupoAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 admin.site.register(Grupo, GrupoAdmin)
 
 

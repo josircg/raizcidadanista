@@ -53,6 +53,18 @@ class PessoaAdmin(PowerModelAdmin):
     validar_email.short_description = u'Validar Emails'
 
     def mala_direta(self, request, form_class=MalaDiretaForm, template_name='admin/cadastro/pessoa/mala-direta.html'):
+        if request.method == 'POST':
+            if request.POST.get('lista') and request.POST.get('pessoas_ids'):
+                lista = get_object_or_404(Lista, pk=request.POST.get('lista'), validade__gte=datetime.now(), status__in=('A', 'P'))
+                num = 0
+                for pessoa in Pessoa.objects.filter(pk__in=request.POST.get('pessoas_ids').split(',')):
+                    obj, created = ListaCadastro.objects.get_or_create(lista=lista, pessoa=pessoa)
+                    if created:
+                        num += 1
+                messages.info(request, u'Número de pessoas inseridas na lista: %s' % num)
+            else:
+                messages.warning(request, u'Nenhuma pessoa foi cadastrada!')
+
         if request.is_ajax():
             form = form_class(request.GET)
             if form.is_valid():
@@ -70,6 +82,7 @@ class PessoaAdmin(PowerModelAdmin):
 
                 # Emails
                 emails_list = pessoas.values_list('email', flat=True)
+                pessoas_ids = pessoas.values_list('pk', flat=True)
 
                 # Paginação
                 paginator = Paginator(emails_list, 150)
@@ -84,12 +97,14 @@ class PessoaAdmin(PowerModelAdmin):
                     'pagina': pagina,
                     'total_paginas': paginator.num_pages,
                     'emails': ', '.join(list(emails)),
+                    'pessoas_ids': ','.join([str(pessoa_id) for pessoa_id in pessoas_ids]),
                     'total': emails_list.count()
                 }), mimetype='application/json')
         form = form_class()
         return render_to_response(template_name, {
             'title': u'Mala direta',
             'form': form,
+            'listas': Lista.objects.filter(validade__gte=datetime.now(), status__in=('A', 'P')),
         },context_instance=RequestContext(request))
 
     def get_urls(self):

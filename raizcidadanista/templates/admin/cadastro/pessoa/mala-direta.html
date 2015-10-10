@@ -12,6 +12,9 @@
 
 {% block content %}
 <div id="content-main">
+    <ul class="object-tools">
+        <li><a href="?lightbox[width]=280&lightbox[height]=90#box-lista" class="historylink lightbox">Incluir alunos na lista</a></li>
+    </ul>
     <form {% if form.is_multipart %}enctype="multipart/form-data" {% endif %}action="" method="post">{% csrf_token %}
         <div>
             {% if form.errors %}
@@ -84,9 +87,11 @@
                 var pagina = data["pagina"];
                 var total_paginas = data["total_paginas"];
                 var total = data["total"];
+                var pessoas_ids = data["pessoas_ids"];
 
                 $("#id_emails").html(emails);
                 $("#id_pagina").val(pagina);
+                $('#lista-pessoas-ids').val(pessoas_ids);
 
                 if (pagina==1){
                     $("#id_anterior").html("");
@@ -138,4 +143,20 @@
     })
 })(django.jQuery);
 </script>
+
+<div id="box-lista" style="display:none">
+    <h3>Selecione a lista:</h3><br>
+    <form action="" method="POST">{% csrf_token %}
+        <input type="hidden" name="pessoas_ids" id="lista-pessoas-ids">
+        <label>
+            <select name="lista" id="id_lista">
+                <option name="lista" value="">--------</option>
+                {% for lista in listas %}
+                <option name="lista" value="{{ lista.pk }}">{{ lista }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <input type="submit" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;" />
+    </form>
+</div>
 {% endblock %}

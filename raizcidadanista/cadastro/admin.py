@@ -72,7 +72,7 @@ class PessoaAdmin(PowerModelAdmin):
                 emails_list = pessoas.values_list('email', flat=True)
 
                 # Paginação
-                paginator = Paginator(emails_list, 10)
+                paginator = Paginator(emails_list, 150)
                 pagina = request.GET.get('pagina')
                 try:
                     emails = paginator.page(pagina)

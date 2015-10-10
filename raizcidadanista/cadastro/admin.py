@@ -10,6 +10,8 @@ from django.template import Template
 from django.template.context import RequestContext, Context
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
+from django.utils import simplejson
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +20,7 @@ from datetime import datetime
 from functools import partial
 import csv
 
-from forms import MembroImport
+from forms import MembroImport, MalaDiretaForm
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
 
 from forum.models import Grupo, GrupoUsuario
@@ -49,6 +51,59 @@ class PessoaAdmin(PowerModelAdmin):
                 )
         self.message_user(request, 'Total de emails enviados para aprovação: %d' % contador)
     validar_email.short_description = u'Validar Emails'
+
+    def mala_direta(self, request, form_class=MalaDiretaForm, template_name='admin/cadastro/pessoa/mala-direta.html'):
+        if request.is_ajax():
+            form = form_class(request.GET)
+            if form.is_valid():
+                pessoas = Pessoa.objects.all()
+                # Filtros
+                if form.cleaned_data.get('uf'):
+                    pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
+                if form.cleaned_data.get('tipo'):
+                    if form.cleaned_data.get('tipo') == 'V':
+                        pessoas = pessoas.filter(membro__isnull=True)
+                    elif form.cleaned_data.get('tipo') == 'C':
+                        pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)
+                    elif form.cleaned_data.get('tipo') == 'F':
+                        pessoas = pessoas.filter(membro__isnull=False, membro__filiado=True)
+
+                # Emails
+                emails_list = pessoas.values_list('email', flat=True)
+
+                # Paginação
+                paginator = Paginator(emails_list, 10)
+                pagina = request.GET.get('pagina')
+                try:
+                    emails = paginator.page(pagina)
+                except (PageNotAnInteger, EmptyPage):
+                    pagina = 1
+                    emails = paginator.page(1)
+
+                return HttpResponse(simplejson.dumps({
+                    'pagina': pagina,
+                    'total_paginas': paginator.num_pages,
+                    'emails': ', '.join(list(emails)),
+                    'total': emails_list.count()
+                }), mimetype='application/json')
+        form = form_class()
+        return render_to_response(template_name, {
+            'title': u'Mala direta',
+            'form': form,
+        },context_instance=RequestContext(request))
+
+    def get_urls(self):
+        urls_originais = super(PessoaAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^mala-direta/$', self.wrap(self.mala_direta), name='cadastro_pessoa_mala_direta'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(PessoaAdmin, self).get_buttons(request, object_id)
+        if not object_id:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
+        return buttons
 admin.site.register(Pessoa, PessoaAdmin)
 
 
@@ -94,7 +149,7 @@ class MembroAdmin(PowerModelAdmin):
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
 
-    def import_membros(self, request, form_class=MembroImport, template_name='admin/core/membro/import.html'):
+    def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {
             'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
             'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,

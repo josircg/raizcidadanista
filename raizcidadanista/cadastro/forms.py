@@ -10,8 +10,11 @@ from django.conf import settings
 from django.utils.http import int_to_base36
 from django.utils.crypto import salted_hmac
 
+from municipios.models import UF
+
 from models import Pessoa, Membro
 from cms.email import sendmail
+
 
 
 class NewsletterForm(forms.ModelForm):
@@ -165,3 +168,14 @@ class MembroImport(forms.Form):
         if arquivo.name.split('.')[-1].lower() != 'csv':
             raise forms.ValidationError(u'Envie um arquivo .csv.')
         return arquivo
+
+
+class MalaDiretaForm(forms.Form):
+    TIPO_CHOICES = (
+        ('', u'--------'),
+        ('V', u'Visitante'),
+        ('C', u'Colaborador'),
+        ('F', u'Filiado'),
+    )
+    tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
+    uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())

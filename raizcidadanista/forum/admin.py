@@ -33,6 +33,11 @@ class TopicoOuvinteTopicoInline(admin.TabularInline):
 class ConversaTopicoInline(admin.TabularInline):
     model = Conversa
     extra = 1
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name ==  'texto':
+            kwargs['widget'] = CKEditorWidget()
+        return super(ConversaTopicoInline, self).formfield_for_dbfield(db_field, **kwargs)
 class TopicoAdmin(PowerModelAdmin):
     list_display = ('titulo', 'grupo', 'status', 'dt_criacao', 'dt_ultima_atualizacao', 'visitacoes', )
     list_filter = ('grupo', 'status', 'dt_criacao', 'dt_ultima_atualizacao', )

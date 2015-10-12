@@ -285,7 +285,10 @@ class MembroAdmin(PowerModelAdmin):
                                     dtnascimento.split('/')[1], ano )
 
                             membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                        membro.aprovador = aprovador
+
+                        if not membro.aprovador:
+                            membro.aprovador = aprovador
+
                         membro.save()
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))

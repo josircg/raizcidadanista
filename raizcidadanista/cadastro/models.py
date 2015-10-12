@@ -107,7 +107,7 @@ class Membro(Pessoa):
             self.usuario = User.objects.create_user(login, self.email, 'raiz#2015')
             self.usuario.is_active = True
             self.usuario.is_staff = True
-            self.usuario.first_name = self.nome
+            self.usuario.first_name = self.nome.split(' ')[0]
             self.usuario.groups.add(grupo)
             self.usuario.save()
             super(Membro, self).save(*args, **kwargs)
@@ -115,6 +115,7 @@ class Membro(Pessoa):
             if self.usuario.email != self.email:
                 self.usuario.email = self.email
                 self.usuario.save()
+
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created and (instance.status_email is None or instance.status_email == 'N'):
@@ -163,7 +164,6 @@ class Circulo(models.Model):
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
-
 
 class CirculoMembro(models.Model):
     class Meta:

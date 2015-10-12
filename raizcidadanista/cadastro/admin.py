@@ -184,9 +184,12 @@ class MembroAdmin(PowerModelAdmin):
                 importados = 0
                 atualizados = 0
                 erros = 0
+                aprovador = Membro.objects.get(pk=1).usuario
+
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
                     if len(record) >= 14:
                         lidos += 1
+
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
                             municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
@@ -200,7 +203,9 @@ class MembroAdmin(PowerModelAdmin):
 
                         try:
                             uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
-                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio_eleitoral'))
+                            municipio_eleitoral = _get_data(record, 'municipio_eleitoral')
+                            reg = Municipio.objects.get(uf=uf_eleitoral, nome=municipio_eleitoral)
+                            municipio_eleitoral = reg.nome
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
@@ -208,6 +213,7 @@ class MembroAdmin(PowerModelAdmin):
                             municipio_eleitoral = None
 
                         except Municipio.DoesNotExist:
+                            print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
                             municipio_eleitoral = None
 
                         if not uf:
@@ -218,11 +224,6 @@ class MembroAdmin(PowerModelAdmin):
                             membro = Membro.objects.get(email=_get_data(record, 'email'))
                             if not membro.nome:
                                 membro.nome = _get_data(record, 'nome')
-                            if not membro.uf:
-                                membro.uf = uf
-                            if municipio and not membro.municipio:
-                                membro.municipio = municipio
-                            membro.save()
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
@@ -235,14 +236,27 @@ class MembroAdmin(PowerModelAdmin):
                                 nome=_get_data(record, 'nome'),
                                 uf=uf,
                                 municipio=municipio,
-                                municipio_eleitoral = _get_data(record, 'municipio'),
                                 dtcadastro=dtcadastro,
                                 status_email = 'N')
-                            membro.celular = _get_data(record, 'celular')
-                            membro.telefone = _get_data(record, 'residencial')
-                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
-                            membro.rg = _get_data(record, 'rg')
                             importados += 1
+
+                        if not membro.uf:
+                            membro.uf = uf
+
+                        if municipio and not membro.municipio:
+                            membro.municipio = municipio
+
+                        if not membro.celular:
+                            membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                        if not membro.residencial:
+                            membro.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
+                        if not membro.atividade_profissional:
+                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
+
+                        if not membro.rg:
+                            membro.rg = _get_data(record, 'rg')
 
                         if not membro.uf_eleitoral:
                             membro.uf_eleitoral = uf_eleitoral
@@ -250,21 +264,30 @@ class MembroAdmin(PowerModelAdmin):
                             membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
                             if len(membro.titulo_eleitoral.split('/')) > 1:
                                 try:
-                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1]
-                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2]
-                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0]
+                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1].strip()[0:3]
+                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2].strip()[0:4]
+                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0].strip()
                                 except:
-                                    print membro.titulo_eleitoral
+                                    print u'erro título %s' % membro.titulo_eleitoral
 
                             membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
 
-                        dtnascimento = _get_data(record, 'dtnascimento')
-                        if not membro.dtnascimento and dtnascimento:
-                            try:
-                                membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                            except:
-                                print _get_data(record, 'dtnascimento')
+                        if municipio_eleitoral and not membro.municipio_eleitoral:
+                            membro.municipio_eleitoral = municipio_eleitoral
 
+                        if membro.titulo_eleitoral:
+                            membro.filiado = True
+
+                        dtnascimento = _get_data(record, 'dtnascimento')
+                        if dtnascimento:
+                            print dtnascimento
+                            if len(dtnascimento.split('/')[2]) == 2:
+                                ano = '19%s' % dtnascimento.split('/')[2]
+                                dtnascimento = '%s/%s/%s' % ( dtnascimento.split('/')[0],
+                                    dtnascimento.split('/')[1], ano )
+
+                            membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+                        membro.aprovador = aprovador
                         membro.save()
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))

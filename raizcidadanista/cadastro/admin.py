@@ -191,7 +191,7 @@ class MembroAdmin(PowerModelAdmin):
 
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
-                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
@@ -241,8 +241,9 @@ class MembroAdmin(PowerModelAdmin):
                         if not membro.uf:
                             membro.uf = uf
 
-                        if municipio and not membro.municipio:
-                            membro.municipio = municipio
+                        if municipio:
+                            if not membro.municipio or membro.municipio.isdigit():
+                                membro.municipio = municipio
 
                         if not membro.celular:
                             membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]

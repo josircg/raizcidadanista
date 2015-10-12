@@ -10,6 +10,8 @@ from django.template import Template
 from django.template.context import RequestContext, Context
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
+from django.utils import simplejson
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +20,7 @@ from datetime import datetime
 from functools import partial
 import csv
 
-from forms import MembroImport
+from forms import MembroImport, MalaDiretaForm
 from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
 
 from municipios.models import UF, Municipio
@@ -48,6 +50,74 @@ class PessoaAdmin(PowerModelAdmin):
                 )
         self.message_user(request, 'Total de emails enviados para aprovação: %d' % contador)
     validar_email.short_description = u'Validar Emails'
+
+    def mala_direta(self, request, form_class=MalaDiretaForm, template_name='admin/cadastro/pessoa/mala-direta.html'):
+        if request.method == 'POST':
+            if request.POST.get('lista') and request.POST.get('pessoas_ids'):
+                lista = get_object_or_404(Lista, pk=request.POST.get('lista'), validade__gte=datetime.now(), status__in=('A', 'P'))
+                num = 0
+                for pessoa in Pessoa.objects.filter(pk__in=request.POST.get('pessoas_ids').split(',')):
+                    obj, created = ListaCadastro.objects.get_or_create(lista=lista, pessoa=pessoa)
+                    if created:
+                        num += 1
+                messages.info(request, u'Número de pessoas inseridas na lista: %s' % num)
+            else:
+                messages.warning(request, u'Nenhuma pessoa foi cadastrada!')
+
+        if request.is_ajax():
+            form = form_class(request.GET)
+            if form.is_valid():
+                pessoas = Pessoa.objects.all()
+                # Filtros
+                if form.cleaned_data.get('uf'):
+                    pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
+                if form.cleaned_data.get('tipo'):
+                    if form.cleaned_data.get('tipo') == 'V':
+                        pessoas = pessoas.filter(membro__isnull=True)
+                    elif form.cleaned_data.get('tipo') == 'C':
+                        pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)
+                    elif form.cleaned_data.get('tipo') == 'F':
+                        pessoas = pessoas.filter(membro__isnull=False, membro__filiado=True)
+
+                # Emails
+                emails_list = pessoas.values_list('email', flat=True)
+                pessoas_ids = pessoas.values_list('pk', flat=True)
+
+                # Paginação
+                paginator = Paginator(emails_list, 150)
+                pagina = request.GET.get('pagina')
+                try:
+                    emails = paginator.page(pagina)
+                except (PageNotAnInteger, EmptyPage):
+                    pagina = 1
+                    emails = paginator.page(1)
+
+                return HttpResponse(simplejson.dumps({
+                    'pagina': pagina,
+                    'total_paginas': paginator.num_pages,
+                    'emails': ', '.join(list(emails)),
+                    'pessoas_ids': ','.join([str(pessoa_id) for pessoa_id in pessoas_ids]),
+                    'total': emails_list.count()
+                }), mimetype='application/json')
+        form = form_class()
+        return render_to_response(template_name, {
+            'title': u'Mala direta',
+            'form': form,
+            'listas': Lista.objects.filter(validade__gte=datetime.now(), status__in=('A', 'P')),
+        },context_instance=RequestContext(request))
+
+    def get_urls(self):
+        urls_originais = super(PessoaAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^mala-direta/$', self.wrap(self.mala_direta), name='cadastro_pessoa_mala_direta'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(PessoaAdmin, self).get_buttons(request, object_id)
+        if not object_id:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
+        return buttons
 admin.site.register(Pessoa, PessoaAdmin)
 
 
@@ -93,7 +163,7 @@ class MembroAdmin(PowerModelAdmin):
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
 
-    def import_membros(self, request, form_class=MembroImport, template_name='admin/core/membro/import.html'):
+    def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {
             'dtcadastro': 0, 'nome': 1, 'uf': 2, 'municipio': 3, 'email': 4, 'celular': 5, 'operadora_celular': 6, 'residencial': 7,
             'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,
@@ -113,9 +183,12 @@ class MembroAdmin(PowerModelAdmin):
                 importados = 0
                 atualizados = 0
                 erros = 0
+                aprovador = Membro.objects.get(pk=1).usuario
+
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
                     if len(record) >= 14:
                         lidos += 1
+
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
                             municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
@@ -129,7 +202,9 @@ class MembroAdmin(PowerModelAdmin):
 
                         try:
                             uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
-                            municipio_eleitoral = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio_eleitoral'))
+                            municipio_eleitoral = _get_data(record, 'municipio_eleitoral')
+                            reg = Municipio.objects.get(uf=uf_eleitoral, nome=municipio_eleitoral)
+                            municipio_eleitoral = reg.nome
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
@@ -137,6 +212,7 @@ class MembroAdmin(PowerModelAdmin):
                             municipio_eleitoral = None
 
                         except Municipio.DoesNotExist:
+                            print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
                             municipio_eleitoral = None
 
                         if not uf:
@@ -147,11 +223,6 @@ class MembroAdmin(PowerModelAdmin):
                             membro = Membro.objects.get(email=_get_data(record, 'email'))
                             if not membro.nome:
                                 membro.nome = _get_data(record, 'nome')
-                            if not membro.uf:
-                                membro.uf = uf
-                            if municipio and not membro.municipio:
-                                membro.municipio = municipio
-                            membro.save()
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
@@ -164,14 +235,27 @@ class MembroAdmin(PowerModelAdmin):
                                 nome=_get_data(record, 'nome'),
                                 uf=uf,
                                 municipio=municipio,
-                                municipio_eleitoral = _get_data(record, 'municipio'),
                                 dtcadastro=dtcadastro,
                                 status_email = 'N')
-                            membro.celular = _get_data(record, 'celular')
-                            membro.telefone = _get_data(record, 'residencial')
-                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
-                            membro.rg = _get_data(record, 'rg')
                             importados += 1
+
+                        if not membro.uf:
+                            membro.uf = uf
+
+                        if municipio and not membro.municipio:
+                            membro.municipio = municipio
+
+                        if not membro.celular:
+                            membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                        if not membro.residencial:
+                            membro.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
+                        if not membro.atividade_profissional:
+                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
+
+                        if not membro.rg:
+                            membro.rg = _get_data(record, 'rg')
 
                         if not membro.uf_eleitoral:
                             membro.uf_eleitoral = uf_eleitoral
@@ -179,21 +263,29 @@ class MembroAdmin(PowerModelAdmin):
                             membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
                             if len(membro.titulo_eleitoral.split('/')) > 1:
                                 try:
-                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1]
-                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2]
-                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0]
+                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1].strip()[0:3]
+                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2].strip()[0:4]
+                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0].strip()
                                 except:
-                                    print membro.titulo_eleitoral
+                                    print u'erro título %s' % membro.titulo_eleitoral
 
                             membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
 
-                        dtnascimento = _get_data(record, 'dtnascimento')
-                        if not membro.dtnascimento and dtnascimento:
-                            try:
-                                membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                            except:
-                                print _get_data(record, 'dtnascimento')
+                        if municipio_eleitoral and not membro.municipio_eleitoral:
+                            membro.municipio_eleitoral = municipio_eleitoral
 
+                        if membro.titulo_eleitoral:
+                            membro.filiado = True
+
+                        dtnascimento = _get_data(record, 'dtnascimento')
+                        if dtnascimento:
+                            if len(dtnascimento.split('/')[2]) == 2:
+                                ano = '19%s' % dtnascimento.split('/')[2]
+                                dtnascimento = '%s/%s/%s' % ( dtnascimento.split('/')[0],
+                                    dtnascimento.split('/')[1], ano )
+
+                            membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+                        membro.aprovador = aprovador
                         membro.save()
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))

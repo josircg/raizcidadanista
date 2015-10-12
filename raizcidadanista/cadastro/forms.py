@@ -10,8 +10,11 @@ from django.conf import settings
 from django.utils.http import int_to_base36
 from django.utils.crypto import salted_hmac
 
+from municipios.models import UF
+
 from models import Pessoa, Membro
 from cms.email import sendmail
+
 
 
 class NewsletterForm(forms.ModelForm):
@@ -24,6 +27,7 @@ class NewsletterForm(forms.ModelForm):
         if Pessoa.objects.filter(email=email).exists():
             raise forms.ValidationError(u'Já existe um cadastro com esse email. Se você já é colaborador ou filiado, você já irá receber os nossos informes.')
         return email
+
 
 class MembroForm(forms.ModelForm):
     class Meta:
@@ -122,7 +126,6 @@ class FiliadoAtualizarLinkForm(forms.Form):
                 'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar', kwargs={'uidb36': int_to_base36(filiado.pk), 'token': create_token(filiado)})),
             },
         )
-
 
 
 class FiliadoAtualizarForm(forms.ModelForm):

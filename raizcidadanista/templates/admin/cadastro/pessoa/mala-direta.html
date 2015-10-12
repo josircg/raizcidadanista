@@ -1,0 +1,162 @@
+{% extends "admin/edit_form.html" %}
+{% load i18n admin_static %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Core</a> &rsaquo;
+     <a href="../">Pessoa</a> &rsaquo;
+     {{ title }}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <ul class="object-tools">
+        <li><a href="?lightbox[width]=280&lightbox[height]=90#box-lista" class="historylink lightbox">Incluir pessoas na lista</a></li>
+    </ul>
+    <form {% if form.is_multipart %}enctype="multipart/form-data" {% endif %}action="" method="post">{% csrf_token %}
+        <div>
+            {% if form.errors %}
+                <p class="errornote">
+                {% blocktrans count form.errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+                </p>
+            {% endif %}
+
+            <fieldset class="module aligned">
+                {% for field in form %}
+                <div class="form-row{% if field.errors %} errors{% endif %}">
+                    {{ field.errors }}
+                    <label>{{ field.label }}:</label>{{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="form-row pagina">
+                    <div>
+                        <label for="id_nome">Página:</label>
+                        <input id="id_pagina" class="vTextField" type="text" maxlength="3" value="0" name="pagina" style="width: 3em;">
+                        de
+                        <span id="id_totalpaginas">0</span>. Nº de emails: <span id="id_totalemail">0</span>.
+                        <span id="id_anterior"><a href="#">Anterior</a></span>
+                        <span id="id_separador"> | </span>
+                        <span id="id_proxima"><a href="#">Próxima</a></span>
+                    </div>
+                </div>
+                <div class="form-row emails">
+                    <div>
+                        <label for="id_emails">Emails:</label>
+                        <textarea name="emails" cols="100" rows="10" id="id_emails"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function(){
+        function update(){
+            var data = {
+                "tipo": $("#id_tipo").val(),
+                "uf": $("#id_uf").val(),
+                "pagina": $("#id_pagina").val()
+            };
+
+            $.ajaxSetup({
+                "error":function() {
+                    $("#id_pagina").val(1);
+                    $("#id_totalpaginas").html("0");
+                    $("#id_anterior").html("");
+                    $("#id_separador").html("");
+                    $("#id_proxima").html("");
+                }
+            });
+            $.getJSON("{% url admin:cadastro_pessoa_mala_direta %}", data, function(data) {
+                var emails = data["emails"];
+                var pagina = data["pagina"];
+                var total_paginas = data["total_paginas"];
+                var total = data["total"];
+                var pessoas_ids = data["pessoas_ids"];
+
+                $("#id_emails").html(emails);
+                $("#id_pagina").val(pagina);
+                $('#lista-pessoas-ids').val(pessoas_ids);
+
+                if (pagina==1){
+                    $("#id_anterior").html("");
+                } else {
+                    $("#id_anterior").html("<a href='#'>Anterior</a>");
+                }
+
+                if (pagina==total_paginas){
+                    $("#id_proxima").html("");
+                } else {
+                    $("#id_proxima").html("<a href='#'>Próxima</a>");
+                }
+
+                if ((pagina=='1')||(pagina==total_paginas)){
+                    $("#id_separador").html("");
+                }else{
+                    $("#id_separador").html(" | ");
+                }
+
+                if (total_paginas!=0){
+                    $("#id_totalpaginas").html(""+total_paginas);
+                }else{
+                    $("#id_totalpaginas").html("0");
+                }
+                if (total!=0){
+                    $("#id_totalemail").html(""+total);
+                }else{
+                    $("#id_totalemail").html("0");
+                }
+            });
+        };
+
+        update();
+        $("#id_tipo, #id_uf, #id_pagina").change(function(){
+            update();
+        });
+
+        $("#id_proxima").click(function(){
+            var pagina = parseInt($("#id_pagina").val());
+            $("#id_pagina").val(pagina+1);
+            update();
+        });
+
+        $("#id_anterior").click(function(){
+            var pagina = parseInt($("#id_pagina").val());
+            $("#id_pagina").val(pagina-1);
+            update();
+        });
+    })
+})(django.jQuery);
+</script>
+
+<div id="box-lista" style="display:none">
+    <h3>Selecione a lista:</h3><br>
+    <form action="" method="POST">{% csrf_token %}
+        <input type="hidden" name="pessoas_ids" id="lista-pessoas-ids">
+        <label>
+            <select name="lista" id="id_lista">
+                <option name="lista" value="">--------</option>
+                {% for lista in listas %}
+                <option name="lista" value="{{ lista.pk }}">{{ lista }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <input type="submit" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;" />
+    </form>
+</div>
+{% endblock %}

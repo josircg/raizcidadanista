@@ -226,7 +226,6 @@ class MembroAdmin(PowerModelAdmin):
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
-                            print 'adicionando %s' % _get_data(record, 'nome')
                             dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
                             dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro

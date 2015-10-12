@@ -212,7 +212,6 @@ class MembroAdmin(PowerModelAdmin):
                             municipio_eleitoral = None
 
                         except Municipio.DoesNotExist:
-                            print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
                             municipio_eleitoral = None
 
                         if not uf:

@@ -12,7 +12,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from municipios.models import UF
-from cadastro.models import Circulo
+from cadastro.models import Circulo, Membro
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
@@ -27,6 +27,18 @@ class CirculosView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CirculosView, self).get_context_data(**kwargs)
         context['estados'] = UF.objects.all().order_by('nome')
+        return context
+
+
+class MapaView(TemplateView):
+    template_name = 'mapa.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MapaView, self).get_context_data(**kwargs)
+        colaboradores = {}
+        for estado in UF.objects.all().order_by('nome'):
+            colaboradores[estado.nome] = Membro.objects.filter(uf=estado).count()
+        context['colaboradores'] = colaboradores
         return context
 
 

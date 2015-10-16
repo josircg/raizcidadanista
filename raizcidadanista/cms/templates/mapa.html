@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["geochart"]});
+      google.setOnLoadCallback(drawRegionsMap);
+      function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable([
+          ['Estado', 'Colaboradores'],
+          {% for estado, membros in colaboradores.items %}
+          ['{{ estado }}', {{ membros }}]{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]);
+
+        var options = {
+          region: 'BR',
+          resolution: 'provinces'
+        };
+
+        var chart = new google.visualization.GeoChart(document.getElementById('geochart-colors'));
+        chart.draw(data, options);
+      };
+    </script>
+  </head>
+  <body>
+    <div id="geochart-colors" style="width: 100%;"></div>
+  </body>
+</html>

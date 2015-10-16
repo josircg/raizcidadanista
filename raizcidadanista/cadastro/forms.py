@@ -33,11 +33,12 @@ class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'filiacao_partidaria',)
+            'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
+        self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -73,7 +74,8 @@ class FiliadoForm(forms.ModelForm):
         model = Membro
         fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',)
+            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',
+             'contrib_tipo', 'contrib_valor', )
 
     cpf = BRCPFField(
         label='CPF',
@@ -88,6 +90,7 @@ class FiliadoForm(forms.ModelForm):
         super(FiliadoForm, self).__init__(*args, **kwargs)
         self.fields['nome_da_mae'].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
+        self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

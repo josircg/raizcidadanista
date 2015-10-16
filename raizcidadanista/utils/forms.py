@@ -1,8 +1,7 @@
-# coding:utf-8
 # -*- coding: utf-8 -*-
 #
 # Isnard Aguiar 10/06/2012 - #0001 - classe SpanWidget e comentario da UFChoiceFormField
-# Augusto Men (https://github.com/augustomen) and 
+# Augusto Men (https://github.com/augustomen) and
 # Nando Florestan (https://github.com/nandoflorestan) - class DateRangeField
 #
 
@@ -36,8 +35,8 @@ class SpanWidget(forms.Widget):
         ))
 #Isnard 10/06/2012 - #0001
 
-class BRDateFormField(forms.DateField): 
-    def __init__(self, *args, **kwargs): 
+class BRDateFormField(forms.DateField):
+    def __init__(self, *args, **kwargs):
         super(BRDateFormField, self).__init__(*args, **kwargs)
         self.widget.format = '%d/%m/%Y'
         #Aqui ele irá aceitar a data no formato brasileiro e no formato que o JS do calendário entrega para o campo
@@ -48,7 +47,7 @@ class BRDecimalFormField(forms.DecimalField):
         super(BRDecimalFormField, self).__init__(*args, **kwargs)
         self.localize = True
         self.widget.is_localized = True
-        
+
 class DateInput5(DateInput):
     """
     Renders a bootstrap + jquery date input.

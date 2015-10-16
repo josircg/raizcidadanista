@@ -113,6 +113,28 @@
                         </ul>
                         {% endif %}
                     </div>
+                    <div class="form-group{% if form.contrib_tipo.errors %} has-error has-feedback{% endif %} group-{{ form.contrib_tipo.name }}">
+                        <label class="control-label label-{{ form.contrib_tipo.name }}" for="id_{{ form.contrib_tipo.name }}">{{ form.contrib_tipo.label }}{% if form.contrib_tipo.field.required %}*{% endif %}</label>
+                        {{ form.contrib_tipo|btform }}
+                        {% if form.contrib_tipo.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.contrib_tipo.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.contrib_valor.errors %} has-error has-feedback{% endif %} group-{{ form.contrib_valor.name }}">
+                        <label class="control-label label-{{ form.contrib_valor.name }}" for="id_{{ form.contrib_valor.name }}">{{ form.contrib_valor.label }}{% if form.contrib_valor.field.required %}*{% endif %}</label>
+                        {{ form.contrib_valor|btform }}
+                        {% if form.contrib_valor.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.contrib_valor.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="panel panel-default">
@@ -232,9 +254,9 @@
     @media (min-width: 992px){
         #id_nome_da_mae {width: 500px;}
     }
-    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf {max-width: 165px;}
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf, #id_contrib_valor {max-width: 165px;}
     #id_zona_eleitoral, #id_secao_eleitoral {max-width: 80px;}
-    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria {max-width: 300px;}
+    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
     }

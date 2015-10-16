@@ -22,7 +22,7 @@ from forum.models import Grupo, GrupoUsuario
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
-#from utils.models import BRDateField, BRDecimalField
+from utils.fields import BRDecimalField
 
 
 GENDER = (
@@ -70,21 +70,20 @@ def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **k
         )
 
 class Membro(Pessoa):
-
-    TIPO_CONTRIBUICAO = (
-    ('1', u'Mensal'),
-    ('3', u'Trimestral'),
-    ('6', u'Semestral'),
-    ('A', u'Anual'),
-    ('O', u'Não pretende fazer'),
-    ('S', u'Suspensa'),
-    ('N', u'Não definida'),
-    )
-
     class Meta:
         ordering = ['nome',]
         verbose_name = u'Colaborador'
         verbose_name_plural = u'Colaboradores'
+
+    TIPO_CONTRIBUICAO = (
+        ('1', u'Mensal'),
+        ('3', u'Trimestral'),
+        ('6', u'Semestral'),
+        ('A', u'Anual'),
+        ('O', u'Não pretende fazer'),
+        ('S', u'Suspensa'),
+        ('N', u'Não definida'),
+    )
 
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
@@ -103,7 +102,7 @@ class Membro(Pessoa):
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
-    contrib_valor = models.DecimalField(u'Valor da Contribuição',max_digits = 7, decimal_places=2)
+    contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

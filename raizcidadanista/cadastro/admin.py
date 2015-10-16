@@ -73,9 +73,7 @@ class PessoaAdmin(PowerModelAdmin):
                 if form.cleaned_data.get('uf'):
                     pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
                 if form.cleaned_data.get('tipo'):
-                    if form.cleaned_data.get('tipo') == 'V':
-                        pessoas = pessoas.filter(membro__isnull=True)
-                    elif form.cleaned_data.get('tipo') == 'C':
+                    if form.cleaned_data.get('tipo') == 'C':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)
                     elif form.cleaned_data.get('tipo') == 'F':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=True)
@@ -170,6 +168,7 @@ class MembroAdmin(PowerModelAdmin):
             'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,
             'uf_eleitoral': 13, 'foi_filiacao_partidaria': 14, 'filiacao_partidaria': 15,
         }
+
         def _get_data(record, name):
             return force_unicode(record[var[name]].strip())
 
@@ -192,7 +191,7 @@ class MembroAdmin(PowerModelAdmin):
 
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
-                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
@@ -227,7 +226,6 @@ class MembroAdmin(PowerModelAdmin):
                             atualizados += 1
                         except Membro.DoesNotExist:
                             # atualiza data
-                            print 'adicionando %s' % _get_data(record, 'nome')
                             dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
                             dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             # Importa o Membro
@@ -243,8 +241,9 @@ class MembroAdmin(PowerModelAdmin):
                         if not membro.uf:
                             membro.uf = uf
 
-                        if municipio and not membro.municipio:
-                            membro.municipio = municipio
+                        if municipio:
+                            if not membro.municipio or membro.municipio.isdigit():
+                                membro.municipio = municipio
 
                         if not membro.celular:
                             membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
@@ -280,15 +279,65 @@ class MembroAdmin(PowerModelAdmin):
 
                         dtnascimento = _get_data(record, 'dtnascimento')
                         if dtnascimento:
-                            print dtnascimento
                             if len(dtnascimento.split('/')[2]) == 2:
                                 ano = '19%s' % dtnascimento.split('/')[2]
                                 dtnascimento = '%s/%s/%s' % ( dtnascimento.split('/')[0],
                                     dtnascimento.split('/')[1], ano )
 
                             membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-                        membro.aprovador = aprovador
+
+                        if not membro.aprovador:
+                            membro.aprovador = aprovador
+
                         membro.save()
+
+                    # Visitantes
+                    if len(record) = 7:
+                        lidos += 1
+                        try:
+                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
+
+                        except UF.DoesNotExist:
+                            messages.error(request, u'Estado(%s) de %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                            uf = None
+
+                        except Municipio.DoesNotExist:
+                            municipio = None
+
+                        try:
+                            # Atualiza o Membro
+                            pessoa = Pessoa.objects.get(email=_get_data(record, 'email'))
+                            atualizados += 1
+                        except Pessoa.DoesNotExist:
+                            # atualiza data
+                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
+                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
+                            # Importa o Membro
+                            pessoa = Pessoa(
+                                email=_get_data(record, 'email'),
+                                nome=_get_data(record, 'nome'),
+                                uf=uf,
+                                municipio=municipio,
+                                dtcadastro=dtcadastro,
+                                status_email = 'N')
+                            importados += 1
+
+                        if not pessoa.uf:
+                            pessoa.uf = uf
+
+                        if municipio:
+                            if not pessoa.municipio:
+                                pessoa.municipio = municipio
+
+                        if not pessoa.celular:
+                            pessoa.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                        if not pessoa.residencial:
+                            pessoa.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
+                        pessoa.save()
+
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
                 return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))

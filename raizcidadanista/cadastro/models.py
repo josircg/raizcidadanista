@@ -134,6 +134,7 @@ CIRCULO_TIPO = (
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
+    ('E', u'Esfera'),
 )
 
 CIRCULO_STATUS = (
@@ -143,7 +144,7 @@ CIRCULO_STATUS = (
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Círculo/GT'
+        verbose_name = u'Círculo/Esfera/GT'
         verbose_name_plural = u'Círculos e Grupos de Trabalho'
 
     titulo = models.CharField(u'Título', max_length=80)
@@ -306,7 +307,7 @@ class Campanha(models.Model):
                 action_flag = CHANGE,
                 change_message = u'[INFO] Iniciado o envio de emails.'
             )
-            for emails in splip_emails(campanha.lista.listacadastro_set.values_list('pessoa__email', flat=True)):
+            for emails in splip_emails(campanha.lista.listacadastro_set.filter(pessoa__statusemail__in=['A','I']).values_list('pessoa__email', flat=True)):
                 # Cria a mensagem
                 msg = EmailMultiAlternatives(subject, text_content, from_email, bcc=emails)
                 msg.attach_alternative(html_content, 'text/html; charset=UTF-8')

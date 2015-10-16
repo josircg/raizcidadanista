@@ -70,6 +70,17 @@ def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **k
         )
 
 class Membro(Pessoa):
+
+    TIPO_CONTRIBUICAO = (
+    ('1', u'Mensal'),
+    ('3', u'Trimestral'),
+    ('6', u'Semestral'),
+    ('A', u'Anual'),
+    ('O', u'Não pretende fazer'),
+    ('S', u'Suspensa'),
+    ('N', u'Não definida'),
+    )
+
     class Meta:
         ordering = ['nome',]
         verbose_name = u'Colaborador'
@@ -91,6 +102,8 @@ class Membro(Pessoa):
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
+    contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
+    contrib_valor = models.DecimalField(u'Valor da Contribuição',max_digits = 7, decimal_places=2)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

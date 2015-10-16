@@ -169,6 +169,7 @@ class MembroAdmin(PowerModelAdmin):
             'atividade_profissional': 8, 'dtnascimento': 9, 'rg': 10, 'titulo_zona_secao_eleitoral': 11, 'municipio_eleitoral': 12,
             'uf_eleitoral': 13, 'foi_filiacao_partidaria': 14, 'filiacao_partidaria': 15,
         }
+
         def _get_data(record, name):
             return force_unicode(record[var[name]].strip())
 
@@ -514,7 +515,13 @@ class CampanhaAdmin(PowerModelAdmin):
 
     def envio(self, request, id_campanha):
         campanha = get_object_or_404(Campanha, pk=id_campanha)
-        campanha.send_emails()
+        campanha.send_emails(request.user, resumir=False)
+        messages.info(request, u'Os emails estão sendo enviados!')
+        return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
+
+    def resumir_envio(self, request, id_campanha):
+        campanha = get_object_or_404(Campanha, pk=id_campanha)
+        campanha.send_emails(request.user, resumir=True)
         messages.info(request, u'Os emails estão sendo enviados!')
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
 
@@ -538,6 +545,7 @@ class CampanhaAdmin(PowerModelAdmin):
         urls_customizadas = patterns('',
             url(r'^(?P<id_campanha>\d+)/teste-de-envio/$', self.wrap(self.teste_de_envio), name='cadastro_campanha_teste_de_envio'),
             url(r'^(?P<id_campanha>\d+)/envio/$', self.wrap(self.envio), name='cadastro_campanha_envio'),
+            url(r'^(?P<id_campanha>\d+)/resumir-envio/$', self.wrap(self.resumir_envio), name='cadastro_campanha_resumir_envio'),
             url(r'^(?P<id_campanha>\d+)/template/$', self.wrap(self.template), name='cadastro_campanha_template'),
             url(r'^(?P<id_campanha>\d+)/copiar/$', self.wrap(self.copiar), name='cadastro_campanha_copiar'),
         )
@@ -545,10 +553,13 @@ class CampanhaAdmin(PowerModelAdmin):
 
     def get_buttons(self, request, object_id):
         buttons = super(CampanhaAdmin, self).get_buttons(request, object_id)
-        if object_id:
-            objeto = self.get_object(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj:
             buttons.append(PowerButton(url='?lightbox[width]=280&lightbox[height]=90#box-teste_de_envio', attrs={'class': 'historylink lightbox', }, label=u'Teste de Envio'))
-            buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_envio', kwargs={'id_campanha': object_id, }), label=u'Envio'))
+            if not obj.dtenvio:
+                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_envio', kwargs={'id_campanha': object_id, }), label=u'Envio'))
+            if obj.qtde_erros > 0:
+                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_resumir_envio', kwargs={'id_campanha': object_id, }), label=u'Resumir envio interrompido'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
         return buttons
 admin.site.register(Campanha, CampanhaAdmin)

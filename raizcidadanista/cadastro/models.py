@@ -278,9 +278,9 @@ class Campanha(models.Model):
     def send_email_test(self, to):
         send_email_thread(subject=self.assunto, to=to, template=self.template)
 
-    def send_emails(self):
-        def _send_campanha_thread(campanha_id, from_email=settings.DEFAULT_FROM_EMAIL):
-            def splip_emails(emails, ite=200):
+    def send_emails(self, user, resumir):
+        def _send_campanha_thread(campanha_id, user_id, emails_list, from_email=settings.DEFAULT_FROM_EMAIL):
+            def splip_emails(emails, ite=100):
                 ini = 0
                 for i in range(ite, len(emails), ite):
                     yield emails[ini:i]
@@ -301,26 +301,27 @@ class Campanha(models.Model):
                 try: template_content = Template(template)
                 except:
                     LogEntry.objects.log_action(
-                        user_id = user.pk,
+                        user_id = user_id,
                         content_type_id = campanha_ct.pk,
                         object_id = campanha.pk,
                         object_repr = u"%s" % campanha,
                         action_flag = CHANGE,
                         change_message = u'[ERROR] Erro ao montar template para envio.'
                     )
-                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=F('qtde_erros')+len(emails))
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=len(emails_list))
                     return
             html_content = template_content.render(Context({}))
 
             LogEntry.objects.log_action(
-                user_id = user.pk,
+                user_id = user_id,
                 content_type_id = campanha_ct.pk,
                 object_id = campanha.pk,
                 object_repr = u"%s" % campanha,
                 action_flag = CHANGE,
-                change_message = u'[INFO] Iniciado o envio de emails.'
+                change_message = u'[INFO] Iniciado o envio de %d emails' % len(emails_list)
             )
-            for emails in splip_emails(campanha.lista.listacadastro_set.filter(pessoa__statusemail__in=['A','I']).values_list('pessoa__email', flat=True)):
+
+            for emails in splip_emails(emails_list):
                 # Cria a mensagem
                 msg = EmailMultiAlternatives(subject, text_content, from_email, bcc=emails)
                 msg.attach_alternative(html_content, 'text/html; charset=UTF-8')
@@ -331,7 +332,7 @@ class Campanha(models.Model):
                     try:
                         msg.send()
                         LogEntry.objects.log_action(
-                            user_id = user.pk,
+                            user_id = user_id,
                             content_type_id = campanha_ct.pk,
                             object_id = campanha.pk,
                             object_repr = u"%s" % campanha,
@@ -343,7 +344,7 @@ class Campanha(models.Model):
                         break
                     except:
                         LogEntry.objects.log_action(
-                            user_id = user.pk,
+                            user_id = user_id,
                             content_type_id = campanha_ct.pk,
                             object_id = campanha.pk,
                             object_repr = u"%s" % campanha,
@@ -351,31 +352,39 @@ class Campanha(models.Model):
                             change_message = u'[ERROR] Falha na %sª/3 tentativa de envio para: %s.' % (tentativas+1, u", ".join(emails), )
                         )
                         tentativas += 1
-                        sleep(60)
+                        sleep(30)
 
                 if tentativas == 3:
+                    print '[ERROR] Deu erro!'
                     LogEntry.objects.log_action(
-                        user_id = user.pk,
+                        user_id = user_id,
                         content_type_id = campanha_ct.pk,
                         object_id = campanha.pk,
                         object_repr = u"%s" % campanha,
                         action_flag = CHANGE,
                         change_message = u'[ERROR] Erro ao enviar emails para: %s.' % u", ".join(emails)
                     )
-                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=F('qtde_erros')+len(emails))
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=campanha.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).count()-F('qtde_envio'))
+                    return
 
             LogEntry.objects.log_action(
-                user_id = user.pk,
+                user_id = user_id,
                 content_type_id = campanha_ct.pk,
                 object_id = campanha.pk,
                 object_repr = u"%s" % campanha,
                 action_flag = CHANGE,
-                change_message = u'[INFO] Finalizado o envio de emails.'
+                change_message = u'[INFO] Envio Finalizado'
             )
+
+
+        emails_list = self.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).values_list('pessoa__email', flat=True).order_by('pessoa__email')
+        if resumir == True:
+            emails_list = emails_list[self.qtde_envio:]
+            self.qtde_erros = 0
         self.dtenvio = datetime.now()
         self.save()
 
-        th=Thread(target=_send_campanha_thread, kwargs={'campanha_id': self.pk,})
+        th=Thread(target=_send_campanha_thread, kwargs={'campanha_id': self.pk, 'user_id': user.pk,  'emails_list': emails_list, })
         th.start()
 
     def __unicode__(self):

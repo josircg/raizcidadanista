@@ -75,6 +75,9 @@ class TopicoOuvinte(models.Model):
 
 
 class Conversa(models.Model):
+    class Meta:
+        ordering = ('dt_criacao', )
+
     topico = models.ForeignKey(Topico)
     autor = models.ForeignKey(User)
     texto = models.TextField()

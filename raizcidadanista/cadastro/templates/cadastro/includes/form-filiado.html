@@ -103,8 +103,9 @@
         <div class="form-group{% if form.contrib_tipo.errors %} has-error has-feedback{% endif %} group-{{ form.contrib_tipo.name }}">
             <label class="control-label label-{{ form.contrib_tipo.name }}" for="id_{{ form.contrib_tipo.name }}">{{ form.contrib_tipo.label }}{% if form.contrib_tipo.field.required %}*{% endif %}</label>
             {{ form.contrib_tipo|btform }}
-            {% if form.contrib_tipo.errors %}
+            {% if form.contrib_tipo.errors or form.contrib_tipo.help_text %}
             <ul class="list-unstyled">
+            {% if form.contrib_tipo.help_text %}<li><small>{{ form.contrib_tipo.help_text }}</small></li>{% endif %}
             {% for error in form.contrib_tipo.errors %}
               <li class="text-error"><small>{{ error }}</small></li>
             {% endfor %}

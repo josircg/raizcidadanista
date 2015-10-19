@@ -18,6 +18,7 @@ from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, List
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
 
+from datetime import date
 import cStringIO as StringIO
 from PIL import Image
 
@@ -118,7 +119,7 @@ class FiliadoAtualizarView(FormView):
     template_success_name = 'cadastro/bem-vindo.html'
     form_class = FiliadoAtualizarForm
 
-    def get_instance(self, request, uidb36, token):
+    def get_instance(self, request, uidb36, ts_b36, token):
         def create_token(instance):
             key_salt = "cadastro.forms.FiliadoAtualizarLinkForm"
             value = u'%s%s' % (instance.pk, instance.email,)
@@ -126,6 +127,12 @@ class FiliadoAtualizarView(FormView):
 
         try:
             uid_int = base36_to_int(uidb36)
+
+            # Link só funciona 1 dia
+            ts_int = base36_to_int(ts_b36)
+            if ts_int < (date.today() - date(2001, 1, 1)).days:
+                return None
+
             instance = Membro.objects.get(id=uid_int)
         except (ValueError, Membro.DoesNotExist):
             return None
@@ -134,8 +141,8 @@ class FiliadoAtualizarView(FormView):
 
         return instance
 
-    def get(self, request, uidb36, token, *args, **kwargs):
-        self.instance = self.get_instance(request, uidb36, token)
+    def get(self, request, uidb36, ts_b36, token, *args, **kwargs):
+        self.instance = self.get_instance(request, uidb36, ts_b36, token)
         if not self.instance:
             return self.response_class(
                 request=self.request,

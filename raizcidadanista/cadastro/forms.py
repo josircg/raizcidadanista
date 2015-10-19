@@ -12,6 +12,7 @@ from django.utils.crypto import salted_hmac
 
 from municipios.models import UF
 
+from datetime import date
 from models import Pessoa, Membro
 from cms.email import sendmail
 
@@ -156,7 +157,11 @@ class FiliadoAtualizarLinkForm(forms.Form):
             template=template_email_name,
             params={
                 'filiado': filiado,
-                'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar', kwargs={'uidb36': int_to_base36(filiado.pk), 'token': create_token(filiado)})),
+                'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar', kwargs={
+                    'uidb36': int_to_base36(filiado.pk),
+                    'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
+                    'token': create_token(filiado),
+                })),
             },
         )
 

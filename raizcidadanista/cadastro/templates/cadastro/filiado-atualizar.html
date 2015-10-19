@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Atualização de Cadastro do Raíz - {% endblock %}
-{% block ogtitle %}Atualização de Cadastro do Raíz - {% endblock %}
+{% block title %}Atualização de Cadastro da Raiz - {% endblock %}
+{% block ogtitle %}Atualização de Cadastro da Raiz - {% endblock %}
 
-{% block description %}Atualização de Cadastro do Raíz - {% endblock %}
-{% block ogdescription %}Atualização de Cadastro do Raíz - {% endblock %}
+{% block description %}Atualização de Cadastro da Raiz - {% endblock %}
+{% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
     <div class="col-article">
-        <h3>Atualização de Cadastro do Raíz</h3>
+        <h3>Atualização de Cadastro da Raiz</h3>
         <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">

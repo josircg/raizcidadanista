@@ -164,9 +164,9 @@ class FiliadoAtualizarLinkForm(forms.Form):
 class FiliadoAtualizarForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', 'nome_da_mae',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',)
+        fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial', 'atividade_profissional',
+            'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral',
+            'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor',)
 
     cpf = BRCPFField(
         label='CPF',

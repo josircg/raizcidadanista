@@ -45,33 +45,39 @@
         $('#id_celular, #id_residencial').mask('(00)00000-0000');
         $('#id_cpf').mask('000.000.000-00');
 
+        var default_municipio = $('#id_municipio').val();
         $('#id_municipio').remove();
         $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
 
+        var default_municipio_eleitoral = $('#id_municipio_eleitoral').val();
         $('#id_municipio_eleitoral').remove();
         $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
 
-        function get_municipios(id_uf, id_municipios){
+        function get_municipios(id_uf, id_municipios, def_municipio){
             $(id_municipios).html('');
             uf = parseInt($(id_uf).val());
             if(uf){
                 url = "/chaining/filter/municipios/municipio/uf/"+uf+"/";
                 $.getJSON(url, function(data){
-                    $.each(data, function(key, val ) {
-                        $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                    $.each(data, function(key, val) {
+                        if(def_municipio == val.display){
+                            $(id_municipios).append('<option value="'+val.display+'" selected="selected">'+val.display+'</option>');
+                        }else{
+                            $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                        }
                     });
                 });
             }
         }
 
-        get_municipios('#id_uf', '#id_municipio');
+        get_municipios('#id_uf', '#id_municipio', default_municipio);
         $("#id_uf").change(function(){
-            get_municipios('#id_uf', '#id_municipio');
+            get_municipios('#id_uf', '#id_municipio', default_municipio);
         });
 
-        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
         $("#id_uf_eleitoral").change(function(){
-            get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+            get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
         });
     });
 </script>

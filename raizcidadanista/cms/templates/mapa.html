@@ -15,12 +15,18 @@
 
         var options = {
           region: 'BR',
-          resolution: 'provinces'
+          resolution: 'provinces',
         };
 
         var chart = new google.visualization.GeoChart(document.getElementById('geochart-colors'));
         chart.draw(data, options);
+
+        function regionClick(region){
+            console.log(region.region);
+        }
+        google.visualization.events.addListener(chart, 'regionClick', regionClick);
       };
+
     </script>
   </head>
   <body>

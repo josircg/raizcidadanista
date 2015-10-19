@@ -241,6 +241,18 @@
                 </div>
             </div>
         </form>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                ...
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -259,6 +271,14 @@
     #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
+    }
+
+    #myModal .modal-body {
+        font-size: 18px;
+    }
+    #myModal .modal-body a {
+        font-weight: bold;
+        font-size: 22px;
     }
 </style>
 {% endblock %}
@@ -307,11 +327,23 @@
               url: '{% url filiado %}',
               data: {'email': $(this).val()},
               success: function(data){
-                $(".group-email .list-unstyled").remove();
-                $(".group-email").removeClass('has-error');
                 if(data.msg != ""){
-                    $(".group-email").addClass('has-error');
-                    $(".group-email").append('<ul class="list-unstyled"><li class="text-error"><small>'+data.msg+'</small></li></ul>');
+                    $("#myModal .modal-body").html(data.msg);
+                    $('#myModal').modal('show');
+                }
+              }
+            });
+        })
+        $("#id_cpf").change(function(){
+            $.ajax({
+              dataType: "json",
+              url: '{% url filiado %}',
+              data: {'cpf': $(this).val()},
+              success: function(data){
+                $(".group-cpf .list-unstyled").remove();
+                if(data.msg != ""){
+                    $("#myModal .modal-body").html(data.msg);
+                    $('#myModal').modal('show');
                 }
               }
             });

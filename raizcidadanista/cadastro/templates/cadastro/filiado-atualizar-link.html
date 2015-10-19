@@ -10,7 +10,7 @@
 {% block main %}
     <div class="col-article">
         <h3>Atualização de Cadastro do Raíz</h3>
-        <p>Informe o seu email cadastrado. Enviaremos um link para que você possa atualizar os seus dados.</p>
+        <p>Informe o seu email ou CPF cadastrado. Enviaremos um link para que você possa atualizar os seus dados.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -20,6 +20,17 @@
                         {% if form.email.errors %}
                         <ul class="list-unstyled">
                         {% for error in form.email.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group{% if form.cpf.errors %} has-error has-feedback{% endif %} group-{{ form.cpf.name }}">
+                        <label class="control-label label-{{ form.cpf.name }}" for="id_{{ form.cpf.name }}">{{ form.cpf.label }}{% if form.cpf.field.required %}*{% endif %}</label>
+                        {{ form.cpf|btform }}
+                        {% if form.cpf.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in form.cpf.errors %}
                           <li class="text-error"><small>{{ error }}</small></li>
                         {% endfor %}
                         </ul>
@@ -38,9 +49,17 @@
     .has-error .form-control-feedback {
         margin-top: -6px;
     }
-    #id_email {max-width: 500px;}
+    #id_email, #id_cpf {max-width: 500px;}
     @media (max-width: 992px){
         .col-left {display: none; }
     }
 </style>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_cpf').mask('000.000.000-00');
+    });
 {% endblock %}

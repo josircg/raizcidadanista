@@ -98,19 +98,46 @@ class FiliadoForm(forms.ModelForm):
             raise forms.ValidationError(u'Já existe um cadastro com esse email.')
         return email
 
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        if cpf and Membro.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse cpf.')
+        return cpf
+
     def save(self, commit=True):
         self.instance.filiado = True
         return super(FiliadoForm, self).save(commit)
 
 
 class FiliadoAtualizarLinkForm(forms.Form):
-    email = forms.EmailField(u'e-mail')
+    email = forms.EmailField(label=u'e-mail', required=False)
+    cpf = BRCPFField(
+        label='CPF',
+        required=False,
+        error_messages={
+            'invalid':u'Preencha corretamente o seu CPF.',
+            'max_digits': u'Certifique-se de que o valor tenha no máximo 11 números no formato: XXX.XXX.XXX-XX.',
+            'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
+        }
+    )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if not Membro.objects.filter(email=email).exists():
+        if email and not Membro.objects.filter(email=email).exists():
             raise forms.ValidationError(u'Não existe nenhum cadastro com esse email.')
         return email
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        if cpf and not Membro.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError(u'Não existe nenhum cadastro com esse CPF.')
+        return cpf
+
+    def clean(self):
+        cleaned_data = super(FiliadoAtualizarLinkForm, self).clean()
+        if not cleaned_data.get('email') and not cleaned_data.get('cpf'):
+            raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
+        return cleaned_data
 
     def sendmail(self, template_email_name):
 
@@ -119,7 +146,10 @@ class FiliadoAtualizarLinkForm(forms.Form):
             value = u'%s%s' % (filiado.pk, filiado.email)
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
-        filiado = Membro.objects.get(email=self.cleaned_data['email'])
+        if self.cleaned_data.get('email'):
+            filiado = Membro.objects.get(email=self.cleaned_data['email'])
+        if self.cleaned_data.get('cpf'):
+            filiado = Membro.objects.get(cpf=self.cleaned_data['cpf'])
         sendmail(
             subject=u'Atualização de Cadastro do Raíz.',
             to=[filiado.email, ],

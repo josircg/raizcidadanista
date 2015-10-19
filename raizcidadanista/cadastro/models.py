@@ -18,10 +18,11 @@ from threading import Thread
 from time import sleep
 
 from municipios.models import UF
+from forum.models import Grupo, GrupoUsuario
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
-#from utils.models import BRDateField, BRDecimalField
+from utils.fields import BRDecimalField
 
 
 GENDER = (
@@ -74,6 +75,16 @@ class Membro(Pessoa):
         verbose_name = u'Colaborador'
         verbose_name_plural = u'Colaboradores'
 
+    TIPO_CONTRIBUICAO = (
+        ('1', u'Mensal'),
+        ('3', u'Trimestral'),
+        ('6', u'Semestral'),
+        ('A', u'Anual'),
+        ('O', u'Não pretende fazer'),
+        ('S', u'Suspensa'),
+        ('N', u'Não definida'),
+    )
+
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
@@ -90,6 +101,8 @@ class Membro(Pessoa):
     facebook_access_token = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
+    contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
+    contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)
@@ -133,6 +146,7 @@ CIRCULO_TIPO = (
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
+    ('E', u'Esfera'),
 )
 
 CIRCULO_STATUS = (
@@ -142,7 +156,7 @@ CIRCULO_STATUS = (
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Círculo/GT'
+        verbose_name = u'Círculo/Esfera/GT'
         verbose_name_plural = u'Círculos e Grupos de Trabalho'
 
     titulo = models.CharField(u'Título', max_length=80)
@@ -156,6 +170,7 @@ class Circulo(models.Model):
     imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
         upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
+    grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
 
     def get_absolute_entrar_url(self):
         return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
@@ -171,6 +186,7 @@ class CirculoMembro(models.Model):
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
     administrador = models.BooleanField(default=False)
+    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
 
@@ -178,6 +194,15 @@ class CirculoMembro(models.Model):
 # Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
         return u'#%s' % self.pk
+@receiver(signals.pre_save, sender=CirculoMembro)
+def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
+    if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
+        instance.grupousuario = GrupoUsuario.objects.create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)
+@receiver(signals.post_delete, sender=CirculoMembro)
+def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
+    if instance.grupousuario:
+        instance.grupousuario.delete()
+
 
 # Eventos que devem ser divulgados no site
 class CirculoEvento(models.Model):

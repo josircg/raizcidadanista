@@ -190,10 +190,18 @@ class FiliadoView(FormView):
     def get(self, request, *args, **kwargs):
         if request.GET.get('email'):
             json = {'msg': ''}
-            if Membro.objects.filter(email=request.GET.get('email')).exists():
-                json['msg'] = u'Você já está cadastrado. Deseja editar os seus dados atuais? <a href="%s?email=%s">Clique aqui</a>' % (reverse('filiado_atualizar_link'), request.GET.get('email'))
+            if Membro.objects.filter(email=request.GET.get('email'), filiado=True).exists():
+                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('email'))
+            elif Membro.objects.filter(email=request.GET.get('email')).exists():
+                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?email=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('email'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
-
+        if request.GET.get('cpf'):
+            json = {'msg': ''}
+            if Membro.objects.filter(cpf=request.GET.get('cpf'), filiado=True).exists():
+                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('cpf'))
+            elif Membro.objects.filter(cpf=request.GET.get('cpf')).exists():
+                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('cpf'))
+            return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
         return super(FiliadoView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -220,13 +228,13 @@ class ValidarEmailView(TemplateView):
         pessoa.status_email = 'A'
         pessoa.save()
         LogEntry.objects.log_action(
-                user_id = User.objects.get_or_create(username="sys")[0].pk,
-                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
-                object_id = pessoa.pk,
-                object_repr = u'%s' % pessoa,
-                action_flag = CHANGE,
-                change_message = u'Email validado'
-            )
+            user_id = User.objects.get_or_create(username="sys")[0].pk,
+            content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+            object_id = pessoa.pk,
+            object_repr = u'%s' % pessoa,
+            action_flag = CHANGE,
+            change_message = u'Email validado'
+        )
 
         if Lista.objects.filter(nome=u'Visitantes').exists():
             ListaCadastro(

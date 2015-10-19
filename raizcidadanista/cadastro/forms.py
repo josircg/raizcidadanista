@@ -33,11 +33,12 @@ class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'filiacao_partidaria',)
+            'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
+        self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -73,7 +74,8 @@ class FiliadoForm(forms.ModelForm):
         model = Membro
         fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',)
+            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',
+             'contrib_tipo', 'contrib_valor', )
 
     cpf = BRCPFField(
         label='CPF',
@@ -88,6 +90,7 @@ class FiliadoForm(forms.ModelForm):
         super(FiliadoForm, self).__init__(*args, **kwargs)
         self.fields['nome_da_mae'].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
+        self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -95,19 +98,46 @@ class FiliadoForm(forms.ModelForm):
             raise forms.ValidationError(u'Já existe um cadastro com esse email.')
         return email
 
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        if cpf and Membro.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse cpf.')
+        return cpf
+
     def save(self, commit=True):
         self.instance.filiado = True
         return super(FiliadoForm, self).save(commit)
 
 
 class FiliadoAtualizarLinkForm(forms.Form):
-    email = forms.EmailField(u'e-mail')
+    email = forms.EmailField(label=u'e-mail', required=False)
+    cpf = BRCPFField(
+        label='CPF',
+        required=False,
+        error_messages={
+            'invalid':u'Preencha corretamente o seu CPF.',
+            'max_digits': u'Certifique-se de que o valor tenha no máximo 11 números no formato: XXX.XXX.XXX-XX.',
+            'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
+        }
+    )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if not Membro.objects.filter(email=email).exists():
+        if email and not Membro.objects.filter(email=email).exists():
             raise forms.ValidationError(u'Não existe nenhum cadastro com esse email.')
         return email
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        if cpf and not Membro.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError(u'Não existe nenhum cadastro com esse CPF.')
+        return cpf
+
+    def clean(self):
+        cleaned_data = super(FiliadoAtualizarLinkForm, self).clean()
+        if not cleaned_data.get('email') and not cleaned_data.get('cpf'):
+            raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
+        return cleaned_data
 
     def sendmail(self, template_email_name):
 
@@ -116,7 +146,10 @@ class FiliadoAtualizarLinkForm(forms.Form):
             value = u'%s%s' % (filiado.pk, filiado.email)
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
-        filiado = Membro.objects.get(email=self.cleaned_data['email'])
+        if self.cleaned_data.get('email'):
+            filiado = Membro.objects.get(email=self.cleaned_data['email'])
+        if self.cleaned_data.get('cpf'):
+            filiado = Membro.objects.get(cpf=self.cleaned_data['cpf'])
         sendmail(
             subject=u'Atualização de Cadastro do Raíz.',
             to=[filiado.email, ],
@@ -131,9 +164,9 @@ class FiliadoAtualizarLinkForm(forms.Form):
 class FiliadoAtualizarForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
-            'atividade_profissional', 'dtnascimento', 'nome_da_mae',
-            'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria',)
+        fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial', 'atividade_profissional',
+            'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral',
+            'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor',)
 
     cpf = BRCPFField(
         label='CPF',

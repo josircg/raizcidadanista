@@ -1,0 +1,38 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap %}
+
+{% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block description %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3>Fórum › Tópicos: {{ object }}</h3>
+
+        {{ object.descricao|safe }}
+
+        {% for topico in topicos %}
+        <a href="#">
+            <blockquote>
+              <h4>{{ topico }}</h4>
+              <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+            </blockquote>
+        </a>
+        {% endfor %}
+
+        <nav>
+          <ul class="pager">
+            {% if topicos.has_previous %}
+                <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+            {% endif %}
+
+            {% if topicos.has_next %}
+                <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+            {% endif %}
+          </ul>
+        </nav>
+    </div>
+
+{% endblock %}

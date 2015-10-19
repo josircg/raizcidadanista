@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Cadastro pré-Fundador e Loomio - {% endblock %}
-{% block ogtitle %}Cadastro pré-Fundador e Loomio - {% endblock %}
+{% block title %}Cadastro de Colaborador - {% endblock %}
+{% block ogtitle %}Cadastro de Colaborador - {% endblock %}
 
-{% block description %}Cadastro pré-Fundador e Loomio - {% endblock %}
-{% block ogdescription %}Cadastro pré-Fundador e Loomio - {% endblock %}
+{% block description %}Cadastro de Colaborador {% endblock %}
+{% block ogdescription %}Cadastro de Colaborador {% endblock %}
 
 {% block main %}
     <div class="col-article">
         <h3>Cadastro de Colaboradores</h3>
-        <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o movimento. O preenchimento deste formulário ratifica o compromisso dos membro com a construção do partido, assim como a subscrição da Carta Cidadanista.</p>
+        <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o Movimento Raiz Cidadanista. O preenchimento deste formulário ratifica o compromisso do membro com a Carta Cidadanista.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -46,8 +46,8 @@
         margin-top: -6px;
     }
     #id_nome, #id_email, #id_atividade_profissional {max-width: 500px;}
-    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral, #id_uf_eleitoral {max-width: 165px;}
-    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria {max-width: 300px;}
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral, #id_uf_eleitoral, #id_contrib_valor {max-width: 165px;}
+    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
     }

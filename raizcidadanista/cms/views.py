@@ -1,10 +1,11 @@
 # coding: utf-8
-from django.views.generic import DetailView, TemplateView, View, FormView
+from django.views.generic import DetailView, TemplateView, View, FormView, RedirectView
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.contrib import messages
@@ -18,7 +19,7 @@ from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissa
     GroupType
 from forms import ArticleCommentForm, ContatoForm
 
-import mimetypes, os
+import mimetypes, os, cgi, urllib, facebook
 
 
 class CirculosView(TemplateView):
@@ -260,3 +261,58 @@ class RobotsView(View):
         if robots.ativo:
             return HttpResponse(u'User-agent: *\nAllow: *\nSitemap: %s%s' % (settings.SITE_HOST, reverse('sitemap')), content_type='text/plain')
         return HttpResponse(u'User-agent: *\nDisallow: *', content_type='text/plain')
+
+
+class LoginFacebookView(RedirectView):
+    def get(self, request, *args, **kwargs):
+        faceargs = {
+            'client_id': settings.FACEBOOK_APP_ID,
+            'redirect_uri': request.build_absolute_uri(),
+            'scope': ' '.join(settings.FACEBOOK_APP_PERM)
+        }
+        if not request.GET.get("code"):
+            return HttpResponseRedirect("https://graph.facebook.com/oauth/authorize?%s" % urllib.urlencode(faceargs))
+        else:
+            try:
+                faceargs["client_secret"] = settings.FACEBOOK_APP_SECRET_KEY
+                faceargs["code"] = request.GET.get("code")
+
+                response = cgi.parse_qs(urllib.urlopen(
+                    "https://graph.facebook.com/oauth/access_token?" +
+                    urllib.urlencode(faceargs)).read())
+                access_token = response["access_token"][-1]
+
+                graph = facebook.GraphAPI(access_token)
+                user_data = graph.get_object("me", fields="id,name,email")
+
+                membro = None
+                if Membro.objects.filter(facebook_id=user_data.get('id')).exists():
+                    membro = Membro.objects.filter(facebook_id=user_data.get('id')).latest('pk')
+                    # Atualiza o Membro
+                    membro.facebook_access_token = access_token
+                    membro.save()
+                elif Membro.objects.filter(email=user_data.get('email')).exists():
+                    membro = Membro.objects.filter(email=user_data.get('email')).latest('pk')
+                    # Atualiza o Membro
+                    membro.facebook_id = user_data.get('id')
+                    membro.facebook_access_token = access_token
+                    membro.save()
+
+                elif Membro.objects.filter(nome=user_data.get('name')).exists():
+                    membro = Membro.objects.filter(nome=user_data.get('name')).latest('pk')
+                    # Atualiza o Membro
+                    membro.facebook_id = user_data.get('id')
+                    membro.facebook_access_token = access_token
+                    membro.save()
+
+                if membro and membro.usuario:
+                    # Realiza o login
+                    membro.usuario.backend='django.contrib.auth.backends.ModelBackend'
+                    login(request, membro.usuario)
+                    messages.info(request, u'Seja bem vindo!')
+                    return HttpResponseRedirect('/')
+                else:
+                    messages.info(request, u'Colaborador/Filiado não encontrado. Provavelmente o seu email está diferente do que você utlizou para se registrar no site ou então você ainda não é nosso colaborador.')
+            except:
+                messages.info(request, u'É preciso autorizar o Facebook.')
+            return HttpResponseRedirect(reverse('cms_login'))

@@ -19,3 +19,5 @@ django-simple-captcha==0.4.2
 
 # apt-get install jpegoptim optipng
 # pip install pil --allow-external pil --allow-unverified pil
+
+facebook-sdk

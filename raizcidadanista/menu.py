@@ -36,8 +36,12 @@ class CustomAppList(items.AppList):
 
 class CustomMenu(Menu):
 
-    def __init__(self, **kwargs):
-        Menu.__init__(self, **kwargs)
+    def init_with_context(self, context):
+
+        configuracoes_extra = []
+        if context.get('request').user.has_perm('auth.view_filebrowser'):
+            configuracoes_extra.append(items.MenuItem(title=_(u'Visualizador de Arquivos'), url=reverse('filebrowser:fb_browse')))
+
 
         self.children += [
             items.MenuItem(' ', reverse('admin:index')),
@@ -46,24 +50,23 @@ class CustomMenu(Menu):
                 u'CMS',
                 exclude=('raizcidadanista.cms.models.EmailAgendado', 'raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
                 models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', ),
-            ),CustomAppList(
-                _(u'Configurações'),
-                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
-                extra=[
-                    items.MenuItem(title=_(u'Visualizador de Arquivos'), url=reverse('filebrowser:fb_browse'))
-                ]
             ),
             CustomAppList(
-                 _(u'Cadastro'),
+                u'Configurações',
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
+                extra=configuracoes_extra
+            ),
+            CustomAppList(
+                 u'Cadastro',
                 models=('cadastro.models.*', ),
                 exclude=('cadastro.models.ListaCadastro', ),
             ),
             CustomAppList(
-                 _(u'Fórum'),
+                 u'Fórum',
                 models=('forum.models.*', ),
             ),
             CustomAppList(
-                _(u'Adminstração'),
+                u'Adminstração',
                 models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),
             ),

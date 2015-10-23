@@ -78,6 +78,7 @@ class CustomGroupForm(forms.ModelForm):
             if u"Can add" in name: name = name.replace(u"Can add", u"Pode adicionar")
             if u"Can change" in name: name = name.replace(u"Can change", u"Pode editar")
             if u"Can delete" in name: name = name.replace(u"Can delete", u"Pode remover")
+            if u"Can view" in name: name = name.replace(u"Can view", u"Pode visualizar")
             choices.append((query.pk, name))
         self.fields['permissions'].widget.choices = choices
 

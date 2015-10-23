@@ -22,6 +22,7 @@ from django.utils.encoding import smart_text
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import DefaultStorage, default_storage, FileSystemStorage
+from django.core.exceptions import PermissionDenied
 
 # FILEBROWSER IMPORTS
 from filebrowser.settings import STRICT_PIL, DIRECTORY, EXTENSIONS, SELECT_FORMATS, ADMIN_VERSIONS, ADMIN_THUMBNAIL, MAX_UPLOAD_SIZE,\
@@ -279,6 +280,9 @@ class FileBrowserSite(object):
         return self.get_urls(), self.app_name, self.name
 
     def browse(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
+
         "Browse Files/Directories."
         filter_re = []
         for exp in EXCLUDE:
@@ -357,6 +361,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def createdir(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         "Create Directory"
         from filebrowser.forms import CreateDirForm
         query = request.GET
@@ -394,6 +400,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def upload(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         "Multipe File Upload."
         query = request.GET
 
@@ -408,6 +416,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def delete_confirm(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         "Delete existing File/Directory."
         query = request.GET
         path = u'%s' % os.path.join(self.directory, query.get('dir', ''))
@@ -442,6 +452,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def delete(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         "Delete existing File/Directory."
         query = request.GET
         path = u'%s' % os.path.join(self.directory, query.get('dir', ''))
@@ -461,6 +473,8 @@ class FileBrowserSite(object):
         return HttpResponseRedirect(redirect_url)
 
     def detail(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         """
         Show detail page for a file.
         Rename existing File/Directory (deletes existing Image Versions/Thumbnails).
@@ -522,6 +536,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def version(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         """
         Version detail.
         This just exists in order to select a version with a filebrowser–popup.
@@ -538,6 +554,8 @@ class FileBrowserSite(object):
         }, context_instance=Context(request, current_app=self.name))
 
     def _upload_file(self, request):
+        if not request.user.has_perm('auth.view_filebrowser'):
+            raise PermissionDenied()
         """
         Upload file to the server.
         """

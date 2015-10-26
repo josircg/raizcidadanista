@@ -21,3 +21,4 @@ django-simple-captcha==0.4.2
 # pip install pil --allow-external pil --allow-unverified pil
 
 facebook-sdk
+twython

@@ -93,12 +93,12 @@ STATICFILES_FINDERS = (
 SECRET_KEY = 'lh6t(*rto_)b&amp;jw%augix*vgxjdxr-wwu!5_bxvk_y3)0&amp;-n-3'
 
 # List of callables that know how to import templates from various sources.
-# TEMPLATE_LOADERS = (
-#     ('django.template.loaders.cached.Loader', (
-#         'django.template.loaders.filesystem.Loader',
-#         'django.template.loaders.app_directories.Loader',
-#     )),
-# )
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )),
+)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',

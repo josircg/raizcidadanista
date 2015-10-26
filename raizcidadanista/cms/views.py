@@ -19,6 +19,7 @@ from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissa
     GroupType
 from forms import ArticleCommentForm, ContatoForm
 
+# from twython import Twython # TODO: Pausado para fazer outra issue
 import mimetypes, os, cgi, urllib, facebook
 
 
@@ -316,3 +317,56 @@ class LoginFacebookView(RedirectView):
             except:
                 messages.info(request, u'É preciso autorizar o Facebook.')
             return HttpResponseRedirect(reverse('cms_login'))
+
+# TODO: Pausado para fazer outra issue
+# class LoginTwitterView(RedirectView):
+#     def get(self, request, *args, **kwargs):
+#         if not request.GET.get("oauth_token"):
+#             twitter = Twython(settings.TWITTER_KEY, settings.TWITTER_SECRET)
+
+#             # Request an authorization url to send the user to...
+#             callback_url = request.build_absolute_uri(reverse('auth_twitter'))
+#             auth_props = twitter.get_authentication_tokens(callback_url)
+
+#             # Then send them over there, durh.
+#             request.session['request_token'] = auth_props
+#             return HttpResponseRedirect(auth_props['auth_url'])
+#         else:
+#             try:
+#                 oauth_token = request.session['request_token']['oauth_token']
+#                 oauth_token_secret = request.session['request_token']['oauth_token_secret']
+#                 twitter = Twython(settings.TWITTER_KEY, settings.TWITTER_SECRET, oauth_token, oauth_token_secret)
+#                 # Retrieve the tokens we want...
+#                 authorized_tokens = twitter.get_authorized_tokens(request.GET['oauth_verifier'])
+
+#                 membro = None
+#                 if Membro.objects.filter(facebook_id=user_data.get('id')).exists():
+#                     membro = Membro.objects.filter(facebook_id=user_data.get('id')).latest('pk')
+#                     # Atualiza o Membro
+#                     membro.facebook_access_token = access_token
+#                     membro.save()
+#                 elif Membro.objects.filter(email=user_data.get('email')).exists():
+#                     membro = Membro.objects.filter(email=user_data.get('email')).latest('pk')
+#                     # Atualiza o Membro
+#                     membro.facebook_id = user_data.get('id')
+#                     membro.facebook_access_token = access_token
+#                     membro.save()
+
+#                 elif Membro.objects.filter(nome=user_data.get('name')).exists():
+#                     membro = Membro.objects.filter(nome=user_data.get('name')).latest('pk')
+#                     # Atualiza o Membro
+#                     membro.facebook_id = user_data.get('id')
+#                     membro.facebook_access_token = access_token
+#                     membro.save()
+
+#                 if membro and membro.usuario:
+#                     # Realiza o login
+#                     membro.usuario.backend='django.contrib.auth.backends.ModelBackend'
+#                     login(request, membro.usuario)
+#                     messages.info(request, u'Seja bem vindo!')
+#                     return HttpResponseRedirect('/')
+#                 else:
+#                     messages.info(request, u'Colaborador/Filiado não encontrado. Provavelmente o seu email está diferente do que você utlizou para se registrar no site ou então você ainda não é nosso colaborador.')
+#             except:
+#                 messages.info(request, u'É preciso autorizar o Twitter.')
+#             return HttpResponseRedirect(reverse('cms_login'))

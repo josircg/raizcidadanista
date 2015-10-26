@@ -536,6 +536,11 @@ class CampanhaAdmin(PowerModelAdmin):
 
     def envio(self, request, id_campanha):
         campanha = get_object_or_404(Campanha, pk=id_campanha)
+        # Verificar img 1x1 existe
+        if not os.path.isfile(u"%s/site/img/1x1.png" % settings.STATIC_ROOT):
+            messages.error(request, u'Não é possível enviar a campanha! Verifique se o arquivo %s/site/img/1x1.png existe.' % settings.STATIC_ROOT)
+            return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
+
         campanha.send_emails(request.user, resumir=False)
         messages.info(request, u'Os emails estão sendo enviados!')
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))

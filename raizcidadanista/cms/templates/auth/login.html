@@ -9,7 +9,7 @@
 <h3>Entrar</h3>
 <p>O login é necessário para que você visualize os documentos e artigos exclusivos para Colaboradores e Filiados e para acessar o Sistema Integrado da Raiz.</p>
 <div id="content-left" class="col-md-5" style="text-align: center; margin-top: 45px;">
-    <a href="#"><button type="button" style="margin: 10px;" class="btn btn-default btn-primary">Login com Twitter</button></a>
+    <a href="{% url 'cms_login_twitter' %}"><button type="button" style="margin: 10px;" class="btn btn-default btn-primary">Login com Twitter</button></a>
     <a href="{% url 'cms_login_facebook' %}"><button type="button" style="margin: 10px;" class="btn btn-default btn-primary">Login com o Facebook</button></a>
     <button type="button" style="margin: 10px;" class="btn btn-default btn-primary button-login-senha">Login com senha</button>
 </div>

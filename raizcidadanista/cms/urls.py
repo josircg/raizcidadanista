@@ -21,7 +21,7 @@ urlpatterns = patterns('',
 
     url(r'^login/$', 'django.contrib.auth.views.login', kwargs={'template_name': 'auth/login.html',}, name='cms_login'),
     url(r'^login/facebook/$', LoginFacebookView.as_view(), name='cms_login_facebook'),
-    # url(r'^login/twitter/$', LoginTwitterView.as_view(), name='cms_login_twitter'), # TODO: Pausado para fazer outra issue
+    url(r'^login/twitter/$', LoginTwitterView.as_view(), name='cms_login_twitter'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', kwargs={'template_name': 'auth/logout.html',}, name='cms_logout'),
     url(r'^password_change/$', 'django.contrib.auth.views.password_change', kwargs={'template_name': 'auth/password_change_form.html'}, name='cms_password_change'),
     url(r'^password_change/done/$', 'django.contrib.auth.views.password_change_done', kwargs={'template_name': 'auth/password_change_done.html',}, name='cms_password_change_done'),

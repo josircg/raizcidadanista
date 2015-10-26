@@ -195,6 +195,7 @@ class MembroAdmin(PowerModelAdmin):
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                            municipio = None
                             uf = None
 
                         except Municipio.DoesNotExist:
@@ -301,6 +302,7 @@ class MembroAdmin(PowerModelAdmin):
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado(%s) de %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
                             uf = None
+                            municipio = None
 
                         except Municipio.DoesNotExist:
                             municipio = None

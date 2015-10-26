@@ -107,6 +107,20 @@ class Article(models.Model):
         return u' - '
     get_sections_display.short_description = u'Seção'
 signals.pre_save.connect(slug_pre_save, sender=Article)
+@receiver(signals.pre_save, sender=Article)
+def article_sendemail_aprovacao(sender, instance, raw, using, *args, **kwargs):
+    if instance.pk:
+        ant = Article.objects.get(pk=instance.pk)
+        if not instance.is_active and ant.is_active:
+            sendmail(
+                subject=u'Existe um artigo para ser aprovado',
+                to = list(User.objects.filter(groups__name=u'Editor').values_list('email', flat=True)),
+                params = {
+                    'article': instance,
+                    'HOST': settings.SITE_HOST,
+                },
+                template = 'emails/article.html',
+            )
 
 
 class ArticleArchive(models.Model):

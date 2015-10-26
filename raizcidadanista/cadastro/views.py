@@ -269,7 +269,7 @@ class CampanhaView(DetailView):
         self.object.save()
 
         response = HttpResponse(mimetype='image')
-        img = Image.open(u"%s/img/1x1.png" % settings.MEDIA_ROOT)
+        img = Image.open(u"%s/site/img/1x1.png" % settings.STATIC_ROOT)
         img_temp = StringIO.StringIO()
         img.save(img_temp, 'JPEG')
         img_temp.seek(0)

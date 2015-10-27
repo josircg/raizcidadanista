@@ -130,7 +130,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'filiado',)
+    list_filter = ('uf', 'filiado', 'status_email',)
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )

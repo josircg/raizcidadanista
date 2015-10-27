@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 from datetime import datetime
@@ -334,6 +334,16 @@ class MembroAdmin(PowerModelAdmin):
                                 municipio=municipio,
                                 dtcadastro=dtcadastro,
                                 status_email = 'N')
+                            pessoa.save()
+
+                            LogEntry.objects.log_action(
+                                user_id = aprovador.pk,
+                                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                object_id = pessoa.pk,
+                                object_repr = u'%s' % pessoa,
+                                action_flag = ADDITION,
+                                change_message = u'Importado do Google Drive')
+
                             importados += 1
 
                         if not pessoa.uf:

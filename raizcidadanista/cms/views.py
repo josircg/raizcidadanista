@@ -1,10 +1,11 @@
 # coding: utf-8
-from django.views.generic import DetailView, TemplateView, View, FormView
+from django.views.generic import DetailView, TemplateView, View, FormView, RedirectView
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.contrib import messages
@@ -12,7 +13,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from municipios.models import UF
-from cadastro.models import Circulo
+from cadastro.models import Circulo, Membro
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
@@ -26,6 +27,19 @@ class CirculosView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CirculosView, self).get_context_data(**kwargs)
+        context['estados'] = UF.objects.all().order_by('nome')
+        return context
+
+
+class MapaView(TemplateView):
+    template_name = 'mapa.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MapaView, self).get_context_data(**kwargs)
+        colaboradores = {}
+        for estado in UF.objects.all().order_by('nome'):
+            colaboradores[estado.nome] = Membro.objects.filter(uf=estado).count()
+        context['colaboradores'] = colaboradores
         context['estados'] = UF.objects.all().order_by('nome')
         return context
 

@@ -74,9 +74,7 @@ class PessoaAdmin(PowerModelAdmin):
                 if form.cleaned_data.get('uf'):
                     pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
                 if form.cleaned_data.get('tipo'):
-                    if form.cleaned_data.get('tipo') == 'V':
-                        pessoas = pessoas.filter(membro__isnull=True)
-                    elif form.cleaned_data.get('tipo') == 'C':
+                    if form.cleaned_data.get('tipo') == 'C':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)
                     elif form.cleaned_data.get('tipo') == 'F':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=True)
@@ -198,6 +196,7 @@ class MembroAdmin(PowerModelAdmin):
 
                         except UF.DoesNotExist:
                             messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                            municipio = None
                             uf = None
 
                         except Municipio.DoesNotExist:
@@ -215,6 +214,7 @@ class MembroAdmin(PowerModelAdmin):
                             municipio_eleitoral = None
 
                         except Municipio.DoesNotExist:
+                            print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
                             municipio_eleitoral = None
 
                         if not uf:
@@ -292,6 +292,65 @@ class MembroAdmin(PowerModelAdmin):
                             membro.aprovador = aprovador
 
                         membro.save()
+
+                    # Visitantes
+                    if len(record) == 8:
+                        lidos += 1
+                        try:
+                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
+
+                        except UF.DoesNotExist:
+                            messages.error(request, u'Estado(%s) de %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                            uf = None
+                            municipio = None
+
+                        except Municipio.DoesNotExist:
+                            municipio = None
+
+                        if not uf:
+                            uf = UF.objects.get(uf='SP')
+
+                        # obtem data de cadastro
+                        try:
+                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
+                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
+                        except:
+                            try:
+                                dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%y')
+                            except:
+                                dtcadastro = None
+
+                        try:
+                            # Verifica se o visitante existe
+                            pessoa = Pessoa.objects.get(email=_get_data(record, 'email'))
+                            atualizados += 1
+                        except Pessoa.DoesNotExist:
+                            # Importa o Visitante
+                            pessoa = Pessoa(
+                                email=_get_data(record, 'email'),
+                                nome=_get_data(record, 'nome'),
+                                uf=uf,
+                                municipio=municipio,
+                                dtcadastro=dtcadastro,
+                                status_email = 'N')
+                            importados += 1
+
+                        if not pessoa.uf:
+                            pessoa.uf = uf
+
+                        if municipio:
+                            if not pessoa.municipio:
+                                pessoa.municipio = municipio
+
+                        if not pessoa.celular:
+                            pessoa.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                        if not pessoa.residencial:
+                            pessoa.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
+                        pessoa.save()
+
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
                 return HttpResponseRedirect(reverse('admin:cadastro_membro_changelist'))

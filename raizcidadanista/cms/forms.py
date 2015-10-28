@@ -16,6 +16,7 @@ from django.utils.html import mark_safe
 from django.core.urlresolvers import reverse
 from datetime import datetime, date
 
+from captcha.fields import ReCaptchaField
 from ckeditor.widgets import CKEditorWidget
 
 from models import SectionItem, ArticleComment, Recurso, Article, \
@@ -145,6 +146,7 @@ class ContatoForm(forms.Form):
     nome = forms.CharField(u'Nome', required=True)
     email = forms.EmailField(u'Email', required=True)
     mensagem = forms.CharField(u'Mensagem', widget=forms.Textarea(), required=True)
+    captcha = ReCaptchaField()
 
     def sendemail(self):
         nome = self.cleaned_data.get('nome')

@@ -28,7 +28,6 @@ urlpatterns = patterns('',
     url(r'^', include('cms.urls')),
     url(r'^ckeditor/', include('ckeditor.urls')),
     url(r'^chaining/', include('smart_selects.urls')),
-    url(r'^captcha/', include('captcha.urls')),
 )
 
 if 'theme' in settings.INSTALLED_APPS:

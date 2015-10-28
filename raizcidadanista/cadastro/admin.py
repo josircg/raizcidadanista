@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 from datetime import datetime
@@ -294,7 +294,7 @@ class MembroAdmin(PowerModelAdmin):
                         membro.save()
 
                     # Visitantes
-                    if len(record) == 7:
+                    if len(record) == 8:
                         lidos += 1
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
@@ -308,15 +308,25 @@ class MembroAdmin(PowerModelAdmin):
                         except Municipio.DoesNotExist:
                             municipio = None
 
+                        if not uf:
+                            uf = UF.objects.get(uf='SP')
+
+                        # obtem data de cadastro
                         try:
-                            # Atualiza o Membro
+                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
+                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
+                        except:
+                            try:
+                                dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%y')
+                            except:
+                                dtcadastro = None
+
+                        try:
+                            # Verifica se o visitante existe
                             pessoa = Pessoa.objects.get(email=_get_data(record, 'email'))
                             atualizados += 1
                         except Pessoa.DoesNotExist:
-                            # atualiza data
-                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
-                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
-                            # Importa o Membro
+                            # Importa o Visitante
                             pessoa = Pessoa(
                                 email=_get_data(record, 'email'),
                                 nome=_get_data(record, 'nome'),
@@ -324,6 +334,16 @@ class MembroAdmin(PowerModelAdmin):
                                 municipio=municipio,
                                 dtcadastro=dtcadastro,
                                 status_email = 'N')
+                            pessoa.save()
+
+                            LogEntry.objects.log_action(
+                                user_id = aprovador.pk,
+                                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                object_id = pessoa.pk,
+                                object_repr = u'%s' % pessoa,
+                                action_flag = ADDITION,
+                                change_message = u'Importado do Google Drive')
+
                             importados += 1
 
                         if not pessoa.uf:

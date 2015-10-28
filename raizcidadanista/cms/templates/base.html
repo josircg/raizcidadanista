@@ -81,7 +81,6 @@
                     <button type="submit" class="btn">Login</button>
                   {% else %}
                     Seja bem vindo, {% firstof user.first_name user.username %}!
-                    <button type="submit" class="btn">Admin</button>
                   {% endif %}
                 </form>
 
@@ -142,7 +141,7 @@
               {% if messages %}
                   {% for message in messages %}
                       <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
-                          {{ message }}
+                          {{ message|safe }}
                       </div>
                   {% endfor %}
               {% endif %}

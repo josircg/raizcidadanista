@@ -11,6 +11,7 @@
     <div class="col-article">
         <h3>Cadastro de Colaboradores</h3>
         <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o Movimento Raiz Cidadanista. O preenchimento deste formulário ratifica o compromisso do membro com a Carta Cidadanista.</p>
+        <p>Caso você queira apenas atualizar os seus dados ou a sua contribuição, <a href="{% url atualizar_cadastro_link %}">clique aqui</a>.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -33,10 +34,21 @@
                             {% endif %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-success">Cadastrar</button>
                 </div>
             </div>
+            <button type="submit" class="btn btn-success">Cadastrar</button>
         </form>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                ...
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -52,6 +64,10 @@
     @media (max-width: 992px){
         .col-left {display: none; }
     }
+
+    #myModal {margin-top: 300px;}
+    #myModal .modal-body {font-size: 18px;}
+    #myModal .modal-body a {font-weight: bold; font-size: 22px;}
 </style>
 {% endblock %}
 
@@ -89,11 +105,9 @@
               url: '{% url membro %}',
               data: {'email': $(this).val()},
               success: function(data){
-                $(".group-email .list-unstyled").remove();
-                $(".group-email").removeClass('has-error');
                 if(data.msg != ""){
-                    $(".group-email").addClass('has-error');
-                    $(".group-email").append('<ul class="list-unstyled"><li class="text-error"><small>'+data.msg+'</small></li></ul>');
+                    $("#myModal .modal-body").html(data.msg);
+                    $('#myModal').modal('show');
                 }
               }
             });

@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
-from forms import NewsletterForm, MembroForm, FiliadoForm, FiliadoAtualizarLinkForm, FiliadoAtualizarForm
+from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm
 
 from datetime import date
 import cStringIO as StringIO
@@ -54,9 +54,12 @@ class MembroView(FormView):
     def get(self, request, *args, **kwargs):
         if request.GET.get('email'):
             json = {'msg': ''}
-            if Membro.objects.filter(email=request.GET.get('email')).exists():
-                json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.'
+            if Membro.objects.filter(email=request.GET.get('email'), filiado=True).exists():
+                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
+            elif Membro.objects.filter(email=request.GET.get('email')).exists():
+                json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados ou <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
+
         return super(MembroView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -87,14 +90,14 @@ class MembroEntrarCirculoView(View):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
-class FiliadoAtualizarLinkView(FormView):
-    template_name = 'cadastro/filiado-atualizar-link.html'
+class AtualizarCadastroLinkView(FormView):
+    template_name = 'cadastro/atualizar-cadastro-link.html'
     template_success_name = 'cadastro/bem-vindo.html'
-    template_email_name = 'emails/filiado-atualizar.html'
-    form_class = FiliadoAtualizarLinkForm
+    template_email_name = 'emails/atualizar-cadastro.html'
+    form_class = AtualizarCadastroLinkForm
 
     def get_form_kwargs(self):
-        kwargs = super(FiliadoAtualizarLinkView, self).get_form_kwargs()
+        kwargs = super(AtualizarCadastroLinkView, self).get_form_kwargs()
         kwargs['initial'] = self.request.GET
         return kwargs
 
@@ -111,17 +114,19 @@ class FiliadoAtualizarLinkView(FormView):
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
-        return super(FiliadoAtualizarLinkView, self).form_invalid(form)
+        return super(AtualizarCadastroLinkView, self).form_invalid(form)
 
 
-class FiliadoAtualizarView(FormView):
-    template_name = 'cadastro/filiado-atualizar.html'
+class AtualizarCadastroView(FormView):
+    template_name_filiado = 'cadastro/atualizar-cadastro-filiado.html'
+    template_name_membro = 'cadastro/atualizar-cadastro-membro.html'
     template_success_name = 'cadastro/bem-vindo.html'
-    form_class = FiliadoAtualizarForm
+    form_class_filiado = AtualizarCadastroFiliadoForm
+    form_class_membro = AtualizarCadastroMembroForm
 
     def get_instance(self, request, uidb36, ts_b36, token):
         def create_token(instance):
-            key_salt = "cadastro.forms.FiliadoAtualizarLinkForm"
+            key_salt = "cadastro.forms.AtualizarCadastroLinkForm"
             value = u'%s%s' % (instance.pk, instance.email,)
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
@@ -141,6 +146,16 @@ class FiliadoAtualizarView(FormView):
 
         return instance
 
+    def get_template_names(self):
+        if self.instance.filiado:
+            return [self.template_name_filiado]
+        return [self.template_name_membro]
+
+    def get_form_class(self):
+        if self.instance.filiado:
+            return self.form_class_filiado
+        return self.form_class_membro
+
     def get(self, request, uidb36, ts_b36, token, *args, **kwargs):
         self.instance = self.get_instance(request, uidb36, ts_b36, token)
         if not self.instance:
@@ -152,10 +167,10 @@ class FiliadoAtualizarView(FormView):
                     'msg': u'Link inválido, tente novamente.',
                 }
             )
-        return super(FiliadoAtualizarView, self).get(request, *args, **kwargs)
+        return super(AtualizarCadastroView, self).get(request, *args, **kwargs)
 
-    def post(self, request, uidb36, token, *args, **kwargs):
-        self.instance = self.get_instance(request, uidb36, token)
+    def post(self, request, uidb36, ts_b36, token, *args, **kwargs):
+        self.instance = self.get_instance(request, uidb36, ts_b36, token)
         if not self.instance:
             return self.response_class(
                 request=self.request,
@@ -165,10 +180,10 @@ class FiliadoAtualizarView(FormView):
                     'msg': u'Link inválido, tente novamente.',
                 }
             )
-        return super(FiliadoAtualizarView, self).post(request, *args, **kwargs)
+        return super(AtualizarCadastroView, self).post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(FiliadoAtualizarView, self).get_form_kwargs()
+        kwargs = super(AtualizarCadastroView, self).get_form_kwargs()
         kwargs['instance'] = self.instance
         return kwargs
 
@@ -186,7 +201,7 @@ class FiliadoAtualizarView(FormView):
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
-        return super(FiliadoAtualizarView, self).form_invalid(form)
+        return super(AtualizarCadastroView, self).form_invalid(form)
 
 
 class FiliadoView(FormView):
@@ -198,16 +213,16 @@ class FiliadoView(FormView):
         if request.GET.get('email'):
             json = {'msg': ''}
             if Membro.objects.filter(email=request.GET.get('email'), filiado=True).exists():
-                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('email'))
+                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             elif Membro.objects.filter(email=request.GET.get('email')).exists():
-                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?email=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('email'))
+                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
         if request.GET.get('cpf'):
             json = {'msg': ''}
             if Membro.objects.filter(cpf=request.GET.get('cpf'), filiado=True).exists():
-                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('cpf'))
+                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('cpf'))
             elif Membro.objects.filter(cpf=request.GET.get('cpf')).exists():
-                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('filiado_atualizar_link'), request.GET.get('cpf'))
+                json['msg'] = u'Você já está registrado no site. Para editar os seus dados e se tornar um filiado, <a href="%s?cpf=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('cpf'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
         return super(FiliadoView, self).get(request, *args, **kwargs)
 

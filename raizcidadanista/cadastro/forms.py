@@ -112,7 +112,7 @@ class FiliadoForm(forms.ModelForm):
         return super(FiliadoForm, self).save(commit)
 
 
-class FiliadoAtualizarLinkForm(forms.Form):
+class AtualizarCadastroLinkForm(forms.Form):
     email = forms.EmailField(label=u'e-mail', required=False)
     cpf = BRCPFField(
         label='CPF',
@@ -137,38 +137,38 @@ class FiliadoAtualizarLinkForm(forms.Form):
         return cpf
 
     def clean(self):
-        cleaned_data = super(FiliadoAtualizarLinkForm, self).clean()
+        cleaned_data = super(AtualizarCadastroLinkForm, self).clean()
         if not cleaned_data.get('email') and not cleaned_data.get('cpf'):
             raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
         return cleaned_data
 
     def sendmail(self, template_email_name):
 
-        def create_token(filiado):
-            key_salt = "cadastro.forms.FiliadoAtualizarLinkForm"
-            value = u'%s%s' % (filiado.pk, filiado.email)
+        def create_token(membro):
+            key_salt = "cadastro.forms.AtualizarCadastroLinkForm"
+            value = u'%s%s' % (membro.pk, membro.email)
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
         if self.cleaned_data.get('email'):
-            filiado = Membro.objects.get(email=self.cleaned_data['email'])
+            membro = Membro.objects.get(email=self.cleaned_data['email'])
         if self.cleaned_data.get('cpf'):
-            filiado = Membro.objects.get(cpf=self.cleaned_data['cpf'])
+            membro = Membro.objects.get(cpf=self.cleaned_data['cpf'])
         sendmail(
             subject=u'Atualização de Cadastro do Raíz.',
-            to=[filiado.email, ],
+            to=[membro.email, ],
             template=template_email_name,
             params={
-                'filiado': filiado,
-                'link': u'%s%s' % (settings.SITE_HOST, reverse('filiado_atualizar', kwargs={
-                    'uidb36': int_to_base36(filiado.pk),
+                'membro': membro,
+                'link': u'%s%s' % (settings.SITE_HOST, reverse('atualizar_cadastro', kwargs={
+                    'uidb36': int_to_base36(membro.pk),
                     'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
-                    'token': create_token(filiado),
+                    'token': create_token(membro),
                 })),
             },
         )
 
 
-class FiliadoAtualizarForm(forms.ModelForm):
+class AtualizarCadastroFiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
         fields = ('nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial', 'atividade_profissional',
@@ -185,7 +185,7 @@ class FiliadoAtualizarForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(FiliadoAtualizarForm, self).__init__(*args, **kwargs)
+        super(AtualizarCadastroFiliadoForm, self).__init__(*args, **kwargs)
         self.fields['nome_da_mae'].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
@@ -199,7 +199,30 @@ class FiliadoAtualizarForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance.filiado = True
-        return super(FiliadoAtualizarForm, self).save(commit)
+        return super(AtualizarCadastroFiliadoForm, self).save(commit)
+
+
+class AtualizarCadastroMembroForm(forms.ModelForm):
+    class Meta:
+        model = Membro
+        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+            'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
+
+    def __init__(self, *args, **kwargs):
+        super(AtualizarCadastroMembroForm, self).__init__(*args, **kwargs)
+        self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
+        self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
+        self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Membro.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse email.')
+        return email
+
+    def save(self, commit=True):
+        self.instance.filiado = True
+        return super(AtualizarCadastroMembroForm, self).save(commit)
 
 
 class MembroImport(forms.Form):

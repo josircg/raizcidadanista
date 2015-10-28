@@ -113,7 +113,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
 )
 
-LOGIN_URL = '/admin/'
+LOGIN_URL = '/login/'
 
 ROOT_URLCONF = 'raizcidadanista.urls'
 

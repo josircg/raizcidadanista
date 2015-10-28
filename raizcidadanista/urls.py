@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 from filebrowser.sites import site
 from cms.forms import CustomPasswordResetForm
@@ -9,6 +10,7 @@ from cms.views import URLMigrateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+admin.site.login = login_required(admin.site.login)
 
 urlpatterns = patterns('',
     url(r'^admin/password_reset/$', 'django.contrib.auth.views.password_reset', {'post_reset_redirect': '/admin/password_reset/done/', 'password_reset_form': CustomPasswordResetForm}, name='admin_password_reset'),

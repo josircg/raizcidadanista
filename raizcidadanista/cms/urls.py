@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}, name="sitemap"),
     url(r'^robots\.txt$', RobotsView.as_view(), name="robots"),
 
-    url(r'^login/$', 'django.contrib.auth.views.login', kwargs={'template_name': 'auth/login.html',}, name='cms_login'),
+    url(r'^login/$', LoginView.as_view(), name='cms_login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', kwargs={'template_name': 'auth/logout.html',}, name='cms_logout'),
     url(r'^password_change/$', 'django.contrib.auth.views.password_change', kwargs={'template_name': 'auth/password_change_form.html'}, name='cms_password_change'),
     url(r'^password_change/done/$', 'django.contrib.auth.views.password_change_done', kwargs={'template_name': 'auth/password_change_done.html',}, name='cms_password_change_done'),

@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedi
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.contrib import messages
@@ -262,3 +263,22 @@ class RobotsView(View):
         if robots.ativo:
             return HttpResponse(u'User-agent: *\nAllow: *\nSitemap: %s%s' % (settings.SITE_HOST, reverse('sitemap')), content_type='text/plain')
         return HttpResponse(u'User-agent: *\nDisallow: *', content_type='text/plain')
+
+
+class LoginView(FormView):
+    template_name = 'auth/login.html'
+    form_class = AuthenticationForm
+
+    def form_valid(self, form):
+        login(self.request, form.get_user())
+        if self.request.session.test_cookie_worked():
+            self.request.session.delete_test_cookie()
+
+        messages.info(self.request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
+        return HttpResponseRedirect(reverse('home'))
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os dados!")
+        return super(LoginView, self).form_invalid(form)
+
+

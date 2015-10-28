@@ -12,6 +12,8 @@ from django.utils.crypto import salted_hmac
 
 from municipios.models import UF
 
+from captcha.fields import ReCaptchaField
+
 from datetime import date
 from models import Pessoa, Membro
 from cms.email import sendmail
@@ -22,6 +24,8 @@ class NewsletterForm(forms.ModelForm):
     class Meta:
         model = Pessoa
         fields = ('nome', 'email', 'uf', 'municipio', )
+
+    captcha = ReCaptchaField()
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -35,6 +39,8 @@ class MembroForm(forms.ModelForm):
         model = Membro
         fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
+
+    captcha = ReCaptchaField()
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
@@ -87,6 +93,7 @@ class FiliadoForm(forms.ModelForm):
             'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
         }
     )
+    captcha = ReCaptchaField()
 
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)

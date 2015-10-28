@@ -16,7 +16,6 @@ from django.utils.html import mark_safe
 from django.core.urlresolvers import reverse
 from datetime import datetime, date
 
-from captcha.fields import CaptchaField
 from ckeditor.widgets import CKEditorWidget
 
 from models import SectionItem, ArticleComment, Recurso, Article, \

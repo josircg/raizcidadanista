@@ -57,12 +57,12 @@ class CustomMenu(Menu):
                 extra=configuracoes_extra
             ),
             CustomAppList(
-                 u'Cadastro',
+                u'Cadastro',
                 models=('cadastro.models.*', ),
                 exclude=('cadastro.models.ListaCadastro', ),
             ),
             CustomAppList(
-                 u'Fórum',
+                u'Fórum',
                 models=('forum.models.*', ),
             ),
             CustomAppList(

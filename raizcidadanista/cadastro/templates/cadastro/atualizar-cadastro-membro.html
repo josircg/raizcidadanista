@@ -12,7 +12,30 @@
         <h3>Atualização de Cadastro da Raiz</h3>
         <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
-            {% include 'cadastro/includes/form-filiado.html' %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% for field in form %}
+                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                            {% if field|btischeckbox %}
+                                {{ field|btform }}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {% else %}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                {{ field|btform }}
+                            {% endif %}
+                            {% if field.errors or field.help_text %}
+                            <ul class="list-unstyled">
+                            {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
+                            {% for error in field.errors %}
+                              <li class="text-error"><small>{{ error }}</small></li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Atualizar</button>
         </form>
     </div>
 {% endblock %}
@@ -23,12 +46,8 @@
     .has-error .form-control-feedback {
         margin-top: -6px;
     }
-    #id_nome, #id_email, #id_atividade_profissional, #id_nome_da_mae {max-width: 500px;}
-    @media (min-width: 992px){
-        #id_nome_da_mae {width: 500px;}
-    }
-    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf, #id_contrib_valor {max-width: 165px;}
-    #id_zona_eleitoral, #id_secao_eleitoral {max-width: 80px;}
+    #id_nome, #id_email, #id_atividade_profissional {max-width: 500px;}
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral, #id_uf_eleitoral, #id_contrib_valor {max-width: 165px;}
     #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
@@ -36,22 +55,16 @@
 </style>
 {% endblock %}
 
-
 {% block js %}
 <script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         $('#id_dtnascimento').mask('00/00/0000');
         $('#id_celular, #id_residencial').mask('(00)00000-0000');
-        $('#id_cpf').mask('000.000.000-00');
 
         var default_municipio = $('#id_municipio').val();
         $('#id_municipio').remove();
         $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
-
-        var default_municipio_eleitoral = $('#id_municipio_eleitoral').val();
-        $('#id_municipio_eleitoral').remove();
-        $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
 
         function get_municipios(id_uf, id_municipios, def_municipio){
             $(id_municipios).html('');
@@ -73,11 +86,6 @@
         get_municipios('#id_uf', '#id_municipio', default_municipio);
         $("#id_uf").change(function(){
             get_municipios('#id_uf', '#id_municipio', default_municipio);
-        });
-
-        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
-        $("#id_uf_eleitoral").change(function(){
-            get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
         });
     });
 </script>

@@ -10,7 +10,8 @@
 {% block main %}
     <div class="col-article">
         <h3>Cadastro de Pré-Filiados</h3>
-        <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em afiliar-se ao futuro Partido Raiz</p>
+        <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em afiliar-se ao futuro Partido Raiz.</p>
+        <p>Caso você queira apenas atualizar os seus dados ou a sua contribuição, <a href="{% url atualizar_cadastro_link %}">clique aqui</a>.</p>
         <form action="" method="POST" role="form">{% csrf_token %}
             {% include 'cadastro/includes/form-filiado.html' %}
             <button type="submit" class="btn btn-success">Cadastrar</button>

@@ -84,9 +84,12 @@ class MembroEntrarCirculoView(View):
         circulo = get_object_or_404(Circulo, pk=circulo_id)
         membro = get_object_or_404(Membro, usuario=request.user)
 
-        CirculoMembro.objects.create(circulo=circulo, membro=membro)
+        cm, created = CirculoMembro.objects.get_or_create(circulo=circulo, membro=membro)
 
-        messages.info(request, u'Você agora faz parte do Círculo %s.' % circulo.titulo)
+        if created:
+            messages.info(request, u'Você agora faz parte do Círculo %s.' % circulo.titulo)
+        else:
+            messages.info(request, u'Você já fazia parte do Círculo %s.' % circulo.titulo)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 

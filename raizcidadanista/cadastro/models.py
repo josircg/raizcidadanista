@@ -106,6 +106,7 @@ class Membro(Pessoa):
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
+    contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)
@@ -131,6 +132,7 @@ class Membro(Pessoa):
                 self.usuario.email = self.email
                 self.usuario.save()
 
+
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created and (instance.status_email is None or instance.status_email == 'N'):
@@ -143,6 +145,10 @@ def validaremail_membro_signal(sender, instance, created, raw, using, *args, **k
                 'SITE_HOST': settings.SITE_HOST,
             },
         )
+
+class Filiado(Membro):
+    class Meta:
+        proxy = True
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),

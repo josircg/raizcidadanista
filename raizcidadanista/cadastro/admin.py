@@ -22,7 +22,7 @@ import os
 import csv
 
 from forms import MembroImport, MalaDiretaForm
-from models import Membro, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
+from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
 
 from forum.models import Grupo, GrupoUsuario
 from municipios.models import UF, Municipio
@@ -161,7 +161,7 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.is_superuser:
             return ()
         else:
-            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {
@@ -384,6 +384,22 @@ class MembroAdmin(PowerModelAdmin):
         return buttons
 admin.site.register(Membro, MembroAdmin)
 
+class FiliadoAdmin(PowerModelAdmin):
+    list_filter = ('uf', 'contrib_tipo', )
+    search_fields = ('nome', 'email',)
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'contrib_tipo', 'contrib_valor')
+    inlines = (CirculoMembroMembroInline, )
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ()
+        else:
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
+
+    def queryset(self, request):
+        return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+
+admin.site.register(Filiado, FiliadoAdmin)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro
@@ -658,9 +674,7 @@ class CampanhaAdmin(PowerModelAdmin):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_resumir_envio', kwargs={'id_campanha': object_id, }), label=u'Resumir envio interrompido'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
         return buttons
+
 admin.site.register(Campanha, CampanhaAdmin)
-
-
-
 admin.site.register(CirculoEvento)
 admin.site.register(UF)

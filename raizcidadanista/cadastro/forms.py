@@ -131,22 +131,16 @@ class AtualizarCadastroLinkForm(forms.Form):
         }
     )
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and not Membro.objects.filter(email=email).exists():
-            raise forms.ValidationError(u'Não existe nenhum cadastro com esse email.')
-        return email
-
-    def clean_cpf(self):
-        cpf = self.cleaned_data.get('cpf')
-        if cpf and not Membro.objects.filter(cpf=cpf).exists():
-            raise forms.ValidationError(u'Não existe nenhum cadastro com esse CPF.')
-        return cpf
-
     def clean(self):
         cleaned_data = super(AtualizarCadastroLinkForm, self).clean()
-        if not cleaned_data.get('email') and not cleaned_data.get('cpf'):
+        email = cleaned_data.get('email')
+        cpf = cleaned_data.get('cpf')
+
+        if not email and not cpf:
             raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
+
+        if (email and not Membro.objects.filter(email=email).exists()) and (cpf and not Membro.objects.filter(cpf=cpf).exists()):
+            raise forms.ValidationError(u'Não existe nenhum cadastro com esse email ou CPF.')
         return cleaned_data
 
     def sendmail(self, template_email_name):
@@ -156,9 +150,9 @@ class AtualizarCadastroLinkForm(forms.Form):
             value = u'%s%s' % (membro.pk, membro.email)
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
-        if self.cleaned_data.get('email'):
+        try:
             membro = Membro.objects.get(email=self.cleaned_data['email'])
-        if self.cleaned_data.get('cpf'):
+        except Membro.DoesNotExist:
             membro = Membro.objects.get(cpf=self.cleaned_data['cpf'])
         sendmail(
             subject=u'Atualização de Cadastro do Raíz.',

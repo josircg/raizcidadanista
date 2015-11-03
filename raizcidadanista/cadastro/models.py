@@ -128,6 +128,7 @@ class Membro(Pessoa):
                 self.usuario.email = self.email
                 self.usuario.save()
 
+
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created and (instance.status_email is None or instance.status_email == 'N'):

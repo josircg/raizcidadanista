@@ -35,9 +35,10 @@ class SectionItemCustomForm(forms.ModelForm):
 class ArticleCommentForm(forms.ModelForm):
     class Meta:
         model = ArticleComment
-        exclude = ('article', )
+        exclude = ('article', 'active', )
 
     email = forms.EmailField()
+    captcha = ReCaptchaField()
 
     def _create_messagem(self):
         menssagem = u'''

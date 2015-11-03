@@ -49,7 +49,7 @@ class CustomMenu(Menu):
             CustomAppList(
                 u'CMS',
                 exclude=('raizcidadanista.cms.models.EmailAgendado', 'raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
-                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', ),
+                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.ArticleComment', 'raizcidadanista.cms.models.Menu', ),
             ),
             CustomAppList(
                 u'Configurações',

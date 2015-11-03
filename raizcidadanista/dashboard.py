@@ -28,7 +28,7 @@ class CustomIndexDashboard(Dashboard):
         self.children += [
             modules.ModelList(
                 u'Portal',
-                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.Menu', 'raizcidadanista.cms.models.URLMigrate', 'raizcidadanista.cms.models.FileDownload', ),
+                models=('raizcidadanista.cms.models.Section', 'raizcidadanista.cms.models.Article', 'raizcidadanista.cms.models.ArticleComment', 'raizcidadanista.cms.models.Menu', 'raizcidadanista.cms.models.URLMigrate', 'raizcidadanista.cms.models.FileDownload', ),
             ),
             modules.ModelList(
                 u'Cadastro',

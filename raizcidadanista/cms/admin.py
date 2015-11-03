@@ -366,6 +366,16 @@ class ArticleAdmin(PowerModelAdmin):
 admin.site.register(Article, ArticleAdmin)
 
 
+class ArticleCommentAdmin(PowerModelAdmin):
+    list_display = ('article', 'created_at', 'author', 'active', )
+    list_filter = ('created_at', 'active', )
+    multi_search = (
+       ('q1', 'Título', ['article__title']),
+       ('q2', 'Seção', ['article__sectionitem__section__title']),
+    )
+admin.site.register(ArticleComment, ArticleCommentAdmin)
+
+
 class ArticleArchiveAdmin(PowerModelAdmin):
     list_display = ['article', 'updated_at', 'user', ]
     date_hierarchy = 'updated_at'

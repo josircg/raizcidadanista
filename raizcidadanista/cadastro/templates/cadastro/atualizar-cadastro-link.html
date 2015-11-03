@@ -15,6 +15,11 @@
         <form action="" method="POST" role="form">{% csrf_token %}
             <div class="panel panel-default">
                 <div class="panel-body">
+                    {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ error|safe }}
+                    </div>
+                    {% endfor %}
                     <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
                         <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
                         {{ form.email|btform }}

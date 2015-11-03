@@ -378,7 +378,6 @@ class EmailAgendado(models.Model):
     subject = models.CharField(max_length=90, default="")
     status = models.CharField(max_length=1, choices=STATUS_EMAIL, default="S")
     date = models.DateTimeField(default=datetime.now)
-    from_email = models.EmailField()
     to = ListField()
     html = models.TextField()
 

@@ -13,7 +13,8 @@ from time import sleep
 def sendmail(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
     from models import Recurso
     ativo = Recurso.objects.get_or_create(recurso='EMAIL')[0].ativo
-    headers.update({'Reply-To': settings.REPLY_TO_EMAIL, })
+    if not headers.get('Reply-To'):
+        headers.update({'Reply-To': settings.REPLY_TO_EMAIL, })
     '''
     Método para envio de e-mail:
     - subject: string contendo assunto do e-mail
@@ -26,7 +27,6 @@ def sendmail(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={
         from models import EmailAgendado
         email = EmailAgendado.objects.create(
             subject=subject,
-            from_email=from_email,
             to=list(to)
         )
 
@@ -92,9 +92,9 @@ def sendmail(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={
 def resendmail_email_agendado(email, mimetype='text/html; charset=UTF-8', headers={}):
     try:
         if len(email.to) == 1:
-            msg = EmailMultiAlternatives(email.subject, email.html, email.from_email, to=email.to, headers=headers)
+            msg = EmailMultiAlternatives(email.subject, email.html, settings.DEFAULT_FROM_EMAIL, to=email.to, headers=headers)
         else:
-            msg = EmailMultiAlternatives(email.subject, email.html, email.from_email, bcc=email.to, headers=headers)
+            msg = EmailMultiAlternatives(email.subject, email.html, settings.DEFAULT_FROM_EMAIL, bcc=email.to, headers=headers)
         msg.attach_alternative(email.html, mimetype)
         msg.send()
         email.status = 'K'

@@ -398,11 +398,10 @@ admin.site.register(Menu, MenuAdmin)
 class EmailAgendadoAdmin(PowerModelAdmin):
     list_display = ('subject', 'to', 'status', 'date')
     date_hierarchy = 'date'
-    readonly_fields = ('subject', 'from_email', 'to', 'status', 'date')
-    fields = ('subject', 'from_email', 'to', 'status', 'date', 'html')
+    readonly_fields = ('subject', 'to', 'status', 'date')
+    fields = ('subject', 'to', 'status', 'date', 'html')
     actions = ('renviar', )
     multi_search = (
-        ('q0', 'De', ['from_email',]),
         ('q1', 'Para', ['to',]),
         ('q2', 'Assunto', ['subject',]),
     )

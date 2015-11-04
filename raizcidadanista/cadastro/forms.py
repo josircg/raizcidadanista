@@ -137,13 +137,14 @@ class AtualizarCadastroLinkForm(forms.Form):
         cpf = cleaned_data.get('cpf')
 
         if not email and not cpf:
-            raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
+            raise forms.ValidationError(u'É preciso informar um e-mail ou então um CPF.')
 
-        if email and not Membro.objects.filter(email=email).exists():
-            raise forms.ValidationError(u'Não existe nenhum cadastro com esse email')
-
-	if cpf and not Membro.objects.filter(cpf=cpf).exists():
-            raise forms.ValidationError(u'Nenhum registro foi achado com esse CPF')
+        if email:
+	    if not Membro.objects.filter(email=email).exists():
+                raise forms.ValidationError(u'Não existe nenhum cadastro com esse email')
+	else:
+	    if cpf and not Membro.objects.filter(cpf=cpf).exists():
+                raise forms.ValidationError(u'Nenhum registro foi achado com esse CPF')
 	
         return cleaned_data
 
@@ -158,6 +159,7 @@ class AtualizarCadastroLinkForm(forms.Form):
             membro = Membro.objects.get(email=self.cleaned_data['email'])
         except Membro.DoesNotExist:
             membro = Membro.objects.get(cpf=self.cleaned_data['cpf'])
+
         sendmail(
             subject=u'Atualização de Cadastro do Raíz.',
             to=[membro.email, ],

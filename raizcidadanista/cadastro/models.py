@@ -1,5 +1,6 @@
 # coding:utf-8
 from datetime import datetime, timedelta, date
+from decimal import Decimal
 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
@@ -107,6 +108,13 @@ class Membro(Pessoa):
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
     contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)
+
+    def vr_apagar(self, data):
+        if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):
+            return self.contrib_valor
+        elif self.contrib_prox_pgto and self.contrib_prox_pgto > data:
+            return Decimal(0.0)
+        return self.contrib_valor
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

@@ -16,7 +16,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
-from datetime import datetime
+from decimal import Decimal
+from datetime import datetime, date
 from functools import partial
 import os
 import csv
@@ -132,7 +133,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', )
 
     def aprovacao(self, request, queryset):
         contador = 0
@@ -156,6 +157,24 @@ class MembroAdmin(PowerModelAdmin):
                     ).save()
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
     aprovacao.short_description = u'Aprovação'
+
+    def estimativa_de_recebimento(self, request, queryset, template_name='admin/cadastro/membro/estimativa-de-recebimento.html'):
+        hoje = date.today()
+        total = Decimal(0.0)
+        results = []
+        for query in queryset:
+            vr_apagar = query.vr_apagar(hoje)
+            total += vr_apagar
+            results.append({
+                'membro': query,
+                'vr_apagar': vr_apagar,
+            })
+        return render_to_response(template_name, {
+            'title': u'Estimativa de Recebimento',
+            'results': results,
+            'total': total,
+        },context_instance=RequestContext(request))
+    estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

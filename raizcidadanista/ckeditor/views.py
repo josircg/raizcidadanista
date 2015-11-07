@@ -140,6 +140,9 @@ def upload(request):
     elif upload_filename.split('.')[-1].lower() == 'png':
         os.system('optipng %s' % upload_filename)
 
+    # Dá permissão 664 ao arquivo
+    os.system('chmod 664 %s' % upload_filename)
+
     # Respond with Javascript sending ckeditor upload url.
     url = get_media_url(upload_filename)
     return HttpResponse("""

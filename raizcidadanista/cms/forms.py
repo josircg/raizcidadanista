@@ -155,7 +155,7 @@ class ContatoForm(forms.Form):
         mensagem = self.cleaned_data.get('mensagem')
         sendmail(
             subject = u'Raiz Cidadanista - Formulário de contato',
-            to = ['leonardocsantoss@gmail.com', ],
+            to = ['correio@raiz.org.br', ],
             params = {
                 'nome': nome,
                 'email': email,

@@ -116,7 +116,7 @@ class CustomPasswordResetForm(PasswordResetForm):
         Generates a one-use only link for resetting password and sends to the
         user.
         """
-        for user in self.users_cache:
+        for user in self.users_cache[:1]:
             if not domain_override:
                 current_site = get_current_site(request)
                 site_name = current_site.name
@@ -162,4 +162,7 @@ class ContatoForm(forms.Form):
                 'mensagem': mensagem,
             },
             template = 'emails/contato.html',
+            headers = {
+                'Reply-To': email,
+            }
         )

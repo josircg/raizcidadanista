@@ -2,6 +2,7 @@ django<1.5
 mysql-python
 gunicorn
 South==0.8.4
+python-dateutil
 django-admin-tools==0.5.2
 
 #CMS
@@ -19,3 +20,6 @@ django-recaptcha
 
 # apt-get install jpegoptim optipng
 # pip install pil --allow-external pil --allow-unverified pil
+
+facebook-sdk
+twython

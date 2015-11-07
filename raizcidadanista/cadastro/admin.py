@@ -161,7 +161,7 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.is_superuser:
             return ()
         else:
-            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador',)
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {
@@ -658,6 +658,7 @@ class CampanhaAdmin(PowerModelAdmin):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_resumir_envio', kwargs={'id_campanha': object_id, }), label=u'Resumir envio interrompido'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
         return buttons
+
 admin.site.register(Campanha, CampanhaAdmin)
 
 

@@ -5,7 +5,6 @@ from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
 
 from django.utils.http import int_to_base36

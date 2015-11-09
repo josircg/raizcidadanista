@@ -418,6 +418,22 @@ class MembroAdmin(PowerModelAdmin):
         return buttons
 admin.site.register(Membro, MembroAdmin)
 
+class FiliadoAdmin(PowerModelAdmin):
+    list_filter = ('uf', 'contrib_tipo', )
+    search_fields = ('nome', 'email',)
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'contrib_tipo', 'contrib_valor')
+    inlines = (CirculoMembroMembroInline, )
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ()
+        else:
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
+
+    def queryset(self, request):
+        return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+
+admin.site.register(Filiado, FiliadoAdmin)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro

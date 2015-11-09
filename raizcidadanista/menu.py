@@ -66,6 +66,10 @@ class CustomMenu(Menu):
                 models=('forum.models.*', ),
             ),
             CustomAppList(
+                u'Financeiro',
+                models=('financeiro.models.*', ),
+            ),
+            CustomAppList(
                 u'Adminstração',
                 models=('django.contrib.*', 'utils.models.*', 'raizcidadanista.cms.models.EmailAgendado', ),
                 exclude=('django.contrib.sites.models.*', ),

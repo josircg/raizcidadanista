@@ -46,6 +46,11 @@ class CustomIndexDashboard(Dashboard):
                 ]
             ),
             modules.ModelList(
+                u'Financeiro', [
+                    'financeiro.models.*',
+                ]
+            ),
+            modules.ModelList(
                 u'Configurações',
                 models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
                 extra=[

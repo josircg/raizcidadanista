@@ -158,6 +158,7 @@ INSTALLED_APPS = [
     'municipios',
     'cadastro',
     'forum',
+    'financeiro',
 
     #CMS
     'cms',

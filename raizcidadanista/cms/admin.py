@@ -233,9 +233,20 @@ class ArticleAdmin(PowerModelAdmin):
             if form.is_valid():
                 new_object = self.save_form(request, form, change=False)
                 new_object.is_active = False
+
+                if request.FILES.get('upload'):
+                    # Salvar imagem, usando a view do ckeditor
+                    from ckeditor.views import upload
+
+                    url = upload(request).content
+                    new_object.header = u'<img src="%s"/>%s' % (url, new_object.header, )
+                    new_object.content = u'<img src="%s"/>%s' % (url, new_object.content, )
+
+                # Ajustar html
+                new_object.header = u'<p>%s</p>' % u"</p><p>".join(new_object.header.split('\n'))
+                new_object.content = u'<p>%s</p>' % u"</p><p>".join(new_object.content.split('\n'))
+
                 self.save_model(request, new_object, form, False)
-                for section in form.cleaned_data.get('sections'):
-                    SectionItem(section=section, article=new_object).save()
                 self.log_addition(request, new_object)
                 return self.response_add(request, new_object)
         else:
@@ -243,7 +254,7 @@ class ArticleAdmin(PowerModelAdmin):
 
         fieldsets = (
             (None, {
-                'fields': [('title', 'slug'), 'content', 'sections',]
+                'fields': [('title', 'slug'), 'header', 'content', 'upload', ]
             }),
         )
         adminForm = helpers.AdminForm(form, list(fieldsets), {'slug': ('title',)}, [], model_admin=self)
@@ -281,15 +292,13 @@ class ArticleAdmin(PowerModelAdmin):
                 new_object.is_active = False
                 self.save_model(request, new_object, form, True)
 
-                for section in form.cleaned_data.get('sections'):
-                    SectionItem(section=section, article=new_object).save()
                 change_message = self.construct_change_message(request, form, [])
                 self.log_change(request, new_object, change_message)
                 return self.response_change(request, new_object)
 
         fieldsets = (
             (None, {
-                'fields': [('title', 'slug'), 'content', 'sections',]
+                'fields': [('title', 'slug'), 'header', 'content', 'upload', ]
             }),
         )
         adminForm = helpers.AdminForm(form, list(fieldsets), {'slug': ('title',)}, [], model_admin=self)

@@ -145,10 +145,12 @@ def upload(request):
 
     # Respond with Javascript sending ckeditor upload url.
     url = get_media_url(upload_filename)
-    return HttpResponse("""
-    <script type='text/javascript'>
-        window.parent.CKEDITOR.tools.callFunction(%s, '%s');
-    </script>""" % (request.GET['CKEditorFuncNum'], url))
+    if request.GET.get('CKEditorFuncNum'):
+        return HttpResponse("""
+        <script type='text/javascript'>
+            window.parent.CKEDITOR.tools.callFunction(%s, '%s');
+        </script>""" % (request.GET['CKEditorFuncNum'], url))
+    return HttpResponse(url)
 
 
 def get_json_files(user=None):

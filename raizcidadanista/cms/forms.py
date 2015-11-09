@@ -87,11 +87,12 @@ class CustomGroupForm(forms.ModelForm):
 class PowerArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ('title', 'slug', 'content', 'sections',)
+        fields = ('title', 'slug', 'header', 'content', )
         widgets = {
-            'content': CKEditorWidget(),
-            'sections': FilteredSelectMultiple(u"Seções", False, attrs={'rows':'10'}),
+            'header': forms.Textarea(attrs={'style': 'width: 575px'}),
+            'content': forms.Textarea(attrs={'style': 'width: 575px'}),
         }
+    upload = forms.ImageField(label=u"Imagem", required=False)
 
 
 class UpdateForm(forms.Form):

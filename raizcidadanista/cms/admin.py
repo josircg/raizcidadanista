@@ -240,7 +240,7 @@ class ArticleAdmin(PowerModelAdmin):
 
                     url = upload(request).content
                     new_object.header = u'<img src="%s" style="width: 50px; height: 37px;"/>%s' % (url, new_object.header, )
-                    new_object.content = u'<img src="%s" style="width: 270px; height: 152px;"/>%s' % (url, new_object.content, )
+                    new_object.content = u'<img src="%s" style="width: 270px; height: 152px; margin: 10px; float: left;"/>%s' % (url, new_object.content, )
 
                 # Ajustar html
                 new_object.header = u'<p>%s</p>' % u"</p><p>".join(new_object.header.split('\n'))
@@ -248,7 +248,9 @@ class ArticleAdmin(PowerModelAdmin):
 
                 self.save_model(request, new_object, form, False)
                 self.log_addition(request, new_object)
-                return self.response_add(request, new_object)
+
+                messages.info(request, u'O artigo foi gravado com sucesso e já foi enviado para aprovação.')
+                form = ModelForm()
         else:
             form = ModelForm()
 

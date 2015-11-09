@@ -239,8 +239,8 @@ class ArticleAdmin(PowerModelAdmin):
                     from ckeditor.views import upload
 
                     url = upload(request).content
-                    new_object.header = u'<img src="%s"/>%s' % (url, new_object.header, )
-                    new_object.content = u'<img src="%s"/>%s' % (url, new_object.content, )
+                    new_object.header = u'<img src="%s" style="width: 50px; height: 37px;"/>%s' % (url, new_object.header, )
+                    new_object.content = u'<img src="%s" style="width: 270px; height: 152px;"/>%s' % (url, new_object.content, )
 
                 # Ajustar html
                 new_object.header = u'<p>%s</p>' % u"</p><p>".join(new_object.header.split('\n'))

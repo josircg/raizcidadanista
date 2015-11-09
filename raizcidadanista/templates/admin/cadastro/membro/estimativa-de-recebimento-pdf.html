@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <style>
+            @page {
+                size: A4;
+                margin: 0.7cm;
+                margin-bottom: 1.3cm;
+                @frame footer {
+                    -pdf-frame-content: footer;
+                    bottom: 0.2cm;
+                    margin-left: 0.7cm;
+                    height: 1cm;
+                }
+            }
+            body {
+                font-family: Arial;
+                font-size: 12px;
+            }
+            table {
+                margin-bottom: 5px;
+            }
+            td {
+                padding: 5px 5px 0 5px;
+            }
+            .title {
+                background: #94C11E;
+                color: #333;
+            }
+            .border {
+                border: #333 1px solid;
+            }
+            .no-border {
+                border: 0px;
+            }
+            .center {
+                text-align: center;
+            }
+            .right {
+                text-align: right;
+            }
+            .title-head {
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .row0 {
+                background: #f0f0f0;
+            }
+        </style>
+    </head>
+    <body>
+
+        <table width="100%" id="head">
+            <tr>
+                <td width="75%" class="title title-head center border">{{ title }}</td>
+                <td width="25%" class="center">
+                    <h1>Raiz Cidadanista</h1>
+                </td>
+            </tr>
+        </table>
+        <table width"100%">
+            <thead>
+                <tr>
+                    <td width="60%" class="title title-head center border">Membro</td>
+                    <td width="25%" class="title title-head center border">Tipo de Pagamento</td>
+                    <td width="15%" class="title title-head right border">A pagar</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr class="{% cycle 'row0' 'row1' %}">
+                    <td width="60%"><p>{{ result.membro }}</p></td>
+                    <td width="25%" class="center"><p>{{ result.membro.get_contrib_tipo_display }}</p></td>
+                    <td width="15%" class="right"><p>R$ {{ result.vr_apagar }}</p></td>
+                </tr>
+                {% endfor %}
+                <tr class="row0">
+                    <td width="60%" class="title title-head border" colspan="2">TOTAL: </td>
+                    <td width="15%" class="title title-head right border">R$ {{ total }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="footer">
+            {% now "d/m/Y H:i:s" %} - Pag. <pdf:pagenumber> de <pdf:pagecount>
+        </div>
+    </body>
+</html>

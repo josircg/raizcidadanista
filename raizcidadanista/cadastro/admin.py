@@ -7,6 +7,7 @@ from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Template
+from django.template.loader import get_template
 from django.template.context import RequestContext, Context
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
@@ -21,6 +22,10 @@ from datetime import datetime, date
 from functools import partial
 import os
 import csv
+
+import cStringIO as StringIO
+import cgi
+from xhtml2pdf.pisa import pisaDocument
 
 from forms import MembroImport, MalaDiretaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
@@ -158,29 +163,39 @@ class MembroAdmin(PowerModelAdmin):
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
     aprovacao.short_description = u'Aprovação'
 
-    def estimativa_de_recebimento(self, request, queryset, template_name='admin/cadastro/membro/estimativa-de-recebimento.html'):
+    def estimativa_de_recebimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/estimativa-de-recebimento-pdf.html'):
         hoje = date.today()
         total = Decimal(0.0)
         results = []
         for query in queryset:
             vr_apagar = query.vr_apagar(hoje)
-            total += vr_apagar
-            results.append({
-                'membro': query,
-                'vr_apagar': vr_apagar,
-            })
-        return render_to_response(template_name, {
-            'title': u'Estimativa de Recebimento',
+            if vr_apagar > Decimal(0.0):
+                total += vr_apagar
+                results.append({
+                    'membro': query,
+                    'vr_apagar': vr_apagar,
+                })
+
+        template = get_template(template_name_pdf)
+        context = RequestContext(request, {
+            'title': u'Estimativa de Recebimento - %s' % hoje.strftime("%B %Y"),
             'results': results,
             'total': total,
-        },context_instance=RequestContext(request))
+        })
+        html  = template.render(context)
+
+        dataresult = StringIO.StringIO()
+        pdf = pisaDocument(StringIO.StringIO(html.encode("UTF-8")), dest=dataresult)
+        if not pdf.err:
+            return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
+        return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return ()
         else:
-            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {
@@ -695,5 +710,8 @@ class CampanhaAdmin(PowerModelAdmin):
         return buttons
 
 admin.site.register(Campanha, CampanhaAdmin)
+
+
+
 admin.site.register(CirculoEvento)
 admin.site.register(UF)

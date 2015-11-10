@@ -294,7 +294,7 @@ class MembroAdmin(PowerModelAdmin):
                         membro.save()
 
                     # Visitantes
-                    if len(record) == 8:
+                    if len(record) == 7:
                         lidos += 1
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))

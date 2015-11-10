@@ -91,6 +91,8 @@ def sendmail(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={
 
 def resendmail_email_agendado(email, mimetype='text/html; charset=UTF-8', headers={}):
     try:
+        if not headers.get('Reply-To'):
+            headers.update({'Reply-To': settings.REPLY_TO_EMAIL, })
         if len(email.to) == 1:
             msg = EmailMultiAlternatives(email.subject, email.html, settings.DEFAULT_FROM_EMAIL, to=email.to, headers=headers)
         else:

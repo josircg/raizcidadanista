@@ -1,0 +1,17 @@
+{% extends "admin/change_list_multi_search.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript">
+        (function($) {
+            $(function() {
+                $('#changelist-form button[type="submit"]').click(function(event){
+                    if($('.actions select[name="action"]').val() == 'estimativa_de_recebimento' & $('.action-select:checked').length == 0){
+                        $('.select-across').val('1');
+                        $('.action-select').attr('checked', 'checked');
+                    }
+                });
+            });
+        })(django.jQuery)
+    </script>
+{% endblock %}

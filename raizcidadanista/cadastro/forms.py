@@ -139,8 +139,8 @@ class AtualizarCadastroLinkForm(forms.Form):
         if not email and not cpf:
             raise forms.ValidationError(u'É preciso informar um e-mail ou um CPF.')
 
-        if (email and not Membro.objects.filter(email=email).exists()) and (cpf and not Membro.objects.filter(cpf=cpf).exists()):
-            raise forms.ValidationError(u'Não existe nenhum cadastro com esse email ou CPF.')
+        if (not email or not Membro.objects.filter(email=email).exists()) and (not cpf or not Membro.objects.filter(cpf=cpf).exists()):
+            raise forms.ValidationError(u'Não existe nenhum cadastro com esse e-mail ou CPF.')
         return cleaned_data
 
     def sendmail(self, template_email_name):

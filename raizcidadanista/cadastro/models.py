@@ -175,6 +175,7 @@ class Circulo(models.Model):
     class Meta:
         verbose_name = u'Círculo/Esfera/GT'
         verbose_name_plural = u'Círculos e Grupos de Trabalho'
+        ordering = ('tipo', 'titulo', )
 
     titulo = models.CharField(u'Título', max_length=80)
     descricao = models.TextField(u'Descricao') # HTML

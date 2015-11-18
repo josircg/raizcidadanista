@@ -84,6 +84,8 @@ class PessoaAdmin(PowerModelAdmin):
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)
                     elif form.cleaned_data.get('tipo') == 'F':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=True)
+                if form.cleaned_data.get('circulo'):
+                    pessoas = pessoas.filter(membro__circulomembro__circulo=form.cleaned_data.get('circulo'))
 
                 # Emails
                 emails_list = pessoas.values_list('email', flat=True)

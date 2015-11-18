@@ -70,6 +70,7 @@
             var data = {
                 "tipo": $("#id_tipo").val(),
                 "uf": $("#id_uf").val(),
+                "circulo": $("#id_circulo").val(),
                 "pagina": $("#id_pagina").val()
             };
 
@@ -125,7 +126,7 @@
         };
 
         update();
-        $("#id_tipo, #id_uf, #id_pagina").change(function(){
+        $("#id_tipo, #id_uf, #id_pagina, #id_circulo").change(function(){
             update();
         });
 

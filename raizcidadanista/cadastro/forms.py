@@ -15,7 +15,7 @@ from municipios.models import UF
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro
+from models import Pessoa, Membro, Circulo
 from cms.email import sendmail
 
 
@@ -245,3 +245,4 @@ class MalaDiretaForm(forms.Form):
     )
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
+    circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())

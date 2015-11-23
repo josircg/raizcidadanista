@@ -150,12 +150,12 @@ class AtualizarCadastroView(FormView):
         return instance
 
     def get_template_names(self):
-        if self.instance.filiado:
+        if self.instance.filiado or self.request.GET.get('filiado'):
             return [self.template_name_filiado]
         return [self.template_name_membro]
 
     def get_form_class(self):
-        if self.instance.filiado:
+        if self.instance.filiado or self.request.GET.get('filiado'):
             return self.form_class_filiado
         return self.form_class_membro
 

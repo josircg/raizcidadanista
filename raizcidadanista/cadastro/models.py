@@ -105,6 +105,7 @@ class Membro(Pessoa):
     twitter_oauth_token_secret = models.TextField(editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
+    dt_prefiliacao = models.DateField(u'Dt de pré-filiação', blank=True, null=True)
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
     contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)

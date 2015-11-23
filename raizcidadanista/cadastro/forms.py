@@ -116,6 +116,7 @@ class FiliadoForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance.filiado = True
+        self.instance.dt_prefiliacao = date.today()
         return super(FiliadoForm, self).save(commit)
 
 

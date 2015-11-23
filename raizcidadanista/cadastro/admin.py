@@ -425,9 +425,9 @@ class MembroAdmin(PowerModelAdmin):
 admin.site.register(Membro, MembroAdmin)
 
 class FiliadoAdmin(PowerModelAdmin):
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
     list_filter = ('uf', 'contrib_tipo', )
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'contrib_tipo', 'contrib_valor')
     inlines = (CirculoMembroMembroInline, )
 
     def get_readonly_fields(self, request, obj=None):

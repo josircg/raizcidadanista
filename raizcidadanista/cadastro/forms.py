@@ -200,6 +200,7 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance.filiado = True
+        self.instance.status_email = 'A'
         return super(AtualizarCadastroFiliadoForm, self).save(commit)
 
 
@@ -223,6 +224,7 @@ class AtualizarCadastroMembroForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance.filiado = True
+        self.instance.status_email = 'A'
         return super(AtualizarCadastroMembroForm, self).save(commit)
 
 

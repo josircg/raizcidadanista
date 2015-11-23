@@ -123,7 +123,11 @@ class PessoaAdmin(PowerModelAdmin):
 
     def get_buttons(self, request, object_id):
         buttons = super(PessoaAdmin, self).get_buttons(request, object_id)
-        if not object_id:
+        obj = self.get_object(request, object_id)
+        if obj:
+            if Membro.objects.filter(pessoa_ptr=obj).exists():
+                buttons.append(PowerButton(url=reverse('admin:cadastro_membro_change', args=(obj.membro.pk, )), label=u'Colaborador'))
+        else:
             buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
         return buttons
 admin.site.register(Pessoa, PessoaAdmin)

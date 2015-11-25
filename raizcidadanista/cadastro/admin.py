@@ -146,6 +146,24 @@ class MembroAdmin(PowerModelAdmin):
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', )
 
+    fieldsets = (
+        (None, {
+            'fields': ['nome', 'email', 'uf', 'municipio', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+        }),
+        (None, {
+            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', ]
+        }),
+        (u'Dados eleitorais', {
+            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
+        }),
+        (u'Endereço', {
+            'fields': ['endereco', 'endereco_num', 'endereco_complemento', ]
+        }),
+        (u'Contribuição', {
+            'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
+        }),
+    )
+
     def aprovacao(self, request, queryset):
         contador = 0
         for rec in queryset:
@@ -424,11 +442,30 @@ class MembroAdmin(PowerModelAdmin):
         return buttons
 admin.site.register(Membro, MembroAdmin)
 
+
 class FiliadoAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
     list_filter = ('uf', 'contrib_tipo', )
     search_fields = ('nome', 'email',)
     inlines = (CirculoMembroMembroInline, )
+
+    fieldsets = (
+        (None, {
+            'fields': ['nome', 'email', 'uf', 'municipio', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+        }),
+        (None, {
+            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', ]
+        }),
+        (u'Dados eleitorais', {
+            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
+        }),
+        (u'Endereço', {
+            'fields': ['endereco', 'endereco_num', 'endereco_complemento', ]
+        }),
+        (u'Contribuição', {
+            'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
+        }),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -440,6 +477,7 @@ class FiliadoAdmin(PowerModelAdmin):
         return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
 
 admin.site.register(Filiado, FiliadoAdmin)
+
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro

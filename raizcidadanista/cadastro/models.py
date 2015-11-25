@@ -86,6 +86,14 @@ class Membro(Pessoa):
         ('N', u'Não definida'),
     )
 
+    ESTADO_CIVIL = (
+        ('S', u'Solteira(o)'),
+        ('C', u'Casada(o)'),
+        ('E', u'Separada(o)'),
+        ('D', u'Divorciada(o)'),
+        ('V', u'Viúva(o)'),
+    )
+
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
@@ -109,6 +117,10 @@ class Membro(Pessoa):
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
     contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)
+    estadocivil = models.CharField(u'Estado civil', max_length=1, choices=ESTADO_CIVIL, blank=True, null=True)
+    endereco = models.CharField(u'Endereço', max_length=100, blank=True, null=True)
+    endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
+    endereco_complemento = models.CharField(u'Completo', max_length=20, blank=True, null=True)
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):

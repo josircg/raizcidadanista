@@ -141,7 +141,6 @@ class Membro(Pessoa):
                 self.usuario.email = self.email
                 self.usuario.save()
 
-
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created and (instance.status_email is None or instance.status_email == 'N'):
@@ -154,6 +153,11 @@ def validaremail_membro_signal(sender, instance, created, raw, using, *args, **k
                 'SITE_HOST': settings.SITE_HOST,
             },
         )
+@receiver(signals.pre_save, sender=Membro)
+def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **kwargs):
+    if not instance.dt_prefiliacao:
+        instance.dt_prefiliacao = date.today()
+
 
 class Filiado(Membro):
     class Meta:

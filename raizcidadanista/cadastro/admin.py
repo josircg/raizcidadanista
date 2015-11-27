@@ -144,7 +144,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral')
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', )
 
     fieldsets = (
         (None, {
@@ -230,6 +230,24 @@ class MembroAdmin(PowerModelAdmin):
                 },
             )
     atualizacao_cadastral.short_description = u'Atualização Cadastral'
+
+    def requerimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/requerimento-pdf.html'):
+        results = {}
+        for estado in set(queryset.values_list('uf__nome', flat=True)):
+            results[estado] = queryset.filter(uf__nome=estado)
+
+        template = get_template(template_name_pdf)
+        context = RequestContext(request, {
+            'results': results,
+        })
+        html  = template.render(context)
+
+        dataresult = StringIO.StringIO()
+        pdf = pisaDocument(StringIO.StringIO(html.encode("UTF-8")), dest=dataresult)
+        if not pdf.err:
+            return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
+        return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
+    requerimento.short_description = u'Requerimento'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

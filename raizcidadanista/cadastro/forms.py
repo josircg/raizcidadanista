@@ -7,9 +7,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from django.utils.http import int_to_base36
-from django.utils.crypto import salted_hmac
-
 from municipios.models import UF
 
 from captcha.fields import ReCaptchaField
@@ -222,12 +219,6 @@ class AtualizarCadastroLinkForm(forms.Form):
         return cleaned_data
 
     def sendmail(self, template_email_name):
-
-        def create_token(membro):
-            key_salt = "cadastro.forms.AtualizarCadastroLinkForm"
-            value = u'%s%s' % (membro.pk, membro.email)
-            return salted_hmac(key_salt, value).hexdigest()[::2]
-
         try:
             membro = Membro.objects.get(email=self.cleaned_data['email'])
         except Membro.DoesNotExist:
@@ -238,11 +229,7 @@ class AtualizarCadastroLinkForm(forms.Form):
             template=template_email_name,
             params={
                 'membro': membro,
-                'link': u'%s%s' % (settings.SITE_HOST, reverse('atualizar_cadastro', kwargs={
-                    'uidb36': int_to_base36(membro.pk),
-                    'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
-                    'token': create_token(membro),
-                })),
+                'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
             },
         )
 

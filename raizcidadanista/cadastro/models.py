@@ -11,6 +11,9 @@ from django.conf import settings
 from django.db.models import signals, F
 from django.dispatch import receiver
 
+from django.utils.http import int_to_base36
+from django.utils.crypto import salted_hmac
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Template
@@ -130,6 +133,18 @@ class Membro(Pessoa):
         elif self.contrib_prox_pgto and self.contrib_prox_pgto > data:
             return Decimal(0.0)
         return self.contrib_valor
+
+    def get_absolute_update_url(self):
+        def create_token(membro):
+            key_salt = "cadastro.forms.AtualizarCadastroLinkForm"
+            value = u'%s%s' % (membro.pk, membro.email)
+            return salted_hmac(key_salt, value).hexdigest()[::2]
+
+        return reverse('atualizar_cadastro', kwargs={
+            'uidb36': int_to_base36(self.pk),
+            'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
+            'token': create_token(self),
+        })
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)

@@ -136,9 +136,9 @@ class AtualizarCadastroView(FormView):
         try:
             uid_int = base36_to_int(uidb36)
 
-            # Link só funciona 1 dia
+            # Link só funciona 2 dia
             ts_int = base36_to_int(ts_b36)
-            if ts_int < (date.today() - date(2001, 1, 1)).days:
+            if ts_int+1 < (date.today() - date(2001, 1, 1)).days:
                 return None
 
             instance = Membro.objects.get(id=uid_int)

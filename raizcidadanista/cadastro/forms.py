@@ -95,7 +95,9 @@ class FiliadoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)
-        self.fields['nome_da_mae'].required = True
+        # Requireds
+        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
@@ -119,41 +121,6 @@ class FiliadoForm(forms.ModelForm):
         if fundador and not atividade_profissional:
             raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
         return atividade_profissional
-
-    def clean_uf_eleitoral(self):
-        uf_eleitoral = self.cleaned_data.get('uf_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not uf_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return uf_eleitoral
-
-    def clean_municipio_eleitoral(self):
-        municipio_eleitoral = self.cleaned_data.get('municipio_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not municipio_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return municipio_eleitoral
-
-    def clean_titulo_eleitoral(self):
-        titulo_eleitoral = self.cleaned_data.get('titulo_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not titulo_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return titulo_eleitoral
-
-    def clean_zona_eleitoral(self):
-        zona_eleitoral = self.cleaned_data.get('zona_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not zona_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return zona_eleitoral
-
-    def clean_secao_eleitoral(self):
-        secao_eleitoral = self.cleaned_data.get('secao_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not secao_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return secao_eleitoral
 
     def clean_endereco_cep(self):
         endereco_cep = self.cleaned_data.get('endereco_cep')
@@ -254,7 +221,9 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroFiliadoForm, self).__init__(*args, **kwargs)
-        self.fields['nome_da_mae'].required = True
+        # Requireds
+        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
@@ -272,41 +241,6 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
         if fundador and not atividade_profissional:
             raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
         return atividade_profissional
-
-    def clean_uf_eleitoral(self):
-        uf_eleitoral = self.cleaned_data.get('uf_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not uf_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return uf_eleitoral
-
-    def clean_municipio_eleitoral(self):
-        municipio_eleitoral = self.cleaned_data.get('municipio_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not municipio_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return municipio_eleitoral
-
-    def clean_titulo_eleitoral(self):
-        titulo_eleitoral = self.cleaned_data.get('titulo_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not titulo_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return titulo_eleitoral
-
-    def clean_zona_eleitoral(self):
-        zona_eleitoral = self.cleaned_data.get('zona_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not zona_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return zona_eleitoral
-
-    def clean_secao_eleitoral(self):
-        secao_eleitoral = self.cleaned_data.get('secao_eleitoral')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not secao_eleitoral:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return secao_eleitoral
 
     def clean_endereco_cep(self):
         endereco_cep = self.cleaned_data.get('endereco_cep')

@@ -114,7 +114,7 @@
         </div>
         <div class="form-group{% if form.fundador.errors %} has-error has-feedback{% endif %} group-{{ form.fundador.name }}">
             {{ form.fundador|btform }}
-            <label class="control-label label-{{ form.fundador.name }}" for="id_{{ form.fundador.name }}">{{ form.fundador.label }}{% if form.fundador.field.required %}*{% endif %}</label>
+            <label class="control-label label-{{ form.fundador.name }}" style="font-size: 18px;color: #2f7a35;" for="id_{{ form.fundador.name }}">{{ form.fundador.label }}{% if form.fundador.field.required %}*{% endif %}</label>
             {% if form.fundador.errors %}
             <ul class="list-unstyled">
             {% for error in form.fundador.errors %}

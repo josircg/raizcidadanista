@@ -224,7 +224,7 @@ class AtualizarCadastroLinkForm(forms.Form):
         except Membro.DoesNotExist:
             membro = Membro.objects.get(cpf=self.cleaned_data['cpf'])
         sendmail(
-            subject=u'Atualização de Cadastro do Raíz.',
+            subject=u'Atualização de Cadastro.',
             to=[membro.email, ],
             template=template_email_name,
             params={

@@ -128,38 +128,40 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <h3>Dados de Endereço</h3>
-        <div class="form-group{% if form.endereco_cep.errors %} has-error has-feedback{% endif %} group-{{ form.endereco_cep.name }}">
-            <label class="control-label label-{{ form.endereco_cep.name }}" for="id_{{ form.endereco_cep.name }}">{{ form.endereco_cep.label }}{% if form.endereco_cep.field.required %}*{% endif %}</label>
-            {{ form.endereco_cep|btform }}
-            {% if form.endereco_cep.errors %}
-            <ul class="list-unstyled">
-            {% for error in form.endereco_cep.errors %}
-              <li class="text-error"><small>{{ error }}</small></li>
-            {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-        <div class="form-group{% if form.uf.errors %} has-error has-feedback{% endif %} group-{{ form.uf.name }}">
-            <label class="control-label label-{{ form.uf.name }}" for="id_{{ form.uf.name }}">{{ form.uf.label }}{% if form.uf.field.required %}*{% endif %}</label>
-            {{ form.uf|btform }}
-            {% if form.uf.errors %}
-            <ul class="list-unstyled">
-            {% for error in form.uf.errors %}
-              <li class="text-error"><small>{{ error }}</small></li>
-            {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-        <div class="form-group{% if form.municipio.errors %} has-error has-feedback{% endif %} group-{{ form.municipio.name }}">
-            <label class="control-label label-{{ form.municipio.name }}" for="id_{{ form.municipio.name }}">{{ form.municipio.label }}{% if form.municipio.field.required %}*{% endif %}</label>
-            {{ form.municipio|btform }}
-            {% if form.municipio.errors %}
-            <ul class="list-unstyled">
-            {% for error in form.municipio.errors %}
-              <li class="text-error"><small>{{ error }}</small></li>
-            {% endfor %}
-            </ul>
-            {% endif %}
+        <div class="form-inline">
+            <div class="form-group{% if form.endereco_cep.errors %} has-error has-feedback{% endif %} group-{{ form.endereco_cep.name }}">
+                <label class="control-label label-{{ form.endereco_cep.name }}" for="id_{{ form.endereco_cep.name }}">{{ form.endereco_cep.label }}{% if form.endereco_cep.field.required %}*{% endif %}</label>
+                {{ form.endereco_cep|btform }}
+                {% if form.endereco_cep.errors %}
+                <ul class="list-unstyled">
+                {% for error in form.endereco_cep.errors %}
+                  <li class="text-error"><small>{{ error }}</small></li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="form-group{% if form.uf.errors %} has-error has-feedback{% endif %} group-{{ form.uf.name }}">
+                <label class="control-label label-{{ form.uf.name }}" for="id_{{ form.uf.name }}">{{ form.uf.label }}{% if form.uf.field.required %}*{% endif %}</label>
+                {{ form.uf|btform }}
+                {% if form.uf.errors %}
+                <ul class="list-unstyled">
+                {% for error in form.uf.errors %}
+                  <li class="text-error"><small>{{ error }}</small></li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="form-group{% if form.municipio.errors %} has-error has-feedback{% endif %} group-{{ form.municipio.name }}">
+                <label class="control-label label-{{ form.municipio.name }}" for="id_{{ form.municipio.name }}">{{ form.municipio.label }}{% if form.municipio.field.required %}*{% endif %}</label>
+                {{ form.municipio|btform }}
+                {% if form.municipio.errors %}
+                <ul class="list-unstyled">
+                {% for error in form.municipio.errors %}
+                  <li class="text-error"><small>{{ error }}</small></li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
         </div>
         <div class="form-inline">
             <div class="form-group{% if form.endereco.errors %} has-error has-feedback{% endif %} group-{{ form.endereco.name }}">

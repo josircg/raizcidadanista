@@ -140,7 +140,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'filiado', 'status_email',)
+    list_filter = ('uf', 'filiado', 'status_email', 'fundador', )
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
@@ -148,7 +148,7 @@ class MembroAdmin(PowerModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ['nome', 'email', 'uf', 'municipio', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
         }),
         (None, {
             'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
@@ -157,7 +157,7 @@ class MembroAdmin(PowerModelAdmin):
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
         }),
         (u'Endereço', {
-            'fields': ['endereco', 'endereco_num', 'endereco_complemento', ]
+            'fields': [('endereco_cep', 'uf', 'municipio', ), 'endereco', 'endereco_num', 'endereco_complemento', ]
         }),
         (u'Contribuição', {
             'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
@@ -461,13 +461,13 @@ admin.site.register(Membro, MembroAdmin)
 
 class FiliadoAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
-    list_filter = ('uf', 'contrib_tipo', )
+    list_filter = ('uf', 'contrib_tipo', 'fundador', )
     search_fields = ('nome', 'email',)
     inlines = (CirculoMembroMembroInline, )
 
     fieldsets = (
         (None, {
-            'fields': ['nome', 'email', 'uf', 'municipio', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
         }),
         (None, {
             'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
@@ -476,7 +476,7 @@ class FiliadoAdmin(PowerModelAdmin):
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
         }),
         (u'Endereço', {
-            'fields': ['endereco', 'endereco_num', 'endereco_complemento', ]
+            'fields': [('endereco_cep', 'uf', 'municipio', ), 'endereco', 'endereco_num', 'endereco_complemento', ]
         }),
         (u'Contribuição', {
             'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]

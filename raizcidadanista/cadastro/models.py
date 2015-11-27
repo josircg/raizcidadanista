@@ -124,7 +124,7 @@ class Membro(Pessoa):
     endereco_cep = models.CharField(u'CEP', max_length=9, blank=True, null=True)
     endereco = models.CharField(u'Endereço', max_length=100, blank=True, null=True)
     endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
-    endereco_complemento = models.CharField(u'Completo', max_length=20, blank=True, null=True)
+    endereco_complemento = models.CharField(u'Complemento', max_length=20, blank=True, null=True)
     fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
 
     def vr_apagar(self, data):

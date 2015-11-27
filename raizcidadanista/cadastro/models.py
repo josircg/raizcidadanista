@@ -46,7 +46,7 @@ class Pessoa(models.Model):
 
     nome = models.CharField(u'Nome Completo',max_length=150)
     email = models.EmailField(u'Email')
-    uf = models.ForeignKey(UF)
+    uf = models.ForeignKey(UF, verbose_name='UF')
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
@@ -118,9 +118,11 @@ class Membro(Pessoa):
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
     contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)
     estadocivil = models.CharField(u'Estado civil', max_length=1, choices=ESTADO_CIVIL, blank=True, null=True)
+    endereco_cep = models.CharField(u'CEP', max_length=9, blank=True, null=True)
     endereco = models.CharField(u'Endereço', max_length=100, blank=True, null=True)
     endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
     endereco_complemento = models.CharField(u'Completo', max_length=20, blank=True, null=True)
+    fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):

@@ -134,6 +134,14 @@ class Membro(Pessoa):
             return Decimal(0.0)
         return self.contrib_valor
 
+    def get_estadocivil_genero_display(self):
+        if self.sexo == 'F':
+            return self.get_estadocivil_display().replace('a(o)', 'a')
+        elif self.sexo == 'M':
+            return self.get_estadocivil_display().replace('a(o)', 'o')
+        else:
+            return self.get_estadocivil_display()
+
     def get_absolute_update_url(self):
         def create_token(membro):
             key_salt = "cadastro.forms.AtualizarCadastroLinkForm"

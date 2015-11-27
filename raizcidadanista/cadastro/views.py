@@ -150,12 +150,12 @@ class AtualizarCadastroView(FormView):
         return instance
 
     def get_template_names(self):
-        if self.instance.filiado:
+        if self.instance.filiado or self.request.GET.get('filiado'):
             return [self.template_name_filiado]
         return [self.template_name_membro]
 
     def get_form_class(self):
-        if self.instance.filiado:
+        if self.instance.filiado or self.request.GET.get('filiado'):
             return self.form_class_filiado
         return self.form_class_membro
 
@@ -191,7 +191,15 @@ class AtualizarCadastroView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        form.save()
+        instance = form.save()
+        LogEntry.objects.log_action(
+            user_id = User.objects.get_or_create(username="sys")[0].pk,
+            content_type_id = ContentType.objects.get_for_model(instance).pk,
+            object_id = instance.pk,
+            object_repr = u'%s' % instance,
+            action_flag = CHANGE,
+            change_message = u'Formulário de atualização de cadastro foi preenchido.'
+        )
         messages.info(self.request, u"Cadastro atualizado com sucesso!")
         return self.response_class(
             request=self.request,

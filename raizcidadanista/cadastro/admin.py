@@ -123,7 +123,11 @@ class PessoaAdmin(PowerModelAdmin):
 
     def get_buttons(self, request, object_id):
         buttons = super(PessoaAdmin, self).get_buttons(request, object_id)
-        if not object_id:
+        obj = self.get_object(request, object_id)
+        if obj:
+            if Membro.objects.filter(pessoa_ptr=obj).exists():
+                buttons.append(PowerButton(url=reverse('admin:cadastro_membro_change', args=(obj.membro.pk, )), label=u'Colaborador'))
+        else:
             buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
         return buttons
 admin.site.register(Pessoa, PessoaAdmin)
@@ -136,11 +140,29 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'filiado', 'status_email',)
+    list_filter = ('uf', 'filiado', 'status_email', 'fundador', )
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', )
+
+    fieldsets = (
+        (None, {
+            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+        }),
+        (None, {
+            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
+        }),
+        (u'Dados eleitorais', {
+            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
+        }),
+        (u'Endereço', {
+            'fields': [('endereco_cep', 'uf', 'municipio', ), 'endereco', 'endereco_num', 'endereco_complemento', ]
+        }),
+        (u'Contribuição', {
+            'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
+        }),
+    )
 
     def aprovacao(self, request, queryset):
         contador = 0
@@ -330,7 +352,7 @@ class MembroAdmin(PowerModelAdmin):
                         membro.save()
 
                     # Visitantes
-                    if len(record) == 8:
+                    if len(record) == 7:
                         lidos += 1
                         try:
                             uf = UF.objects.get(uf=_get_data(record, 'uf'))
@@ -420,11 +442,30 @@ class MembroAdmin(PowerModelAdmin):
         return buttons
 admin.site.register(Membro, MembroAdmin)
 
+
 class FiliadoAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
-    list_filter = ('uf', 'contrib_tipo', )
+    list_filter = ('uf', 'contrib_tipo', 'fundador', )
     search_fields = ('nome', 'email',)
     inlines = (CirculoMembroMembroInline, )
+
+    fieldsets = (
+        (None, {
+            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', ]
+        }),
+        (None, {
+            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
+        }),
+        (u'Dados eleitorais', {
+            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
+        }),
+        (u'Endereço', {
+            'fields': [('endereco_cep', 'uf', 'municipio', ), 'endereco', 'endereco_num', 'endereco_complemento', ]
+        }),
+        (u'Contribuição', {
+            'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
+        }),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -436,6 +477,7 @@ class FiliadoAdmin(PowerModelAdmin):
         return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
 
 admin.site.register(Filiado, FiliadoAdmin)
+
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro

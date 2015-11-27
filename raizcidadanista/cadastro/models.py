@@ -11,6 +11,9 @@ from django.conf import settings
 from django.db.models import signals, F
 from django.dispatch import receiver
 
+from django.utils.http import int_to_base36
+from django.utils.crypto import salted_hmac
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Template
@@ -46,7 +49,7 @@ class Pessoa(models.Model):
 
     nome = models.CharField(u'Nome Completo',max_length=150)
     email = models.EmailField(u'Email')
-    uf = models.ForeignKey(UF)
+    uf = models.ForeignKey(UF, verbose_name='UF')
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
     celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
@@ -86,6 +89,14 @@ class Membro(Pessoa):
         ('N', u'Não definida'),
     )
 
+    ESTADO_CIVIL = (
+        ('S', u'Solteira(o)'),
+        ('C', u'Casada(o)'),
+        ('E', u'Separada(o)'),
+        ('D', u'Divorciada(o)'),
+        ('V', u'Viúva(o)'),
+    )
+
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
@@ -109,6 +120,12 @@ class Membro(Pessoa):
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
     contrib_prox_pgto = models.DateField(u'Próximo Pagamento', blank=True, null=True)
+    estadocivil = models.CharField(u'Estado civil', max_length=1, choices=ESTADO_CIVIL, blank=True, null=True)
+    endereco_cep = models.CharField(u'CEP', max_length=9, blank=True, null=True)
+    endereco = models.CharField(u'Endereço', max_length=100, blank=True, null=True)
+    endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
+    endereco_complemento = models.CharField(u'Complemento', max_length=20, blank=True, null=True)
+    fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):
@@ -116,6 +133,18 @@ class Membro(Pessoa):
         elif self.contrib_prox_pgto and self.contrib_prox_pgto > data:
             return Decimal(0.0)
         return self.contrib_valor
+
+    def get_absolute_update_url(self):
+        def create_token(membro):
+            key_salt = "cadastro.forms.AtualizarCadastroLinkForm"
+            value = u'%s%s' % (membro.pk, membro.email)
+            return salted_hmac(key_salt, value).hexdigest()[::2]
+
+        return reverse('atualizar_cadastro', kwargs={
+            'uidb36': int_to_base36(self.pk),
+            'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
+            'token': create_token(self),
+        })
 
     def save(self, *args, **kwargs):
         super(Membro, self).save(*args, **kwargs)
@@ -140,7 +169,6 @@ class Membro(Pessoa):
             if self.usuario.email != self.email:
                 self.usuario.email = self.email
                 self.usuario.save()
-
 
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):

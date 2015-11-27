@@ -48,7 +48,7 @@ class PessoaAdmin(PowerModelAdmin):
             if rec.status_email == 'N':
                 contador += 1
                 sendmail(
-                    subject=u'Raiz Movimento Cidadanista - Validação de email',
+                    subject=u'RAiZ Movimento Cidadanista - Validação de email',
                     to=[rec.email, ],
                     template='emails/validar-email.html',
                     params={
@@ -150,7 +150,7 @@ class MembroAdmin(PowerModelAdmin):
                 rec.aprovador = request.user
                 rec.save()
                 sendmail(
-                    subject=u'Seja bem-vindo à Raiz Movimento Cidadanista',
+                    subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
                     to=[rec.email, ],
                     template='emails/bemvindo-colaborador.html',
                     params={

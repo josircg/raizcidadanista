@@ -144,7 +144,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral')
 
     fieldsets = (
         (None, {
@@ -214,6 +214,22 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
+
+    def atualizacao_cadastral(self, request, queryset):
+        campanhas = Campanha.objects.filter(assunto__icontains=u'[!]').order_by('pk')
+        if not campanhas.exists():
+            messages.warning(request, u'Nenhuma campanha cadastrada para Atualização Cadastral.')
+            return
+        for membro in queryset:
+            sendmail(
+                subject=campanhas[0].assunto,
+                to=[membro.email, ],
+                template=campanhas[0].template,
+                params={
+                    'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
+                },
+            )
+    atualizacao_cadastral.short_description = u'Atualização Cadastral'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

@@ -34,30 +34,33 @@ def sendmail(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={
         try:
             template_content = get_template(template)
         except:
-            email.html = u'Erro ao criar HTML.'
-            email.status = 'E'
-            email.save()
-
             try:
-                #Enviar email para os administradores.
-                error_message = """
-                    Erro ao criar HTML para email.<br>
-                    <b>DADOS</b><br>
-                    <b>to:</b> %s<br>
-                    <b>template:</b> %s<br>
-                    <b>params:</b> %s<br>
-                    <b>e-mail:</b>%s%s<br>
-                """ % (to, template, params, settings.SITE_URL, reverse('admin:cms_emailagendado_change', args=(email.pk, )) )
-                msg = EmailMultiAlternatives(
-                    u'Erro ao criar HTML para email.',
-                    error_message,
-                    from_email,
-                    bcc=[admin[1] for admin in settings.ADMINS]
-                )
-                msg.attach_alternative(error_message, mimetype)
-                msg.send()
-            except: pass
-            return
+                template_content = Template(template)
+            except:
+                email.html = u'Erro ao criar HTML.'
+                email.status = 'E'
+                email.save()
+
+                try:
+                    #Enviar email para os administradores.
+                    error_message = """
+                        Erro ao criar HTML para email.<br>
+                        <b>DADOS</b><br>
+                        <b>to:</b> %s<br>
+                        <b>template:</b> %s<br>
+                        <b>params:</b> %s<br>
+                        <b>e-mail:</b>%s%s<br>
+                    """ % (to, template, params, settings.SITE_URL, reverse('admin:cms_emailagendado_change', args=(email.pk, )) )
+                    msg = EmailMultiAlternatives(
+                        u'Erro ao criar HTML para email.',
+                        error_message,
+                        from_email,
+                        bcc=[admin[1] for admin in settings.ADMINS]
+                    )
+                    msg.attach_alternative(error_message, mimetype)
+                    msg.send()
+                except: pass
+                return
 
         html_content = template_content.render(Context(params))
         email.html = html_content

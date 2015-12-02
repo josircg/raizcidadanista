@@ -80,7 +80,7 @@ class FiliadoForm(forms.ModelForm):
         fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
             'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil',
-            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
+            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', 'uf_naturalidade', 'municipio_naturalidade', )
 
     cpf = BRCPFField(
         label='CPF',
@@ -207,7 +207,7 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
         fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
             'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil',
-            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
+            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', 'uf_naturalidade', 'municipio_naturalidade', )
 
     cpf = BRCPFField(
         label='CPF',

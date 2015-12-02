@@ -126,6 +126,8 @@ class Membro(Pessoa):
     endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
     endereco_complemento = models.CharField(u'Complemento', max_length=20, blank=True, null=True)
     fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
+    uf_naturalidade = models.ForeignKey(UF, verbose_name='UF (Naturalidade)', related_name='uf_naturalidade', null=True, blank=True)
+    municipio_naturalidade = models.CharField(u'Município (Naturalidade)', max_length=150, blank=True, null=True)
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):

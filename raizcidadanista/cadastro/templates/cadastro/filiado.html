@@ -40,9 +40,9 @@
     @media (min-width: 992px){
         #id_nome_da_mae, #id_endereco {width: 500px;}
     }
-    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral,  #id_uf_eleitoral, #id_cpf, #id_contrib_valor, #id_endereco_cep {max-width: 165px;}
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral, #id_uf_eleitoral, #id_cpf, #id_contrib_valor, #id_endereco_cep, #id_uf_naturalidade {max-width: 165px;}
     #id_zona_eleitoral, #id_secao_eleitoral, #id_endereco_num {max-width: 80px;}
-    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo, #id_estadocivil {max-width: 300px;}
+    #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo, #id_estadocivil, #id_municipio_naturalidade {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
     }
@@ -69,6 +69,9 @@
         $('#id_municipio_eleitoral').remove();
         $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
 
+        $('#id_municipio_naturalidade').remove();
+        $('.group-municipio_naturalidade').append('<select name="municipio_naturalidade" class="form-control" id="id_municipio_naturalidade"></select>');
+
         function get_municipios(id_uf, id_municipios){
             $(id_municipios).html('');
             uf = parseInt($(id_uf).val());
@@ -90,6 +93,11 @@
         get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
         $("#id_uf_eleitoral").change(function(){
             get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+        });
+
+        get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
+        $("#id_uf_naturalidade").change(function(){
+            get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
         });
 
         $("#id_email").change(function(){

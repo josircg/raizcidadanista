@@ -198,6 +198,30 @@
             </ul>
             {% endif %}
         </div>
+        <div class="form-inline">
+            <div class="form-group{% if form.uf_naturalidade.errors %} has-error has-feedback{% endif %} group-{{ form.uf_naturalidade.name }}">
+                <label class="control-label label-{{ form.uf_naturalidade.name }}" for="id_{{ form.uf_naturalidade.name }}">{{ form.uf_naturalidade.label }}{% if form.uf_naturalidade.field.required %}*{% endif %}</label>
+                {{ form.uf_naturalidade|btform }}
+                {% if form.uf_naturalidade.errors %}
+                <ul class="list-unstyled">
+                {% for error in form.uf_naturalidade.errors %}
+                  <li class="text-error"><small>{{ error }}</small></li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="form-group{% if form.municipio_naturalidade.errors %} has-error has-feedback{% endif %} group-{{ form.municipio_naturalidade.name }}">
+                <label class="control-label label-{{ form.municipio_naturalidade.name }}" for="id_{{ form.municipio_naturalidade.name }}">{{ form.municipio_naturalidade.label }}{% if form.municipio_naturalidade.field.required %}*{% endif %}</label>
+                {{ form.municipio_naturalidade|btform }}
+                {% if form.municipio_naturalidade.errors %}
+                <ul class="list-unstyled">
+                {% for error in form.municipio_naturalidade.errors %}
+                  <li class="text-error"><small>{{ error }}</small></li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 <div class="panel panel-default">

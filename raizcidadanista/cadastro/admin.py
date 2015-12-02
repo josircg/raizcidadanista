@@ -142,7 +142,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(PowerModelAdmin):
     list_filter = ('uf', 'filiado', 'status_email', 'fundador', )
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', )
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', 'uf', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'listagem_telefonica', )
 

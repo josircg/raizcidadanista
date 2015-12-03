@@ -20,16 +20,16 @@
     </head>
     <body>
     {% for estado, membros in results.items %}
-        <h1>FUNDADORES DA RAIZ<br>MOVIMENTO CIDADANISTA DO {{ estado|upper }}</h1><br><br>
+        <h1>FUNDADORES DA RAIZ<br>MOVIMENTO CIDADANISTA {{ estado|upper }}</h1><br><br>
         {% for membro in membros %}
             <b>__________________________________________________________________</b><br>
             <b>{{ membro.nome }}</b><br>
             brasileir{% if membro.sexo == 'F' %}a{% else %}{% if membro.sexo == 'M' %}o{% else %}o(a){% endif %}{% endif %}{% if membro.estadocivil %}, {{ membro.get_estadocivil_genero_display }}{% endif %}{% if membro.atividade_profissional %}, {{ membro.atividade_profissional }}{% endif %}{% if membro.cpf %}, CPF sob o n. {{ membro.cpf }}{% endif %}<br>
-            {% if membro.titulo_eleitoral %}TE n. {{ membro.titulo_eleitoral }}{% endif %}{% if membro.zona_eleitoral %}, zona {{ membro.zona_eleitoral }}{% endif %}{% if membro.secao_eleitoral %}, seção {{ membro.secao_eleitoral }}{% endif %}<br>
+            {% if membro.titulo_eleitoral %}TE n. {{ membro.titulo_eleitoral }}{% endif %}{% if membro.zona_eleitoral %}, zona {{ membro.zona_eleitoral }}{% endif %}{% if membro.secao_eleitoral %}, seção {{ membro.secao_eleitoral }}{% endif %}, {{ membro.naturalidade }}<br>
             {% if membro.endereco %}{{ membro.endereco }}{% endif %}{% if membro.endereco_num %}, {{ membro.endereco_num }}{% endif %}{% if membro.municipio %}, {{ membro.municipio }}{% endif %}{% if membro.uf %}, {{ membro.uf.uf }}{% endif %}{% if membro.endereco_cep %}, CEP {{ membro.endereco_cep }}{% endif %}<br>
 
             <br><br>
-            {% if forloop.counter|divisibleby:"7" %}
+            {% if forloop.counter|divisibleby:"6" %}
             <h1>FUNDADORES DA RAIZ<br>MOVIMENTO CIDADANISTA DO {{ estado|upper }}</h1><br><br>
             {% endif %}
         {% endfor %}

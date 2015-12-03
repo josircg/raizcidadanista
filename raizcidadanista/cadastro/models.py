@@ -52,8 +52,8 @@ class Pessoa(models.Model):
     uf = models.ForeignKey(UF, verbose_name='UF')
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
-    celular = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
-    residencial = models.CharField(max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
+    celular = models.CharField(u'Tel.Celular', max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
+    residencial = models.CharField(u'Tel.Residencial', max_length=14, blank=True, null=True, help_text=u'Ex.: (XX)XXXXX-XXXX')
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
@@ -125,9 +125,10 @@ class Membro(Pessoa):
     endereco = models.CharField(u'Endereço', max_length=100, blank=True, null=True)
     endereco_num = models.CharField(u'Nº', max_length=10, blank=True, null=True)
     endereco_complemento = models.CharField(u'Complemento', max_length=20, blank=True, null=True)
+    uf_naturalidade = models.ForeignKey(UF, verbose_name='Naturalidade: UF', related_name='uf_naturalidade', null=True, blank=True)
+    municipio_naturalidade = models.CharField(u'Naturalidade: Município', max_length=150, blank=True, null=True)
     fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
-    uf_naturalidade = models.ForeignKey(UF, verbose_name='UF (Naturalidade)', related_name='uf_naturalidade', null=True, blank=True)
-    municipio_naturalidade = models.CharField(u'Município (Naturalidade)', max_length=150, blank=True, null=True)
+    assinado = models.BooleanField(u'Requerimento assinado', default=False)
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):
@@ -143,6 +144,12 @@ class Membro(Pessoa):
             return self.get_estadocivil_display().replace('a(o)', 'o')
         else:
             return self.get_estadocivil_display()
+
+    def naturalidade(self):
+        if self.uf_naturalidade:
+            return 'natural de %s/%s' % (self.municipio_naturalidade, self.uf_naturalidade.uf)
+        else:
+            return 'natural de %s/%s' % (self.municipio, self.uf.uf)
 
     def get_absolute_update_url(self):
         def create_token(membro):

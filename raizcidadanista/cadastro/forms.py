@@ -68,7 +68,7 @@ class MembroForm(forms.ModelForm):
                     object_id = pessoa.pk,
                     object_repr = u"%s" % pessoa,
                     action_flag = CHANGE,
-                    change_message = u'Nome alterado de %s para %s pelo cadastro de Membro.' % (pessoa.nome, self.instance.nome)
+                    change_message = u'Nome alterado de %s para %s pelo formulário' % (pessoa.nome, self.instance.nome)
                 )
 
         return super(MembroForm, self).save(commit)
@@ -79,8 +79,8 @@ class FiliadoForm(forms.ModelForm):
         model = Membro
         fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
-            'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil',
-            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', 'uf_naturalidade', 'municipio_naturalidade', )
+            'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil', 'uf_naturalidade', 'municipio_naturalidade',
+            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
 
     cpf = BRCPFField(
         label='CPF',
@@ -108,47 +108,50 @@ class FiliadoForm(forms.ModelForm):
             raise forms.ValidationError(u'Já existe um cadastro com esse email.')
         return email
 
-    def clean_estadocivil(self):
-        estadocivil = self.cleaned_data.get('estadocivil')
+    def testa_fundador(self, campo):
         fundador = self.cleaned_data.get('fundador')
-        if fundador and not estadocivil:
+        if fundador and not campo:
             raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return estadocivil
+
+    def clean_estadocivil(self):
+        campo = self.cleaned_data.get('estadocivil')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_atividade_profissional(self):
-        atividade_profissional = self.cleaned_data.get('atividade_profissional')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not atividade_profissional:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return atividade_profissional
+        campo = self.cleaned_data.get('atividade_profissional')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco_cep(self):
-        endereco_cep = self.cleaned_data.get('endereco_cep')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco_cep:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco_cep
+        campo = self.cleaned_data.get('endereco_cep')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco(self):
-        endereco = self.cleaned_data.get('endereco')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco
+        campo = self.cleaned_data.get('endereco')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco_num(self):
-        endereco_num = self.cleaned_data.get('endereco_num')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco_num:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco_num
+        campo = self.cleaned_data.get('endereco_num')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_municipio(self):
-        municipio = self.cleaned_data.get('municipio')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not municipio:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return municipio
+        campo = self.cleaned_data.get('municipio')
+        self.testa_fundador(campo)
+        return campo
+
+    def clean_uf_naturalidade(self):
+        campo = self.cleaned_data.get('uf_naturalidade')
+        self.testa_fundador(campo)
+        return campo
+
+    def clean_municipio_naturalidade(self):
+        campo = self.cleaned_data.get('municipio_naturalidade')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
@@ -206,8 +209,8 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
         model = Membro
         fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
-            'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil',
-            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', 'uf_naturalidade', 'municipio_naturalidade', )
+            'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil', 'uf_naturalidade', 'municipio_naturalidade',
+            'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
 
     cpf = BRCPFField(
         label='CPF',
@@ -228,47 +231,50 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
 
-    def clean_estadocivil(self):
-        estadocivil = self.cleaned_data.get('estadocivil')
+    def testa_fundador(self, campo):
         fundador = self.cleaned_data.get('fundador')
-        if fundador and not estadocivil:
+        if fundador and not campo:
             raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return estadocivil
+
+    def clean_estadocivil(self):
+        campo = self.cleaned_data.get('estadocivil')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_atividade_profissional(self):
-        atividade_profissional = self.cleaned_data.get('atividade_profissional')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not atividade_profissional:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return atividade_profissional
+        campo = self.cleaned_data.get('atividade_profissional')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco_cep(self):
-        endereco_cep = self.cleaned_data.get('endereco_cep')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco_cep:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco_cep
+        campo = self.cleaned_data.get('endereco_cep')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco(self):
-        endereco = self.cleaned_data.get('endereco')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco
+        campo = self.cleaned_data.get('endereco')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_endereco_num(self):
-        endereco_num = self.cleaned_data.get('endereco_num')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not endereco_num:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return endereco_num
+        campo = self.cleaned_data.get('endereco_num')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_municipio(self):
-        municipio = self.cleaned_data.get('municipio')
-        fundador = self.cleaned_data.get('fundador')
-        if fundador and not municipio:
-            raise forms.ValidationError(u'Este campo é obrigatório se você marcou "Quero assinar a ata de fundação da RAiZ".')
-        return municipio
+        campo = self.cleaned_data.get('municipio')
+        self.testa_fundador(campo)
+        return campo
+
+    def clean_uf_naturalidade(self):
+        campo = self.cleaned_data.get('uf_naturalidade')
+        self.testa_fundador(campo)
+        return campo
+
+    def clean_municipio_naturalidade(self):
+        campo = self.cleaned_data.get('municipio_naturalidade')
+        self.testa_fundador(campo)
+        return campo
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

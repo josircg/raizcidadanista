@@ -140,24 +140,24 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_filter = ('uf', 'filiado', 'status_email', 'fundador', )
+    list_filter = ('uf', 'filiado', 'status_email', 'fundador', 'assinado')
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'aprovador', 'uf', )
+    list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'listagem_telefonica', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
-            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', 'uf_naturalidade', 'municipio_naturalidade', ]
+            'fields': ['nome', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]
         }),
-        (None, {
-            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
+        ('Situação Cadastral', {
+            'fields': [ ('status_email', 'usuario', 'aprovador'), ('filiado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
         }),
         (u'Dados eleitorais', {
-            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
+            'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', ('titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral'), 'filiacao_partidaria', ]
         }),
         (u'Endereço', {
-            'fields': [('endereco_cep', 'uf', 'municipio', ), 'endereco', 'endereco_num', 'endereco_complemento', ]
+            'fields': [('endereco_cep', 'uf', 'municipio'), ('endereco', 'endereco_num', 'endereco_complemento'), ]
         }),
         (u'Contribuição', {
             'fields': ['contrib_tipo', 'contrib_valor', 'contrib_prox_pgto', ]
@@ -262,6 +262,16 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     listagem_telefonica.short_description = u'Listagem Telefônica'
+
+    def assinatura(self, request, queryset):
+        contador = 0
+        for rec in queryset:
+            if rec.fundador:
+                rec.assinatura = True
+                rec.save()
+                contador += 1
+        self.message_user(request, 'Total de Assinaturas marcadas: %d' % contador)
+    assinatura.short_description = u'Assinatura realizada'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

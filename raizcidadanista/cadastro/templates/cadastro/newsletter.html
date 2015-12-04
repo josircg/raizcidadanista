@@ -67,6 +67,7 @@
             if(uf){
                 url = "/chaining/filter/municipios/municipio/uf/"+uf+"/";
                 $.getJSON(url, function(data){
+                    $(id_municipios).append('<option value="">--------</option>');
                     $.each(data, function(key, val ) {
                         $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
                     });

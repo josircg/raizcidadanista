@@ -69,3 +69,4 @@ raizcidadanista/settings/dev.py
 raizcidadanista/settings/test.py
 manage.py
 fabfile.py
+backup.sh

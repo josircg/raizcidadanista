@@ -37,7 +37,7 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 
 class PessoaAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'status_email', 'dtcadastro', )
+    list_display = ('nome', 'email', 'status_email', 'uf', 'municipio', 'dtcadastro',)
     search_fields = ('nome', 'email',)
     list_filter = ('uf', 'dtcadastro')
     actions = ('validar_email', )
@@ -142,7 +142,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 class MembroAdmin(PowerModelAdmin):
     list_filter = ('uf', 'filiado', 'status_email', 'fundador', 'assinado')
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', )
+    list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'listagem_telefonica', 'assinatura', )
 

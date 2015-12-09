@@ -145,11 +145,25 @@ class Membro(Pessoa):
         else:
             return self.get_estadocivil_display()
 
+    def nacionalidade(self):
+        if self.uf_naturalidade:
+            if self.sexo == 'M':
+                return 'brasileiro,'
+            elif self.sexo == 'F':
+                return 'brasileira,'
+            else:
+                return 'brasileira(o),'
+        else:
+            return ''
+
     def naturalidade(self):
         if self.uf_naturalidade:
             return 'natural de %s/%s' % (self.municipio_naturalidade, self.uf_naturalidade.uf)
         else:
-            return 'natural de %s/%s' % (self.municipio, self.uf.uf)
+            if self.municipio_naturalidade:
+                return 'natural de %s' % (self.municipio_naturalidade)
+            else:
+                return 'natural de %s/%s' % (self.municipio, self.uf.uf)
 
     def get_absolute_update_url(self):
         def create_token(membro):

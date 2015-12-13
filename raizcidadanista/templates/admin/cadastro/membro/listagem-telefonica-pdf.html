@@ -58,19 +58,17 @@
         <div id="head">
             <table width="100%" class="border-bottom">
                 <tr>
-                    <td width="75%" class="title title-head center">Membros</td>
-                    <td width="25%" class="center">
-                        <h1>Raiz Cidadanista</h1>
-                    </td>
+                    <td width="100%" class="title title-head center">Membros - Raiz Cidadanista</td>
                 </tr>
             </table>
             <table width"100%" class="border-bottom">
                 <thead>
                     <tr>
-                        <td width="45%" class="title title-head center">Nome</td>
-                        <td width="15%" class="title title-head center">Telefone</td>
-                        <td width="15%" class="title title-head center">Celular</td>
-                        <td width="25%" class="title title-head center">Cidade</td>
+                        <td width="25%" class="title title-head center">Nome</td>
+                        <td width="27%" class="title title-head center">Email</td>
+                        <td width="14%" class="title title-head center">Telefone</td>
+                        <td width="14%" class="title title-head center">Celular</td>
+                        <td width="20%" class="title title-head center">Municipio Eleit.</td>
                     </tr>
                 </thead>
             </table>
@@ -80,10 +78,11 @@
                 <tbody>
                     {% for membro in results %}
                     <tr class="{% cycle 'row0' 'row1' %}">
-                        <td width="45%"><p>{{ membro.nome }}</p></td>
-                        <td width="15%"><p>{{ membro.celular }}</p></td>
-                        <td width="15%"><p>{{ membro.residencial }}</p></td>
-                        <td width="25%"><p>{{ membro.municipio }}</p></td>
+                        <td width="25%"><p>{{ membro.nome }}</p></td>
+                        <td width="27%"><p>{{ membro.email }}</p></td>
+                        <td width="14%"><p>{{ membro.celular }}</p></td>
+                        <td width="14%"><p>{{ membro.residencial }}</p></td>
+                        <td width="20%"><p>{{ membro.municipio_eleitoral }}</p></td>
                     </tr>
                     {% endfor %}
                 </tbody>

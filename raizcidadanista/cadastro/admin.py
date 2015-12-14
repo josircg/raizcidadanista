@@ -267,7 +267,7 @@ class MembroAdmin(PowerModelAdmin):
         contador = 0
         for rec in queryset:
             if rec.fundador:
-                rec.assinatura = True
+                rec.assinado = True
                 rec.save()
                 contador += 1
         self.message_user(request, 'Total de Assinaturas marcadas: %d' % contador)

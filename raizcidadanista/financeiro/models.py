@@ -4,8 +4,14 @@ from django.db import models
 from utils.fields import BRDecimalField
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+from django.db.models import signals
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+from cms.email import sendmail
 
 from cadastro.models import Membro
+
 
 CONTA_TIPO_CHOICES = (
     ('M', u'Movimento'),
@@ -49,4 +55,15 @@ class Receita(models.Model):
                 else:
                     self.colaborador.contrib_prox_pgto = None
                 self.colaborador.save()
-
+@receiver(signals.post_save, sender=Receita)
+def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created:
+        sendmail(
+            subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
+            to=[instance.colaborador.email, ],
+            bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
+            template='emails/pagamento-identificado.html',
+            params={
+                'receita': instance,
+            },
+        )

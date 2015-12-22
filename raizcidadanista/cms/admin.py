@@ -449,38 +449,3 @@ admin.site.unregister(Group)
 class GroupAdminCustom(PowerModelAdmin, GroupAdmin):
     form = CustomGroupForm
 admin.site.register(Group, GroupAdminCustom)
-
-
-### Nova tela do usuário ###
-admin.site.unregister(User)
-
-class UserAdminCustom(UserAdmin):
-    change_list_template = 'admin/change_list_multi_search.html'
-    change_form_template = 'admin/edit_form.html'
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff' )
-    list_filter = ('is_active', 'is_staff', 'groups',)
-    readonly_fields = ('last_login', 'date_joined',)
-    search_fields = ('username', 'first_name', 'last_name', 'email')
-    ordering = ('username',)
-    filter_horizontal = ('groups', 'user_permissions', )
-
-    fieldsets_user = (
-        (None, {'fields': ('username', 'password')}),
-        (u'Informações pessoais', {'fields': ('first_name', 'last_name', 'email', )}),
-        (u'Permissões', {'fields': ('is_active', 'is_staff', 'groups', )}),
-        (u'Datas importantes', {'fields': ('last_login', 'date_joined')}),
-    )
-    fieldsets_superuser = (
-        (None, {'fields': ('username', 'password')}),
-        (u'Informações pessoais', {'fields': ('first_name', 'last_name', 'email', )}),
-        (u'Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', )}),
-        (u'Datas importantes', {'fields': ('last_login', 'date_joined')}),
-    )
-
-    def get_fieldsets(self, request, obj=None):
-        if not obj:
-            return self.add_fieldsets
-        if request.user.is_superuser:
-            return self.fieldsets_superuser
-        return self.fieldsets_user
-admin.site.register(User, UserAdminCustom)

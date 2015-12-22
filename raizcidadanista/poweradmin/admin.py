@@ -19,6 +19,8 @@ from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 
+from actions import export_as_csv_action, delete_selected
+
 '''
  Features:
  - novo filtro multi_search
@@ -74,16 +76,22 @@ class PowerModelAdmin(admin.ModelAdmin):
 
         return super(PowerModelAdmin, self).__init__(model_class, *args, **kwargs)
 
+    def get_list_csv(self, request):
+        if getattr(self, 'list_csv', None):
+            return self.list_csv
+        return self.get_list_display(request)
+
     def get_actions(self, request):
         actions = super(PowerModelAdmin, self).get_actions(request)
+
+        # Exportação do csv
+        export_as_csv = export_as_csv_action(fields=self.get_list_csv(request))
+        actions['export_as_csv'] = (export_as_csv, 'export_as_csv', export_as_csv.short_description)
+
         if self.active_report:
             from report.actions import report_generic_detailed
-            actions['report_generic_detailed'] = (
-                report_generic_detailed,
-                'report_generic_detailed',
-                report_generic_detailed.short_description)
+            actions['report_generic_detailed'] = (report_generic_detailed, 'report_generic_detailed', report_generic_detailed.short_description)
         #Ajustes no log do action delete_selected
-        from poweradmin.actions import delete_selected
         actions['delete_selected'] = (delete_selected, 'delete_selected', delete_selected.short_description)
         return actions
 
@@ -98,7 +106,7 @@ class PowerModelAdmin(admin.ModelAdmin):
         fields = list(flatten_fieldsets(self.get_fieldsets(request, obj)))
         if set(fields) == set(readonly_fields).intersection(set(fields)):
             readonly = True
-        
+
         for inline in context['inline_admin_formsets']:
             if set(flatten_fieldsets(inline.fieldsets)) != set(inline.readonly_fields).intersection(set(flatten_fieldsets(inline.fieldsets))):
                 readonly = False

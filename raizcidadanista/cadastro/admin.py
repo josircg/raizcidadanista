@@ -233,8 +233,8 @@ class MembroAdmin(PowerModelAdmin):
 
     def requerimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/requerimento-pdf.html'):
         results = {}
-        for estado in set(queryset.values_list('uf__nome', flat=True)):
-            results[estado] = queryset.filter(uf__nome=estado)
+        for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True)):
+            results[estado] = queryset.filter(uf_eleitoral__nome=estado)
 
         template = get_template(template_name_pdf)
         context = RequestContext(request, {

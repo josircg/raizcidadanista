@@ -11,7 +11,7 @@ from xhtml2pdf.pisa import pisaDocument
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
-from models import Conta, Receita
+from models import Conta, Receita, MetaArrecadacao
 
 
 class ContaAdmin(PowerModelAdmin):
@@ -60,3 +60,14 @@ class ReceitaAdmin(PowerModelAdmin):
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     listagem_doadores.short_description = u'Listagem Doadores'
 admin.site.register(Receita, ReceitaAdmin)
+
+
+class MetaArrecadacaoAdmin(PowerModelAdmin):
+    list_display = ('descricao', 'data_inicial', 'data_limite', 'valor', )
+    list_filter = ( 'data_inicial', 'data_limite', )
+    search_fields = ['descricao', ]
+    fieldsets = [
+        (None, {'fields': ('descricao', )}),
+        (u'Datas e Valor', {'fields': ('data_inicial', 'data_limite', 'valor', )}),
+    ]
+admin.site.register(MetaArrecadacao, MetaArrecadacaoAdmin)

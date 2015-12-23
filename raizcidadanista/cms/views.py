@@ -15,6 +15,7 @@ from django.db.models import Q
 
 from municipios.models import UF
 from cadastro.models import Circulo, Membro
+from financeiro.models import MetaArrecadacao
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
@@ -62,6 +63,11 @@ class CirculosTematicos(TemplateView):
         context = super(CirculosTematicos, self).get_context_data(**kwargs)
         context['circulos'] = Circulo.objects.filter(tipo__in=('T', 'I'), oficial=True).order_by('titulo')
         return context
+
+
+class MetaView(DetailView):
+    model = MetaArrecadacao
+    template_name = 'meta.html'
 
 
 class ContatoView(FormView):

@@ -1,0 +1,33 @@
+<html>
+  <head>{% load l10n %}
+    <meta charset="UTF-8">
+    <title>Meta {{ object }}</title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      {% localize off %}
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Meta', 'Valor'],
+          ['Meta', {{ object.valor }}],
+          ['Acumulado', {{ object.acumulado }}],
+        ]);
+
+        var options = {
+          title: '{{ object }}',
+          legend: 'none',
+          pieHole: 0.5,
+          colors: ['#f0f0f0', '#94C11E', ]
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+        chart.draw(data, options);
+      }
+      {% endlocalize %}
+    </script>
+  </head>
+  <body>
+    <div id="donutchart" style="width: 100%; min-height: 500px"></div>
+  </body>
+</html>

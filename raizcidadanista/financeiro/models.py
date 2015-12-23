@@ -82,7 +82,7 @@ class MetaArrecadacao(models.Model):
     valor = BRDecimalField(u'Valor', max_digits=12, decimal_places=2)
 
     def acumulado(self):
-        return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0)
+        return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
 
     def get_absolute_url(self):
         return reverse('meta', kwargs={'pk': self.pk, })

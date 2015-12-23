@@ -84,6 +84,9 @@ class MetaArrecadacao(models.Model):
     def acumulado(self):
         return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
 
+    def falta(self):
+        return self.valor - self.acumulado()
+
     def get_absolute_url(self):
         return reverse('meta', kwargs={'pk': self.pk, })
 

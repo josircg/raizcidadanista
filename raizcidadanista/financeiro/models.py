@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models import Sum
 
 from utils.fields import BRDecimalField
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from django.db.models import signals
 from django.dispatch import receiver
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from cms.email import sendmail
@@ -38,7 +40,7 @@ class Receita(models.Model):
     conta = models.ForeignKey(Conta)
     colaborador = models.ForeignKey(Membro)
     dtaviso = models.DateField(u'Dt. Informada')
-    valor  = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
+    valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
     dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
 
     def __unicode__(self):
@@ -67,3 +69,29 @@ def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, 
                 'receita': instance,
             },
         )
+
+
+class MetaArrecadacao(models.Model):
+    class Meta:
+        verbose_name = u'Meta de Arrecadação'
+        verbose_name_plural = u'Metas de Arrecadações'
+
+    descricao = models.CharField(u'Descrição', max_length=100)
+    data_inicial = models.DateField(u'Data inicial')
+    data_limite = models.DateField(u'Data limite')
+    valor = BRDecimalField(u'Valor', max_digits=12, decimal_places=2)
+
+    def acumulado(self):
+        return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
+
+    def falta(self):
+        falta_valor = self.valor - self.acumulado()
+        if falta_valor < 0:
+            return 0.0
+        return falta_valor
+
+    def get_absolute_url(self):
+        return reverse('meta', kwargs={'pk': self.pk, })
+
+    def __unicode__(self):
+        return self.descricao

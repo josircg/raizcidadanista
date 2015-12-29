@@ -195,6 +195,13 @@ h3, .title-news b {
   }
 }
 
+@media (max-width: 1260px){
+  .navbar-nav>li>a {
+    padding: 15px 10px;
+    font-size: 8.5pt;
+  }
+}
+
 /* main
 ------------------------- */
 

@@ -11,70 +11,47 @@
     <![endif]-->
     <link href="{% static 'site/css/styles.css' %}?v1.11" rel="stylesheet">
     <style type="text/css">
-      #dashboard{
-        padding: 10px;
-      }
-      .google-visualization-controls-label:after{
-        content: ': ';
-      }
-      #data-filter {float: left; }
-      #data-filter-link {float: left; margin-left: 10px; }
-      .google-visualization-table .gradient {
-        background: #94C11E;
-        background-image: none !important;
-        font-size: 14px;
-        font-weight: bold;
-      }
+      .body {margin: 10px}
     </style>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      {% localize off %}
-      function drawTable() {
-          var data = new google.visualization.DataTable();
-          data.addColumn('string', 'Data');
-          data.addColumn('number', 'Valor');
-          data.addRows([
-            {% for receita in object.receitas %}
-              ['{{ receita.dtpgto|date:"d/m/Y" }}', {v: {{ receita.valor }}, f: 'R$ {{ receita.valor }}'}],
-            {% endfor %}
-          ]);
-
-          var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
-
-          var stringFilter = new google.visualization.ControlWrapper({
-              controlType: 'StringFilter',
-              containerId: 'data-filter',
-              options: {
-                  filterColumnIndex: 0
-              }
-          });
-
-          var table = new google.visualization.ChartWrapper({
-              chartType: 'Table',
-              containerId: 'table-id',
-              options: {
-                  showRowNumber: false,
-                  width: '100%',
-                  page: 'enable',
-                  pageSize: 50,
-                  sortColumn: 0
-              }
-          });
-
-          dashboard.bind([stringFilter], [table]);
-          dashboard.draw(data);
-      }
-      google.load('visualization', '1', {packages:['controls'], callback: drawTable});
-      {% endlocalize %}
-    </script>
   </head>
   <body>
-    <center>
-      <div id="dashboard">
-          <div id="data-filter"></div>
-          <div id="data-filter-link">Caso o seu depósito não esteja aparecendo, <a href="{% url contato %}" target="_parent">clique aqui.</a></div>
-          <div id="table-id"></div>
+    <div class="container-fluid body">
+      <div class="row">
+          <form class="form-inline" accept="" method="GET">
+            <div class="form-group">
+              <input type="text" class="form-control" id="input-data-inicial" name='data-inicial' placeholder="Data inicial" {% if data_inicial %}value="{{ data_inicial|date:"d/m/Y" }}"{% endif %}>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="input-data-final" name='data-final' placeholder="Data final" {% if data_final %}value="{{ data_final|date:"d/m/Y" }}"{% endif %}>
+            </div>
+            <button type="submit" class="btn btn-default">Buscar</button>
+          </form>
+        <center>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for receita in receitas %}
+                <tr>
+                  <td>{{ receita.dtpgto|date:"d/m/Y" }}</td>
+                  <td>R$ {{ receita.valor }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </center>
       </div>
-    </center>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#input-data-inicial, #input-data-final').mask('00/00/0000');
+      });
+    </script>
   </body>
 </html>

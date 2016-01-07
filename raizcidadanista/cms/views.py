@@ -24,6 +24,8 @@ from forms import ArticleCommentForm, ContatoForm
 from twython import Twython
 import mimetypes, os, cgi, urllib, facebook
 
+from datetime import datetime
+
 
 class CirculosView(TemplateView):
     template_name = 'circulos.html'
@@ -73,6 +75,23 @@ class MetaView(DetailView):
 class MetaDepositosView(DetailView):
     model = MetaArrecadacao
     template_name = 'meta-depositos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MetaDepositosView, self).get_context_data(**kwargs)
+        receitas = self.object.receitas()
+        if self.request.GET.get('data-inicial'):
+            try:
+                data_inicial = datetime.strptime(self.request.GET.get('data-inicial'), '%d/%m/%Y').date()
+                receitas = receitas.filter(dtpgto__gte=data_inicial)
+                context['data_inicial'] = data_inicial
+            except: pass
+            try:
+                data_final = datetime.strptime(self.request.GET.get('data-final'), '%d/%m/%Y').date()
+                receitas = receitas.filter(dtpgto__lte=data_final)
+                context['data_final'] = data_final
+            except: pass
+        context['receitas'] = receitas
+        return context
 
 
 class ContatoView(FormView):

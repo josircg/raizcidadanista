@@ -70,6 +70,11 @@ class MetaView(DetailView):
     template_name = 'meta.html'
 
 
+class MetaDepositosView(DetailView):
+    model = MetaArrecadacao
+    template_name = 'meta-depositos.html'
+
+
 class ContatoView(FormView):
     template_name = 'contato.html'
     template_success_name = 'contato.html'

@@ -1,0 +1,80 @@
+<html>
+  <head>{% load l10n static %}
+    <meta charset="UTF-8">
+    <title>Meta {{ object }}</title>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="{% static 'site/css/styles.css' %}?v1.11" rel="stylesheet">
+    <style type="text/css">
+      #dashboard{
+        padding: 10px;
+      }
+      .google-visualization-controls-label:after{
+        content: ': ';
+      }
+      #data-filter {float: left; }
+      #data-filter-link {float: left; margin-left: 10px; }
+      .google-visualization-table .gradient {
+        background: #94C11E;
+        background-image: none !important;
+        font-size: 14px;
+        font-weight: bold;
+      }
+    </style>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      {% localize off %}
+      function drawTable() {
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'Data');
+          data.addColumn('number', 'Valor');
+          data.addRows([
+            {% for receita in object.receitas %}
+              ['{{ receita.dtpgto|date:"d/m/Y" }}', {v: {{ receita.valor }}, f: 'R$ {{ receita.valor }}'}],
+            {% endfor %}
+          ]);
+
+          var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
+
+          var stringFilter = new google.visualization.ControlWrapper({
+              controlType: 'StringFilter',
+              containerId: 'data-filter',
+              options: {
+                  filterColumnIndex: 0
+              }
+          });
+
+          var table = new google.visualization.ChartWrapper({
+              chartType: 'Table',
+              containerId: 'table-id',
+              options: {
+                  showRowNumber: false,
+                  width: '100%',
+                  page: 'enable',
+                  pageSize: 50,
+                  sortColumn: 0
+              }
+          });
+
+          dashboard.bind([stringFilter], [table]);
+          dashboard.draw(data);
+      }
+      google.load('visualization', '1', {packages:['controls'], callback: drawTable});
+      {% endlocalize %}
+    </script>
+  </head>
+  <body>
+    <center>
+      <div id="dashboard">
+          <div id="data-filter"></div>
+          <div id="data-filter-link">Caso o seu depósito não esteja aparecendo, <a href="{% url contato %}" target="_parent">clique aqui.</a></div>
+          <div id="table-id"></div>
+      </div>
+    </center>
+  </body>
+</html>

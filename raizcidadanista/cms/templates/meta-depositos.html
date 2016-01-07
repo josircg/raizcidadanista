@@ -12,6 +12,7 @@
     <link href="{% static 'site/css/styles.css' %}?v1.11" rel="stylesheet">
     <style type="text/css">
       .body {margin: 10px}
+      .form-inline .form-control{display: inline-block; width: auto;}
     </style>
   </head>
   <body>
@@ -19,10 +20,12 @@
       <div class="row">
           <form class="form-inline" accept="" method="GET">
             <div class="form-group">
-              <input type="text" class="form-control" id="input-data-inicial" name='data-inicial' placeholder="Data inicial" {% if data_inicial %}value="{{ data_inicial|date:"d/m/Y" }}"{% endif %}>
+              <label for="input-data-inicial">Data inicial: </label>
+              <input type="text" class="form-control" id="input-data-inicial" name='data-inicial' placeholder="dd/mm/yyyy" {% if data_inicial %}value="{{ data_inicial|date:"d/m/Y" }}"{% endif %}>
             </div>
             <div class="form-group">
-              <input type="text" class="form-control" id="input-data-final" name='data-final' placeholder="Data final" {% if data_final %}value="{{ data_final|date:"d/m/Y" }}"{% endif %}>
+              <label for="input-data-final">Data final: </label>
+              <input type="text" class="form-control" id="input-data-final" name='data-final' placeholder="dd/mm/yyyy" {% if data_final %}value="{{ data_final|date:"d/m/Y" }}"{% endif %}>
             </div>
             <button type="submit" class="btn btn-default">Buscar</button>
           </form>

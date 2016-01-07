@@ -81,8 +81,11 @@ class MetaArrecadacao(models.Model):
     data_limite = models.DateField(u'Data limite')
     valor = BRDecimalField(u'Valor', max_digits=12, decimal_places=2)
 
+    def receitas(self):
+        return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite)
+
     def acumulado(self):
-        return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
+        return self.receitas().aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
 
     def falta(self):
         falta_valor = self.valor - self.acumulado()

@@ -44,6 +44,8 @@
   <body>
     <center>
       <div id="donutchart">ok</div>
+      <p>Apenas {{ object.filiados_doaram|floatformat:"2" }}% dos colaboradores e pré-filiados contribuíram. Você já fez a sua contribuição?</p>
+
       <a href="{% url meta_depositos object.pk %}" class="btn btn-success">Verifique se o seu depósito já foi identificado</a>
     </center>
   </body>

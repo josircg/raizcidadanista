@@ -498,6 +498,13 @@ class MembroAdmin(PowerModelAdmin):
         if not object_id and request.user.is_superuser:
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
+
+    def queryset(self, request):
+        qs = super(MembroAdmin, self).queryset(request)
+        if request.user.groups.filter(name=u'Coordenador Local').exists():
+            uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
+            qs = qs.filter(uf__pk__in=uf_administrador_ids)
+        return qs
 admin.site.register(Membro, MembroAdmin)
 
 

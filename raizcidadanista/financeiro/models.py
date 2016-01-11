@@ -93,6 +93,9 @@ class MetaArrecadacao(models.Model):
             return 0.0
         return falta_valor
 
+    def filiados_doaram(self):
+        return (float(self.receitas().count())/(Membro.objects.count() or 1))*100
+
     def get_absolute_url(self):
         return reverse('meta', kwargs={'pk': self.pk, })
 

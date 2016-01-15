@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load cms_tags bootstrap thumbnail %}
 
-{% block title %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
-{% block ogtitle %}{% for section in article.get_sections %}{% if not section.slug == 'home' %}{{ section.title }} - {% endif %}{% endfor %}{{ article.title }} - {% endblock %}
+{% block title %}{{ article.title }} - {% endblock %}
+{% block ogtitle %}{{ article.title }} - {% endblock %}
 
 {% block description %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
 {% block ogdescription %}{{ article.content|striptags|truncatewords:20|safe }}{% endblock %}
 
+{% block ogimage %}{{ article.first_image }}{% endblock %}
 
 {% block main %}
     <div class="col-md-8 col-article">

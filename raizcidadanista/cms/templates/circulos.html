@@ -47,16 +47,31 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th colspan="2">Círculos</th>
+                            <th>Círculos</th>
+                            <th colspan="2">Administrador</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for circulo in uf.circulo_set.all %}
                         <tr>
                         {% if circulo.site_externo %}
-                            <td width="80%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
+                            <td width="40%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
                         {% else %}
-                            <td width="80%"><a>{{ circulo.titulo }}</a></td>
+                            <td width="40%"><a>{{ circulo.titulo }}</a></td>
+                        {% endif %}
+                        {% if circulo.administrador_publico %}
+                            <td width="40%">
+                                {% for adm in circulo.administrador_publico %}
+                                    {{ adm.membro.nome }}
+                                    {% if adm.membro.celular or adm.membro.residencial %}|
+                                        {% if adm.membro.celular %} Cel.: {{ adm.membro.celular }}{% endif %}
+                                        {% if adm.membro.residencial %} Tel.: {{ adm.membro.residencial }}{% endif %}
+                                    {% endif %}
+                                    | <a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Entre em contato</a>
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td width="40%"></td>
                         {% endif %}
                         {% if user.is_authenticated %}
                             {% if circulo|is_membro:user %}

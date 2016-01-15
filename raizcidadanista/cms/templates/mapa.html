@@ -43,7 +43,9 @@
                 <table class="table table-hover" width="100%">
                     <thead>
                         <tr>
-                            <th colspan="2">Círculos</th>
+                            <th>Círculos</th>
+                            <th>Administrador</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,6 +55,20 @@
                             <td><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
                         {% else %}
                             <td><a>{{ circulo.titulo }}</a></td>
+                        {% endif %}
+                        {% if circulo.administrador_publico %}
+                            <td>
+                                {% for adm in circulo.administrador_publico %}
+                                    {{ adm.membro.nome }}
+                                    {% if adm.membro.celular or adm.membro.residencial %}|
+                                        {% if adm.membro.celular %} Cel.: {{ adm.membro.celular }}{% endif %}
+                                        {% if adm.membro.residencial %} Tel.: {{ adm.membro.residencial }}{% endif %}
+                                    {% endif %}
+                                    | <a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Entre em contato</a>
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td></td>
                         {% endif %}
                         {% if user.is_authenticated %}
                             {% if circulo|is_membro:user %}

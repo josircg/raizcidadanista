@@ -44,7 +44,7 @@
                     <thead>
                         <tr>
                             <th>Círculos</th>
-                            <th>Administrador</th>
+                            <th>Jardineiro</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -60,11 +60,8 @@
                             <td>
                                 {% for adm in circulo.administrador_publico %}
                                     {{ adm.membro.nome }}
-                                    {% if adm.membro.celular or adm.membro.residencial %}|
-                                        {% if adm.membro.celular %} Cel.: {{ adm.membro.celular }}{% endif %}
-                                        {% if adm.membro.residencial %} Tel.: {{ adm.membro.residencial }}{% endif %}
-                                    {% endif %}
-                                    | <a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Entre em contato</a>
+                                    {% if adm.membro.celular %} | Cel.: {{ adm.membro.celular }}{% endif %}
+                                    <br><a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Envie um email para o Círculo</a>
                                 {% endfor %}
                             </td>
                         {% else %}

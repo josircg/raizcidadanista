@@ -258,6 +258,9 @@ class Circulo(models.Model):
     def get_absolute_entrar_url(self):
         return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
 
+    def administrador_publico(self):
+        return self.circulomembro_set.filter(publico=True, administrador=True)
+
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
 
@@ -269,6 +272,7 @@ class CirculoMembro(models.Model):
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)
     administrador = models.BooleanField(default=False)
+    publico = models.BooleanField(u'Público', default=False)
     grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo

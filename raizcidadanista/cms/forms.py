@@ -150,13 +150,14 @@ class ContatoForm(forms.Form):
     mensagem = forms.CharField(u'Mensagem', widget=forms.Textarea(), required=True)
     captcha = ReCaptchaField()
 
-    def sendemail(self):
+    def sendemail(self, to=['correio@raiz.org.br',], bcc=[]):
         nome = self.cleaned_data.get('nome')
         email = self.cleaned_data.get('email')
         mensagem = self.cleaned_data.get('mensagem')
         sendmail(
             subject = u'Raiz Cidadanista - Formulário de contato',
-            to = ['correio@raiz.org.br', ],
+            to = to,
+            bcc = bcc,
             params = {
                 'nome': nome,
                 'email': email,

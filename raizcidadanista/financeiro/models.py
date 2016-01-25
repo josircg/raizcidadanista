@@ -38,7 +38,7 @@ class Receita(models.Model):
         ordering = ('conta__conta', )
 
     conta = models.ForeignKey(Conta)
-    colaborador = models.ForeignKey(Membro)
+    colaborador = models.ForeignKey(Membro, blank=True, null=True)
     dtaviso = models.DateField(u'Dt. Informada')
     valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
     dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
@@ -48,7 +48,7 @@ class Receita(models.Model):
 
     def save(self, *args, **kwargs):
         super(Receita, self).save(*args, **kwargs)
-        if self.dtpgto:
+        if self.dtpgto and self.colaborador:
             if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dtaviso:
                 if self.colaborador.contrib_tipo in ('1','3','6'):
                     self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(months=int(self.colaborador.contrib_tipo))
@@ -59,7 +59,7 @@ class Receita(models.Model):
                 self.colaborador.save()
 @receiver(signals.post_save, sender=Receita)
 def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if instance.dtpgto:
+    if instance.dtpgto and self.colaborador:
         sendmail(
             subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
             to=[instance.colaborador.email, ],

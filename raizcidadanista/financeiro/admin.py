@@ -32,7 +32,7 @@ admin.site.register(Conta, ContaAdmin)
 
 class ReceitaAdmin(PowerModelAdmin):
     list_display = ('conta', 'colaborador', 'dtaviso', 'valor', 'dtpgto',  )
-    list_filter = ('conta', 'dtaviso', 'dtpgto', )
+    list_filter = ('conta', 'colaborador__uf', 'dtaviso', 'dtpgto', )
     search_fields = ['conta', 'descricao', ]
     raw_id_fields = ('colaborador', )
     multi_search = (

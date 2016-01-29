@@ -90,6 +90,8 @@ class MembroEntrarCirculoView(View):
             messages.info(request, u'Você agora faz parte do Círculo %s.' % circulo.titulo)
         else:
             messages.info(request, u'Você já fazia parte do Círculo %s.' % circulo.titulo)
+        if circulo.site_externo:
+            return HttpResponseRedirect(circulo.site_externo)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 

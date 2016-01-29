@@ -48,8 +48,7 @@
                     <thead>
                         <tr>
                             <th>Círculos</th>
-                            <th>Jardineiro</th>
-                            <th></th>
+                            <th colspan="3">Jardineiro</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,18 +63,27 @@
                             <td width="40%">
                                 {% for adm in circulo.administrador_publico %}
                                     {{ adm.membro.nome }}
-                                    {% if adm.membro.celular %} | Cel.: {{ adm.membro.celular }}{% endif %}
+                                    {% if adm.membro.celular %}<br>Cel.: {{ adm.membro.celular }}{% endif %}
                                     <br><a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Envie um email para o Círculo</a>
                                 {% endfor %}
                             </td>
                         {% else %}
                             <td width="40%"></td>
                         {% endif %}
+
+                        {% if circulo.site_externo %}
+                            <td width="10%" style="min-width: 150px"><a href="{{ circulo.site_externo }}" class="button-membro-add" target="_parent">Visualizar Grupo</a></td>
+                        {% else %}
+                            <td width="10%"></td>
+                        {% endif %}
+
                         {% if user.is_authenticated %}
-                            {% if circulo|is_membro:user %}
-                                <td width="20%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                            {% if user.membro.exists and circulo|is_membro:user %}
+                                <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
                             {% else %}
-                                <td width="20%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                            {% if user.membro.exists %}
+                                <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" {% if circulo.site_externo %}target="_parent"{% endif %}>Se inscrever</a></td>
+                            {% endif %}
                             {% endif %}
                         {% endif %}
                         </tr>

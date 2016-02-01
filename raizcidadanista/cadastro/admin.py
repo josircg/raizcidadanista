@@ -164,6 +164,23 @@ class MembroAdmin(PowerModelAdmin):
         }),
     )
 
+    def get_actions(self, request):
+        actions = super(MembroAdmin, self).get_actions(request)
+        if request.user.groups.filter(name=u'Coordenador Local').exists():
+            for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'assinatura', 'delete_selected', 'export_as_csv', ):
+                del actions[action]
+        return actions
+
+    def get_list_display_links(self, request, list_display):
+        if request.user.groups.filter(name=u'Coordenador Local').exists():
+            return []
+        return super(MembroAdmin, self).get_list_display_links(request, list_display)
+
+    def has_change_permission(self, request, obj=None):
+        if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
+            return False
+        return super(MembroAdmin, self).has_change_permission(request, obj)
+
     def aprovacao(self, request, queryset):
         contador = 0
         for rec in queryset:

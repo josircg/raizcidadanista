@@ -195,7 +195,7 @@ class ArticleAdmin(PowerModelAdmin):
 
     def queryset(self, request):
         qs = super(ArticleAdmin, self).queryset(request)
-        if (request.user.has_perm('cms.manage_articles') or request.user.groups.filter(name=u'Editor').exists()) and not request.user.is_superuser:
+        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
             qs = qs.filter(author=request.user)
         return qs
 

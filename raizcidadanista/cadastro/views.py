@@ -46,6 +46,22 @@ class NewsletterView(FormView):
         return super(NewsletterView, self).form_invalid(form)
 
 
+class MeuPerfilView(TemplateView):
+    template_name = 'cadastro/meu-perfil.html'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('home'))
+        return super(MeuPerfilView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MeuPerfilView, self).get_context_data(**kwargs)
+        context['membro'] = self.request.user.membro.all()[0]
+        return context
+
+
+
 class MembroView(FormView):
     template_name = 'cadastro/membro.html'
     template_success_name = 'cadastro/bem-vindo.html'

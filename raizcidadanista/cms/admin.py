@@ -171,13 +171,13 @@ class ArticleAdmin(PowerModelAdmin):
 
     @transaction.commit_on_success
     def add_view(self, request, form_url='', extra_context=None):
-        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+        if request.user.has_perm('cms.manage_articles') and not (request.user.is_superuser or request.user.groups.filter(name=u'Editor').exists()):
             return HttpResponseRedirect(reverse('admin:cms_article_add_power'))
         return super(ArticleAdmin, self).add_view(request, form_url, extra_context)
 
     @transaction.commit_on_success
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+        if request.user.has_perm('cms.manage_articles') and not (request.user.is_superuser or request.user.groups.filter(name=u'Editor').exists()):
             return HttpResponseRedirect(reverse('admin:cms_article_change_power', args=(object_id, )))
         return super(ArticleAdmin, self).change_view(request, object_id, form_url, extra_context)
 
@@ -195,7 +195,7 @@ class ArticleAdmin(PowerModelAdmin):
 
     def queryset(self, request):
         qs = super(ArticleAdmin, self).queryset(request)
-        if request.user.has_perm('cms.manage_articles') and not request.user.is_superuser:
+        if request.user.has_perm('cms.manage_articles') and not (request.user.is_superuser or request.user.groups.filter(name=u'Editor').exists()):
             qs = qs.filter(author=request.user)
         return qs
 

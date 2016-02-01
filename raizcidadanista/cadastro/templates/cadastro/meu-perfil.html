@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Meu Perfil - {% endblock %}
+{% block ogtitle %}Meu Perfil - {% endblock %}
+
+{% block description %}Meu Perfil - {% endblock %}
+{% block ogdescription %}Meu Perfil - {% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3>Meu Perfil</h3>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Dados pessoais</h3><br>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Nome Completo:</label> {{ membro.nome }}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Status:</label> {% if membro.filiado %}Filiado{% else %}Colaborador{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Email:</label> {% if membro.email %}{{ membro.email }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">UF:</label> {% if membro.uf %}{{ membro.uf }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Município:</label> {% if membro.municipio %}{{ membro.municipio }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Sexo:</label> {% if membro.sexo %}{{ membro.get_sexo_display }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Tel.Celular:</label> {% if membro.celular %}{{ membro.celular }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Tel.Residencial:</label> {% if membro.residencial %}{{ membro.residencial }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Dt.Nascimento:</label> {% if membro.dtnascimento %}{{ membro.dtnascimento }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">RG:</label> {% if membro.rg %}{{ membro.rg }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">CPF:</label> {% if membro.cpf %}{{ membro.cpf }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Estado civil:</label> {% if membro.estadocivil %}{{ membro.get_estadocivil_display }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">CEP:</label> {% if membro.endereco_cep %}{{ membro.endereco_cep }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Endereço:</label> {% if membro.endereco %}{{ membro.endereco }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Nº:</label> {% if membro.endereco_num %}{{ membro.endereco_num }}{% else %}-{% endif %}
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="control-label">Complemento:</label> {% if membro.endereco_complemento %}{{ membro.endereco_complemento }}{% else %}-{% endif %}
+                </div>
+                <div class="col-md-10">
+                    <a href="{{ membro.get_absolute_update_url }}"><button class="btn btn-success">Atualizar dados</button></a>
+                    <a href="{% url cms_password_change %}"><button class="btn btn-success">Alterar senha</button></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Meus círculos</h3>
+                {% if membro.circulomembro_set.exists %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Círculos</th>
+                            <th colspan="2">Jardineiro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for cm in membro.circulomembro_set.all %}
+                        <tr>
+                        {% if cm.circulo.site_externo %}
+                            <td width="40%"><a href="{{ cm.circulo.site_externo }}" target="_blank">{{ cm.circulo.titulo }}</a></td>
+                        {% else %}
+                            <td width="40%"><a>{{ cm.circulo.titulo }}</a></td>
+                        {% endif %}
+                        {% if cm.circulo.administrador_publico %}
+                            <td width="40%">
+                                {% for adm in cm.circulo.administrador_publico %}
+                                    {{ adm.membro.nome }}
+                                    {% if adm.membro.celular %}<br>Cel.: {{ adm.membro.celular }}{% endif %}
+                                    <br><a href="{% url contato %}?adm={{ adm.pk }}">Envie um email para o Círculo</a>
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td width="40%"></td>
+                        {% endif %}
+
+                        {% if cm.circulo.site_externo %}
+                            <td width="10%" style="min-width: 150px"><a href="{{ cm.circulo.site_externo }}" class="button-membro-add" target="_blank">Visualizar Grupo</a></td>
+                        {% else %}
+                            <td width="10%"></td>
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                Você não participa de nenhum círculo.
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Minhas contribuições</h3>
+                {% if membro.receita_set.exists %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for receita in membro.receita_set.all %}
+                        <tr>
+                            <td>{{ receita.dtaviso }}</td>
+                            <td>R$ {{ receita.valor }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                Nenhuma contribuição encontrada!
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

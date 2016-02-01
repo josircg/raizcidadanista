@@ -289,6 +289,12 @@ def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args,
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
         instance.grupousuario.delete()
+@receiver(signals.post_save, sender=CirculoMembro)
+def udpdate_user_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
+    if CirculoMembro.objects.filter(membro=instance.membro, administrador=True).exists():
+        instance.membro.usuario.groups.add(Group.objects.get_or_create(name=u'Coordenador Local')[0])
+    else:
+        instance.membro.usuario.groups.remove(Group.objects.get_or_create(name=u'Coordenador Local')[0])
 
 
 # Eventos que devem ser divulgados no site

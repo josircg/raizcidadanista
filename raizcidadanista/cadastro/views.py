@@ -51,7 +51,7 @@ class MeuPerfilView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.membro.exists():
-            messages.error(request, u'Não há nenhum Membro associado a ess login!')
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
             return HttpResponseRedirect(reverse('home'))
         return super(MeuPerfilView, self).get(request, *args, **kwargs)
 

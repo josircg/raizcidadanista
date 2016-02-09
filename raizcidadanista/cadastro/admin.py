@@ -166,8 +166,12 @@ class MembroAdmin(PowerModelAdmin):
 
     def get_actions(self, request):
         actions = super(MembroAdmin, self).get_actions(request)
+        if not request.user.groups.filter(name=u'Financeiro').exists():
+            for action in ('estimativa_de_recebimento', ):
+                del actions[action]
+
         if request.user.groups.filter(name=u'Coordenador Local').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('aprovacao', 'atualizacao_cadastral', 'requerimento', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 del actions[action]
         return actions
 
@@ -177,7 +181,8 @@ class MembroAdmin(PowerModelAdmin):
         return super(MembroAdmin, self).get_list_display_links(request, list_display)
 
     def has_change_permission(self, request, obj=None):
-        if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
+        # if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
+        if obj and not request.user.is_superuser 
             return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 

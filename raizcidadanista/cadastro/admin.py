@@ -182,7 +182,7 @@ class MembroAdmin(PowerModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         # if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
-        if obj and not request.user.is_superuser 
+        if obj and not request.user.is_superuser:
             return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 

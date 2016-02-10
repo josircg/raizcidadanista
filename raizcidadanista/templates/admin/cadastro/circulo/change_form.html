@@ -1,0 +1,15 @@
+{% extends 'admin/edit_form.html' %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+    (function($) {
+        $(function() {
+            $('.vForeignKeyRawIdAdminField').each(function(index, el) {
+                if(!$(el).val()){
+                  $(el).parent().find('a').append('Adicionar novo');
+                }
+            });
+        });
+    })(django.jQuery)
+</script>
+{% endblock %}

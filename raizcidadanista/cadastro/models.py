@@ -222,7 +222,7 @@ def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **k
 def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created:
         circulos_ja_cadastrados_pks = CirculoMembro.objects.filter(membro=instance).values_list('circulo', flat=True)
-        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
+        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, tipo='R', municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
         for circulo in circulos_estaduais_municipais:
             CirculoMembro(circulo=circulo, membro=instance).save()
 

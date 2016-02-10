@@ -7,7 +7,7 @@ from django.contrib.admin.util import flatten_fieldsets
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import resolve
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import template
 from django.contrib.contenttypes.models import ContentType
@@ -18,6 +18,8 @@ from django import forms
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
+
+import json
 
 from actions import export_as_csv_action, delete_selected
 
@@ -245,8 +247,20 @@ class PowerModelAdmin(admin.ModelAdmin):
         return getattr(self, command)(request, obj)  \
             or HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+    def related_lookup(self, request):
+        data = {}
+        if request.method == 'GET':
+            if request.GET.has_key('object_id'):
+                try:
+                    obj = self.queryset(request).get(pk=request.GET.get('object_id'))
+                    data = {"value": obj.pk, "label": u"%s" % obj}
+                except: pass
+        return HttpResponse(json.dumps(data), content_type='application/javascript')
+
     def get_urls(self):
+        opts = self.model._meta
         buttons_urls = [url(r'^(\d+)/(%s)/$' % but.flag, self.wrap(self.button_view_dispatcher)) for but in self.buttons]
+        buttons_urls.append(url(r'^lookup/related/$', self.wrap(self.related_lookup), name="%s_%s_related_lookup" % (opts.app_label, opts.object_name.lower())))
         return patterns('', *buttons_urls) + super(PowerModelAdmin, self).get_urls()
 
     def wrap(self, view):

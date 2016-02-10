@@ -261,6 +261,10 @@ class Circulo(models.Model):
     def administrador_publico(self):
         return self.circulomembro_set.filter(publico=True, administrador=True)
 
+    def num_membros(self):
+        return self.circulomembro_set.count()
+    num_membros.short_description = u'Nº de membros'
+
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
 
@@ -268,6 +272,7 @@ class CirculoMembro(models.Model):
     class Meta:
         verbose_name = u'Colaborador do Círculo/GT'
         verbose_name_plural = u'Colaboradores do Círculo/GT'
+        unique_together = (('circulo', 'membro', ), )
 
     circulo = models.ForeignKey(Circulo)
     membro = models.ForeignKey(Membro)

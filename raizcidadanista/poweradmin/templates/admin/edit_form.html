@@ -1,6 +1,58 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_modify adminmedia %}
 
+{% block extrahead %}{{ block.super }}
+{{ media }}
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function(){
+            $('.submit-row input').click(function(){
+                $('.submit-row input').hide();
+                $('.submit-row').append('Processando...');
+            });
+        });
+    })(django.jQuery);
+</script>
+<script type="text/javascript">
+    (function($) {
+        $(function() {
+          var getlookup = function(vfk){
+            var ant = $(vfk).val();
+            var url = $(vfk).parent().find('.related-lookup').attr('href').split('?')[0]+'lookup/related/';
+            var interval = setInterval(function(){
+              if($(vfk).val() != ant){
+                $.ajax({
+                  dataType: "json",
+                  url: url,
+                  data: {'object_id': $(vfk).val()},
+                  success: function(data){
+                      if(data.value){
+                        if($(vfk).parent().find('strong').length > 0){
+                          $(vfk).parent().find('strong').html(data.label);
+                        }else{
+                          $(vfk).parent().append('<strong>'+data.label+'</strong>');
+                        }
+                        clearInterval(interval);
+                      }
+                  }
+                });
+              }
+            },500);
+          };
+          if($(".vForeignKeyRawIdAdminField").length){
+
+            $(".related-lookup").click(function(event) {
+              getlookup($(this).parent().find('.vForeignKeyRawIdAdminField'));
+            });
+            $(".vForeignKeyRawIdAdminField").change(function(event) {
+              getlookup($(this));
+            });
+          }
+        });
+    })(django.jQuery)
+</script>
+{% endblock %}
+
 {% block content %}<div id="content-main">
 {% block object-tools %}
         <ul class="object-tools">

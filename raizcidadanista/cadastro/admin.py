@@ -566,6 +566,8 @@ class CirculoMembroCirculoInline(admin.TabularInline):
     extra = 1
     verbose_name = u'Membro do Círculo'
     verbose_name_plural = u'Membros do Círculo'
+    raw_id_fields = ('membro', )
+    ordering = ('membro__nome', )
 
 class CirculoEventoCirculoInline(admin.TabularInline):
     model = CirculoEvento
@@ -581,14 +583,15 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
-    list_display = ('titulo', 'tipo', 'uf', 'oficial',)
+    list_display = ('titulo', 'tipo', 'uf', 'oficial', 'num_membros', )
     list_filter = ('tipo','uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', ),},),
+        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
         (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
+    readonly_fields = ('num_membros', )
     actions = ('export_csv', 'criar_forum')
 
     def export_csv(self, request, queryset):
@@ -631,7 +634,7 @@ class CirculoAdmin(PowerModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
-            return ()
+            return self.readonly_fields
         else:
             return flatten_fieldsets(self.get_fieldsets(request, obj))
 

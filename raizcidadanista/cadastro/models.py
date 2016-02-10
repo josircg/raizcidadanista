@@ -226,6 +226,17 @@ def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kw
         for circulo in circulos_estaduais_municipais:
             CirculoMembro(circulo=circulo, membro=instance).save()
 
+            # Log
+            user = User.objects.get_or_create(username="sys")[0]
+            LogEntry.objects.log_action(
+                user_id = user.pk,
+                content_type_id = ContentType.objects.get_for_model(instance).pk,
+                object_id = instance.pk,
+                object_repr = u"%s" % instance,
+                action_flag = CHANGE,
+                change_message = u'Membro adicionado automaticamente no Círculo %s.' % circulo
+            )
+
 
 class Filiado(Membro):
     class Meta:

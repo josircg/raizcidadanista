@@ -218,6 +218,13 @@ def validaremail_membro_signal(sender, instance, created, raw, using, *args, **k
 def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **kwargs):
     if not instance.dt_prefiliacao:
         instance.dt_prefiliacao = date.today()
+@receiver(signals.post_save, sender=Membro)
+def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created:
+        circulos_ja_cadastrados_pks = CirculoMembro.objects.filter(membro=instance).values_list('circulo', flat=True)
+        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
+        for circulo in circulos_estaduais_municipais:
+            CirculoMembro(circulo=circulo, membro=instance).save()
 
 
 class Filiado(Membro):
@@ -290,17 +297,18 @@ class CirculoMembro(models.Model):
 @receiver(signals.pre_save, sender=CirculoMembro)
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
-        instance.grupousuario = GrupoUsuario.objects.create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)
+        instance.grupousuario = GrupoUsuario.objects.get_or_create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)[0]
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
         instance.grupousuario.delete()
 @receiver(signals.post_save, sender=CirculoMembro)
 def udpdate_user_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
-    if CirculoMembro.objects.filter(membro=instance.membro, administrador=True).exists():
-        instance.membro.usuario.groups.add(Group.objects.get_or_create(name=u'Coordenador Local')[0])
-    else:
-        instance.membro.usuario.groups.remove(Group.objects.get_or_create(name=u'Coordenador Local')[0])
+    if instance.membro.usuario:
+        if CirculoMembro.objects.filter(membro=instance.membro, administrador=True).exists():
+            instance.membro.usuario.groups.add(Group.objects.get_or_create(name=u'Coordenador Local')[0])
+        else:
+            instance.membro.usuario.groups.remove(Group.objects.get_or_create(name=u'Coordenador Local')[0])
 
 
 # Eventos que devem ser divulgados no site

@@ -575,11 +575,16 @@ class CirculoEventoCirculoInline(admin.TabularInline):
     verbose_name = u'Evento do Círculo'
     verbose_name_plural = u'Eventos do Círculo'
 
+    def actions(self, model):
+        return u'<a href="%s">Enviar email</a>' % reverse('admin:cadastro_circulo_enviar_convite_evento', kwargs={'id_evento': model.pk})
+    actions.allow_tags = True
+    actions.short_description = u'Ações'
+
     def get_readonly_fields(self, request, obj=None):
         if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists()):
-            return ('nome', 'dt_evento', 'local')
+            return ('nome', 'dt_evento', 'local', 'actions')
         else:
-            return ()
+            return ('actions', )
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
@@ -647,6 +652,27 @@ class CirculoAdmin(PowerModelAdmin):
         }
         defaults.update(kwargs)
         return modelform_factory(self.model, **defaults)
+
+    def enviar_convite_evento(self, request, id_evento):
+        evento = get_object_or_404(CirculoEvento, pk=id_evento)
+
+        sendmail(
+            subject=u'Convite - %s - %s e %s' % (evento.nome, evento.dt_evento.strftime('%d/%m/%Y'), evento.dt_evento.strftime('%H:%M')),
+            to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
+            template='emails/evento-convite.html',
+            params={
+                'evento': evento,
+            },
+        )
+        messages.info(request, u'Os emails estão sendo enviados!')
+        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(evento.circulo.pk, )))
+
+    def get_urls(self):
+        urls_originais = super(CirculoAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circulo_enviar_convite_evento'),
+        )
+        return urls_customizadas + urls_originais
 
     def save_model(self, request, obj, form, change):
         return super(CirculoAdmin, self).save_model(request, obj, form, change)

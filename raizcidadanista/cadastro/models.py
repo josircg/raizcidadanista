@@ -23,6 +23,7 @@ from time import sleep
 
 from municipios.models import UF
 from forum.models import Grupo, GrupoUsuario
+from cms.models import Article, Section, SectionItem
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
@@ -309,6 +310,7 @@ class CirculoEvento(models.Model):
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Local do Evento')
     privado = models.BooleanField(u'Privado', default=True)
+    artigo = models.ForeignKey(Article, editable=False, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -316,6 +318,26 @@ class CirculoEvento(models.Model):
     class Meta:
         verbose_name = u'Evento do Círculo'
         verbose_name_plural = u'Eventos dos círculos'
+@receiver(signals.pre_save, sender=CirculoEvento)
+def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
+    if not instance.privado and not instance.artigo:
+        # Cria o artigo
+        section = Section.objects.get(slug='eventos')
+        author = User.objects.get_or_create(username="sys")[0]
+        artigo = Article(
+            title=instance.nome,
+            author=author,
+            created_at=instance.dt_evento,
+            is_active=True,
+        )
+        artigo.save()
+        SectionItem(section=section, article=artigo).save()
+        # Vincula o artigo ao CirculoEvento
+        instance.artigo = artigo
+    if instance.artigo:
+        # Desabilita/Havilita a visualização do artigo
+        instance.artigo.is_active = not instance.privado
+        instance.artigo.save()
 
 
 STATUS_LISTA = (

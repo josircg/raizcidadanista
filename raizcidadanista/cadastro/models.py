@@ -327,7 +327,7 @@ class CirculoEvento(models.Model):
     circulo = models.ForeignKey(Circulo)
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
-    local = models.TextField(u'Local do Evento')
+    local = models.TextField(u'Descrição e Local')
     privado = models.BooleanField(u'Privado', default=True)
     artigo = models.ForeignKey(Article, editable=False, blank=True, null=True)
 
@@ -347,7 +347,7 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
             section = Section.objects.create(title='Eventos', slug='eventos')
         author = User.objects.get_or_create(username="sys")[0]
         artigo = Article(
-            title=instance.nome,
+            title=u'%s - %s' % (instance.circulo.titulo, instance.nome,),
             header=instance.local,
             content=instance.local,
             author=author,

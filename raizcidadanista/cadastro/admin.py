@@ -13,6 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaultfilters import date as _date
 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
@@ -582,7 +583,9 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists():
+            self.max_num = None
             return ('actions', )
+        self.max_num = 0
         return ('nome', 'dt_evento', 'local', 'actions')
 
 class CirculoAdmin(PowerModelAdmin):
@@ -656,7 +659,7 @@ class CirculoAdmin(PowerModelAdmin):
         evento = get_object_or_404(CirculoEvento, pk=id_evento)
 
         sendmail(
-            subject=u'Convite - %s - %s e %s' % (evento.nome, evento.dt_evento.strftime('%d/%m/%Y'), evento.dt_evento.strftime('%H:%M')),
+            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(evento.dt_evento, 'd \d\e F \d\e Y'), _date(evento.dt_evento, 'H:i'),),
             to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
             template='emails/evento-convite.html',
             params={

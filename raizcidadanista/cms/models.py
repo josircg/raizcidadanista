@@ -375,7 +375,7 @@ class EmailAgendado(models.Model):
     class Meta:
         ordering = ('-date', )
 
-    subject = models.CharField(max_length=90, default="")
+    subject = models.CharField(max_length=255, default="")
     status = models.CharField(max_length=1, choices=STATUS_EMAIL, default="S")
     date = models.DateTimeField(default=datetime.now)
     to = ListField()

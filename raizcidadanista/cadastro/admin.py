@@ -13,12 +13,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaultfilters import date as _date
 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 from decimal import Decimal
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from functools import partial
 import os
 import csv
@@ -575,11 +576,17 @@ class CirculoEventoCirculoInline(admin.TabularInline):
     verbose_name = u'Evento do Círculo'
     verbose_name_plural = u'Eventos do Círculo'
 
+    def actions(self, model):
+        return u'<a href="%s">Enviar email</a>' % reverse('admin:cadastro_circulo_enviar_convite_evento', kwargs={'id_evento': model.pk})
+    actions.allow_tags = True
+    actions.short_description = u'Ações'
+
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists()):
-            return ('nome', 'dt_evento', 'local')
-        else:
-            return ()
+        if request.user.is_superuser or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists():
+            self.max_num = None
+            return ('actions', )
+        self.max_num = 0
+        return ('nome', 'dt_evento', 'local', 'actions')
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
@@ -647,6 +654,28 @@ class CirculoAdmin(PowerModelAdmin):
         }
         defaults.update(kwargs)
         return modelform_factory(self.model, **defaults)
+
+    def enviar_convite_evento(self, request, id_evento):
+        evento = get_object_or_404(CirculoEvento, pk=id_evento)
+
+        dt_evento = evento.dt_evento
+        sendmail(
+            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
+            to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
+            template='emails/evento-convite.html',
+            params={
+                'evento': evento,
+            },
+        )
+        messages.info(request, u'Os emails estão sendo enviados!')
+        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(evento.circulo.pk, )))
+
+    def get_urls(self):
+        urls_originais = super(CirculoAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circulo_enviar_convite_evento'),
+        )
+        return urls_customizadas + urls_originais
 
     def save_model(self, request, obj, form, change):
         return super(CirculoAdmin, self).save_model(request, obj, form, change)

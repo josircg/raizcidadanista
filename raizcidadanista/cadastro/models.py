@@ -23,6 +23,7 @@ from time import sleep
 
 from municipios.models import UF
 from forum.models import Grupo, GrupoUsuario
+from cms.models import Article, Section, SectionItem
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 #from smart_selects.db_fields import ChainedForeignKey
@@ -217,6 +218,24 @@ def validaremail_membro_signal(sender, instance, created, raw, using, *args, **k
 def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **kwargs):
     if not instance.dt_prefiliacao:
         instance.dt_prefiliacao = date.today()
+@receiver(signals.post_save, sender=Membro)
+def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if created:
+        circulos_ja_cadastrados_pks = CirculoMembro.objects.filter(membro=instance).values_list('circulo', flat=True)
+        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, tipo='R', municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
+        for circulo in circulos_estaduais_municipais:
+            CirculoMembro(circulo=circulo, membro=instance).save()
+
+            # Log
+            user = User.objects.get_or_create(username="sys")[0]
+            LogEntry.objects.log_action(
+                user_id = user.pk,
+                content_type_id = ContentType.objects.get_for_model(instance).pk,
+                object_id = instance.pk,
+                object_repr = u"%s" % instance,
+                action_flag = CHANGE,
+                change_message = u'Membro adicionado automaticamente no Círculo %s.' % circulo
+            )
 
 
 class Filiado(Membro):
@@ -289,17 +308,18 @@ class CirculoMembro(models.Model):
 @receiver(signals.pre_save, sender=CirculoMembro)
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
-        instance.grupousuario = GrupoUsuario.objects.create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)
+        instance.grupousuario = GrupoUsuario.objects.get_or_create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)[0]
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
         instance.grupousuario.delete()
 @receiver(signals.post_save, sender=CirculoMembro)
 def udpdate_user_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
-    if CirculoMembro.objects.filter(membro=instance.membro, administrador=True).exists():
-        instance.membro.usuario.groups.add(Group.objects.get_or_create(name=u'Coordenador Local')[0])
-    else:
-        instance.membro.usuario.groups.remove(Group.objects.get_or_create(name=u'Coordenador Local')[0])
+    if instance.membro.usuario:
+        if CirculoMembro.objects.filter(membro=instance.membro, administrador=True).exists():
+            instance.membro.usuario.groups.add(Group.objects.get_or_create(name=u'Coordenador Local')[0])
+        else:
+            instance.membro.usuario.groups.remove(Group.objects.get_or_create(name=u'Coordenador Local')[0])
 
 
 # Eventos que devem ser divulgados no site
@@ -307,8 +327,9 @@ class CirculoEvento(models.Model):
     circulo = models.ForeignKey(Circulo)
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
-    local = models.TextField(u'Local do Evento')
+    local = models.TextField(u'Descrição e Local')
     privado = models.BooleanField(u'Privado', default=True)
+    artigo = models.ForeignKey(Article, editable=False, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -316,6 +337,31 @@ class CirculoEvento(models.Model):
     class Meta:
         verbose_name = u'Evento do Círculo'
         verbose_name_plural = u'Eventos dos círculos'
+@receiver(signals.pre_save, sender=CirculoEvento)
+def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
+    if not instance.privado and not instance.artigo:
+        # Cria o artigo
+        try:
+            section = Section.objects.get(slug='eventos')
+        except Section.DoesNotExist:
+            section = Section.objects.create(title='Eventos', slug='eventos')
+        author = User.objects.get_or_create(username="sys")[0]
+        artigo = Article(
+            title=u'%s - %s' % (instance.circulo.titulo, instance.nome,),
+            header=instance.local,
+            content=instance.local,
+            author=author,
+            created_at=instance.dt_evento,
+            is_active=True,
+        )
+        artigo.save()
+        SectionItem(section=section, article=artigo).save()
+        # Vincula o artigo ao CirculoEvento
+        instance.artigo = artigo
+    if instance.artigo:
+        # Desabilita/Havilita a visualização do artigo
+        instance.artigo.is_active = not instance.privado
+        instance.artigo.save()
 
 
 STATUS_LISTA = (

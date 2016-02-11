@@ -581,10 +581,9 @@ class CirculoEventoCirculoInline(admin.TabularInline):
     actions.short_description = u'Ações'
 
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists()):
-            return ('nome', 'dt_evento', 'local', 'actions')
-        else:
+        if request.user.is_superuser or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists():
             return ('actions', )
+        return ('nome', 'dt_evento', 'local', 'actions')
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)

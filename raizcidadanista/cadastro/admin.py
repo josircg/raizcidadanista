@@ -673,28 +673,28 @@ class CirculoAdmin(PowerModelAdmin):
 
     def incluir_membros_auto(self, request, id_circulo):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
-        if circulo.tipo != 'R':
-            messages.error(request, u'Esta ação não é permitida para Círculos que não são Regionais!')
+        if circulo.tipo == 'R' or (circulo.tipo == 'E' and circulo.uf ):
+            membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
+            membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
+            if circulo.municipio:
+                membros = membros.filter(municipio=circulo.municipio)
+            for membro in membros:
+                CirculoMembro(circulo=circulo, membro=membro).save()
+
+                # Log
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                    object_id = membro.pk,
+                    object_repr = u"%s" % membro,
+                    action_flag = CHANGE,
+                    change_message = u'Membro adicionado automaticamente ao Círculo %s.' % circulo
+                )
+            messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros.count())
             return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
 
-        membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
-        membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
-        if circulo.municipio:
-            membros = membros.filter(municipio=circulo.municipio)
-        for membro in membros:
-            CirculoMembro(circulo=circulo, membro=membro).save()
-
-            # Log
-            user = User.objects.get_or_create(username="sys")[0]
-            LogEntry.objects.log_action(
-                user_id = user.pk,
-                content_type_id = ContentType.objects.get_for_model(membro).pk,
-                object_id = membro.pk,
-                object_repr = u"%s" % membro,
-                action_flag = CHANGE,
-                change_message = u'Membro adicionado automaticamente ao Círculo %s.' % circulo
-            )
-        messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros.count())
+        messages.error(request, u'Esta ação não é permitida para Círculos que não são Regional ou Esfera!')
         return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
 
     def get_urls(self):
@@ -709,7 +709,7 @@ class CirculoAdmin(PowerModelAdmin):
         buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
         obj = self.get_object(request, object_id)
         if obj:
-            if obj.tipo == 'R':
+            if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Incluir Membros Automaticamente'))
         return buttons
 

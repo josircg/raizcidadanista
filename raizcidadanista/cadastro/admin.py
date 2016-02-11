@@ -19,7 +19,7 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 from decimal import Decimal
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from functools import partial
 import os
 import csv
@@ -658,8 +658,9 @@ class CirculoAdmin(PowerModelAdmin):
     def enviar_convite_evento(self, request, id_evento):
         evento = get_object_or_404(CirculoEvento, pk=id_evento)
 
+        dt_evento = evento.dt_evento
         sendmail(
-            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(evento.dt_evento, 'd \d\e F \d\e Y'), _date(evento.dt_evento, 'H:i'),),
+            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
             to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
             template='emails/evento-convite.html',
             params={

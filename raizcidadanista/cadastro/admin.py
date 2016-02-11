@@ -13,12 +13,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaultfilters import date as _date
 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
 from decimal import Decimal
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from functools import partial
 import os
 import csv
@@ -581,10 +583,11 @@ class CirculoEventoCirculoInline(admin.TabularInline):
     actions.short_description = u'Ações'
 
     def get_readonly_fields(self, request, obj=None):
-        if not (CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists()):
-            return ('nome', 'dt_evento', 'local', 'actions')
-        else:
+        if request.user.is_superuser or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists():
+            self.max_num = None
             return ('actions', )
+        self.max_num = 0
+        return ('nome', 'dt_evento', 'local', 'actions')
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
@@ -656,8 +659,9 @@ class CirculoAdmin(PowerModelAdmin):
     def enviar_convite_evento(self, request, id_evento):
         evento = get_object_or_404(CirculoEvento, pk=id_evento)
 
+        dt_evento = evento.dt_evento
         sendmail(
-            subject=u'Convite - %s - %s e %s' % (evento.nome, evento.dt_evento.strftime('%d/%m/%Y'), evento.dt_evento.strftime('%H:%M')),
+            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
             to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
             template='emails/evento-convite.html',
             params={
@@ -667,12 +671,47 @@ class CirculoAdmin(PowerModelAdmin):
         messages.info(request, u'Os emails estão sendo enviados!')
         return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(evento.circulo.pk, )))
 
+    def incluir_membros_auto(self, request, id_circulo):
+        circulo = get_object_or_404(Circulo, pk=id_circulo)
+        if circulo.tipo == 'R' or (circulo.tipo == 'E' and circulo.uf ):
+            membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
+            membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
+            if circulo.municipio:
+                membros = membros.filter(municipio=circulo.municipio)
+            for membro in membros:
+                CirculoMembro(circulo=circulo, membro=membro).save()
+
+                # Log
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                    object_id = membro.pk,
+                    object_repr = u"%s" % membro,
+                    action_flag = CHANGE,
+                    change_message = u'Membro adicionado automaticamente ao Círculo %s.' % circulo
+                )
+            messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros.count())
+            return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
+
+        messages.error(request, u'Esta ação não é permitida para Círculos que não são Regional ou Esfera!')
+        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
+
     def get_urls(self):
         urls_originais = super(CirculoAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circulo_enviar_convite_evento'),
+            url(r'^(?P<id_circulo>\d+)/incluir-membros-auto/$', self.wrap(self.incluir_membros_auto), name='cadastro_circulo_incluir_membros_auto'),
         )
         return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj:
+            if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
+                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Incluir Membros Automaticamente'))
+        return buttons
 
     def save_model(self, request, obj, form, change):
         return super(CirculoAdmin, self).save_model(request, obj, form, change)

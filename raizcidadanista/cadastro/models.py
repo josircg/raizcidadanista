@@ -312,7 +312,8 @@ def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args,
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
-        instance.grupousuario.delete()
+        try: instance.grupousuario.delete()
+        except: pass
 @receiver(signals.post_save, sender=CirculoMembro)
 def udpdate_user_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.membro.usuario:
@@ -327,7 +328,7 @@ class CirculoEvento(models.Model):
     circulo = models.ForeignKey(Circulo)
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
-    local = models.TextField(u'Local do Evento')
+    local = models.TextField(u'Descrição e Local')
     privado = models.BooleanField(u'Privado', default=True)
     artigo = models.ForeignKey(Article, editable=False, blank=True, null=True)
 
@@ -341,10 +342,15 @@ class CirculoEvento(models.Model):
 def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
     if not instance.privado and not instance.artigo:
         # Cria o artigo
-        section = Section.objects.get(slug='eventos')
+        try:
+            section = Section.objects.get(slug='eventos')
+        except Section.DoesNotExist:
+            section = Section.objects.create(title='Eventos', slug='eventos')
         author = User.objects.get_or_create(username="sys")[0]
         artigo = Article(
-            title=instance.nome,
+            title=u'%s - %s' % (instance.circulo.titulo, instance.nome,),
+            header=instance.local,
+            content=instance.local,
             author=author,
             created_at=instance.dt_evento,
             is_active=True,

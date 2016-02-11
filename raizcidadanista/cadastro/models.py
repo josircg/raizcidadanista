@@ -312,7 +312,8 @@ def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args,
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
-        instance.grupousuario.delete()
+        try: instance.grupousuario.delete()
+        except: pass
 @receiver(signals.post_save, sender=CirculoMembro)
 def udpdate_user_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.membro.usuario:

@@ -341,10 +341,15 @@ class CirculoEvento(models.Model):
 def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
     if not instance.privado and not instance.artigo:
         # Cria o artigo
-        section = Section.objects.get(slug='eventos')
+        try:
+            section = Section.objects.get(slug='eventos')
+        except Section.DoesNotExist:
+            section = Section.objects.create(title='Eventos', slug='eventos')
         author = User.objects.get_or_create(username="sys")[0]
         artigo = Article(
             title=instance.nome,
+            header=instance.local,
+            content=instance.local,
             author=author,
             created_at=instance.dt_evento,
             is_active=True,

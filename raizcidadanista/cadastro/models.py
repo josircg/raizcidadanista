@@ -304,7 +304,7 @@ class CirculoMembro(models.Model):
 # Só mostrar o campo Oficial se o usuário for do grupo Diretoria
 # Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
-        return u'#%s' % self.pk
+        return u'%s (%s)' % (self.circulo, self.membro)
 @receiver(signals.pre_save, sender=CirculoMembro)
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:

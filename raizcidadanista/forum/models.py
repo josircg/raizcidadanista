@@ -86,7 +86,7 @@ class Conversa(models.Model):
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s/%s' % (self.topico, self.autor)
+        return u'%s (%s)' % (self.topico, self.autor)
 
 
 STATUS_CURTIDA = (
@@ -99,7 +99,7 @@ class ConversaCurtida(models.Model):
     curtida = models.CharField(u'Curtiu?', max_length=1, choices=STATUS_CURTIDA)
 
     def __unicode__(self):
-        return u'#%s - %s' % (self.pk, self.get_curtida_display(), )
+        return u'%s (%s) - %s' % (self.conversa, self.colaborador, self.get_curtida_display(), )
 
 
 # Conversa sujeita a votação
@@ -112,7 +112,7 @@ class Proposta(Conversa):
     status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA)
 
     def __unicode__(self):
-        return u'#%s - %s' % (self.pk, self.get_status_display(), )
+        return u'%s (%s) - %s' % (self.topico, self.autor, self.get_status_display(), )
 
 
 # Voto na proposta
@@ -128,4 +128,4 @@ class Voto(models.Model):
     voto = models.CharField(u'Tipo de Votação', max_length=1, choices=TIPO_VOTO)
 
     def __unicode__(self):
-        return u'#%s - %s' % (self.pk, self.get_voto_display(), )
+        return u'%s (%s) - %s' % (self.proposta, self.eleitor, self.get_voto_display(), )

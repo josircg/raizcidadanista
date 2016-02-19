@@ -44,7 +44,7 @@ class Topico(models.Model):
 
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Grupo)
-    status = models.CharField(u'Status', max_length=1, choices=STATUS_TOPICO)
+    status = models.CharField(u'Status', max_length=1, choices=STATUS_TOPICO, default='A')
     criador = models.ForeignKey(User)
     dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)

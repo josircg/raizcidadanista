@@ -9,7 +9,34 @@
 
 {% block main %}
     <div class="col-article">
-        <h3>Fórum › Tópicos: {{ object }}</h3>
+        <h3>Fórum › Tópicos: {{ object }}<button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></h3>
+
+        <form id="form-new-topic" action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Novo tópico</h3>
+                    {% for field in form %}
+                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                            {% if field|btischeckbox %}
+                                {{ field|btform }}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {% else %}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                {{ field|btform }}
+                            {% endif %}
+                            {% if field.errors %}
+                            <ul class="list-unstyled">
+                            {% for error in field.errors %}
+                              <li class="text-error"><small>{{ error }}</small></li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                </div>
+            </div>
+        </form>
 
         {{ object.descricao|safe }}
 
@@ -35,4 +62,21 @@
         </nav>
     </div>
 
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .new-topic {float: right;}
+    #form-new-topic{display: none;}
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    $('.new-topic').click(function(event) {
+        $('#form-new-topic').slideToggle();
+        return false;
+    });
+</script>
 {% endblock %}

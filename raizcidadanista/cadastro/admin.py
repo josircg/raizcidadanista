@@ -683,13 +683,23 @@ class CirculoAdmin(PowerModelAdmin):
 
                 # Log
                 user = User.objects.get_or_create(username="sys")[0]
+                # Log do membro
                 LogEntry.objects.log_action(
                     user_id = user.pk,
                     content_type_id = ContentType.objects.get_for_model(membro).pk,
                     object_id = membro.pk,
                     object_repr = u"%s" % membro,
                     action_flag = CHANGE,
-                    change_message = u'Membro adicionado automaticamente ao Círculo %s.' % circulo
+                    change_message = u'Membro se inscreveu no Círculo %s.' % circulo
+                )
+                # Log do círculo
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(circulo).pk,
+                    object_id = circulo.pk,
+                    object_repr = u"%s" % circulo,
+                    action_flag = CHANGE,
+                    change_message = u'Membro %s se inscreveu.' % membro
                 )
             messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros.count())
             return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))

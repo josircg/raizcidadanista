@@ -103,6 +103,24 @@ class MembroEntrarCirculoView(View):
         cm, created = CirculoMembro.objects.get_or_create(circulo=circulo, membro=membro)
 
         if created:
+            # Log do membro
+            LogEntry.objects.log_action(
+                user_id = request.user.pk,
+                content_type_id = ContentType.objects.get_for_model(membro).pk,
+                object_id = membro.pk,
+                object_repr = u"%s" % membro,
+                action_flag = CHANGE,
+                change_message = u'Membro adicionado automaticamente ao Círculo %s.' % circulo
+            )
+            # Log do círculo
+            LogEntry.objects.log_action(
+                user_id = request.user.pk,
+                content_type_id = ContentType.objects.get_for_model(circulo).pk,
+                object_id = circulo.pk,
+                object_repr = u"%s" % circulo,
+                action_flag = CHANGE,
+                change_message = u'Membro %s adicionado automaticamente.' % membro
+            )
             messages.info(request, u'Você agora faz parte do Círculo %s.' % circulo.titulo)
         else:
             messages.info(request, u'Você já fazia parte do Círculo %s.' % circulo.titulo)

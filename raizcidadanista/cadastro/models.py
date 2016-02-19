@@ -228,6 +228,7 @@ def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kw
 
             # Log
             user = User.objects.get_or_create(username="sys")[0]
+            # Log do membro
             LogEntry.objects.log_action(
                 user_id = user.pk,
                 content_type_id = ContentType.objects.get_for_model(instance).pk,
@@ -235,6 +236,15 @@ def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kw
                 object_repr = u"%s" % instance,
                 action_flag = CHANGE,
                 change_message = u'Membro adicionado automaticamente no Círculo %s.' % circulo
+            )
+            # Log do Círculo
+            LogEntry.objects.log_action(
+                user_id = user.pk,
+                content_type_id = ContentType.objects.get_for_model(circulo).pk,
+                object_id = circulo.pk,
+                object_repr = u"%s" % circulo,
+                action_flag = CHANGE,
+                change_message = u'Membro %s adicionado automaticamente.' % instance
             )
 
 
@@ -304,7 +314,7 @@ class CirculoMembro(models.Model):
 # Só mostrar o campo Oficial se o usuário for do grupo Diretoria
 # Só permitir a edição do evento se o membro for administrador do círculo
     def __unicode__(self):
-        return u'#%s' % self.pk
+        return u'%s (%s)' % (self.circulo, self.membro)
 @receiver(signals.pre_save, sender=CirculoMembro)
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:

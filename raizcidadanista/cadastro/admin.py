@@ -146,7 +146,7 @@ class MembroAdmin(PowerModelAdmin):
     search_fields = ('nome', 'email',)
     list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -169,7 +169,7 @@ class MembroAdmin(PowerModelAdmin):
     def get_actions(self, request):
         actions = super(MembroAdmin, self).get_actions(request)
         if request.user.groups.filter(name=u'Coordenador Local').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 del actions[action]
         return actions
 
@@ -267,6 +267,16 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     requerimento.short_description = u'Requerimento'
+
+    def requerimento_html(self, request, queryset, template_name='admin/cadastro/membro/requerimento-html.html'):
+        results = {}
+        for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True)):
+            results[estado] = queryset.filter(uf_eleitoral__nome=estado)
+
+        return render_to_response(template_name, {
+            'results': results,
+        },context_instance=RequestContext(request))
+    requerimento_html.short_description = u'Requerimento em Texto'
 
     def listagem_telefonica(self, request, queryset, template_name_pdf='admin/cadastro/membro/listagem-telefonica-pdf.html'):
         template = get_template(template_name_pdf)

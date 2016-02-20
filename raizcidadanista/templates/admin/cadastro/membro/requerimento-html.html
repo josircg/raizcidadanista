@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Requerimento</title>
+        <style>
+            body {
+                font-family: Arial;
+                font-size: 12px;
+                text-align: left;
+            }
+            h1 {
+                text-transform: uppercase;
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+    {% for estado, membros in results.items %}
+        <b>FUNDADORES DO ESTADO {{ estado|upper }}</b>:
+        {% for membro in membros %}
+            {{ membro.index }}) <b>{{ membro.nome|title }}</b>, {{ membro.nacionalidade }}{% if membro.estadocivil %}{{ membro.get_estadocivil_genero_display }}, {% endif %}{% if membro.atividade_profissional %} {{ membro.atividade_profissional }}, {% endif %}{% if membro.cpf %}CPF sob o n. {{ membro.cpf }}{% endif %}{% if membro.titulo_eleitoral %}TE n. {{ membro.titulo_eleitoral }}{% endif %}{% if membro.zona_eleitoral %}, zona {{ membro.zona_eleitoral }}{% endif %}{% if membro.secao_eleitoral %}, seção {{ membro.secao_eleitoral }}{% endif %}, {{ membro.naturalidade }}, email {{ membro.email }}, {% if membro.celular %}telefone: {{ membro.celular }}, {% endif %}
+{% if membro.endereco %}residente em {{ membro.endereco }}{% endif %}{% if membro.endereco_num %}, {{ membro.endereco_num }}{% endif %}{% if membro.municipio %}, {{ membro.municipio }}{% endif %}{% if membro.uf %}, {{ membro.uf.uf }}{% endif %}{% if membro.endereco_cep %}, CEP {{ membro.endereco_cep }}{% endif %}.
+        {% endfor %}
+    {% endfor %}
+    </body>
+</html>

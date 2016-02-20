@@ -270,8 +270,13 @@ class MembroAdmin(PowerModelAdmin):
 
     def requerimento_html(self, request, queryset, template_name='admin/cadastro/membro/requerimento-html.html'):
         results = {}
+        index = 1
         for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True)):
-            results[estado] = queryset.filter(uf_eleitoral__nome=estado)
+            results[estado] = []
+            for membro in queryset.filter(uf_eleitoral__nome=estado):
+                membro.index = index
+                index += 1
+                results[estado].append(membro)
 
         return render_to_response(template_name, {
             'results': results,

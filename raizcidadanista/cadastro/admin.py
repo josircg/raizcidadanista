@@ -274,14 +274,16 @@ class MembroAdmin(PowerModelAdmin):
     requerimento.short_description = u'Requerimento'
 
     def requerimento_html(self, request, queryset, template_name='admin/cadastro/membro/requerimento-html.html'):
-        results = {}
+        results = []
+        estados = UF.objects.filter(pk__in=queryset.values_list('uf_eleitoral', flat=True)).order_by('nome').distinct()
         index = 1
-        for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True).order_by('uf_eleitoral__nome')):
-            results[estado] = []
-            for membro in queryset.filter(uf_eleitoral__nome=estado).order_by('nome'):
+        for estado in estados:
+            membros = []
+            for membro in queryset.filter(uf_eleitoral=estado).order_by('nome'):
                 membro.index = index
                 index += 1
-                results[estado].append(membro)
+                membros.append(membro)
+            results.append([estado, membros])
 
         return render_to_response(template_name, {
             'results': results,

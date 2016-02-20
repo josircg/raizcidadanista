@@ -167,10 +167,15 @@ class MembroAdmin(PowerModelAdmin):
     )
 
     def get_actions(self, request):
-        actions = super(MembroAdmin, self).get_actions(request)
+        allactions = super(MembroAdmin, self).get_actions(request)
+        if request.user.is_superuser:
+            return allactions
+        actions = {}
         if request.user.groups.filter(name=u'Coordenador Local').exists():
+            actions['listagem_telefonica'] = allactions['listagem_telefonica']
+        if request.user.groups.filter(name=u'Financeiro').exists():
             for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
-                del actions[action]
+                actions[action] = allactions[action]
         return actions
 
     def get_list_display_links(self, request, list_display):
@@ -271,9 +276,9 @@ class MembroAdmin(PowerModelAdmin):
     def requerimento_html(self, request, queryset, template_name='admin/cadastro/membro/requerimento-html.html'):
         results = {}
         index = 1
-        for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True)):
+        for estado in set(queryset.values_list('uf_eleitoral__nome', flat=True).order_by('uf_eleitoral__nome')):
             results[estado] = []
-            for membro in queryset.filter(uf_eleitoral__nome=estado):
+            for membro in queryset.filter(uf_eleitoral__nome=estado).order_by('nome'):
                 membro.index = index
                 index += 1
                 results[estado].append(membro)

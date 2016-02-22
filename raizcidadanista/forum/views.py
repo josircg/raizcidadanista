@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from models import Grupo, Topico
-from forms import AddTopicoForm
+from forms import AddTopicoForm, AddConversaForm
 
 
 
@@ -88,6 +88,18 @@ class TopicoAddView(FormView):
 class TopicoView(DetailView):
     model = Topico
     template_name = 'forum/topico.html'
+    form_class = AddConversaForm
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.form_class()
+        return super(TopicoView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.form = self.form_class(request.POST, request.FILES)
+        if self.form.is_valid():
+            return self.form_valid(self.form)
+        else:
+            return self.form_invalid(self.form)
 
     def get_queryset(self):
         return super(TopicoView, self).get_queryset().filter(status='A')
@@ -98,10 +110,23 @@ class TopicoView(DetailView):
             raise PermissionDenied()
         return obj
 
+    def form_valid(self, form):
+        self.object = self.get_object()
+        instance = form.save(topico=self.object, autor=self.request.user)
+        self.form = self.form_class()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super(TopicoView, self).get_context_data(**kwargs)
 
-        conversas_list = self.object.conversa_set.all()
+        conversas_list = self.object.conversa_set.filter(conversa_pai=None)
         paginator = Paginator(conversas_list, 10)
 
         page = self.request.GET.get('page')
@@ -112,5 +137,6 @@ class TopicoView(DetailView):
         except EmptyPage:
             conversas = paginator.page(paginator.num_pages)
 
+        context['form'] = self.form
         context['conversas'] = conversas
         return context

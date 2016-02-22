@@ -1,5 +1,5 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap %}
+{% load bootstrap static %}
 
 {% block title %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
 {% block ogtitle %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
@@ -15,6 +15,21 @@
         <blockquote>
           <h4>{{ conversa.texto|safe }}</h4>
           <footer>Por: {% firstof conversa.autor.first_name conversa.autor.username %} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+          {% for conversa_filho in conversa.conversa_set.all %}
+            <blockquote>
+              <h4>{{ conversa_filho.texto|safe }}</h4>
+              <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+            </blockquote>
+          {% endfor %}
+          <form action="" method="POST" role="form">{% csrf_token %}
+            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+              <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+              <br>
+              <button type="submit" class="btn btn-success">Responder</button>
+          </form>
+          <script type="text/javascript">
+              CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+          </script>
         </blockquote>
         {% endfor %}
 
@@ -29,6 +44,32 @@
             {% endif %}
           </ul>
         </nav>
+
+        <form action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Novo comentário</h3>
+                    <div class="form-group{% if form.texto.errors %} has-error has-feedback{% endif %} group-{{ form.texto.name }}">
+                      {{ form.texto|btform }}
+                      {% if form.texto.errors %}
+                      <ul class="list-unstyled">
+                      {% for error in form.texto.errors %}
+                        <li class="text-error"><small>{{ error }}</small></li>
+                      {% endfor %}
+                      </ul>
+                      {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                </div>
+            </div>
+        </form>
     </div>
 
+{% endblock %}
+
+{% block css %}
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style type="text/css">
+  .cke_bottom{display: none !important}
+</style>
 {% endblock %}

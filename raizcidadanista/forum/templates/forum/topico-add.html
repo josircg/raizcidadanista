@@ -1,5 +1,5 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap %}
+{% load bootstrap static %}
 
 {% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
 {% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
@@ -38,5 +38,11 @@
             </div>
         </form>
     </div>
+{% endblock %}
 
+{% block css %}
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style type="text/css">
+  .cke_bottom{display: none !important}
+</style>
 {% endblock %}

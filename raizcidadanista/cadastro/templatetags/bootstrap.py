@@ -17,3 +17,9 @@ def btischeckbox(field):
     if 'type="checkbox"' in str(field):
         return True
     return False
+
+@register.filter(name='btishidden')
+def btishidden(field):
+    if 'type="hidden"' in str(field):
+        return True
+    return False

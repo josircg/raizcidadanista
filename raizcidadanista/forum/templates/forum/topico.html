@@ -19,9 +19,12 @@
             <blockquote>
               <h4>{{ conversa_filho.texto|safe }}</h4>
               <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+              <small><a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)</small>
             </blockquote>
           {% endfor %}
-          <form action="" method="POST" role="form">{% csrf_token %}
+
+          <small><a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>) | <a class="responder-link" href="javascript://">Responder</a></small>
+          <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
               <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
               <br>
@@ -70,6 +73,25 @@
 {% block css %}
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 <style type="text/css">
-  .cke_bottom{display: none !important}
+  .cke_bottom { display: none !important }
+  .cke_contents {min-height: 100px !important; width: 100% !important;}
+  .responder-form { display: none }
 </style>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  $('.responder-link').click(function(event) {
+    $(this).parent().parent().find('.responder-form').slideToggle();
+  });
+
+  $('.like-link').click(function(event) {
+    var likelink = $(this);
+    $.getJSON(likelink.attr('href'), function(data) {
+      $(likelink).parent().find('.like-count').html(data.curtiu);
+      $(likelink).parent().find('.unlike-count').html(data.naocurtiu);
+    });
+    return false;
+  });
+</script>
 {% endblock %}

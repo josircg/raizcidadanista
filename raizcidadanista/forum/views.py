@@ -3,12 +3,13 @@ from django.views.generic import DetailView, TemplateView, FormView
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 
-from models import Grupo, Topico
+from models import Grupo, Topico, Conversa, ConversaCurtida
 from forms import AddTopicoForm, AddConversaForm
 
+import json
 
 
 class ForumView(TemplateView):
@@ -91,6 +92,23 @@ class TopicoView(DetailView):
     form_class = AddConversaForm
 
     def get(self, request, *args, **kwargs):
+        # Computar curtidas
+        if request.is_ajax():
+            if request.GET.get('conversa') and request.GET.get('curtir'):
+                conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'))
+                try:
+                    cc = ConversaCurtida.objects.get(conversa=conversa, colaborador=request.user)
+                except ConversaCurtida.DoesNotExist:
+                    cc = ConversaCurtida(conversa=conversa, colaborador=request.user)
+                if request.GET.get('curtir') == 'true':
+                    cc.curtida = 'C'
+                elif request.GET.get('curtir') == 'false':
+                    cc.curtida = 'N'
+                cc.save()
+                return HttpResponse(json.dumps({
+                    'curtiu': conversa.curtiu().count(),
+                    'naocurtiu': conversa.naocurtiu().count(),
+                }), mimetype='application/json')
         self.form = self.form_class()
         return super(TopicoView, self).get(request, *args, **kwargs)
 

@@ -93,6 +93,12 @@ class Conversa(models.Model):
     arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
 
+    def curtiu(self):
+        return self.conversacurtida_set.filter(curtida='C')
+
+    def naocurtiu(self):
+        return self.conversacurtida_set.filter(curtida='N')
+
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
 @receiver(signals.post_save, sender=Conversa)

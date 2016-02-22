@@ -3,6 +3,10 @@ from django.db import models
 from utils.storage import UuidFileSystemStorage
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.db.models import signals
+from django.dispatch import receiver
+
+from datetime import datetime
 
 
 class Grupo(models.Model):
@@ -41,6 +45,7 @@ class Topico(models.Model):
     class Meta:
         verbose_name = u'Tópico'
         verbose_name_plural = u'Tópicos'
+        ordering = ('-dt_ultima_atualizacao', )
 
     titulo = models.CharField(u'Título', max_length=200)
     grupo = models.ForeignKey(Grupo)
@@ -87,6 +92,10 @@ class Conversa(models.Model):
 
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
+@receiver(signals.post_save, sender=Conversa)
+def update_topico(sender, instance, created, raw, using, *args, **kwargs):
+    instance.topico.dt_ultima_atualizacao = datetime.now()
+    instance.topico.save()
 
 
 STATUS_CURTIDA = (

@@ -49,10 +49,8 @@ class GrupoView(DetailView):
     def post(self, *args, **kwargs):
         self.object = self.get_object()
         self.form = self.form_class(self.request.POST)
-        self.form.instance.grupo = self.object
-        self.form.instance.criador = self.request.user
         if self.form.is_valid():
-            self.form.save()
+            self.form.save(grupo=self.object, criador=self.request.user)
             messages.info(self.request, u'Tópico criado com sucesso!')
         return HttpResponseRedirect(self.object.get_absolute_url())
 

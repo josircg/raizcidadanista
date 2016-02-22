@@ -8,4 +8,6 @@ from forum import views
 urlpatterns = [
     url(r'^$', login_required(views.ForumView.as_view()), name='forum'),
     url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),
+    url(r'^grupo/(?P<grupo_pk>\d+)/topico/add/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),
+    url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/$', login_required(views.TopicoView.as_view()), name='forum_topico'),
 ]

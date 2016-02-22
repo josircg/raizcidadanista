@@ -24,3 +24,4 @@ class AddTopicoForm(forms.ModelForm):
             autor=criador,
             texto=self.cleaned_data.get('texto'),
         ).save()
+        return topico

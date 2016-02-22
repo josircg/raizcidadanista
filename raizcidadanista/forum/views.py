@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView, FormView
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
@@ -34,25 +35,12 @@ class ForumView(TemplateView):
 class GrupoView(DetailView):
     model = Grupo
     template_name = 'forum/grupo.html'
-    form_class = AddTopicoForm
 
     def get_object(self, queryset=None):
         obj = super(GrupoView, self).get_object(queryset)
         if not obj.grupousuario_set.filter(usuario=self.request.user).exists():
             raise PermissionDenied()
         return obj
-
-    def get(self, request, *args, **kwargs):
-        self.form = self.form_class()
-        return super(GrupoView, self).get(request, *args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        self.object = self.get_object()
-        self.form = self.form_class(self.request.POST)
-        if self.form.is_valid():
-            self.form.save(grupo=self.object, criador=self.request.user)
-            messages.info(self.request, u'Tópico criado com sucesso!')
-        return HttpResponseRedirect(self.object.get_absolute_url())
 
     def get_context_data(self, **kwargs):
         context = super(GrupoView, self).get_context_data(**kwargs)
@@ -69,5 +57,60 @@ class GrupoView(DetailView):
             topicos = paginator.page(paginator.num_pages)
 
         context['topicos'] = topicos
-        context['form'] = self.form
+        return context
+
+
+class TopicoAddView(FormView):
+    template_name = 'forum/topico-add.html'
+    form_class = AddTopicoForm
+
+    def get_grupo(self):
+        obj = get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+        if not obj.grupousuario_set.filter(usuario=self.request.user).exists():
+            raise PermissionDenied()
+        return obj
+
+    def form_valid(self, form):
+        instance = form.save(grupo=self.get_grupo(), criador=self.request.user)
+        messages.info(self.request, u'Tópico criado com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        return super(TopicoAddView, self).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicoAddView, self).get_context_data(**kwargs)
+        context['object'] = self.get_grupo()
+        return context
+
+
+class TopicoView(DetailView):
+    model = Topico
+    template_name = 'forum/topico.html'
+
+    def get_queryset(self):
+        return super(TopicoView, self).get_queryset().filter(status='A')
+
+    def get_object(self, queryset=None):
+        obj = super(TopicoView, self).get_object(queryset)
+        if not obj.grupo.grupousuario_set.filter(usuario=self.request.user).exists():
+            raise PermissionDenied()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicoView, self).get_context_data(**kwargs)
+
+        conversas_list = self.object.conversa_set.all()
+        paginator = Paginator(conversas_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            conversas = paginator.page(page)
+        except PageNotAnInteger:
+            conversas = paginator.page(1)
+        except EmptyPage:
+            conversas = paginator.page(paginator.num_pages)
+
+        context['conversas'] = conversas
         return context

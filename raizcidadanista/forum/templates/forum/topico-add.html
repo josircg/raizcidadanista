@@ -1,0 +1,42 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap %}
+
+{% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block description %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3><a href="{% url forum %}">Fórum</a> › <a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a> › Adicionar novo tópico</h3>
+
+        <form action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Novo tópico</h3>
+                    {% for field in form %}
+                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                            {% if field|btischeckbox %}
+                                {{ field|btform }}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {% else %}
+                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                {{ field|btform }}
+                            {% endif %}
+                            {% if field.errors %}
+                            <ul class="list-unstyled">
+                            {% for error in field.errors %}
+                              <li class="text-error"><small>{{ error }}</small></li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

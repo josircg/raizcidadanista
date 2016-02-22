@@ -55,6 +55,9 @@ class Topico(models.Model):
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
 
+    def get_absolute_url(self):
+        return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
+
     def __unicode__(self):
         return u'%s' % self.titulo
 

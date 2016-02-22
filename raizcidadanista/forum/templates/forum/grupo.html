@@ -43,7 +43,7 @@
         {% for topico in topicos %}
         <a href="#">
             <blockquote>
-              <h4>{{ topico }}</h4>
+              <h4>{{ topico }} ({{ topico.conversa_set.count }})</h4>
               <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
             </blockquote>
         </a>
@@ -66,8 +66,17 @@
 
 {% block css %}
 <style type="text/css">
-    .new-topic {float: right;}
-    #form-new-topic{display: none;}
+    .new-topic {
+        float: right;
+    }
+    #form-new-topic {
+        display: none;
+    }
+    blockquote {
+        border: 1px solid #eee;
+        border-left: 5px solid #eee;
+        margin: 0px;
+    }
 </style>
 {% endblock %}
 

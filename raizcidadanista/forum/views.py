@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect
@@ -8,6 +8,27 @@ from django.contrib import messages
 from models import Grupo, Topico
 from forms import AddTopicoForm
 
+
+
+class ForumView(TemplateView):
+    template_name = 'forum/forum.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ForumView, self).get_context_data(**kwargs)
+
+        grupos_list = Grupo.objects.filter(grupousuario__usuario=self.request.user)
+        paginator = Paginator(grupos_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            grupos = paginator.page(page)
+        except PageNotAnInteger:
+            grupos = paginator.page(1)
+        except EmptyPage:
+            grupos = paginator.page(paginator.num_pages)
+
+        context['grupos'] = grupos
+        return context
 
 
 class GrupoView(DetailView):

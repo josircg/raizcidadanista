@@ -1,0 +1,46 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap %}
+
+{% block title %}Fórum - {% endblock %}
+{% block ogtitle %}Fórum - {% endblock %}
+
+{% block description %}Fórum - {% endblock %}
+{% block ogdescription %}Fórum - {% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3>Fórum</h3>
+
+        {% for grupo in grupos %}
+        <a href="{{ grupo.get_absolute_url }}">
+            <blockquote>
+              <h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4>
+              <p>{{ grupo.descricao|safe }}</p>
+            </blockquote>
+        </a>
+        {% endfor %}
+
+        <nav>
+          <ul class="pager">
+            {% if grupos.has_previous %}
+                <li class="previous"><a href="{{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+            {% endif %}
+
+            {% if grupos.has_next %}
+                <li class="next"><a href="{{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+            {% endif %}
+          </ul>
+        </nav>
+    </div>
+
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    blockquote {
+        border: 1px solid #eee;
+        border-left: 5px solid #eee;
+        margin: 0px;
+    }
+</style>
+{% endblock %}

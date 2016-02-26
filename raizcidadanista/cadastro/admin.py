@@ -613,13 +613,13 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
-    list_display = ('titulo', 'tipo', 'uf', 'oficial', 'num_membros', )
+    list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
     list_filter = ('tipo','uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
+        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'descricao', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
+        (None, {"fields" : ('titulo', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
     readonly_fields = ('num_membros', )
     actions = ('export_csv', 'criar_forum')

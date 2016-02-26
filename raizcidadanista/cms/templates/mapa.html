@@ -71,7 +71,9 @@
                             {% if circulo|is_membro:user %}
                                 <td style="width: 150px"><span class="button-membro">Membro do Grupo</span></td>
                             {% else %}
-                                <td style="width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                                {% if circulo.permitecadastro %}
+                                    <td style="width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Entrar no grupo</a></td>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                         </tr>

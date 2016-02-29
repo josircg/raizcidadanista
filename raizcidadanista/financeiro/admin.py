@@ -42,6 +42,7 @@ class ReceitaAdmin(PowerModelAdmin):
     fieldsets = [
         (None, {'fields': ('conta', 'colaborador', )}),
         (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', )}),
+        (u'Detalhes', {'fields': ('nota', )}),
     ]
     actions = ('listagem_doadores', )
 

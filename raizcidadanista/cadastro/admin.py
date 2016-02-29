@@ -172,10 +172,12 @@ class MembroAdmin(PowerModelAdmin):
             return allactions
         actions = {}
         if request.user.groups.filter(name=u'Coordenador Local').exists():
-            actions['listagem_telefonica'] = allactions['listagem_telefonica']
+            if allactions.get('listagem_telefonica'):
+                actions['listagem_telefonica'] = allactions['listagem_telefonica']
         if request.user.groups.filter(name=u'Financeiro').exists():
             for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
-                actions[action] = allactions[action]
+                if allactions.get(action):
+                    actions[action] = allactions[action]
         return actions
 
     def get_list_display_links(self, request, list_display):

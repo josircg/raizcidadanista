@@ -34,9 +34,17 @@ class NewsletterForm(forms.ModelForm):
 class MembroForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
 
+    cpf = BRCPFField(
+        label='CPF',
+        error_messages={
+            'invalid':u'Preencha corretamente o seu CPF.',
+            'max_digits': u'Certifique-se de que o valor tenha no máximo 11 números no formato: XXX.XXX.XXX-XX.',
+            'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
+        }
+    )
     captcha = ReCaptchaField()
 
     def __init__(self, *args, **kwargs):
@@ -50,6 +58,12 @@ class MembroForm(forms.ModelForm):
         if Membro.objects.filter(email=email).exists():
             raise forms.ValidationError(u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados.')
         return email
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        if cpf and Membro.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError(u'Já existe um cadastro com esse cpf.')
+        return cpf
 
     def save(self, commit=True):
         email = self.cleaned_data.get('email')
@@ -77,7 +91,7 @@ class MembroForm(forms.ModelForm):
 class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('fundador', 'nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
             'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil', 'uf_naturalidade', 'municipio_naturalidade',
             'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
@@ -207,7 +221,7 @@ class AtualizarCadastroLinkForm(forms.Form):
 class AtualizarCadastroFiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('fundador', 'nome', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('fundador', 'nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
             'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil', 'uf_naturalidade', 'municipio_naturalidade',
             'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
@@ -291,8 +305,17 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
 class AtualizarCadastroMembroForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'email', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
+
+    cpf = BRCPFField(
+        label='CPF',
+        error_messages={
+            'invalid':u'Preencha corretamente o seu CPF.',
+            'max_digits': u'Certifique-se de que o valor tenha no máximo 11 números no formato: XXX.XXX.XXX-XX.',
+            'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
+        }
+    )
 
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroMembroForm, self).__init__(*args, **kwargs)

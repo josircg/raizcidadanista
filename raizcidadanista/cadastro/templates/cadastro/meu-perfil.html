@@ -16,6 +16,8 @@
                 <h3>Dados pessoais</h3><br>
                 <div class="form-group col-md-5">
                     <label class="control-label">Nome Completo:</label> {{ membro.nome }}
+                </div><div class="form-group col-md-5">
+                    <label class="control-label">Apelido ou Alcunha:</label> {{ membro.apelido }}
                 </div>
                 <div class="form-group col-md-5">
                     <label class="control-label">Status:</label> {% if membro.filiado %}Filiado{% else %}Colaborador{% endif %}

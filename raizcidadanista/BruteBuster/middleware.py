@@ -32,9 +32,9 @@ class Response404Middleware(object):
             IP_ADDR = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', None))
             try:
                 fa = FailedURLAttempt.objects.filter(IP=IP_ADDR).latest('timestamp')
-                fa.failures += 1
-                fa.save()
                 if fa.recent_failure():
+                    fa.failures += 1
+                    fa.save()
                     if fa.too_many_failures():
                         # we block the authentication attempt because
                         # of too many recent failures

@@ -150,7 +150,7 @@ class MembroAdmin(PowerModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ['nome', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]
+            'fields': ['nome', 'apelido', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]
         }),
         ('Situação Cadastral', {
             'fields': [ ('status_email', 'usuario', 'aprovador'), ('filiado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
@@ -559,7 +559,7 @@ class FiliadoAdmin(PowerModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ['nome', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', 'uf_naturalidade', 'municipio_naturalidade', ]
+            'fields': ['nome', 'apelido', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', 'uf_naturalidade', 'municipio_naturalidade', ]
         }),
         (None, {
             'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]

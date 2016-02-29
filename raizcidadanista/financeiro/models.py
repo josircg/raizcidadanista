@@ -42,6 +42,7 @@ class Receita(models.Model):
     dtaviso = models.DateField(u'Dt. Informada')
     valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
     dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
+    nota = models.TextField(u'Nota', blank=True, null=True)
 
     def __unicode__(self):
         return u'%s/%s | R$ %s' % (self.conta, self.colaborador, self.valor)

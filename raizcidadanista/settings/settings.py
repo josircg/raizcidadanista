@@ -109,9 +109,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'utils.middleware.Http403Middleware',
     'utils.ThreadLocal.ThreadLocalMiddleware',
+    'BruteBuster.middleware.RequestMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'BruteBuster.middleware.Response404Middleware',
 )
 
 LOGIN_URL = '/login/'
@@ -171,6 +173,8 @@ INSTALLED_APPS = [
     'smart_selects',
     'compressor',
     'django.contrib.sitemaps',
+
+    'BruteBuster',
 ]
 
 if os.path.exists(os.path.join(PROJECT_DIR, 'theme')):

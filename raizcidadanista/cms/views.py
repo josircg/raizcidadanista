@@ -13,6 +13,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.db.models import Q
 
+from BruteBuster.models import FailedAttempt, BB_MAX_FAILURES, BB_BLOCK_INTERVAL
+
 from municipios.models import UF
 from cadastro.models import Circulo, Membro, CirculoMembro
 from financeiro.models import MetaArrecadacao
@@ -314,7 +316,14 @@ class LoginView(FormView):
         return HttpResponseRedirect(reverse('home'))
 
     def form_invalid(self, form):
-        messages.error(self.request, u"Preencha corretamente todos os dados!")
+        error_message = u"Preencha corretamente todos os dados!"
+        try:
+            IP_ADDR = self.request.META.get('REMOTE_ADDR', None)
+            failed = FailedAttempt.objects.filter(username=form.data.get('username'), IP=IP_ADDR).latest('timestamp')
+            if failed.blocked():
+                error_message = u"Você está bloqueado porque errou sua senha mais de %s vezes. Aguarde %s minutos e tente novamente!" % (BB_MAX_FAILURES, BB_BLOCK_INTERVAL, )
+        except FailedAttempt.DoesNotExist: pass
+        messages.error(self.request, error_message)
         return super(LoginView, self).form_invalid(form)
 
 

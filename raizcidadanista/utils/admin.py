@@ -38,7 +38,7 @@ class DashboardPreferencesAdmin(PowerModelAdmin):
 admin.site.register(DashboardPreferences, DashboardPreferencesAdmin)
 
 
-def user_unicode(obj): return obj.get_full_name() or obj.username
+def user_unicode(obj): return u'%s (%s)' % (obj.get_full_name(), obj.username, )
 User.__unicode__ = user_unicode
 admin.site.unregister(User)
 class CustomUserAdmin(UserAdmin, PowerModelAdmin):

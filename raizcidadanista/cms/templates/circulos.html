@@ -82,7 +82,9 @@
                                 <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
                             {% else %}
                             {% if user.membro.exists %}
-                                <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" {% if circulo.site_externo %}target="_parent"{% endif %}>Se inscrever</a></td>
+                                {% if circulo.permitecadastro %}
+                                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" {% if circulo.site_externo %}target="_parent"{% endif %}>Se inscrever</a></td>
+                                {% endif %}
                             {% endif %}
                             {% endif %}
                         {% endif %}

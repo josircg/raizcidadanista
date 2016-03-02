@@ -8,6 +8,7 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
@@ -99,6 +100,8 @@ class MembroEntrarCirculoView(View):
     def get(self, request, circulo_id, *args, **kwargs):
         circulo = get_object_or_404(Circulo, pk=circulo_id)
         membro = get_object_or_404(Membro, usuario=request.user)
+        if not circulo.permitecadastro:
+            raise PermissionDenied
 
         cm, created = CirculoMembro.objects.get_or_create(circulo=circulo, membro=membro)
 

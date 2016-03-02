@@ -277,6 +277,7 @@ class Circulo(models.Model):
     uf = models.ForeignKey(UF, blank=True, null=True)
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     oficial = models.BooleanField(u'Oficial', default=False)
+    permitecadastro = models.BooleanField(u'Permite cadastro', default=True)
     dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
     site_externo = models.URLField(u'Site / Blog / Fanpage', blank=True, null=True)
     imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,

@@ -47,8 +47,8 @@
     .has-error .form-control-feedback {
         margin-top: -6px;
     }
-    #id_nome, #id_email, #id_atividade_profissional {max-width: 500px;}
-    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_titulo_eleitoral, #id_uf_eleitoral, #id_contrib_valor {max-width: 165px;}
+    #id_nome, #id_apelido, #id_email, #id_atividade_profissional {max-width: 500px;}
+    #id_uf, #id_sexo, #id_dtnascimento, #id_rg, #id_cpf, #id_titulo_eleitoral, #id_uf_eleitoral, #id_contrib_valor {max-width: 165px;}
     #id_municipio, #id_celular, #id_residencial, #id_municipio_eleitoral, #id_filiacao_partidaria, #id_contrib_tipo {max-width: 300px;}
     @media (max-width: 992px){
         .col-left {display: none; }
@@ -62,6 +62,7 @@
     $(document).ready(function(){
         $('#id_dtnascimento').mask('00/00/0000');
         $('#id_celular, #id_residencial').mask('(00)00000-0000');
+        $('#id_cpf').mask('000.000.000-00');
 
         var default_municipio = $('#id_municipio').val();
         $('#id_municipio').remove();
@@ -85,9 +86,19 @@
             }
         }
 
-        get_municipios('#id_uf', '#id_municipio', default_municipio);
+        get_municipios('#id_uf', '#id_municipio');
         $("#id_uf").change(function(){
-            get_municipios('#id_uf', '#id_municipio', default_municipio);
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio').html('País/Cidade');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<input type="text" name="municipio" class="form-control" id="id_municipio">');
+            }else{
+                get_municipios('#id_uf', '#id_municipio');
+                $('.label-municipio').html('Município');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+            }
         });
     });
 </script>

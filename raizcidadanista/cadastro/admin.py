@@ -847,7 +847,7 @@ admin.site.register(Lista, ListaAdmin)
 
 
 class CampanhaAdmin(PowerModelAdmin):
-    list_display = ('lista', 'dtenvio', 'assunto', 'qtde_envio', 'qtde_erros', 'qtde_views',)
+    list_display = ('assunto', 'lista', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
     list_filter = ('dtenvio', )
     raw_id_fields = ('lista', )
     multi_search = (
@@ -858,7 +858,7 @@ class CampanhaAdmin(PowerModelAdmin):
         (None, { 'fields': ('lista', 'assunto', 'template', 'template_html', ), },),
     ]
     fieldsets_readonly = [
-        (None, { 'fields': ('lista', 'assunto', ('qtde_envio', 'qtde_erros', 'qtde_views',), 'dtenvio', 'template', 'template_html',), },),
+        (None, { 'fields': ('lista', 'assunto', ('qtde_envio', 'qtde_erros', 'qtde_views',), 'status', 'dtenvio', 'template', 'template_html',), },),
     ]
     readonly_fields = ('template_html', )
 
@@ -869,7 +869,7 @@ class CampanhaAdmin(PowerModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.dtenvio:
-            return ('lista', 'qtde_envio', 'dtenvio', 'qtde_erros', 'qtde_views', 'template_html', )
+            return ('lista', 'qtde_envio', 'status', 'dtenvio', 'qtde_erros', 'qtde_views', 'template_html', )
         return ('template_html', )
 
     def teste_de_envio(self, request, id_campanha):
@@ -877,26 +877,46 @@ class CampanhaAdmin(PowerModelAdmin):
         if request.method == 'POST' and request.POST.get('email'):
             email = request.POST.get('email')
             campanha.send_email_test(to=[email, ])
-            messages.info(request, u'O email enviado com sucesso!')
+            messages.info(request, u'Email enviado com sucesso!')
         else:
             messages.error(request, u'Preencha corretamento o campo email na hora de testar o envio.')
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
 
-    def envio(self, request, id_campanha):
+    def processar(self, request, id_campanha):
+        # Verificar se existe outra campanha sendo processada
+        if Campanha.objects.filter(status='P').exists():
+            messages.error(request, u'Já existe uma campanha sendo processada. ')
+            return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
+
         campanha = get_object_or_404(Campanha, pk=id_campanha)
-        # Verificar img 1x1 existe
+         # Verificar img 1x1 existe
         if not os.path.isfile(u"%s/site/img/1x1.png" % settings.STATIC_ROOT):
             messages.error(request, u'Não é possível enviar a campanha! Verifique se o arquivo %s/site/img/1x1.png existe.' % settings.STATIC_ROOT)
             return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
 
-        campanha.send_emails(request.user, resumir=False)
-        messages.info(request, u'Os emails estão sendo enviados!')
+        if campanha.status == 'P':
+            messages.error(request, u'A campanha já está sendo processada. ')
+        elif campanha.status == 'F':
+            messages.error(request, u'A campanha já foi finalizada. ')
+        elif campanha.status == 'E':
+            campanha.status = 'P'
+            campanha.save()
+            campanha.send_emails(request.user, resumir=False)
+            messages.info(request, u'Os emails estão sendo enviados!')
+        else:
+            campanha.status = 'P'
+            campanha.save()
+            campanha.send_emails(request.user, resumir=True)
+            messages.info(request, u'Processamento retomado. Os emails estão sendo enviados!')
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
 
-    def resumir_envio(self, request, id_campanha):
+    def interromper(self, request, id_campanha):
         campanha = get_object_or_404(Campanha, pk=id_campanha)
-        campanha.send_emails(request.user, resumir=True)
-        messages.info(request, u'Os emails estão sendo enviados!')
+        if campanha.status == 'P':
+            campanha.status = 'I'
+            campanha.save()
+        else:
+            messages.error(request, u'Não é possível interromper essa campanha. ')
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(id_campanha, )))
 
     def template(self, request, id_campanha):
@@ -918,8 +938,8 @@ class CampanhaAdmin(PowerModelAdmin):
         urls_originais = super(CampanhaAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^(?P<id_campanha>\d+)/teste-de-envio/$', self.wrap(self.teste_de_envio), name='cadastro_campanha_teste_de_envio'),
-            url(r'^(?P<id_campanha>\d+)/envio/$', self.wrap(self.envio), name='cadastro_campanha_envio'),
-            url(r'^(?P<id_campanha>\d+)/resumir-envio/$', self.wrap(self.resumir_envio), name='cadastro_campanha_resumir_envio'),
+            url(r'^(?P<id_campanha>\d+)/processar/$', self.wrap(self.processar), name='cadastro_campanha_processar'),
+            url(r'^(?P<id_campanha>\d+)/interromper/$', self.wrap(self.interromper), name='cadastro_campanha_interromper'),
             url(r'^(?P<id_campanha>\d+)/template/$', self.wrap(self.template), name='cadastro_campanha_template'),
             url(r'^(?P<id_campanha>\d+)/copiar/$', self.wrap(self.copiar), name='cadastro_campanha_copiar'),
         )
@@ -930,10 +950,10 @@ class CampanhaAdmin(PowerModelAdmin):
         obj = self.get_object(request, object_id)
         if obj:
             buttons.append(PowerButton(url='?lightbox[width]=280&lightbox[height]=90#box-teste_de_envio', attrs={'class': 'historylink lightbox', }, label=u'Teste de Envio'))
-            if not obj.dtenvio:
-                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_envio', kwargs={'id_campanha': object_id, }), label=u'Envio'))
-            if obj.qtde_erros > 0:
-                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_resumir_envio', kwargs={'id_campanha': object_id, }), label=u'Resumir envio interrompido'))
+            if obj.status in ('E', 'I', 'R'):
+                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_processar', kwargs={'id_campanha': object_id, }), label=u'Processar'))
+            if obj.status == 'P':
+                buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_interromper', kwargs={'id_campanha': object_id, }), label=u'Interromper'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
         return buttons
 

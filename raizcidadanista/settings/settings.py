@@ -188,6 +188,12 @@ CKEDITOR_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'uploads')
 CKEDITOR_UPLOAD_PREFIX = MEDIA_URL + 'uploads/'
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
 CKEDITOR_CONFIGS = {
+    'basic': {
+        'height': 100,
+        'width': '100%',
+        'skin': 'moono',
+        'toolbar': [['Bold', 'Italic', 'Underline'], ]
+    },
     'default': {
         'toolbar': [
             {

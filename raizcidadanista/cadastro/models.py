@@ -411,11 +411,19 @@ class ListaCadastro(models.Model):
         return u"%s - %s" % (self.lista, self.pessoa)
 
 
+CAMPANHA_STATUS_CHOICES = (
+    ('E', u'Em edição'),
+    ('P', u'Processando'),
+    ('I', u'Interrompida'),
+    ('R', u'Erro no Envio'),
+    ('F', u'Finalizada'),
+)
 class Campanha(models.Model):
     class Meta:
         ordering = ('dtenvio', )
 
     lista = models.ForeignKey(Lista, null=True, on_delete=models.SET_NULL)
+    status = models.CharField(u'Status', max_length=1, choices=CAMPANHA_STATUS_CHOICES, default='E')
     dtenvio = models.DateTimeField(u'Dt. Envio', blank=True, null=True)
     assunto = models.CharField(u'Assunto', max_length=255)
     template = models.TextField(u'Template')
@@ -447,7 +455,6 @@ class Campanha(models.Model):
             campanha = Campanha.objects.get(pk=campanha_id)
             subject = campanha.assunto
             text_content = subject
-            user = User.objects.get_or_create(username="sys")[0]
             campanha_ct = ContentType.objects.get_for_model(campanha)
 
             # Renderiza o template, se não consegui mata a thread
@@ -464,7 +471,7 @@ class Campanha(models.Model):
                         action_flag = CHANGE,
                         change_message = u'[ERROR] Erro ao montar template para envio.'
                     )
-                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=len(emails_list))
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=len(emails_list), status='R')
                     return
             html_content = template_content.render(Context({}))
 
@@ -485,18 +492,19 @@ class Campanha(models.Model):
                 # Realiza até 3 tentativas de enviar
                 tentativas = 0
                 while tentativas < 3:
-                    try:
-                        msg.send()
+                    # Interromer thread caso tenha marcado o status como Interrompido
+                    if Campanha.objects.get(pk=campanha_id).status == 'I':
                         LogEntry.objects.log_action(
                             user_id = user_id,
                             content_type_id = campanha_ct.pk,
                             object_id = campanha.pk,
                             object_repr = u"%s" % campanha,
                             action_flag = CHANGE,
-                            change_message = u'[INFO] Emails enviados com sucesso para: %s.' % u", ".join(emails)
+                            change_message = u'[INFO] Processo interrompido pelo usuário.'
                         )
-                        # Atualiza o número de envios
-                        Campanha.objects.filter(pk=campanha_id).update(qtde_envio=F('qtde_envio')+len(emails))
+                        return
+                    try:
+                        msg.send()
                         break
                     except:
                         LogEntry.objects.log_action(
@@ -520,8 +528,12 @@ class Campanha(models.Model):
                         action_flag = CHANGE,
                         change_message = u'[ERROR] Erro ao enviar emails para: %s.' % u", ".join(emails)
                     )
-                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=campanha.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).count()-F('qtde_envio'))
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_erros=campanha.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).count()-F('qtde_envio'), status='E')
                     return
+                else:
+                    # Atualiza o número de envios
+                    Campanha.objects.filter(pk=campanha_id).update(qtde_envio=F('qtde_envio')+len(emails))
+
 
             LogEntry.objects.log_action(
                 user_id = user_id,
@@ -532,6 +544,8 @@ class Campanha(models.Model):
                 change_message = u'[INFO] Envio Finalizado'
             )
 
+            # Atualiza o status
+            Campanha.objects.filter(pk=campanha_id).update(status='F')
 
         emails_list = self.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).values_list('pessoa__email', flat=True).order_by('pessoa__email')
         if resumir == True:

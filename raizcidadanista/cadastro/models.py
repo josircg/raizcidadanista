@@ -361,8 +361,8 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
         author = User.objects.get_or_create(username="sys")[0]
         artigo = Article(
             title=u'%s - %s' % (instance.circulo.titulo, instance.nome,),
-            header=instance.local,
-            content=instance.local,
+            header=instance.local.replace('\n', '<br>'),
+            content=instance.local.replace('\n', '<br>'),
             author=author,
             created_at=instance.dt_evento,
             is_active=True,
@@ -373,6 +373,8 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
         instance.artigo = artigo
     if instance.artigo:
         # Desabilita/Havilita a visualização do artigo
+        instance.artigo.header = instance.local.replace('\n', '<br>')
+        instance.artigo.content = instance.local.replace('\n', '<br>')
         instance.artigo.is_active = not instance.privado
         instance.artigo.save()
 

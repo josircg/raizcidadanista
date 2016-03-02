@@ -142,9 +142,14 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
+    list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
     list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', )
     search_fields = ('nome', 'email',)
-    list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
+    multi_search = (
+        ('q1', u'Nome', ['nome', ]),
+        ('q2', u'E-mail', ['email', ]),
+        ('q3', u'Profissão', ['atividade_profissional', ]),
+    )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
@@ -318,7 +323,7 @@ class MembroAdmin(PowerModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
-            return ()
+            return ('usuario', 'aprovador',)
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
@@ -544,6 +549,8 @@ class MembroAdmin(PowerModelAdmin):
 
     def queryset(self, request):
         qs = super(MembroAdmin, self).queryset(request)
+        if request.user.is_superuser or request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists():
+            return qs
         if request.user.groups.filter(name=u'Coordenador Local').exists():
             uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
             qs = qs.filter(uf__pk__in=uf_administrador_ids)

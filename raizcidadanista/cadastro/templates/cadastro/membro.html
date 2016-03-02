@@ -98,7 +98,17 @@
 
         get_municipios('#id_uf', '#id_municipio');
         $("#id_uf").change(function(){
-            get_municipios('#id_uf', '#id_municipio');
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio').html('País/Cidade');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<input type="text" name="municipio" class="form-control" id="id_municipio">');
+            }else{
+                get_municipios('#id_uf', '#id_municipio');
+                $('.label-municipio').html('Município');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+            }
         });
 
         $("#id_email").change(function(){

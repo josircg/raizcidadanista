@@ -76,19 +76,49 @@
             }
         }
 
-        get_municipios('#id_uf', '#id_municipio', default_municipio);
+        get_municipios('#id_uf', '#id_municipio');
         $("#id_uf").change(function(){
-            get_municipios('#id_uf', '#id_municipio', default_municipio);
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio').html('País/Cidade');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<input type="text" name="municipio" class="form-control" id="id_municipio">');
+            }else{
+                get_municipios('#id_uf', '#id_municipio');
+                $('.label-municipio').html('Município');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+            }
         });
 
-        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
+        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
         $("#id_uf_eleitoral").change(function(){
-            get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio_eleitoral').html('País/Cidade');
+                $('#id_municipio_eleitoral').remove();
+                $('.group-municipio_eleitoral').append('<input type="text" name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral">');
+            }else{
+                get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+                $('.label-municipio_eleitoral').html('Município');
+                $('#id_municipio_eleitoral').remove();
+                $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
+            }
         });
 
         get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
         $("#id_uf_naturalidade").change(function(){
-            get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio_naturalidade').html('País/Cidade');
+                $('#id_municipio_naturalidade').remove();
+                $('.group-municipio_naturalidade').append('<input type="text" name="municipio_naturalidade" class="form-control" id="id_municipio_naturalidade">');
+            }else{
+                get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
+                $('.label-municipio_naturalidade').html('Município');
+                $('#id_municipio_naturalidade').remove();
+                $('.group-municipio_naturalidade').append('<select name="municipio_naturalidade" class="form-control" id="id_municipio_naturalidade"></select>');
+            }
         });
     });
 </script>

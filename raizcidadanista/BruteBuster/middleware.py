@@ -4,8 +4,7 @@
 Brutebuster needs access to the REMOTE_IP of the incoming request. We're doing
 this by adding the request object to the thread_local space
 """
-from django.http import Http404
-from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponse
 
 from BruteBuster.models import FailedURLAttempt
 
@@ -38,7 +37,7 @@ class Response404Middleware(object):
                     if fa.too_many_failures():
                         # we block the authentication attempt because
                         # of too many recent failures
-                        raise PermissionDenied()
+                        return HttpResponse(u'Permission denied')
                 else:
                     # the block interval is over, so let's start
                     # with a clean sheet

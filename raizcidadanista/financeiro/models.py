@@ -2,6 +2,8 @@
 from django.db import models
 from django.db.models import Sum
 
+from django.contrib.admin.models import LogEntry,  CHANGE
+from django.contrib.contenttypes.models import ContentType
 from utils.fields import BRDecimalField
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
@@ -53,8 +55,29 @@ class Receita(models.Model):
             if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dtaviso:
                 if self.colaborador.contrib_tipo in ('1','3','6'):
                     self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(months=int(self.colaborador.contrib_tipo))
+                    user = User.objects.get_or_create(username="sys")[0]
+                    # Log do membro
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
+                        object_id = self.colaborador.pk,
+                        object_repr = u"%s" % self.colaborador,
+                        action_flag = CHANGE,
+                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
+                    )
+
                 elif self.colaborador.contrib_tipo == 'A':
                     self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(year=self.dtaviso.year+1)
+                    user = User.objects.get_or_create(username="sys")[0]
+                    # Log do membro
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
+                        object_id = self.colaborador.pk,
+                        object_repr = u"%s" % self.colaborador,
+                        action_flag = CHANGE,
+                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
+                    )
                 else:
                     self.colaborador.contrib_prox_pgto = None
                 self.colaborador.save()

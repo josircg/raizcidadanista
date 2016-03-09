@@ -54,7 +54,7 @@ class Receita(models.Model):
                 if self.colaborador.contrib_tipo in ('1','3','6'):
                     self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(months=int(self.colaborador.contrib_tipo))
                 elif self.colaborador.contrib_tipo == 'A':
-                    self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(year=1)
+                    self.colaborador.contrib_prox_pgto = self.dtaviso + relativedelta(year=self.dtaviso.year+1)
                 else:
                     self.colaborador.contrib_prox_pgto = None
                 self.colaborador.save()

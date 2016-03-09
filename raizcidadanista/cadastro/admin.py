@@ -249,7 +249,7 @@ class MembroAdmin(PowerModelAdmin):
     estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
 
     def colaboradores_sem_pagamento(self, request, queryset, template_name_pdf='admin/cadastro/membro/colaboradores-sem-pagamento-pdf.html'):
-        colaboradores_com_pagamento_ids = Receita.objects.values_list('colaborador', flat=True)
+        colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)
         results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()
 
         template = get_template(template_name_pdf)

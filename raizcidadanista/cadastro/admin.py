@@ -153,7 +153,7 @@ class MembroAdmin(PowerModelAdmin):
         ('q3', u'Profissão', ['atividade_profissional', ]),
     )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -182,7 +182,7 @@ class MembroAdmin(PowerModelAdmin):
             if allactions.get('listagem_telefonica'):
                 actions['listagem_telefonica'] = allactions['listagem_telefonica']
         if request.user.groups.filter(name=u'Financeiro').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 if allactions.get(action):
                     actions[action] = allactions[action]
         return actions
@@ -266,6 +266,20 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     colaboradores_sem_pagamento.short_description = u'Colaboradores sem pagamento'
+
+    def lista_colaboradores_sem_pagamento(self, request, queryset):
+        colaboradores_com_pagamento_ids = Receita.objects.values_list('colaborador', flat=True)
+        results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()
+
+        lista = Lista(nome=u'Colaboradores sem pagamento', validade=datetime.now(), status='P')
+        lista.save()
+
+        for colaborador in results:
+            ListaCadastro(lista=lista, pessoa=colaborador).save()
+
+        messages.info(request, u'Lista criada com sucesso!')
+        return HttpResponseRedirect(reverse('admin:cadastro_lista_change', args=(lista.pk, )))
+    lista_colaboradores_sem_pagamento.short_description = u'Lista Colaboradores sem pagamento'
 
     def atualizacao_cadastral(self, request, queryset):
         campanhas = Campanha.objects.filter(assunto__icontains=u'[!]').order_by('pk')

@@ -268,7 +268,7 @@ class MembroAdmin(PowerModelAdmin):
     colaboradores_sem_pagamento.short_description = u'Colaboradores sem pagamento'
 
     def lista_colaboradores_sem_pagamento(self, request, queryset):
-        colaboradores_com_pagamento_ids = Receita.objects.values_list('colaborador', flat=True)
+        colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)
         results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()
 
         lista = Lista(nome=u'Colaboradores sem pagamento', validade=datetime.now(), status='P')

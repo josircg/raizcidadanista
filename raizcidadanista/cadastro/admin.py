@@ -14,6 +14,7 @@ from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.defaultfilters import date as _date
+from django.db.models import Sum, Q
 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
@@ -31,6 +32,7 @@ from xhtml2pdf.pisa import pisaDocument
 
 from forms import MembroImport, MalaDiretaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
+from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
 from municipios.models import UF, Municipio
@@ -143,7 +145,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 
 class MembroAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', )
+    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -151,7 +153,7 @@ class MembroAdmin(PowerModelAdmin):
         ('q3', u'Profissão', ['atividade_profissional', ]),
     )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -180,7 +182,7 @@ class MembroAdmin(PowerModelAdmin):
             if allactions.get('listagem_telefonica'):
                 actions['listagem_telefonica'] = allactions['listagem_telefonica']
         if request.user.groups.filter(name=u'Financeiro').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 if allactions.get(action):
                     actions[action] = allactions[action]
         return actions
@@ -245,6 +247,25 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
+
+    def colaboradores_sem_pagamento(self, request, queryset, template_name_pdf='admin/cadastro/membro/colaboradores-sem-pagamento-pdf.html'):
+        colaboradores_com_pagamento_ids = Receita.objects.values_list('colaborador', flat=True)
+        results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()
+
+        template = get_template(template_name_pdf)
+        context = RequestContext(request, {
+            'title': u'Colaboradores sem pagamento - Raiz Cidadanista',
+            'results': results,
+            'total': results.aggregate(total=Sum('contrib_valor')).get('total', 0)
+        })
+        html  = template.render(context)
+
+        dataresult = StringIO.StringIO()
+        pdf = pisaDocument(StringIO.StringIO(html.encode("UTF-8")), dest=dataresult)
+        if not pdf.err:
+            return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
+        return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
+    colaboradores_sem_pagamento.short_description = u'Colaboradores sem pagamento'
 
     def atualizacao_cadastral(self, request, queryset):
         campanhas = Campanha.objects.filter(assunto__icontains=u'[!]').order_by('pk')

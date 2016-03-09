@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <style>
+            @page {
+                size: A4;
+                margin: 0.7cm;
+                margin-top: 2.7cm;
+                margin-bottom: 1.7cm;
+                @frame footer {
+                    -pdf-frame-content: footer;
+                    bottom: 0.2cm;
+                    margin-left: 0.7cm;
+                    height: 1cm;
+                }
+                @frame head {
+                    -pdf-frame-content: head;
+                    margin: 0.7cm;
+                    height: 2cm;
+                }
+            }
+            body {
+                font-family: Arial;
+                font-size: 12px;
+            }
+            table {
+                margin-bottom: 5px;
+            }
+            td {
+                padding: 5px 5px 0 5px;
+            }
+            .border {
+                border: #333 1px solid;
+            }
+            .border-bottom {
+                border-bottom: #333 1px solid;
+            }
+            .border-top {
+                border-top: #333 1px solid;
+            }
+            .no-border {
+                border: 0px;
+            }
+            .center {
+                text-align: center;
+            }
+            .right {
+                text-align: right;
+            }
+            .title-head {
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .row0 td {
+                background: #f0f0f0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="head">
+            <table width="100%" class="border-bottom">
+                <tr>
+                    <td width="100%" class="title title-head center">{{ title }}</td>
+                </tr>
+            </table>
+            <table width"100%" class="border-bottom">
+                <thead>
+                    <tr>
+                        <td width="35%" class="title title-head center">Nome</td>
+                        <td width="35%" class="title title-head center">Email</td>
+                        <td width="15%" class="title title-head center">Contribuição</td>
+                        <td width="15%" class="title title-head right">Valor</td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div id="content">
+            <table width"100%">
+                <tbody>
+                    {% for colaborador in results %}
+                    <tr class="{% cycle 'row0' 'row1' %}">
+                        <td width="35%"><p>{{ colaborador.membro.nome }}</p></td>
+                        <td width="35%"><p>{{ colaborador.membro.email }}</p></td>
+                        <td width="15%" class="center"><p>{{ colaborador.get_contrib_tipo_display }}</p></td>
+                        <td width="15%" class="right"><p>{{ colaborador.contrib_valor }}</p></td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="row0">
+                        <td colspan="3" class="border-top"><p><b>TOTAL</b></p></td>
+                        <td width="15%" class="right border-top"><p><b>{{ total }}</b></p></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="footer">
+            {% now "d/m/Y H:i:s" %} - Pag. <pdf:pagenumber> de <pdf:pagecount>
+        </div>
+    </body>
+</html>

@@ -204,13 +204,25 @@ class MembroAdmin(PowerModelAdmin):
                 contador += 1
                 rec.aprovador = request.user
                 rec.save()
-                sendmail(
-                    subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
-                    to=[rec.email, ],
-                    template='emails/bemvindo-colaborador.html',
-                    params={
-                    },
-                )
+
+                # Buscar o template de "[Boas Vindas]" nas Campanhas
+                if Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
+                    template = Campanha.objects.filter(assunto__icontains="[Boas Vindas]").latest('pk')
+                    sendmail(
+                        subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
+                        to=[rec.email, ],
+                        template=template.template,
+                        params={
+                        },
+                    )
+                else:
+                    sendmail(
+                        subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
+                        to=[rec.email, ],
+                        template='emails/bemvindo-colaborador.html',
+                        params={
+                        },
+                    )
 
                 if Lista.objects.filter(nome=u'Colaboradores').exists():
                     ListaCadastro(

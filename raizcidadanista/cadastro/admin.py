@@ -153,7 +153,7 @@ class MembroAdmin(PowerModelAdmin):
         ('q3', u'Profissão', ['atividade_profissional', ]),
     )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -182,7 +182,7 @@ class MembroAdmin(PowerModelAdmin):
             if allactions.get('listagem_telefonica'):
                 actions['listagem_telefonica'] = allactions['listagem_telefonica']
         if request.user.groups.filter(name=u'Financeiro').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 if allactions.get(action):
                     actions[action] = allactions[action]
         return actions
@@ -266,6 +266,22 @@ class MembroAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     colaboradores_sem_pagamento.short_description = u'Colaboradores sem pagamento'
+
+    def colaboradores_sem_pagamento_csv(self, request, queryset):
+        colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)
+        results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()
+        csv = u'"Nome";"Email";"Contribuição";"Valor"\n'
+        for colaborador in results:
+            csv += u'"%(nome)s";"%(email)s";"%(contrib_tipo)s";"%(contrib_valor)s"\n' % {
+                'nome': u'%s' % colaborador.membro.nome,
+                'email': colaborador.membro.email,
+                'contrib_tipo': colaborador.get_contrib_tipo_display(),
+                'contrib_valor': colaborador.contrib_valor,
+            }
+        response = HttpResponse(csv, mimetype='application/csv; charset=utf-8', )
+        response['Content-Disposition'] = 'filename=Colaboradores_sem_pagamento.csv'
+        return response
+    colaboradores_sem_pagamento_csv.short_description = u'Colaboradores sem pagamento - csv'
 
     def lista_colaboradores_sem_pagamento(self, request, queryset):
         colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)

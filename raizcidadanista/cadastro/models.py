@@ -425,6 +425,7 @@ class Campanha(models.Model):
         ordering = ('dtenvio', )
 
     lista = models.ForeignKey(Lista, null=True, on_delete=models.SET_NULL)
+    autor = models.ForeignKey(User, blank=True, null=True)
     status = models.CharField(u'Status', max_length=1, choices=CAMPANHA_STATUS_CHOICES, default='E')
     dtenvio = models.DateTimeField(u'Dt. Envio', blank=True, null=True)
     assunto = models.CharField(u'Assunto', max_length=255)

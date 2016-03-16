@@ -905,7 +905,7 @@ admin.site.register(Lista, ListaAdmin)
 
 
 class CampanhaAdmin(PowerModelAdmin):
-    list_display = ('assunto', 'lista', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
+    list_display = ('assunto', 'lista', 'autor', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
     list_filter = ('dtenvio', )
     raw_id_fields = ('lista', )
     multi_search = (
@@ -988,6 +988,7 @@ class CampanhaAdmin(PowerModelAdmin):
         nova_campanha = Campanha.objects.create(
             assunto = campanha.assunto,
             template = campanha.template,
+            autor = request.user
         )
         messages.info(request, u'Cópia da campanha %s criada com sucesso!' % campanha)
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(nova_campanha.pk, )))
@@ -1014,6 +1015,17 @@ class CampanhaAdmin(PowerModelAdmin):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_interromper', kwargs={'id_campanha': object_id, }), label=u'Interromper'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_campanha_copiar', kwargs={'id_campanha': object_id, }), label=u'Copiar'))
         return buttons
+
+    def save_model(self, request, obj, form, change):
+        if not obj.autor:
+            obj.autor = request.user
+        return super(CampanhaAdmin, self).save_model(request, obj, form, change)
+
+    def queryset(self, request):
+        qs = super(CampanhaAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(autor=request.user)
 
 admin.site.register(Campanha, CampanhaAdmin)
 

@@ -1000,6 +1000,7 @@ class CampanhaAdmin(PowerModelAdmin):
         nova_campanha = Campanha.objects.create(
             assunto = campanha.assunto,
             template = campanha.template,
+            autor = request.user
         )
         messages.info(request, u'Cópia da campanha %s criada com sucesso!' % campanha)
         return HttpResponseRedirect(reverse('admin:cadastro_campanha_change', args=(nova_campanha.pk, )))

@@ -907,7 +907,6 @@ admin.site.register(Lista, ListaAdmin)
 class CampanhaAdmin(PowerModelAdmin):
     list_display = ('assunto', 'lista', 'autor', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
     list_filter = ('dtenvio', )
-    raw_id_fields = ('lista', )
     multi_search = (
         ('q1', u'Assunto', ['assunto', ]),
         ('q2', u'Lista', ['lista__nome', ]),

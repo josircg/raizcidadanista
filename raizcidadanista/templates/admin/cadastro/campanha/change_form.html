@@ -19,6 +19,9 @@
     #cke_id_template {
         margin-left: 105px;
     }
+    .field-lista, .field-circulo_membro, .field-circulo_visitante {
+        display: none;
+    }
 </style>
 <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.init.js"></script>
@@ -35,6 +38,38 @@
                 }else{
                     CKEDITOR.instances.id_template.destroy();
                     $(this).attr('status', 'disable');
+                }
+            });
+
+            /* Mostrar/Esconder Lista/Círculo */
+            if($('input[name="tipo"]').length > 0){
+                if($('input[name="tipo"]:checked').val() == 'L'){
+                    $('.field-lista').show();
+                }else if($('input[name="tipo"]:checked').val() == 'M'){
+                    $('.field-circulo_membro').show();
+                }else if($('input[name="tipo"]:checked').val() == 'V'){
+                    $('.field-circulo_visitante').show();
+                }
+            }else{
+                if($('.field-tipo p').html() == 'Lista'){
+                    $('.field-lista').show();
+                }else if($('.field-tipo p').html() == 'Membros'){
+                    $('.field-circulo_membro').show();
+                }
+                else if($('.field-tipo p').html() == 'Visitantes'){
+                    $('.field-circulo_visitante').show();
+                }
+            }
+            $('input[name="tipo"]').change(function(event) {
+                if($(this).val() == 'L'){
+                    $('.field-lista').show();
+                    $('.field-circulo_membro, .field-circulo_visitante').hide();
+                }else if($(this).val() == 'M'){
+                    $('.field-circulo_membro').show();
+                    $('.field-lista, .field-circulo_visitante').hide();
+                }else if($(this).val() == 'V'){
+                    $('.field-circulo_visitante').show();
+                    $('.field-lista, .field-circulo_membro').hide();
                 }
             });
         });

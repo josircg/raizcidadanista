@@ -917,19 +917,21 @@ admin.site.register(Lista, ListaAdmin)
 
 
 class CampanhaAdmin(PowerModelAdmin):
-    list_display = ('assunto', 'lista', 'autor', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
-    list_filter = ('dtenvio', )
+    list_display = ('assunto', 'tipo', 'fonte', 'autor', 'status', 'dtenvio', 'qtde_envio', 'qtde_erros', 'qtde_views',)
+    list_filter = ('tipo', 'dtenvio', )
     multi_search = (
         ('q1', u'Assunto', ['assunto', ]),
         ('q2', u'Lista', ['lista__nome', ]),
+        ('q3', u'Círculo', ['circulo_membro__titulo', 'circulo_visitante__titulo', ]),
     )
     fieldsets = [
-        (None, { 'fields': ('lista', 'assunto', 'template', 'template_html', ), },),
+        (None, { 'fields': ['tipo', 'lista', 'circulo_membro', 'circulo_visitante', 'assunto', 'template', 'template_html', ], },),
     ]
     fieldsets_readonly = [
-        (None, { 'fields': ('lista', 'assunto', ('qtde_envio', 'qtde_erros', 'qtde_views',), 'status', 'dtenvio', 'template', 'template_html',), },),
+        (None, { 'fields': ['tipo', 'lista', 'circulo_membro', 'circulo_visitante', 'assunto', ('qtde_envio', 'qtde_erros', 'qtde_views',), 'status', 'dtenvio', 'template', 'template_html',], },),
     ]
     readonly_fields = ('template_html', )
+    radio_fields = {'tipo': admin.HORIZONTAL}
 
     def get_fieldsets(self, request, obj=None):
         if obj and obj.dtenvio:
@@ -938,8 +940,22 @@ class CampanhaAdmin(PowerModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.dtenvio:
-            return ('lista', 'qtde_envio', 'status', 'dtenvio', 'qtde_erros', 'qtde_views', 'template_html', )
+            return ('tipo', 'lista', 'circulo_membro', 'circulo_visitante', 'qtde_envio', 'status', 'dtenvio', 'qtde_erros', 'qtde_views', 'template_html', )
         return ('template_html', )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == "lista":
+                kwargs["queryset"] = Lista.objects.none()
+                if request.user.groups.filter(name=u'Mail Marketing').exists():
+                    kwargs["queryset"] = Lista.objects.filter(status='A')
+            if db_field.name == "circulo_membro":
+                circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
+                kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids)
+            if db_field.name == "circulo_visitante":
+                circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
+                kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids).filter(Q(municipio='') | Q(municipio=None)).distinct()
+        return super(CampanhaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def teste_de_envio(self, request, id_campanha):
         campanha = get_object_or_404(Campanha, pk=id_campanha)

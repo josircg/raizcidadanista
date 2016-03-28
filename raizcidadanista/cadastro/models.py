@@ -420,11 +420,19 @@ CAMPANHA_STATUS_CHOICES = (
     ('R', u'Erro no Envio'),
     ('F', u'Finalizada'),
 )
+CAMPANHA_TIPO_CHOICES = (
+    ('L', u'Lista'),
+    ('M', u'Membros'),
+    ('V', u'Visitantes'),
+)
 class Campanha(models.Model):
     class Meta:
         ordering = ('dtenvio', )
 
-    lista = models.ForeignKey(Lista, null=True, on_delete=models.SET_NULL)
+    tipo = models.CharField(u'Tipo de campanha', max_length=1, choices=CAMPANHA_TIPO_CHOICES)
+    lista = models.ForeignKey(Lista, blank=True, null=True, on_delete=models.SET_NULL)
+    circulo_membro = models.ForeignKey(Circulo, blank=True, null=True, on_delete=models.SET_NULL, related_name='campanha_circulo_membro', verbose_name=u'Círculo (Membros)')
+    circulo_visitante = models.ForeignKey(Circulo, blank=True, null=True, on_delete=models.SET_NULL, related_name='campanha_circulo_visitante', verbose_name=u'Círculo (Visitantes)')
     autor = models.ForeignKey(User, blank=True, null=True)
     status = models.CharField(u'Status', max_length=1, choices=CAMPANHA_STATUS_CHOICES, default='E')
     dtenvio = models.DateTimeField(u'Dt. Envio', blank=True, null=True)
@@ -441,6 +449,23 @@ class Campanha(models.Model):
 
     def get_qtde_views_url(self):
         return reverse('campanha_views', kwargs={'pk': self.pk, })
+
+    def fonte(self):
+        if self.tipo == 'L':
+            return self.lista
+        elif self.tipo == 'M':
+            return u'Membros do %s' % self.circulo_membro
+        elif self.tipo == 'V':
+            return u'Visitantes do %s' % self.circulo_visitante
+
+
+    def get_email_list(self):
+        if self.tipo == 'L':
+            return self.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).values_list('pessoa__email', flat=True).order_by('pessoa__email')
+        elif self.tipo == 'M':
+            return self.circulo_membro.circulomembro_set.filter(membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
+        elif self.tipo == 'V':
+            return CirculoMembro.objects.filter(circulo__uf=self.circulo_visitante.uf, membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
 
     def send_email_test(self, to):
         send_email_thread(subject=self.assunto, to=to, template=self.template)
@@ -550,7 +575,7 @@ class Campanha(models.Model):
             # Atualiza o status
             Campanha.objects.filter(pk=campanha_id).update(status='F')
 
-        emails_list = self.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).values_list('pessoa__email', flat=True).order_by('pessoa__email')
+        emails_list = self.get_email_list()
         if resumir == True:
             emails_list = emails_list[self.qtde_envio:]
             self.qtde_erros = 0

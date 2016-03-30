@@ -61,7 +61,7 @@ class FailedURLAttempt(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-    IP = models.IPAddressField('IP Address', unique=True, null=True)
+    IP = models.IPAddressField('IP Address', null=True)
     failures = models.PositiveIntegerField('Failures', default=0)
     timestamp = models.DateTimeField('Last failed attempt', auto_now=True)
 

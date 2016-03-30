@@ -458,7 +458,6 @@ class Campanha(models.Model):
         elif self.tipo == 'V':
             return u'Visitantes do %s' % self.circulo_visitante
 
-
     def get_email_list(self):
         if self.tipo == 'L':
             return self.lista.listacadastro_set.filter(pessoa__status_email__in=('A', 'N', )).values_list('pessoa__email', flat=True).order_by('pessoa__email')

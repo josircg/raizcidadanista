@@ -12,7 +12,7 @@ from municipios.models import UF
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro, Circulo
+from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista
 from cms.email import sendmail
 
 

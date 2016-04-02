@@ -259,6 +259,7 @@ CIRCULO_TIPO = (
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
     ('E', u'Esfera'),
+    ('S', u'Estadual'),
 )
 
 CIRCULO_STATUS = (

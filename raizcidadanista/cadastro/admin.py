@@ -947,15 +947,25 @@ class CampanhaAdmin(PowerModelAdmin):
         if not request.user.is_superuser:
             if db_field.name == "lista":
                 kwargs["queryset"] = Lista.objects.none()
-                if request.user.groups.filter(name=u'Mail Marketing').exists():
+                if request.user.groups.filter(name__in=(u'Mail Marketing', u'Comissão')).exists():
                     kwargs["queryset"] = Lista.objects.filter(status='A')
             if db_field.name == "circulo_membro":
                 circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
                 kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids)
             if db_field.name == "circulo_visitante":
                 circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
-                kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids).filter(Q(municipio='') | Q(municipio=None)).distinct()
+                kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids, tipo='S').distinct()
         return super(CampanhaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if  not request.user.is_superuser:
+            if db_field.name == "tipo":
+                if not request.user.groups.filter(name__in=(u'Mail Marketing', u'Comissão')).exists():
+                    kwargs['choices'] = (
+                        ('M', u'Membros'),
+                        ('V', u'Visitantes'),
+                    )
+        return super(CampanhaAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
 
     def teste_de_envio(self, request, id_campanha):
         campanha = get_object_or_404(Campanha, pk=id_campanha)

@@ -83,7 +83,7 @@ class Receita(models.Model):
                 self.colaborador.save()
 @receiver(signals.post_save, sender=Receita)
 def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if instance.dtpgto and instance.colaborador:
+    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O'):
         sendmail(
             subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
             to=[instance.colaborador.email, ],

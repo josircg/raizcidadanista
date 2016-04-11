@@ -205,24 +205,25 @@ class MembroAdmin(PowerModelAdmin):
                 rec.aprovador = request.user
                 rec.save()
 
-                # Buscar o template de "[Boas Vindas]" nas Campanhas
-                if Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
-                    template = Campanha.objects.filter(assunto__icontains="[Boas Vindas]").latest('pk')
-                    sendmail(
-                        subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
-                        to=[rec.email, ],
-                        template=template.template,
-                        params={
-                        },
-                    )
-                else:
-                    sendmail(
-                        subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
-                        to=[rec.email, ],
-                        template='emails/bemvindo-colaborador.html',
-                        params={
-                        },
-                    )
+                if not rec.status_email in ('S', 'O'):
+                    # Buscar o template de "[Boas Vindas]" nas Campanhas
+                    if Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
+                        template = Campanha.objects.filter(assunto__icontains="[Boas Vindas]").latest('pk')
+                        sendmail(
+                            subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
+                            to=[rec.email, ],
+                            template=template.template,
+                            params={
+                            },
+                        )
+                    else:
+                        sendmail(
+                            subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
+                            to=[rec.email, ],
+                            template='emails/bemvindo-colaborador.html',
+                            params={
+                            },
+                        )
 
                 if Lista.objects.filter(nome=u'Colaboradores').exists():
                     ListaCadastro(
@@ -315,14 +316,15 @@ class MembroAdmin(PowerModelAdmin):
             messages.warning(request, u'Nenhuma campanha cadastrada para Atualização Cadastral.')
             return
         for membro in queryset:
-            sendmail(
-                subject=campanhas[0].assunto,
-                to=[membro.email, ],
-                template=campanhas[0].template,
-                params={
-                    'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
-                },
-            )
+            if not membro.status_email in ('S', 'O'):
+                sendmail(
+                    subject=campanhas[0].assunto,
+                    to=[membro.email, ],
+                    template=campanhas[0].template,
+                    params={
+                        'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
+                    },
+                )
     atualizacao_cadastral.short_description = u'Atualização Cadastral'
 
     def requerimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/requerimento-pdf.html'):
@@ -756,7 +758,7 @@ class CirculoAdmin(PowerModelAdmin):
         dt_evento = evento.dt_evento
         sendmail(
             subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
-            to=evento.circulo.circulomembro_set.values_list('membro__email', flat=True),
+            to=evento.circulo.circulomembro_set.exclude(membro__status_email__in=('S', 'O')).values_list('membro__email', flat=True),
             template='emails/evento-convite.html',
             params={
                 'evento': evento,

@@ -26,7 +26,7 @@ from forms import ArticleCommentForm, ContatoForm
 from twython import Twython
 import mimetypes, os, cgi, urllib, facebook
 
-from datetime import datetime
+from datetime import datetime, date
 
 
 class CirculosView(TemplateView):
@@ -181,7 +181,12 @@ class SectionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         articles_list = []
-        for article in self.object.get_articles():
+        articles_queryset = self.object.get_articles()
+
+        # Na setion 'eventos' mostrar apenas os articles com data >= hoje
+        if self.object.slug == 'eventos':
+            articles_queryset = articles_queryset.filter(created_at__gte=date.today()).order_by('created_at')
+        for article in articles_queryset:
             if article.have_perm(self.request.user):
                 articles_list.append(article)
 

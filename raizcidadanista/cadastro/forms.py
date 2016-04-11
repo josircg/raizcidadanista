@@ -207,15 +207,17 @@ class AtualizarCadastroLinkForm(forms.Form):
             membro = Membro.objects.get(email=self.cleaned_data['email'])
         except Membro.DoesNotExist:
             membro = Membro.objects.get(cpf=self.cleaned_data['cpf'])
-        sendmail(
-            subject=u'Atualização de Cadastro.',
-            to=[membro.email, ],
-            template=template_email_name,
-            params={
-                'membro': membro,
-                'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
-            },
-        )
+
+        if not membro.status_email in ('S', 'O'):
+            sendmail(
+                subject=u'Atualização de Cadastro.',
+                to=[membro.email, ],
+                template=template_email_name,
+                params={
+                    'membro': membro,
+                    'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
+                },
+            )
 
 
 class AtualizarCadastroFiliadoForm(forms.ModelForm):

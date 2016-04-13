@@ -13,7 +13,7 @@
 
 {% block main %}
     <div class="col-md-8 col-article">
-        <h2>{{ section.title }}</h2>{% if request.GET.all %}<a href="?" class="btn btn-success">Eventos</a>{% else %}<a href="?all=true" class="btn btn-success">Eventos passados</a>{% endif %}
+        <h2>{{ section.title }}</h2>
         {{ section.header|safe }}
         {% for article in articles %}
             <div class="bs-callout bs-callout-info">
@@ -40,6 +40,7 @@
             </ul>
         </div>
         {% endif %}
+        {% if request.GET.all %}<a href="?" class="btn btn-success">Próximos eventos</a>{% else %}<a href="?all=true" class="btn btn-success">Eventos passados</a>{% endif %}
 
     </div>
     <div class="col-md-4 col-news">

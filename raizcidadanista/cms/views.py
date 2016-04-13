@@ -185,7 +185,9 @@ class SectionDetailView(DetailView):
 
         # Na setion 'eventos' mostrar apenas os articles com data >= hoje
         if self.object.slug == 'eventos':
-            if not self.request.GET.get('all'):
+            if self.request.GET.get('all'):
+                articles_queryset = articles_queryset.filter(created_at__lt=date.today()).order_by('-created_at')
+            else:
                 articles_queryset = articles_queryset.filter(created_at__gte=date.today()).order_by('created_at')
         for article in articles_queryset:
             if article.have_perm(self.request.user):

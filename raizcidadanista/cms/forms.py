@@ -61,7 +61,7 @@ class ArticleCommentForm(forms.ModelForm):
             menssagem += u'<a href="%s%s">Acessar</a>' % (settings.SITE_HOST, reverse('admin:cms_article_change', args=(self.instance.article.pk, )))
             sendmail(
                 subject=u'%s - Novo comentário' % Recurso.objects.get(recurso='SITE_NAME').valor,
-                to=EMAILADMIN.valor.split('\n'),
+                bcc=EMAILADMIN.valor.split('\n'),
                 template=menssagem,
                 headers={'Reply-To': self.cleaned_data['email']}
             )

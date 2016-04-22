@@ -107,8 +107,8 @@ def resendmail_email_agendado(email, mimetype='text/html; charset=UTF-8', header
     email.save()
 
 
-def send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
-    def _send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
+def send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], bcc=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
+    def _send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[], bcc=[], params={}, template='', mimetype='text/html; charset=UTF-8', headers={}):
         try: template_content = get_template(template)
         except:
             try: template_content = Template(template)
@@ -118,7 +118,7 @@ def send_email_thread(subject='', from_email=settings.DEFAULT_FROM_EMAIL, to=[],
         text_content = subject
         html_content = template_content.render(Context(params))
 
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to, headers=headers)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to=to, bcc=bcc, headers=headers)
         msg.attach_alternative(html_content, mimetype)
 
         tentativas = 0

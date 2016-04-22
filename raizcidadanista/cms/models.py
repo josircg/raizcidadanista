@@ -114,7 +114,7 @@ def article_sendemail_aprovacao(sender, instance, raw, using, *args, **kwargs):
         if not instance.is_active and ant.is_active:
             sendmail(
                 subject=u'Existe um artigo para ser aprovado',
-                to = list(User.objects.filter(groups__name=u'Editor').values_list('email', flat=True)),
+                bcc = list(User.objects.filter(groups__name=u'Editor').values_list('email', flat=True)),
                 params = {
                     'article': instance,
                     'HOST': settings.SITE_HOST,

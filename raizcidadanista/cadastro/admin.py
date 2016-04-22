@@ -758,7 +758,7 @@ class CirculoAdmin(PowerModelAdmin):
         dt_evento = evento.dt_evento
         sendmail(
             subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
-            to=evento.circulo.circulomembro_set.exclude(membro__status_email__in=('S', 'O')).values_list('membro__email', flat=True),
+            bcc=evento.circulo.circulomembro_set.exclude(membro__status_email__in=('S', 'O')).values_list('membro__email', flat=True),
             template='emails/evento-convite.html',
             params={
                 'evento': evento,

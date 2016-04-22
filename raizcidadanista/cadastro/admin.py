@@ -666,6 +666,35 @@ class CirculoMembroCirculoInline(admin.TabularInline):
     verbose_name_plural = u'Membros do Círculo'
     raw_id_fields = ('membro', )
     ordering = ('membro__nome', )
+    fields = ('membro', 'email', 'is_filiado', 'administrador', 'publico', )
+    readonly_fields = ('email', 'is_filiado', )
+    template = 'admin/cadastro/circulo/circulomembro_inline.html'
+
+    def get_formset(self, request, obj=None, **kwargs):
+        FormSet = super(CirculoMembroCirculoInline, self).get_formset(request, obj, **kwargs)
+        class PaginationFormSet(FormSet):
+            def _construct_forms(self, *args, **kwargs):
+                qs = self.get_queryset()
+
+                paginator = Paginator(qs, 20)
+
+                try:
+                    page_num = int(request.GET.get('page', '1'))
+                except ValueError:
+                    page_num = 1
+
+                try:
+                    page = paginator.page(page_num)
+                except (EmptyPage, InvalidPage):
+                    page = paginator.page(paginator.num_pages)
+
+                self.paginator = paginator
+                self.page = page
+                self._queryset = page.object_list
+                self.max_num = len(page.object_list)
+
+                return super(PaginationFormSet, self)._construct_forms(*args, **kwargs)
+        return PaginationFormSet
 
 class CirculoEventoCirculoInline(admin.TabularInline):
     model = CirculoEvento

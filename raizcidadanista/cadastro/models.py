@@ -311,6 +311,14 @@ class CirculoMembro(models.Model):
     administrador = models.BooleanField(default=False)
     publico = models.BooleanField(u'Público', default=False)
     grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
+
+    def email(self):
+        return self.membro.email
+
+    def is_filiado(self):
+        return self.membro.filiado
+    is_filiado.short_description = u'Filiado'
+    is_filiado.boolean = True
 #    tipo_alerta = models.CharField(u'Recebimento de Notificações') # Frequência de recebimento de alertas
 #    representante = models.ForeignKey(Membro) # Membro que representa alguém no Círculo
 

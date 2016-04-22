@@ -666,8 +666,8 @@ class CirculoMembroCirculoInline(admin.TabularInline):
     verbose_name_plural = u'Membros do Círculo'
     raw_id_fields = ('membro', )
     ordering = ('membro__nome', )
-    fields = ('membro', 'email', 'is_filiado', 'administrador', 'publico', )
-    readonly_fields = ('email', 'is_filiado', )
+    fields = ('membro', 'celular', 'residencial', 'is_filiado', 'administrador', 'publico', )
+    readonly_fields = ('celular', 'residencial', 'is_filiado', )
     template = 'admin/cadastro/circulo/circulomembro_inline.html'
 
     def get_formset(self, request, obj=None, **kwargs):

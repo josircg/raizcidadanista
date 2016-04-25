@@ -194,48 +194,42 @@ class MembroAdmin(PowerModelAdmin):
         return actions
 
     def get_list_display_links(self, request, list_display):
-        if request.user.groups.filter(name=u'Coordenador Local').exists():
+        if not request.user.groups.filter(name=u'Comissao').exists() and request.user.groups.filter(name=u'Coordenador Local').exists():
             return []
         return super(MembroAdmin, self).get_list_display_links(request, list_display)
 
     def has_change_permission(self, request, obj=None):
         if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
-            return False
+            if not request.user.groups.filter(name=u'Comissao').exists():
+                return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 
     def aprovacao(self, request, queryset):
         contador = 0
+        if not Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
+            self.message_user(request, 'Template [Boas Vindas] não encontrado')
+
         for rec in queryset:
             if rec.aprovador is None:
-                contador += 1
-                rec.aprovador = request.user
-                rec.save()
-
                 if not rec.status_email in ('S', 'O'):
                     # Buscar o template de "[Boas Vindas]" nas Campanhas
-                    if Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
-                        template = Campanha.objects.filter(assunto__icontains="[Boas Vindas]").latest('pk')
-                        sendmail(
+                    template = Campanha.objects.filter(assunto__icontains="[Boas Vindas]").latest('pk')
+                    sendmail(
                             subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
                             to=[rec.email, ],
                             template=template.template,
-                            params={
-                            },
-                        )
-                    else:
-                        sendmail(
-                            subject=u'Seja bemvindx à RAiZ Movimento Cidadanista',
-                            to=[rec.email, ],
-                            template='emails/bemvindo-colaborador.html',
-                            params={
-                            },
-                        )
+                            params={},
+                    )
+                    contador += 1
+                    rec.aprovador = request.user
+                    rec.save()
 
                 if Lista.objects.filter(nome=u'Colaboradores').exists():
                     ListaCadastro(
                         lista = Lista.objects.get(nome=u'Colaboradores'),
                         pessoa = rec,
                     ).save()
+
         self.message_user(request, 'Total de Membros aprovados: %d' % contador)
     aprovacao.short_description = u'Aprovação'
 

@@ -181,8 +181,14 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.groups.filter(name=u'Coordenador Local').exists():
             if allactions.get('listagem_telefonica'):
                 actions['listagem_telefonica'] = allactions['listagem_telefonica']
+
+        if request.user.groups.filter(name=u'Comissao').exists():
+            for action in ('aprovacao', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', ):
+                if allactions.get(action):
+                    actions[action] = allactions[action]
+
         if request.user.groups.filter(name=u'Financeiro').exists():
-            for action in ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 if allactions.get(action):
                     actions[action] = allactions[action]
         return actions

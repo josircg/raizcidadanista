@@ -670,6 +670,9 @@ class CirculoMembroCirculoInline(admin.TabularInline):
     readonly_fields = ('celular', 'residencial', 'is_filiado', )
     template = 'admin/cadastro/circulo/circulomembro_inline.html'
 
+    def queryset(self, request):
+        return super(CirculoMembroCirculoInline, self).queryset(request).exclude(membro__status_email='O')
+
     def get_formset(self, request, obj=None, **kwargs):
         FormSet = super(CirculoMembroCirculoInline, self).get_formset(request, obj, **kwargs)
         class PaginationFormSet(FormSet):

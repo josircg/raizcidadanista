@@ -18,6 +18,7 @@ from fields import ListField
 from datetime import datetime
 from email import sendmail, resendmail_email_agendado
 
+from PIL import Image
 import os, shutil, re
 
 
@@ -92,8 +93,10 @@ class Article(models.Model):
     def first_image(self):
         images = self.get_images()
         if images:
-            return images[0]
-        return None
+            im = Image.open(images[0])
+            if im.size[0] >= 600 and im.size[1] >= 600:
+                return images[0]
+        return u'/media/uploads/facebook_padrao.png'
 
     def get_comments(self):
         return self.articlecomment_set.filter(active=True)

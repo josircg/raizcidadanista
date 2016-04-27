@@ -93,7 +93,7 @@ class Article(models.Model):
     def first_image(self):
         images = self.get_images()
         if images:
-            im = Image.open(os.path.join(settings.PROJECT_DIR, images[0]))
+            im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
             if im.size[0] >= 600 and im.size[1] >= 600:
                 return images[0]
         return u'/media/uploads/facebook_padrao.png'

@@ -94,7 +94,7 @@ class Article(models.Model):
         images = self.get_images()
         if images:
             im = Image.open(images[0])
-            if im.size[0] >= 200 and im.size[1] >= 200:
+            if im.size[0] >= 600 and im.size[1] >= 600:
                 return images[0]
         return u'/media/uploads/facebook_padrao.png'
 

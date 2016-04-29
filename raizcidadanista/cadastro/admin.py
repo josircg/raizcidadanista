@@ -355,7 +355,14 @@ class MembroAdmin(PowerModelAdmin):
                 membro.index = index
                 index += 1
                 membros.append(membro)
+                if membro.celular is None:
+                    messages.warning(request, u'Membro %s sem telefone' % membro.nome)
+
+                if membro.uf != membro.uf_eleitoral
+                    messages.warning(request, u'Membro %s com UF diferente' % membro.nome)
             results.append([estado, membros])
+
+
 
         return render_to_response(template_name, {
             'results': results,

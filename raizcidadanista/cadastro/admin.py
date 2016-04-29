@@ -357,7 +357,7 @@ class MembroAdmin(PowerModelAdmin):
                 membro.index = index
                 index += 1
                 membros.append(membro)
-                if membro.celular is None:
+                if not membro.celular:
                     erros.append( u'Membro %s sem telefone' % membro.nome )
 
                 if membro.uf is None or membro.uf != membro.uf_eleitoral:

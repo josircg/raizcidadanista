@@ -358,7 +358,7 @@ class MembroAdmin(PowerModelAdmin):
                 if membro.celular is None:
                     messages.warning(request, u'Membro %s sem telefone' % membro.nome)
 
-                if membro.uf != membro.uf_eleitoral
+                if membro.uf != membro.uf_eleitoral:
                     messages.warning(request, u'Membro %s com UF diferente' % membro.nome)
             results.append([estado, membros])
 

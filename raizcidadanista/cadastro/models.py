@@ -42,7 +42,7 @@ STATUS_EMAIL = (
     ('N', u'Não confirmado'),
     ('S', u'SPAM'),
     ('I', u'Inválido'),
-    ('O', u'Opt-out'),
+    ('O', u'Cancelado'),
 )
 
 class Pessoa(models.Model):

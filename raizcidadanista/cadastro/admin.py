@@ -349,6 +349,7 @@ class MembroAdmin(PowerModelAdmin):
         results = []
         estados = UF.objects.filter(pk__in=queryset.values_list('uf_eleitoral', flat=True)).order_by('nome').distinct()
         index = 1
+        erros = []
         for estado in estados:
             membros = []
             for membro in queryset.filter(uf_eleitoral=estado).order_by('nome'):
@@ -356,11 +357,11 @@ class MembroAdmin(PowerModelAdmin):
                 index += 1
                 membros.append(membro)
                 if membro.celular is None:
-                    messages.warning(request, u'Membro %s sem telefone' % membro.nome)
+                    erros.append( u'Membro %s sem telefone' % membro.nome )
 
-                if membro.uf != membro.uf_eleitoral:
-                    messages.warning(request, u'Membro %s com UF diferente' % membro.nome)
-            results.append([estado, membros])
+                if membro.uf is None or membro.uf != membro.uf_eleitoral:
+                    erros.append( u'Membro %s com UF diferente' % membro.nome )
+            results.append([estado, membros, erros])
 
 
 

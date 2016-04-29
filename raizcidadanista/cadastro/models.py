@@ -6,6 +6,7 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 from django.db.models import signals, F
@@ -21,12 +22,12 @@ from django.template.context import Context
 from threading import Thread
 from time import sleep
 
-from municipios.models import UF
+from municipios.models import UF, Municipio
 from forum.models import Grupo, GrupoUsuario
 from cms.models import Article, Section, SectionItem
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
-#from smart_selects.db_fields import ChainedForeignKey
+from smart_selects.db_fields import ChainedForeignKey
 from utils.fields import BRDecimalField
 
 
@@ -600,3 +601,33 @@ class Campanha(models.Model):
 
     def __unicode__(self):
         return self.assunto
+
+
+class ColetaArticulacao(models.Model):
+    class Meta:
+        verbose_name = u'Articulação'
+        verbose_name_plural = u'Articulações'
+
+    UF = models.ForeignKey(UF, verbose_name=u'UF')
+    municipio = ChainedForeignKey(Municipio, chained_fields={'UF': 'uf', }, show_all=False, auto_choose=False, verbose_name=u'Município', null=True, blank=True)
+    zona = models.IntegerField(u'Zona', null=True, blank=True)
+    articulador = models.ForeignKey(Membro, verbose_name=u'Articulador')
+
+    def clean(self):
+        if not self.municipio:
+            if not self.articulador.usuario or self.articulador.usuario.groups.filter(name=u'Cadastro'):
+                raise ValidationError(u'O campo Município é obrigatório para esse Articulador.')
+        return super(ColetaArticulacao, self).clean()
+
+    def __unicode__(self):
+        return u'%s' % self.articulador
+@receiver(signals.post_save, sender=ColetaArticulacao)
+def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
+    if instance.articulador.usuario:
+        group = Group.objects.get_or_create(name=u'Articulador')[0]
+        if not instance.municipio:
+            instance.articulador.usuario.groups.add(group)
+            instance.articulador.usuario.save()
+        else:
+            instance.articulador.usuario.groups.remove(group)
+            instance.articulador.usuario.save()

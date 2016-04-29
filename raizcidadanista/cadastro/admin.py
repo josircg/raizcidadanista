@@ -349,16 +349,23 @@ class MembroAdmin(PowerModelAdmin):
         results = []
         estados = UF.objects.filter(pk__in=queryset.values_list('uf_eleitoral', flat=True)).order_by('nome').distinct()
         index = 1
+        erros = []
         for estado in estados:
             membros = []
             for membro in queryset.filter(uf_eleitoral=estado).order_by('nome'):
                 membro.index = index
                 index += 1
                 membros.append(membro)
+                if membro.celular is None:
+                    erros.append( u'Membro %s sem telefone' % membro.nome )
+
+                if membro.uf is None or membro.uf != membro.uf_eleitoral:
+                    erros.append( u'Membro %s com UF diferente' % membro.nome )
             results.append([estado, membros])
 
         return render_to_response(template_name, {
             'results': results,
+            'erros': erros,
         },context_instance=RequestContext(request))
     requerimento_html.short_description = u'Requerimento em Texto'
 

@@ -31,7 +31,8 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 
 from forms import MembroImport, MalaDiretaForm
-from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
+from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
+    ColetaArticulacao
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
@@ -1107,6 +1108,28 @@ class CampanhaAdmin(PowerModelAdmin):
 
 admin.site.register(Campanha, CampanhaAdmin)
 
+
+class ColetaArticulacaoAdmin(PowerModelAdmin):
+    list_display = ('UF', 'municipio', 'zona', 'articulador', )
+    list_filter = ('UF', 'municipio__nome', )
+    multi_search = (
+        ('q1', u'Nome', ['articulador__nome', ]),
+        ('q2', u'Email', ['articulador__email', ]),
+    )
+    fieldsets = [
+        (None, { 'fields': ['UF', 'municipio', 'zona', 'articulador',  ], },),
+    ]
+    raw_id_fields = ('articulador', )
+
+    queryset_filter = {
+        'municipio__nome': 'municipio_filter',
+    }
+    def municipio_filter(self, request):
+        if request.GET.get('UF__id_ibge__exact'):
+            return Municipio.objects.filter(uf__id_ibge=request.GET.get('UF__id_ibge__exact'))
+        return Municipio.objects.none()
+    municipio_filter.short_description = u'Município'
+admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
 
 
 admin.site.register(CirculoEvento)

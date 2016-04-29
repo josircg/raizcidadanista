@@ -361,12 +361,11 @@ class MembroAdmin(PowerModelAdmin):
 
                 if membro.uf is None or membro.uf != membro.uf_eleitoral:
                     erros.append( u'Membro %s com UF diferente' % membro.nome )
-            results.append([estado, membros, erros])
-
-
+            results.append([estado, membros])
 
         return render_to_response(template_name, {
             'results': results,
+            'erros': erros,
         },context_instance=RequestContext(request))
     requerimento_html.short_description = u'Requerimento em Texto'
 

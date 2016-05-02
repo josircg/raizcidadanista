@@ -482,7 +482,14 @@ class Campanha(models.Model):
             return CirculoMembro.objects.filter(circulo__uf=self.circulo_visitante.uf, membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
 
     def send_email_test(self, to):
-        send_email_thread(subject=self.assunto, to=to, template=self.template)
+        template_content = Template(self.template)
+
+        text_content = self.assunto
+        html_content = template_content.render(Context({}))
+
+        msg = EmailMultiAlternatives(self.assunto, text_content, settings.DEFAULT_FROM_EMAIL, to=to)
+        msg.attach_alternative(html_content, 'text/html; charset=UTF-8')
+        msg.send()
 
     def send_emails(self, user, resumir):
         def _send_campanha_thread(campanha_id, user_id, emails_list, from_email=settings.DEFAULT_FROM_EMAIL):

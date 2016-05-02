@@ -41,7 +41,7 @@
     </label>
     <br>
     <label>
-        Busca por cidade:
+        Ou então busque pelo nome da cidade:
         <input id="input-cidade-circulo" type="text">
     </label>
 
@@ -101,6 +101,9 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
+                <tr class="circulo-item busca-item-none">
+                    <td colspan="4">Caso a sua cidade não esteja listada, busque o círculo estadual ou então crie o primeiro círculo na sua cidade!</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -118,8 +121,11 @@
         });
         $('#input-cidade-circulo').keydown(function(event) {
             $('#box-cidades .circulo').show();
-            $('#box-cidades .circulo-item').hide();
+            $('#box-cidades .circulo-item, #box-cidades .busca-item-none').hide();
             $('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').show();
+            if($('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').length == 0){
+                $('#box-cidades .busca-item-none').show();
+            }
         });
     </script>
 </body>

@@ -5,7 +5,7 @@
     <title></title>
     <style type="text/css" media="screen">
         #box-cidades {padding: 10px 0; }
-        #box-cidades .circulo{display: none;}
+        #box-cidades .circulo, .circulo-item{display: none;}
         .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
         .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
         .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
@@ -35,25 +35,30 @@
         <select id="select-uf-circulo">
             <option cidades="">---</option>
             {% for uf in estados %}
-            <option box="id_estado_{{ uf.pk }}">{{ uf.nome }}</option>
+            <option value="{{ uf.pk }}">{{ uf.nome }}</option>
             {% endfor %}
         </select>
     </label>
+    <br>
+    <label>
+        Ou então busque pelo nome da cidade:
+        <input id="input-cidade-circulo" type="text">
+    </label>
 
     <div id="box-cidades">
-        {% for uf in estados %}
-            <div class="circulo" id="id_estado_{{ uf.pk }}">
-            {% if uf.circulo_set.all %}
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Círculos</th>
-                            <th colspan="3">Jardineiro</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="circulo">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Círculos</th>
+                        <th colspan="3">Jardineiro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for uf in estados %}
+                    {% if uf.circulo_set.all %}
                     {% for circulo in uf.circulo_set.all %}
-                        <tr>
+                        <tr class="circulo-item" data-cidade="{{ circulo.municipio }}" data-uf="{{ uf.pk }}">
                         {% if circulo.site_externo %}
                             <td width="40%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
                         {% else %}
@@ -83,20 +88,25 @@
                             {% else %}
                             {% if user.membro.exists %}
                                 {% if circulo.permitecadastro %}
-                                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" {% if circulo.site_externo %}target="_parent"{% endif %}>Se inscrever</a></td>
+                                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" target="_parent">Se inscrever</a></td>
                                 {% endif %}
                             {% endif %}
                             {% endif %}
                         {% endif %}
                         </tr>
                     {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                Ainda não existe nenhum círculo selecionado.
-            {% endif %}
-            </div>
-        {% endfor %}
+                    {% else %}
+                        <tr class="circulo-item" data-uf="{{ uf.pk }}">
+                            <td colspan="4">Ainda não existe nenhum círculo selecionado.</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr class="circulo-item busca-item-none">
+                    <td colspan="4">Caso a sua cidade não esteja listada, busque o círculo estadual ou então crie o primeiro círculo na sua cidade!</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     {% if not user.is_authenticated %}
     <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
@@ -105,8 +115,17 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">
         $('#select-uf-circulo').change(function(event) {
-            $('#box-cidades .circulo').hide();
-            $('#box-cidades #'+$(this).find('option:selected').attr('box')).show();
+            $('#box-cidades .circulo').show();
+            $('#box-cidades .circulo-item').hide();
+            $('#box-cidades .circulo-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+        });
+        $('#input-cidade-circulo').keydown(function(event) {
+            $('#box-cidades .circulo').show();
+            $('#box-cidades .circulo-item, #box-cidades .busca-item-none').hide();
+            $('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').show();
+            if($('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').length == 0){
+                $('#box-cidades .busca-item-none').show();
+            }
         });
     </script>
 </body>

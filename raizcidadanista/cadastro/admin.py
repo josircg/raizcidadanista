@@ -366,8 +366,8 @@ class MembroAdmin(PowerModelAdmin):
                 if not membro.municipio:
                     erros.append( u'Membro %s sem cidade no endereço' % membro.nome )
 
-                if not membro.municipio_naturalidade:
-                    erros.append( u'Membro %s sem naturalidade' % membro.nome )
+                if not membro.uf_naturalidade:
+                    erros.append( u'Membro %s sem UF na naturalidade' % membro.nome )
 
             results.append([estado, membros])
 

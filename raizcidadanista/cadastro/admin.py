@@ -363,7 +363,7 @@ class MembroAdmin(PowerModelAdmin):
                 if membro.uf is None or membro.uf != membro.uf_eleitoral:
                     erros.append( u'Membro %s com UF diferente' % membro.nome )
 
-                if not membro.cidade:
+                if not membro.municipio:
                     erros.append( u'Membro %s sem cidade no endereço' % membro.nome )
 
                 if not membro.municipio_naturalidade:

@@ -612,8 +612,8 @@ class Campanha(models.Model):
 
 class ColetaArticulacao(models.Model):
     class Meta:
-        verbose_name = u'Articulação'
-        verbose_name_plural = u'Articulações'
+        verbose_name = u'Articulação da Coleta'
+        verbose_name_plural = u'Articuladores da Coleta'
 
     UF = models.ForeignKey(UF, verbose_name=u'UF')
     municipio = ChainedForeignKey(Municipio, chained_fields={'UF': 'uf', }, show_all=False, auto_choose=False, verbose_name=u'Município', null=True, blank=True)
@@ -628,6 +628,8 @@ class ColetaArticulacao(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.articulador
+
+
 @receiver(signals.post_save, sender=ColetaArticulacao)
 def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
     if instance.articulador.usuario:

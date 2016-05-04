@@ -72,7 +72,7 @@
             $(id_municipios).html('');
             uf = parseInt($(id_uf).val());
             if(uf){
-                url = "/chaining/filter/municipios/municipio/uf/"+uf+"/";
+                url = "/chaining/filter/municipios/Municipio/?uf="+uf;
                 $.getJSON(url, function(data){
                     $(id_municipios).append('<option value="">--------</option>');
                     $.each(data, function(key, val) {
@@ -86,7 +86,7 @@
             }
         }
 
-        get_municipios('#id_uf', '#id_municipio');
+        get_municipios('#id_uf', '#id_municipio', default_municipio);
         $("#id_uf").change(function(){
             /* Trocar label do UF: Fora do Brasil */
             if($(this).val() == '0'){

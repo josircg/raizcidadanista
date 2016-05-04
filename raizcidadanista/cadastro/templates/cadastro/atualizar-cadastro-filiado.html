@@ -55,6 +55,7 @@
         $('#id_municipio_eleitoral').remove();
         $('.group-municipio_eleitoral').append('<select name="municipio_eleitoral" class="form-control" id="id_municipio_eleitoral"></select>');
 
+        var default_municipio_naturalidade = $('#id_municipio_naturalidade').val();
         $('#id_municipio_naturalidade').remove();
         $('.group-municipio_naturalidade').append('<select name="municipio_naturalidade" class="form-control" id="id_municipio_naturalidade"></select>');
 
@@ -62,7 +63,7 @@
             $(id_municipios).html('');
             uf = parseInt($(id_uf).val());
             if(uf){
-                url = "/chaining/filter/municipios/municipio/uf/"+uf+"/";
+                url = "/chaining/filter/municipios/Municipio/?uf="+uf;
                 $.getJSON(url, function(data){
                     $(id_municipios).append('<option value="">--------</option>');
                     $.each(data, function(key, val) {
@@ -76,7 +77,7 @@
             }
         }
 
-        get_municipios('#id_uf', '#id_municipio');
+        get_municipios('#id_uf', '#id_municipio', default_municipio);
         $("#id_uf").change(function(){
             /* Trocar label do UF: Fora do Brasil */
             if($(this).val() == '0'){
@@ -91,7 +92,7 @@
             }
         });
 
-        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral');
+        get_municipios('#id_uf_eleitoral', '#id_municipio_eleitoral', default_municipio_eleitoral);
         $("#id_uf_eleitoral").change(function(){
             /* Trocar label do UF: Fora do Brasil */
             if($(this).val() == '0'){
@@ -106,7 +107,7 @@
             }
         });
 
-        get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade');
+        get_municipios('#id_uf_naturalidade', '#id_municipio_naturalidade', default_municipio_naturalidade);
         $("#id_uf_naturalidade").change(function(){
             /* Trocar label do UF: Fora do Brasil */
             if($(this).val() == '0'){

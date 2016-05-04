@@ -91,7 +91,7 @@ class MembroForm(forms.ModelForm):
 class FiliadoForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('fundador', 'nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('fundador', 'nome', 'apelido', 'email', 'cpf', 'rg', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'dtnascimento', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral',
             'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor', 'estadocivil', 'uf_naturalidade', 'municipio_naturalidade',
             'endereco', 'endereco_num', 'endereco_complemento', 'endereco_cep', )
@@ -307,7 +307,7 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
 class AtualizarCadastroMembroForm(forms.ModelForm):
     class Meta:
         model = Membro
-        fields = ('nome', 'apelido', 'email', 'cpf', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
+        fields = ('nome', 'apelido', 'email', 'cpf', 'rg', 'uf', 'municipio', 'sexo', 'celular', 'residencial',
             'atividade_profissional', 'filiacao_partidaria', 'contrib_tipo', 'contrib_valor')
 
     cpf = BRCPFField(

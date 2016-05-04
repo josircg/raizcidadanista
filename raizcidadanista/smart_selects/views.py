@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from smart_selects.utils import unicode_sorter
 
 
-@login_required(login_url='/')
 def filterchain(request, app, model, manager=None):
     model_class = get_model(app, model)
     keywords = {}
@@ -38,7 +37,6 @@ def filterchain(request, app, model, manager=None):
     return HttpResponse(json, content_type='application/json')
 
 
-@login_required(login_url='/')
 def filterchain_all(request, app, model):
     model_class = get_model(app, model)
     keywords = {}

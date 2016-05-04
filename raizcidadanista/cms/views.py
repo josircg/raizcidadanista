@@ -320,6 +320,9 @@ class LoginView(FormView):
         if self.request.session.test_cookie_worked():
             self.request.session.delete_test_cookie()
 
+        if self.request.GET.get('next'):
+            messages.info(self.request, u'Você foi autenticado com sucesso.')
+            return HttpResponseRedirect(self.request.GET.get('next'))
         messages.info(self.request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
         return HttpResponseRedirect(reverse('home'))
 

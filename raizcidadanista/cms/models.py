@@ -164,8 +164,7 @@ class Menu(MPTTModel):
     section = models.ForeignKey('Section', null=True, blank=True, verbose_name=u'Seção')
     article = ChainedForeignKey(
         Article,
-        chained_field='section',
-        chained_model_field='sections',
+        chained_fields={'section': 'sections'},
         show_all=False,
         auto_choose=False,
         null=True,

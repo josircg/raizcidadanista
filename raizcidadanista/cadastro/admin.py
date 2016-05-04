@@ -634,6 +634,9 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.groups.filter(name=u'Coordenador Local').exists():
             uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
             qs = qs.filter(uf__pk__in=uf_administrador_ids)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            qs = qs.filter(uf__pk__in=uf_ids)
         return qs
 admin.site.register(Membro, MembroAdmin)
 
@@ -669,7 +672,11 @@ class FiliadoAdmin(PowerModelAdmin):
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
 
     def queryset(self, request):
-        return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+        qs = super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            qs = qs.filter(uf__pk__in=uf_ids)
+        return qs
 
 admin.site.register(Filiado, FiliadoAdmin)
 
@@ -1136,6 +1143,20 @@ class ColetaArticulacaoAdmin(PowerModelAdmin):
             return Municipio.objects.filter(uf__id_ibge=request.GET.get('UF__id_ibge__exact'))
         return Municipio.objects.none()
     municipio_filter.short_description = u'Município'
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if request.user.groups.filter(name=u'Articulador').exists():
+            if db_field.name == "UF":
+                uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+                kwargs["queryset"] = UF.objects.filter(pk__in=uf_ids)
+        return super(ColetaArticulacaoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def queryset(self, request):
+        qs = super(ColetaArticulacaoAdmin, self).queryset(request)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            return qs.filter(UF__pk__in=uf_ids)
+        return qs
 admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
 
 

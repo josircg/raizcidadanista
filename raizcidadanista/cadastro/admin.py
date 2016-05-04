@@ -316,8 +316,12 @@ class MembroAdmin(PowerModelAdmin):
         if not campanhas.exists():
             messages.warning(request, u'Nenhuma campanha cadastrada para Atualização Cadastral.')
             return
+
+        contador = 0
         for membro in queryset:
-            if not membro.status_email in ('S', 'O'):
+            if membro.status_email in ('S', 'O'):
+                messages.warning(request, u'Membro %s está inativo ou em lista de SPAM' % membro.nome)
+            else:
                 sendmail(
                     subject=campanhas[0].assunto,
                     to=[membro.email, ],
@@ -326,6 +330,9 @@ class MembroAdmin(PowerModelAdmin):
                         'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
                     },
                 )
+                contador += 1
+
+        self.message_user(request, 'Total de Emails enviados: %d' % contador)
     atualizacao_cadastral.short_description = u'Atualização Cadastral'
 
     def requerimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/requerimento-pdf.html'):

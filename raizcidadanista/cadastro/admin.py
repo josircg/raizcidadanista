@@ -145,8 +145,8 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', )
+    list_display = ('nome', 'email', 'rg', 'uf', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
+    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -195,14 +195,13 @@ class MembroAdmin(PowerModelAdmin):
         return actions
 
     def get_list_display_links(self, request, list_display):
-        if not request.user.groups.filter(name=u'Comissao').exists() and request.user.groups.filter(name=u'Coordenador Local').exists():
+        if not request.user.groups.filter(name=u'Comissao').exists():
             return []
         return super(MembroAdmin, self).get_list_display_links(request, list_display)
 
     def has_change_permission(self, request, obj=None):
-        if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
-            if not request.user.groups.filter(name=u'Comissao').exists():
-                return False
+        if obj and not request.user.groups.filter(name=u'Comissao').exists():
+            return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 
     def aprovacao(self, request, queryset):

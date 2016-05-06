@@ -31,7 +31,8 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 
 from forms import MembroImport, MalaDiretaForm
-from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha
+from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
+    ColetaArticulacao
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
@@ -144,8 +145,8 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
 
 class MembroAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'uf', 'municipio', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', )
+    list_display = ('nome', 'email', 'rg', 'uf', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
+    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -194,14 +195,13 @@ class MembroAdmin(PowerModelAdmin):
         return actions
 
     def get_list_display_links(self, request, list_display):
-        if not request.user.groups.filter(name=u'Comissao').exists() and request.user.groups.filter(name=u'Coordenador Local').exists():
+        if not request.user.groups.filter(name=u'Comissao').exists():
             return []
         return super(MembroAdmin, self).get_list_display_links(request, list_display)
 
     def has_change_permission(self, request, obj=None):
-        if obj and request.user.groups.filter(name=u'Coordenador Local').exists():
-            if not request.user.groups.filter(name=u'Comissao').exists():
-                return False
+        if obj and not request.user.groups.filter(name=u'Comissao').exists():
+            return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 
     def aprovacao(self, request, queryset):
@@ -315,8 +315,12 @@ class MembroAdmin(PowerModelAdmin):
         if not campanhas.exists():
             messages.warning(request, u'Nenhuma campanha cadastrada para Atualização Cadastral.')
             return
+
+        contador = 0
         for membro in queryset:
-            if not membro.status_email in ('S', 'O'):
+            if membro.status_email in ('S', 'O'):
+                messages.warning(request, u'Membro %s está inativo ou em lista de SPAM' % membro.nome)
+            else:
                 sendmail(
                     subject=campanhas[0].assunto,
                     to=[membro.email, ],
@@ -325,6 +329,9 @@ class MembroAdmin(PowerModelAdmin):
                         'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
                     },
                 )
+                contador += 1
+
+        self.message_user(request, 'Total de Emails enviados: %d' % contador)
     atualizacao_cadastral.short_description = u'Atualização Cadastral'
 
     def requerimento(self, request, queryset, template_name_pdf='admin/cadastro/membro/requerimento-pdf.html'):
@@ -633,6 +640,9 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.groups.filter(name=u'Coordenador Local').exists():
             uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
             qs = qs.filter(uf__pk__in=uf_administrador_ids)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            qs = qs.filter(uf__pk__in=uf_ids)
         return qs
 admin.site.register(Membro, MembroAdmin)
 
@@ -668,7 +678,11 @@ class FiliadoAdmin(PowerModelAdmin):
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
 
     def queryset(self, request):
-        return super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+        qs = super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            qs = qs.filter(uf__pk__in=uf_ids)
+        return qs
 
 admin.site.register(Filiado, FiliadoAdmin)
 
@@ -1114,6 +1128,42 @@ class CampanhaAdmin(PowerModelAdmin):
 
 admin.site.register(Campanha, CampanhaAdmin)
 
+
+class ColetaArticulacaoAdmin(PowerModelAdmin):
+    list_display = ('UF', 'municipio', 'zona', 'articulador', )
+    list_filter = ('UF', 'municipio__nome', )
+    multi_search = (
+        ('q1', u'Nome', ['articulador__nome', ]),
+        ('q2', u'Email', ['articulador__email', ]),
+    )
+    fieldsets = [
+        (None, { 'fields': ['UF', 'municipio', 'zona', 'articulador',  ], },),
+    ]
+    raw_id_fields = ('articulador', )
+
+    queryset_filter = {
+        'municipio__nome': 'municipio_filter',
+    }
+    def municipio_filter(self, request):
+        if request.GET.get('UF__id_ibge__exact'):
+            return Municipio.objects.filter(uf__id_ibge=request.GET.get('UF__id_ibge__exact'))
+        return Municipio.objects.none()
+    municipio_filter.short_description = u'Município'
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if request.user.groups.filter(name=u'Articulador').exists():
+            if db_field.name == "UF":
+                uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+                kwargs["queryset"] = UF.objects.filter(pk__in=uf_ids)
+        return super(ColetaArticulacaoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def queryset(self, request):
+        qs = super(ColetaArticulacaoAdmin, self).queryset(request)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            return qs.filter(UF__pk__in=uf_ids)
+        return qs
+admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
 
 
 admin.site.register(CirculoEvento)

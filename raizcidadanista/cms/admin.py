@@ -425,6 +425,7 @@ class EmailAgendadoAdmin(PowerModelAdmin):
     multi_search = (
         ('q1', 'Para', ['to',]),
         ('q2', 'Assunto', ['subject',]),
+        ('q3', 'Conteúdo', ['html',]),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):

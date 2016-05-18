@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>TSE</title>
+    </head>
+    <body>
+        <form id="form-tse" action="http://apps.tse.jus.br/saae/consultaLocalVotacaoNome.do" method="POST">
+            <input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="9b088b8dea78e9ee7d595c1f994a18bc">
+            <input type="hidden" name="dispatcher" value="consultarLocalVotacaoNome">
+            <input type="hidden" name="validate" value="true">
+            <input type="hidden" name="nomeEleitor" value="{{ object.nome }}">
+            <input type="hidden" name="dataNascimento" value="{{ object.dtnascimento|date:"d/m/Y" }}">
+            <input type="hidden" name="nomeMae" value="{% if object.nome_da_mae %}{{ object.nome_da_mae }}{% endif %}">
+            <input type="hidden" name="codigoCaptcha" value="">
+            <input type="hidden" name="Consultar" value="Consultar">
+        </form>
+    </body>
+    <script type="text/javascript">
+        document.getElementById('form-tse').submit();
+    </script>
+</html>

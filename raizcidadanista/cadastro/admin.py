@@ -195,12 +195,12 @@ class MembroAdmin(PowerModelAdmin):
         return actions
 
     def get_list_display_links(self, request, list_display):
-        if not request.user.groups.filter(name=u'Comissao').exists():
+        if not request.user.groups.filter(name=u'Comissao').exists() and not request.user.is_superuser:
             return []
         return super(MembroAdmin, self).get_list_display_links(request, list_display)
 
     def has_change_permission(self, request, obj=None):
-        if obj and not request.user.groups.filter(name=u'Comissao').exists():
+        if obj and not request.user.groups.filter(name=u'Comissao').exists() and not request.user.is_superuser:
             return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
 
@@ -620,16 +620,31 @@ class MembroAdmin(PowerModelAdmin):
             'form': form,
         },context_instance=RequestContext(request))
 
+
+    def tse(self, request, object_id, template_name='admin/cadastro/membro/tse.html'):
+        object = self.get_object(request, object_id)
+        return render_to_response(template_name, {
+            'object': object,
+        },context_instance=RequestContext(request))
+
     def get_urls(self):
         urls_originais = super(MembroAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^import/$', self.wrap(self.import_membros), name='cadastro_membros_import_membros'),
+            url(r'^(?P<object_id>\d+)/tse/$', self.wrap(self.tse), name='cadastro_membros_tse'),
         )
         return urls_customizadas + urls_originais
 
     def get_buttons(self, request, object_id):
         buttons = super(MembroAdmin, self).get_buttons(request, object_id)
-        if not object_id and request.user.is_superuser:
+        obj = self.get_object(request, object_id)
+        if obj:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_tse', kwargs={'object_id': object_id,}), label=u'TSE'))
+            buttons.append(PowerButton(url=u'http://olhoneles.github.io/politicos-react/', label=u'Antecedentes Políticos'))
+            if obj.receita_set.all().exists():
+                buttons.append(PowerButton(url=u'%s?q2=%s' % (reverse('admin:financeiro_receita_changelist'), obj.nome ,), label=u'Pagamentos'))
+
+        if not obj and request.user.is_superuser:
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
 

@@ -11,7 +11,11 @@
             <input type="hidden" name="validate" value="true">
             <input type="hidden" name="nomeEleitor" value="{{ object.nome }}">
             <input type="hidden" name="dataNascimento" value="{{ object.dtnascimento|date:"d/m/Y" }}">
-            <input type="hidden" name="nomeMae" value="{% if object.nome_da_mae %}{{ object.nome_da_mae }}{% endif %}">
+            {% if object.nome_da_mae %}
+            <input type="hidden" name="nomeMae" value="{{ object.nome_da_mae }}">
+            {% else %}
+            <input type="hidden" name="naoConstaMae" value="on">
+            {% endif %}
             <input type="hidden" name="codigoCaptcha" value="">
             <input type="hidden" name="Consultar" value="Consultar">
         </form>

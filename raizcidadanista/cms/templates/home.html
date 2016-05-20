@@ -22,7 +22,7 @@
                     <img src="{{ article.first_image }}" alt="{{ article.title }}">
                     <div class="carousel-caption">
                         <h3>{{ article.title }}</h3>
-                        <p>{{ article.header|safe}}</p>
+                        <p>{{ article.header|striptags|safe}}</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -57,7 +57,7 @@
                             <h3 class="text-uppercase"><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
                             <h4 class="text-uppercase">{{ article.created_at|date:"d \d\e F \d\e Y" }}</h4>
                         </div>
-                        <p>{{ article.header|safe}}</p><hr />
+                        <p>{{ article.header|striptags|safe}}</p><hr />
                         <div class="col-sm-12 location-main">
                             <div class="pull-left location location2">
                                 <i class="fa fa-map-marker fa-2x"></i><span><a href="{{ article.get_absolute_url }}">Leia mais</a></span>
@@ -84,7 +84,7 @@
                             <h3 class="text-uppercase"><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
                             <h4 class="text-uppercase">{{ article.created_at|date:"d \d\e F \d\e Y" }}</h4>
                         </div>
-                        <p>{{ article.header|safe}}</p><hr />
+                        <p>{{ article.header|striptags|safe}}</p><hr />
                         <div class="col-sm-12 location-main">
                             <div class="pull-left location location2">
                                 <i class="fa fa-map-marker fa-2x"></i><span><a href="{{ article.get_absolute_url }}">Leia mais</a></span>
@@ -111,7 +111,7 @@
                             <h3 class="text-uppercase"><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
                             <h4 class="text-uppercase">{{ article.created_at|date:"d \d\e F \d\e Y" }}</h4>
                         </div>
-                        <p>{{ article.header|safe}}</p><hr />
+                        <p>{{ article.header|striptags|safe}}</p><hr />
                         <div class="col-sm-12 location-main">
                             <div class="pull-left location location2">
                                 <i class="fa fa-map-marker fa-2x"></i><span><a href="{{ article.get_absolute_url }}">Leia mais</a></span>

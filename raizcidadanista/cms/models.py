@@ -88,13 +88,15 @@ class Article(models.Model):
         images = []
         for img_rex in rex.findall(self.header):
             images.append(img_rex[3])
+        for img_rex in rex.findall(self.content):
+            images.append(img_rex[3])
         return images
 
     def first_image(self):
         images = self.get_images()
         if images:
-            im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
-            if im.size[0] >= 470 and im.size[1] >= 275:
+            # im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
+            # if im.size[0] >= 470 and im.size[1] >= 275:
                 return images[0]
         return u'/media/uploads/facebook_padrao.png'
 

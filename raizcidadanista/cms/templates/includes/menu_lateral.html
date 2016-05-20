@@ -2,13 +2,13 @@
 
 {% recursetree menu_itens %}
     {% if node.is_leaf_node %}
-        <a class="list-group-item" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a>
+        <li><a class="about_proin" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a></li>
     {% else %}
         {% if node.get_level == 0 %}
-            <a class="list-group-item" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a>
+            <li><a class="about_proin" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a></li>
             {{ children }}
         {% elif node.get_level > 0 %}
-            <a class="list-group-item" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a>
+            <li><a class="about_proin" href="{{ node.get_link|default:"#" }}">{{ node.name|upper }}</a></li>
             {{ children }}
         {% endif %}
     {% endif %}

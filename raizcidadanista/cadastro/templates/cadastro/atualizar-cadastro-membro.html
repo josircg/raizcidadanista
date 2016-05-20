@@ -8,11 +8,19 @@
 {% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Atualização de Cadastro da Raiz</h3>
-        <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel panel-default">
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Atualização de Cadastro da Raiz</h3>
+                    <h4>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <form action="" method="POST" role="form">{% csrf_token %}
                 <div class="panel-body">
                     {% for field in form %}
                         <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
@@ -35,10 +43,11 @@
                     {% endfor %}
                     <a href="?filiado=true"><button type="button" class="btn btn-success">Clique aqui caso queira se tornar um pré-filiado</button></a>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-success">Atualizar</button>
-        </form>
+                <button type="submit" class="btn btn-success">Atualizar</button>
+            </form>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

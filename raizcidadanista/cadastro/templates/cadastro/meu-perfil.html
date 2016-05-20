@@ -8,10 +8,17 @@
 {% block ogdescription %}Meu Perfil - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Meu Perfil</h3>
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Meu Perfil</h3>
+                </div>
+            </div>
+        </div>
 
-        <div class="panel panel-default">
+        <div class="col-md-12">
             <div class="panel-body">
                 <h3>Dados pessoais</h3><br>
                 <div class="form-group col-md-5">
@@ -69,9 +76,7 @@
                     <a href="{% url cms_password_change %}"><button class="btn btn-success">Alterar senha</button></a>
                 </div>
             </div>
-        </div>
 
-        <div class="panel panel-default">
             <div class="panel-body">
                 <h3>Meus círculos</h3>
                 {% if membro.circulomembro_set.exists %}
@@ -117,9 +122,7 @@
 
                 <p>Caso queira se cadastrar em algum outro círculo da Raiz para receber os informes, <a href="/circulos-ident/">clique aqui</a>.</p>
             </div>
-        </div>
 
-        <div class="panel panel-default">
             <div class="panel-body">
                 <h3>Minhas contribuições</h3>
                 {% if membro.receita_set.exists %}
@@ -145,4 +148,5 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

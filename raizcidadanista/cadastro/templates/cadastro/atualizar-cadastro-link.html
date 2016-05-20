@@ -8,12 +8,20 @@
 {% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Atualização de Cadastro</h3>
-        <p>Primeiro, informe o seu email <b>OU</b> o seu CPF.</p>
-        <p>Após clicar no botão Enviar, um link será enviado para o seu email para que você possa atualizar seus dados.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel panel-default">
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Atualização de Cadastro</h3>
+                    <h4>Primeiro, informe o seu email <b>OU</b> o seu CPF.</h4>
+                    <p>Após clicar no botão Enviar, um link será enviado para o seu email para que você possa atualizar seus dados.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <form action="" method="POST" role="form">{% csrf_token %}
                 <div class="panel-body">
                     {% for error in form.non_field_errors %}
                     <div class="alert alert-danger">
@@ -44,9 +52,10 @@
                     </div>
                     <button type="submit" class="btn btn-success">Enviar</button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

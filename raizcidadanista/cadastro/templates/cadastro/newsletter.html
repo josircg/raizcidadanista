@@ -8,11 +8,19 @@
 {% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Cadastro para Mala Direta e Facebook</h3>
-        <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel panel-default">
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Cadastro para Mala Direta e Facebook</h3>
+                    <h4>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <form action="" method="POST" role="form">{% csrf_token %}
                 <div class="panel-body">
                     {% for field in form %}
                         <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
@@ -34,9 +42,10 @@
                     {% endfor %}
                     <button type="submit" class="btn btn-success">Cadastrar</button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

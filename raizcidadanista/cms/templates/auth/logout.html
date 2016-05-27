@@ -6,13 +6,26 @@
 {% block ogtitle %}Sair | {% endblock %}
 
 {% block main %}
-<h3>Sair</h3>
-<div id="content-left">
-    <div id="texto-content">
-        <span>
-            <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
-            <p><a href="{% url 'cms_login' %}">{% trans 'Log in again' %}</a></p>
-        </span>
+
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Sair</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="content-left">
+                <div id="texto-content">
+                    <span>
+                        <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+                        <p><a href="{% url 'cms_login' %}">{% trans 'Log in again' %}</a></p>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -41,7 +41,7 @@ body {
 .main-body {
     float: left;
     width: 100%;
-    background: #35752B;
+    background: #E6F1C7;
     background-size: 100% auto;
     background-attachment: fixed;
 }
@@ -373,7 +373,7 @@ body {
 
 .info {
     width: 100%;
-    padding: 15px 30px 20px;
+    padding: 15px 10px 15px;
 }
 
 .menu-desc {
@@ -602,7 +602,7 @@ body {
 
 .about_proin {
     color: black;
-    padding: 0 20px;
+    padding: 0 10px;
     text-transform: uppercase;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;

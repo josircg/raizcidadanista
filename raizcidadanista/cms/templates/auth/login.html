@@ -18,12 +18,14 @@
         </div>
 
         <div class="col-md-12">
-            <div id="content-left" class="col-md-6" style="text-align: center; margin-top: 45px;">
-                <a href="{% url 'cms_login_twitter' %}"><button type="button" style="margin: 10px;" class="btn btn-default btn-primary">Login com Twitter</button></a>
-                <a href="{% url 'cms_login_facebook' %}"><button type="button" style="margin: 10px;" class="btn btn-default btn-primary">Login com o Facebook</button></a>
-                <button type="button" style="margin: 10px;" class="btn btn-default btn-primary button-login-senha">Login com senha</button>
+            <div id="content-left" class="col-md-12" style="text-align: center; margin: 45px 0;">
+                <a href="{% url 'cms_password_reset' %}"><button type="button" class="btn btn-default btn-primary">Primeiro Acesso / Não sei a senha</button></a>
+                <a href="{% url 'cms_login_twitter' %}"><button type="button" class="btn btn-default btn-primary">Login com Twitter</button></a>
+                <a href="{% url 'cms_login_facebook' %}"><button type="button" class="btn btn-default btn-primary">Login com o Facebook</button></a>
+                <button type="button" class="btn btn-default btn-primary button-login-senha">Login com senha</button>
             </div>
-            <div id="content-left" class="col-md-6 box-login" style="display: none;">
+
+            <div id="content-left" class="col-md-12 box-login" style="display: none;">
                 <div id="texto-content">
                     <span>
                         <form action="" method="POST">{% csrf_token %}

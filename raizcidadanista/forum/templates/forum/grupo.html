@@ -8,33 +8,47 @@
 {% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3><a href="{% url forum %}">Fórum</a> › Tópicos: {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3><a href="{% url forum %}">Fórum</a> › Tópicos: {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
+                </div>
+            </div>
+        </div>
 
-        {{ object.descricao|safe }}
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
 
-        {% for topico in topicos %}
-        <a href="{{ topico.get_absolute_url }}">
-            <blockquote>
-              <h4>{{ topico }} ({{ topico.conversa_set.count }})</h4>
-              <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
-            </blockquote>
-        </a>
-        {% endfor %}
+                    {{ object.descricao|safe }}
 
-        <nav>
-          <ul class="pager">
-            {% if topicos.has_previous %}
-                <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-            {% endif %}
+                    {% for topico in topicos %}
+                    <a href="{{ topico.get_absolute_url }}">
+                        <blockquote>
+                          <h4>{{ topico }} ({{ topico.conversa_set.count }})</h4>
+                          <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                        </blockquote>
+                    </a>
+                    {% endfor %}
 
-            {% if topicos.has_next %}
-                <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
-            {% endif %}
-          </ul>
-        </nav>
+                    <nav>
+                      <ul class="pager">
+                        {% if topicos.has_previous %}
+                            <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                        {% endif %}
+
+                        {% if topicos.has_next %}
+                            <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block css %}

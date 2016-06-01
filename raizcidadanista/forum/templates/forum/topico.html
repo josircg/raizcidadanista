@@ -13,36 +13,48 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Fórum</a> › <a href="{{ object.grupo.get_absolute_url }}">Tópicos: {{ object.grupo }}</a> › {{ object }}</h3>
-                    </div>
+                    <h3><a href="{% url forum %}">Fórum</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}</h3>
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="col-article">
                     {% for conversa in conversas %}
-                    <blockquote>
-                        <h4>{{ conversa.texto|safe }}</h4>
-                        <footer>Por: {% firstof conversa.autor.first_name conversa.autor.username %} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
-                        {% for conversa_filho in conversa.conversa_set.all %}
-                        <blockquote>
-                            <h4>{{ conversa_filho.texto|safe }}</h4>
-                            <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
-                            <small><a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)</small>
-                        </blockquote>
-                        {% endfor %}
+                    <div class="panel panel-default panel-conversa">
+                        <div class="panel-body">
+                            <blockquote>
+                                <h4>{{ conversa.texto|safe }}</h4>
+                                <footer>Por: {% firstof conversa.autor.first_name conversa.autor.username %} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                {% for conversa_filho in conversa.conversa_set.all %}
+                                <div class="panel panel-default panel-conversa">
+                                    <div class="panel-body">
+                                        <blockquote>
+                                            <h4>{{ conversa_filho.texto|safe }}</h4>
+                                            <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                            <small><a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)</small>
+                                        </blockquote>
+                                    </div>
+                                </div>
+                                {% endfor %}
 
-                        <small><a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>) | <a class="responder-link" href="javascript://">Responder</a></small>
-                        <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
-                            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
-                            <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
-                            <br>
-                            <button type="submit" class="btn btn-success">Responder</button>
-                        </form>
-                        <script type="text/javascript">
-                            CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
-                        </script>
-                    </blockquote>
+                                <small><a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>) | <a class="responder-link" href="javascript://">Responder</a></small>
+                                <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
+                                    <div class="panel panel-default panel-conversa">
+                                        <div class="panel-body">
+                                            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                            <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                            <br>
+                                            <button type="submit" class="btn btn-success">Responder</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <script type="text/javascript">
+                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+                                </script>
+                            </blockquote>
+                        </div>
+                    </div>
                     {% endfor %}
 
                     <nav>
@@ -57,7 +69,7 @@
                     </nav>
 
                     <form action="" method="POST" role="form">{% csrf_token %}
-                        <div class="panel panel-default">
+                        <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <h3>Novo comentário</h3>
                                 <div class="form-group{% if form.texto.errors %} has-error has-feedback{% endif %} group-{{ form.texto.name }}">

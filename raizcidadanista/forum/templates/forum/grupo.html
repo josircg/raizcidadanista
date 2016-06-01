@@ -13,7 +13,8 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Fórum</a> › Tópicos: {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
+                    <h3><a href="{% url forum %}">Fórum</a> › {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
+                    {{ object.descricao|safe }}
                 </div>
             </div>
         </div>
@@ -21,16 +22,15 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="col-article">
-
-                    {{ object.descricao|safe }}
-
                     {% for topico in topicos %}
-                    <a href="{{ topico.get_absolute_url }}">
-                        <blockquote>
-                          <h4>{{ topico }} ({{ topico.conversa_set.count }})</h4>
-                          <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
-                        </blockquote>
-                    </a>
+                    <div class="panel panel-default panel-conversa">
+                        <div class="panel-body">
+                            <blockquote>
+                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ topico.conversa_set.count }})</h4></a>
+                                <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                            </blockquote>
+                        </div>
+                    </div>
                     {% endfor %}
 
                     <nav>
@@ -55,11 +55,6 @@
 <style type="text/css">
     .new-topic {
         float: right;
-    }
-    blockquote {
-        border: 1px solid #eee;
-        border-left: 5px solid #eee;
-        margin: 0px;
     }
 </style>
 {% endblock %}

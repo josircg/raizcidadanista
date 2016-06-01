@@ -9,7 +9,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Template
 from django.template.loader import get_template
 from django.template.context import RequestContext, Context
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -624,7 +624,12 @@ class MembroAdmin(PowerModelAdmin):
 
     def antecedesntes_politicos(self, request, object_id, template_name='admin/cadastro/membro/antecedesntes_politicos.html'):
         object = self.get_object(request, object_id)
-        json = requests.get(u'http://politicos.olhoneles.org/api/v0/politicians/?candidacies__politician__cpf=%s' % object.cpf.replace('.', '').replace('-', '')).json()
+        if not object:
+            raise Http404
+        cpf = object.cpf
+        if cpf:
+            cpf = cpf.replace('.', '').replace('-', '')
+        json = requests.get(u'http://politicos.olhoneles.org/api/v0/politicians/?candidacies__politician__cpf=%s' % cpf).json()
         candidaturas = []
         for obj in json.get('objects'):
             for cand in obj.get('candidacies'):

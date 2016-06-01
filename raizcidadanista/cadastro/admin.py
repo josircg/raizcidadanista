@@ -9,7 +9,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Template
 from django.template.loader import get_template
 from django.template.context import RequestContext, Context
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
 from django.utils import simplejson
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -25,6 +25,7 @@ from datetime import datetime, date, timedelta
 from functools import partial
 import os
 import csv
+import requests
 
 import cStringIO as StringIO
 import cgi
@@ -620,16 +621,49 @@ class MembroAdmin(PowerModelAdmin):
             'form': form,
         },context_instance=RequestContext(request))
 
+
+    def antecedesntes_politicos(self, request, object_id, template_name='admin/cadastro/membro/antecedesntes_politicos.html'):
+        object = self.get_object(request, object_id)
+        if not object:
+            raise Http404
+        cpf = object.cpf
+        if cpf:
+            cpf = cpf.replace('.', '').replace('-', '')
+        json = requests.get(u'http://politicos.olhoneles.org/api/v0/politicians/?candidacies__politician__cpf=%s' % cpf).json()
+        candidaturas = []
+        for obj in json.get('objects'):
+            for cand in obj.get('candidacies'):
+                candidaturas.append({
+                    'data': datetime.strptime(cand.get('election_round').get('date', ''), '%Y-%m-%d') if cand.get('election_round') else '',
+                    'cargo': cand.get('political_office').get('name', '') if cand.get('political_office') else '',
+                    'cidade': cand.get('city').get('name', '') if cand.get('city') else '',
+                    'estado': cand.get('state').get('name', '') if cand.get('state') else '',
+                    'eleito': cand.get('elected', ''),
+                })
+        return render_to_response(template_name, {
+            'object': object,
+            'candidaturas': candidaturas,
+            'title': u'Antecedentes Políticos',
+        },context_instance=RequestContext(request))
+
     def get_urls(self):
         urls_originais = super(MembroAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^import/$', self.wrap(self.import_membros), name='cadastro_membros_import_membros'),
+            url(r'^(?P<object_id>\d+)/antecedesntes_politicos/$', self.wrap(self.antecedesntes_politicos), name='cadastro_membros_antecedesntes_politicos'),
         )
         return urls_customizadas + urls_originais
 
     def get_buttons(self, request, object_id):
         buttons = super(MembroAdmin, self).get_buttons(request, object_id)
-        if not object_id and request.user.is_superuser:
+        obj = self.get_object(request, object_id)
+        if obj:
+            buttons.append(PowerButton(url=u'http://www.tse.jus.br/eleitor/servicos/titulo-e-local-de-votacao/consulta-por-nome', label=u'TSE'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_membros_antecedesntes_politicos', kwargs={'object_id': object_id,}), label=u'Antecedentes Políticos'))
+            if obj.receita_set.all().exists():
+                buttons.append(PowerButton(url=u'%s?q2=%s&o=-5' % (reverse('admin:financeiro_receita_changelist'), obj.nome ,), label=u'Pagamentos'))
+
+        if not obj and request.user.is_superuser:
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
 

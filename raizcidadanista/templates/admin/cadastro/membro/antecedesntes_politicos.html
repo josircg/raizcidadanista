@@ -1,0 +1,50 @@
+{% extends "admin/edit_form.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../../">Cadastro</a> &rsaquo;
+     <a href="../../">Colaboradores</a> &rsaquo;
+     <a href="../">{{ object }}</a> &rsaquo;
+     {{ title }}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div>
+        <div class="inline-group">
+            <div class="tabular inline-related last-related">
+                <fieldset class="module">
+                    <h2>Candidaturas</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Cargo</th>
+                                <th>Eleito/a?</th>
+                                <th>Estado</th>
+                                <th>Cidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cand in candidaturas %}
+                            <tr>
+                                <td><p>{{ cand.data|date:"d/m/Y" }}</p></td>
+                                <td><p>{{ cand.cargo }}</p></td>
+                                <td><p>{% if cand.eleito %}Sim{% else %}Não{% endif %}</p></td>
+                                <td><p>{{ cand.estado }}</p></td>
+                                <td><p>{{ cand.cidade }}</p></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5"><p>Nenhuma candidatura encontrada!</p></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

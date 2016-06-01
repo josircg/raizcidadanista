@@ -661,7 +661,7 @@ class MembroAdmin(PowerModelAdmin):
             buttons.append(PowerButton(url=u'http://www.tse.jus.br/eleitor/servicos/titulo-e-local-de-votacao/consulta-por-nome', label=u'TSE'))
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_antecedesntes_politicos', kwargs={'object_id': object_id,}), label=u'Antecedentes Políticos'))
             if obj.receita_set.all().exists():
-                buttons.append(PowerButton(url=u'%s?q2=%s' % (reverse('admin:financeiro_receita_changelist'), obj.nome ,), label=u'Pagamentos'))
+                buttons.append(PowerButton(url=u'%s?q2=%s&o=-5' % (reverse('admin:financeiro_receita_changelist'), obj.nome ,), label=u'Pagamentos'))
 
         if not obj and request.user.is_superuser:
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))

@@ -23,9 +23,9 @@
                             <tr>
                                 <th>Data</th>
                                 <th>Cargo</th>
+                                <th>Eleito/a?</th>
                                 <th>Estado</th>
                                 <th>Cidade</th>
-                                <th>Eleteito(a)?</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,9 +33,9 @@
                             <tr>
                                 <td><p>{{ cand.data|date:"d/m/Y" }}</p></td>
                                 <td><p>{{ cand.cargo }}</p></td>
+                                <td><p>{% if cand.eleito %}Sim{% else %}Não{% endif %}</p></td>
                                 <td><p>{{ cand.estado }}</p></td>
                                 <td><p>{{ cand.cidade }}</p></td>
-                                <td><p>{% if cand.eleito %}Sim{% else %}Não{% endif %}</p></td>
                             </tr>
                             {% empty %}
                             <tr><td colspan="5"><p>Nenhuma candidatura encontrada!</p></td></tr>

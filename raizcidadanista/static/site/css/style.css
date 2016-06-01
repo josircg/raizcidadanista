@@ -71,7 +71,7 @@ body {
     box-sizing: border-box;
     float: none;
 }
-.contact-content img {margin: 20px}
+.contact-content img {margin: 20px !important;}
 
 .main-navigation {
     padding: 0px 0px;

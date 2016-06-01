@@ -5,8 +5,10 @@ Accord Template
 http://www.templatemo.com/tm-478-accord
 
 */
-
-a:hover, a:focus { text-decoration: none; }
+.contact-content a {
+    text-decoration: underline !important;
+}
+a:hover, a:focus { text-decoration: underline; }
 a:hover {
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -59,7 +61,7 @@ body {
 
 .main-page {
     position: relative;
-    margin-top: 80px;
+    margin-top: 30px;
 }
 
 /*http://stackoverflow.com/questions/16034397/css-calc-alternative*/
@@ -216,7 +218,7 @@ body {
     background-size: cover;
     background-position: bottom right;
     border-top: 7px solid #94C11E;
-    overflow-y: auto;
+    height: 280px;
 }
 .carrousel-main-home {
     padding: 25px;
@@ -369,13 +371,11 @@ body {
     margin-right: 3%;
 }
 
-.float-container { overflow: auto; }
-
 .info {
     width: 100%;
     padding: 15px 10px 15px;
+    overflow: hidden;
 }
-
 .menu-desc {
     float: left;
     width: 100%;
@@ -498,6 +498,7 @@ body {
     font-size: 18px;
     margin-right: 5px;
 }
+.bottom-img img { height: 230px; width: auto; }
 .bottom-img { position: relative; }
 .bottom-img p {
     width: 100%;
@@ -653,14 +654,13 @@ body {
 .gallery_main,
 .contact-content {
     background-color: #fff;
-    border-top: 5px solid #94C11E;
+    border-top: 7px solid #94C11E;
     width: auto;
     overflow: hidden;
 }
 .gallery_main { padding: 30px 20px 30px 30px; }
 
-.contact-content { padding: 30px; }
-.contact-content { padding: 0; }
+.contact-content { padding: 0 0 30px 0;}
 .contact-content-upper { padding: 30px 40px; }
 
 .gallery_title {
@@ -670,12 +670,11 @@ body {
     margin-bottom: 40px;
 }
 .gallery_title h3 {
-    font-size: 70px;
+    font-size: 35px;
     font-weight: bold;
-    margin-bottom: 0;
 }
 .gallery_title h4 {
-    font-size: 25px;
+    font-size: 20px;
     font-weight: bold;
     color: #94C11E;
     margin-top: 0;
@@ -853,6 +852,14 @@ textarea.form-control { height:135px; }
 
 }
 
+
+.bullets{
+  padding:6px 0 6px 40px;
+  background:url(../icon/bullet.jpg) no-repeat center left;
+}
+
+.bullets img{display:none;}
+
 @media screen and (max-width: 1199px) and (min-width: 992px) {
     .banner-main-home-text,
     .banner-main-about-text {
@@ -881,6 +888,8 @@ textarea.form-control { height:135px; }
 }
 
 @media (max-width:991px) {
+
+    .article-content {padding: 0}
 
     .main-body { background-size: auto; }
 

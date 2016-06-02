@@ -861,7 +861,7 @@ textarea.form-control { height:135px; }
 .bullets img{display:none;}
 
 .panel-conversa {background: rgba(240, 240, 240, 0.20);}
-blockquote {margin: 0px;}
+blockquote {margin: 0px; border-left: 0;}
 blockquote footer {
     font-size: 70%;
 }

@@ -156,7 +156,7 @@ class MembroAdmin(PowerModelAdmin):
     )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
-ḉ
+
     fieldsets = (
         (None, {
             'fields': ['nome', 'apelido', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]

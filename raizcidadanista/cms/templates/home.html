@@ -42,7 +42,7 @@
 
     {% get_section_articles 'home' 9 as articles %}
     <div class="row">
-        <div class="col-md-4" style="padding: 0">
+        <div class="col-md-12 col-xs-12 col-sm-12 col-lg-4" style="padding: 0">
         {% for article in articles %}
             {% if forloop.counter == 1 or forloop.counter == 4 or forloop.counter == 7 %}
             <div class="col-xs-12 col-sm-12 margin-b-30">
@@ -69,7 +69,7 @@
             {% endif %}
         {% endfor %}
         </div>
-        <div class="col-md-4" style="padding: 0">
+        <div class="col-md-12 col-xs-12 col-sm-12 col-lg-4" style="padding: 0">
         {% for article in articles %}
             {% if forloop.counter == 2 or forloop.counter == 5 or forloop.counter == 8 %}
             <div class="col-xs-12 col-sm-12 margin-b-30">
@@ -96,7 +96,7 @@
             {% endif %}
         {% endfor %}
         </div>
-        <div class="col-md-4" style="padding: 0">
+        <div class="col-md-12 col-xs-12 col-sm-12 col-lg-4" style="padding: 0">
         {% for article in articles %}
             {% if forloop.counter == 3 or forloop.counter == 6 or forloop.counter == 9 %}
             <div class="col-xs-12 col-sm-12 margin-b-30">

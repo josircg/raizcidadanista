@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap %}
+{% load bootstrap forum_tags %}
 
-{% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
-{% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block title %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
-{% block description %}Tópicos: {{ object }} - Fórum - {% endblock %}
-{% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block description %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-main contact-content margin-b-30">
@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Fórum</a> › {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
+                    <h3><a href="{% url forum %}">Teia Digital</a> › {{ object }}<a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a></h3>
                     {{ object.descricao|safe }}
                 </div>
             </div>
@@ -26,7 +26,7 @@
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
-                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ topico.conversa_set.count }})</h4></a>
+                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
                                 <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
                             </blockquote>
                         </div>

@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
-{% block ogtitle %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
+{% block title %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
 
-{% block description %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
-{% block ogdescription %}Tópicos: {{ object.grupo }} - {{ object }} - Fórum - {% endblock %}
+{% block description %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-main contact-content margin-b-30">
@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Fórum</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}</h3>
+                    <h3><a href="{% url forum %}">Teia Digital</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}</h3>
                 </div>
             </div>
         </div>

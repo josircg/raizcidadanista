@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap %}
+{% load bootstrap forum_tags %}
 
-{% block title %}Fórum - {% endblock %}
-{% block ogtitle %}Fórum - {% endblock %}
+{% block title %}Teia Digital - {% endblock %}
+{% block ogtitle %}Teia Digital - {% endblock %}
 
-{% block description %}Fórum - {% endblock %}
-{% block ogdescription %}Fórum - {% endblock %}
+{% block description %}Teia Digital - {% endblock %}
+{% block ogdescription %}Teia Digital - {% endblock %}
 
 {% block main %}
 
@@ -14,7 +14,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3>Fórum</h3>
+                    <h3>Teia Digital</h3>
                 </div>
             </div>
         </div>
@@ -26,7 +26,11 @@
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
-                                    <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4></a>
+                                    {% if user|has_grupo_perm:grupo %}
+                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
+                                    {% else %}
+                                        <h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4>
+                                    {% endif %}
                                     <footer>{{ grupo.descricao|striptags|safe }}</footer>
                                 </blockquote>
                             </div>

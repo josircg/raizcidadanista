@@ -20,6 +20,14 @@ class Grupo(models.Model):
     def get_absolute_url(self):
         return reverse('forum_grupo', kwargs={'pk': self.pk, })
 
+    def num_topicos_nao_lidos(self, usuario):
+        num = 0
+        for topico in self.topico_set.filter(status='A'):
+            if topico.num_conversa_nao_lidas(usuario) > 0:
+                num += 1
+        return num
+
+
     def __unicode__(self):
         return u'%s' % self.nome
 
@@ -35,6 +43,11 @@ class GrupoUsuario(models.Model):
 
     def __unicode__(self):
         return u'%s/%s' % (self.grupo, self.usuario)
+@receiver(signals.post_save, sender=GrupoUsuario)
+def create_topicousuario_grupousuario_save(sender, instance, created, raw, using, *args, **kwargs):
+    for topico in instance.grupo.topico_set.filter(status='A'):
+        if not topico.topicousuario_set.filter(usuario=instance.usuario):
+            TopicoUsuario.objects.create(topico=topico, usuario=instance.usuario)
 
 
 STATUS_TOPICO = (
@@ -58,8 +71,28 @@ class Topico(models.Model):
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
+    def num_conversa_nao_lidas(self, usuario):
+        return self.conversa_set.count()-self.topicousuario_set.get(usuario=usuario).num_conversa_lida
+
     def __unicode__(self):
         return u'%s' % self.titulo
+@receiver(signals.post_save, sender=Topico)
+def create_topicousuario_topico_save(sender, instance, created, raw, using, *args, **kwargs):
+    for grupo_usuario in instance.grupo.grupousuario_set.all():
+        if not instance.topicousuario_set.filter(usuario=grupo_usuario.usuario):
+            TopicoUsuario.objects.create(topico=instance, usuario=grupo_usuario.usuario)
+
+
+class TopicoUsuario(models.Model):
+    class Meta:
+        unique_together = (('topico', 'usuario', ), )
+
+    topico = models.ForeignKey(Topico)
+    usuario = models.ForeignKey(User)
+    num_conversa_lida = models.PositiveIntegerField(default=0)
+
+    def __unicode__(self):
+        return u'%s/%s' % (self.topico, self.usuario)
 
 
 STATUS_NOTIFICACAO = (

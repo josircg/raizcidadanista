@@ -33,6 +33,51 @@ class ForumView(TemplateView):
         return context
 
 
+class DiretorioView(TemplateView):
+    template_name = 'forum/forum.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DiretorioView, self).get_context_data(**kwargs)
+
+        grupos_list = Grupo.objects.all()
+        paginator = Paginator(grupos_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            grupos = paginator.page(page)
+        except PageNotAnInteger:
+            grupos = paginator.page(1)
+        except EmptyPage:
+            grupos = paginator.page(paginator.num_pages)
+
+        context['grupos'] = grupos
+        return context
+
+
+class NaoLidosView(TemplateView):
+    template_name = 'forum/forum.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(NaoLidosView, self).get_context_data(**kwargs)
+
+        grupos_list = []
+        for grupo in Grupo.objects.filter(grupousuario__usuario=self.request.user):
+            if grupo.num_topicos_nao_lidos(self.request.user) > 0:
+                grupos_list.append(grupo)
+        paginator = Paginator(grupos_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            grupos = paginator.page(page)
+        except PageNotAnInteger:
+            grupos = paginator.page(1)
+        except EmptyPage:
+            grupos = paginator.page(paginator.num_pages)
+
+        context['grupos'] = grupos
+        return context
+
+
 class GrupoView(DetailView):
     model = Grupo
     template_name = 'forum/grupo.html'
@@ -129,6 +174,9 @@ class TopicoView(DetailView):
         obj = super(TopicoView, self).get_object(queryset)
         if not obj.grupo.grupousuario_set.filter(usuario=self.request.user).exists():
             raise PermissionDenied()
+
+        # Atualiza o número de conversas lidas
+        obj.topicousuario_set.filter(usuario=self.request.user).update(num_conversa_lida=obj.conversa_set.count())
         return obj
 
     def form_valid(self, form):

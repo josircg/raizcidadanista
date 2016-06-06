@@ -30,8 +30,12 @@
 
             <div class="col-md-12">
                 <div class="share-links">
-                    <div class="fb-like" data-layout="button_count" data-share="true"></div>
-                    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                    <span class="share-facebook">
+                        <div class="fb-like" data-layout="button_count" data-share="true"></div>
+                    </span>
+                    <span class="share-twitter">
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                    </span>
                 </div>
 
                 {% if article.allow_comments != 'N' %}
@@ -94,7 +98,7 @@
                         <h3 class="text-uppercase"><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
                         <h4 class="text-uppercase">{{ article.created_at|date:"d \d\e F \d\e Y" }}</h4>
                     </div>
-                    <p>{{ article.header|striptags|safe}}</p><hr />
+                    <p>{{ article.header|striptags|truncatewords:20|safe}}</p><hr />
                     <div class="col-sm-12 location-main">
                         <div class="pull-left location location2">
                             <i class="fa fa-map-marker fa-2x"></i><span><a href="{{ article.get_absolute_url }}">Leia mais</a></span>

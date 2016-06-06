@@ -5,6 +5,13 @@ Accord Template
 http://www.templatemo.com/tm-478-accord
 
 */
+
+.share-links .share-facebook {
+    vertical-align: text-bottom;
+}
+.share-links .share-twitter {
+    vertical-align: sub;
+}
 .contact-content a {
     text-decoration: underline !important;
 }
@@ -364,6 +371,8 @@ body {
 .box-icon {
     width: 100%;
     position: relative;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 .info-nav-container {
@@ -409,7 +418,7 @@ body {
     font-size: 14px;
     text-align: left;
     border-bottom: 2px dotted #D7D2D2;
-    margin: 0px 15px;
+    margin: 0px 5px;
     padding: 10px 0px;
 }
 .info > li:last-child { border-bottom: none; }
@@ -603,7 +612,7 @@ body {
 
 .about_proin {
     color: black;
-    padding: 0 10px;
+    padding: 0;
     text-transform: uppercase;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;

@@ -870,9 +870,13 @@ textarea.form-control { height:135px; }
 .bullets img{display:none;}
 
 .panel-conversa {background: rgba(240, 240, 240, 0.20);}
-blockquote {margin: 0px; border-left: 0;}
+blockquote {margin: 0px; border-left: 0; padding: 0;}
 blockquote footer {
-    font-size: 70%;
+    font-size: 60%;
+}
+blockquote footer:before, blockquote small:before {
+    content: '';
+    margin-left: 10px;
 }
 
 @media screen and (max-width: 1199px) and (min-width: 992px) {

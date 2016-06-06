@@ -155,7 +155,7 @@ class MembroAdmin(PowerModelAdmin):
         ('q3', u'Profissão', ['atividade_profissional', ]),
     )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -190,7 +190,7 @@ class MembroAdmin(PowerModelAdmin):
                     actions[action] = allactions[action]
 
         if request.user.groups.filter(name=u'Financeiro').exists():
-            for action in ('estimativa_de_recebimento', 'colaboradores_sem_pagamento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
+            for action in ('estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'assinatura', 'delete_selected', 'export_as_csv', ):
                 if allactions.get(action):
                     actions[action] = allactions[action]
         return actions
@@ -262,6 +262,7 @@ class MembroAdmin(PowerModelAdmin):
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     estimativa_de_recebimento.short_description = u'Estimativa de Recebimento'
 
+    # TODO: Desativado #66
     def colaboradores_sem_pagamento(self, request, queryset, template_name_pdf='admin/cadastro/membro/colaboradores-sem-pagamento-pdf.html'):
         colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)
         results = queryset.exclude(pk__in=colaboradores_com_pagamento_ids).filter(Q(filiado=True) | Q(contrib_valor__gt=0)).distinct()

@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 
 from models import Grupo, Topico, Conversa, ConversaCurtida
-from forms import AddTopicoForm, AddConversaForm
+from forms import AddTopicoForm, ConversaForm
 
 import json
 
@@ -89,7 +89,7 @@ class TopicoAddView(FormView):
 class TopicoView(DetailView):
     model = Topico
     template_name = 'forum/topico.html'
-    form_class = AddConversaForm
+    form_class = ConversaForm
 
     def get(self, request, *args, **kwargs):
         # Computar curtidas
@@ -114,6 +114,9 @@ class TopicoView(DetailView):
 
     def post(self, request, *args, **kwargs):
         self.form = self.form_class(request.POST, request.FILES)
+        if request.POST.get('conversa'):
+            instance = get_object_or_404(Conversa, pk=request.POST.get('conversa'))
+            self.form = self.form_class(request.POST, request.FILES, instance=instance)
         if self.form.is_valid():
             return self.form_valid(self.form)
         else:

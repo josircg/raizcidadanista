@@ -32,8 +32,28 @@
                                         <blockquote>
                                             <h4>{{ conversa_filho.texto|safe }}</h4>
                                             <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
-                                            <small><a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)</small>
+                                            <small>
+                                                <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
+                                                | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                            {% if request.user == conversa_filho.autor %}
+                                                | <a class="edit-link" href="javascript://">Editar</a>
+                                            {% endif %}
+                                            </small>
                                         </blockquote>
+                                        {% if request.user == conversa_filho.autor %}
+                                        <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
+                                                <div class="panel-body">
+                                                    <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                                    <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
+                                                    <textarea id="id_texto-edit-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
+                                                    <br>
+                                                    <button type="submit" class="btn btn-success">Editar</button>
+                                                </div>
+                                        </form>
+                                        <script type="text/javascript">
+                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+                                        </script>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -98,7 +118,7 @@
 <style type="text/css">
     .cke_bottom { display: none !important }
     .cke_contents {min-height: 100px !important; width: 100% !important;}
-    .responder-form { display: none }
+    .responder-form, .edit-form { display: none }
 </style>
 {% endblock %}
 
@@ -106,6 +126,9 @@
 <script type="text/javascript">
     $('.responder-link').click(function(event) {
         $(this).parent().parent().find('.responder-form').slideToggle();
+    });
+    $('.edit-link').click(function(event) {
+        $(this).parent().parent().parent().find('.edit-form').slideToggle();
     });
 
     $('.like-link').click(function(event) {

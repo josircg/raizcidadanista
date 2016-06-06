@@ -26,7 +26,7 @@ class AddTopicoForm(forms.ModelForm):
         return topico
 
 
-class AddConversaForm(forms.ModelForm):
+class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa
         fields = ('texto', 'conversa_pai', )
@@ -38,4 +38,4 @@ class AddConversaForm(forms.ModelForm):
     def save(self, topico, autor, *args, **kwargs):
         self.instance.topico = topico
         self.instance.autor = autor
-        return super(AddConversaForm, self).save(*args, **kwargs)
+        return super(ConversaForm, self).save(*args, **kwargs)

@@ -9,6 +9,10 @@ def has_grupo_perm(user, grupo):
     return grupo.grupousuario_set.filter(usuario=user).exists()
 
 @register.filter
+def has_admin_grupo_perm(user, grupo):
+    return grupo.grupousuario_set.filter(usuario=user, admin=True).exists()
+
+@register.filter
 def num_topicos_nao_lidos(user, grupo):
     return grupo.num_topicos_nao_lidos(user)
 

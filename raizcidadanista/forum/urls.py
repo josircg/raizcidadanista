@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^meu-perfil/$', login_required(views.MeuPerfilView.as_view()), name="forum_meu_perfil"),
     url(r'^pesquisa/$', login_required(views.PesquisaView.as_view()), name="forum_pesquisa"),
     url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),
-    url(r'^grupo/(?P<grupo_pk>\d+)/topico/add/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),
+    url(r'^grupo/(?P<pk>\d+)/editar/$', login_required(views.GrupoEditView.as_view()), name='forum_grupo_edit'),
+    url(r'^grupo/(?P<pk>\d+)/editar-membros/$', login_required(views.GrupoEditMembrosView.as_view()), name='forum_grupo_edit_membros'),
+    url(r'^grupo/(?P<grupo_pk>\d+)/topico/adicionar/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/$', login_required(views.TopicoView.as_view()), name='forum_topico'),
 ]

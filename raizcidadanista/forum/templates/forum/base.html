@@ -110,15 +110,11 @@
                     <div class="content-main">
                     {% block messages %}
                         {% if messages %}
-                        <div class="container cursoDetalhe">
-                            <div class="row-fluid">
-                            {% for message in messages %}
-                                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                            </div>
+                        {% for message in messages %}
+                        <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                            {{ message }}
                         </div>
+                        {% endfor %}
                         {% endif %}
                     {% endblock %}
                     {% block main %}

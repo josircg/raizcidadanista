@@ -2,7 +2,16 @@
 from django import forms
 
 from ckeditor.widgets import CKEditorWidget
-from forum.models import Topico, Conversa
+from forum.models import Grupo, Topico, Conversa, GrupoUsuario
+
+
+class GrupoForm(forms.ModelForm):
+    class Meta:
+        model = Grupo
+        fields = ('nome', 'descricao', )
+        widgets = {
+            'descricao': CKEditorWidget(config_name='basic'),
+        }
 
 
 class AddTopicoForm(forms.ModelForm):

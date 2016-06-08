@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import DetailView, TemplateView, FormView
+from django.views.generic import DetailView, TemplateView, FormView, UpdateView
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from django.db.models import Q
 
-from models import Grupo, Topico, Conversa, ConversaCurtida
-from forms import AddTopicoForm, ConversaForm, PesquisaForm
+from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida
+from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm
 
 from datetime import datetime
 import json
@@ -194,6 +195,64 @@ class GrupoView(DetailView):
         return context
 
 
+class GrupoEditView(UpdateView):
+    template_name = 'forum/grupo-edit.html'
+    model = Grupo
+    form_class = GrupoForm
+
+    def get_object(self, queryset=None):
+        obj = super(GrupoEditView, self).get_object(queryset)
+        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+            raise PermissionDenied()
+        return obj
+
+    def form_valid(self, form):
+        messages.info(self.request, u'Grupo salvo com sucesso!')
+        return super(GrupoEditView, self).form_valid(form)
+
+
+class GrupoEditMembrosView(DetailView):
+    template_name = 'forum/grupo-edit-membros.html'
+    model = Grupo
+    formset_class = inlineformset_factory(Grupo, GrupoUsuario, fields=('admin', ), extra=0)
+
+    def get_object(self, queryset=None):
+        obj = super(GrupoEditMembrosView, self).get_object(queryset)
+        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+            raise PermissionDenied()
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = self.formset_class(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(
+                formset=formset,
+            )
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = self.formset_class(request.POST, instance=self.object)
+        if formset.is_valid():
+            return self.form_valid(formset)
+        else:
+            return self.form_invalid(formset)
+
+    def form_valid(self, formset):
+        formset.save()
+        messages.info(self.request, u'Membros editados com sucesso!')
+        formset = self.formset_class(instance=self.object)
+        return HttpResponseRedirect(reverse('forum_grupo_edit_membros', kwargs={'pk': self.object.pk, }))
+
+    def form_invalid(self, formset):
+        return self.render_to_response(
+            self.get_context_data(
+                formset=formset,
+            )
+        )
+
+
 class TopicoAddView(FormView):
     template_name = 'forum/topico-add.html'
     form_class = AddTopicoForm
@@ -208,10 +267,6 @@ class TopicoAddView(FormView):
         instance = form.save(grupo=self.get_grupo(), criador=self.request.user)
         messages.info(self.request, u'Tópico criado com sucesso!')
         return HttpResponseRedirect(instance.get_absolute_url())
-
-    def form_invalid(self, form):
-        messages.error(self.request, u"Preencha corretamente todos os campos!")
-        return super(TopicoAddView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(TopicoAddView, self).get_context_data(**kwargs)

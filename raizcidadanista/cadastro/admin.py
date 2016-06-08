@@ -815,7 +815,7 @@ class CirculoAdmin(PowerModelAdmin):
                 circulo.save()
                 for cmembro in circulo.circulomembro_set.all():
                     if cmembro.membro.usuario and not cmembro.grupousuario:
-                        cmembro.grupousuario = GrupoUsuario.objects.create(grupo=circulo.grupo, usuario=cmembro.membro.usuario)
+                        cmembro.grupousuario = GrupoUsuario.objects.create(grupo=circulo.grupo, usuario=cmembro.membro.usuario, admin=cmembro.administrador)
                         cmembro.save()
         self.message_user(request, 'Total de Fórums criados: %d' % contador)
     criar_forum.short_description = u'Criar Fórum de Discussão'

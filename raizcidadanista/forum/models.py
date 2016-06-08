@@ -40,6 +40,7 @@ class GrupoUsuario(models.Model):
 
     grupo = models.ForeignKey(Grupo)
     usuario = models.ForeignKey(User)
+    admin = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u'%s/%s' % (self.grupo, self.usuario)

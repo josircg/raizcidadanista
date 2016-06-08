@@ -1,0 +1,65 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+
+{% block description %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3><a href="{% url forum %}">Teia Digital</a> › <a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a> › Editar membros</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    <form action="" method="POST" role="form">{% csrf_token %}
+                        {{ formset.management_form }}
+                        {% for error in formset.non_form_errors %}
+                            <div class="alert alert-danger" role="alert">{{ error }}</div>
+                        {% endfor %}
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h3>Editar membros</h3>
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuário</th>
+                                            <th>Administrador</th>
+                                            <th>Remover</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for form in formset %}
+                                        <tr>
+                                            <td><p>{{ form.instance.usuario }}</p></td>
+                                            {% for field in form %}
+                                                {% if field.is_hidden %}
+                                                    {{ field }}
+                                                {% else %}
+                                                <td>{{ field|btform }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-success">Salvar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

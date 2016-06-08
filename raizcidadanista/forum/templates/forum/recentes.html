@@ -1,0 +1,61 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap forum_tags %}
+
+{% block title %}Tópicos recentes- Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos recentes- Teia Digital - {% endblock %}
+
+{% block description %}Tópicos recentes- Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos recentes- Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Teia Digital</h3>
+                    <h4>Lista de tópicos recentes</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    {% for topico in topicos %}
+                    <div class="panel panel-default panel-conversa">
+                        <div class="panel-body">
+                            <blockquote>
+                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
+                                <footer>Grupo: <a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
+                                <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <nav>
+                      <ul class="pager">
+                        {% if topicos.has_previous %}
+                            <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                        {% endif %}
+
+                        {% if topicos.has_next %}
+                            <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .new-topic {
+        float: right;
+    }
+</style>
+{% endblock %}

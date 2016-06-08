@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^$', login_required(views.ForumView.as_view()), name='forum'),
     url(r'^diretorio/$', login_required(views.DiretorioView.as_view()), name='forum_diretorio'),
     url(r'^nao-lidos/$', login_required(views.NaoLidosView.as_view()), name='forum_nao_lidos'),
+    url(r'^recentes/$', login_required(views.RecentesView.as_view()), name="forum_recentes"),
     url(r'^meu-perfil/$', login_required(views.MeuPerfilView.as_view()), name="forum_meu_perfil"),
     url(r'^pesquisa/$', login_required(views.PesquisaView.as_view()), name="forum_pesquisa"),
     url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),

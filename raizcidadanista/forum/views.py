@@ -11,6 +11,7 @@ from django.db.models import Q
 from models import Grupo, Topico, Conversa, ConversaCurtida
 from forms import AddTopicoForm, ConversaForm, PesquisaForm
 
+from datetime import datetime
 import json
 
 
@@ -77,6 +78,27 @@ class NaoLidosView(TemplateView):
             grupos = paginator.page(paginator.num_pages)
 
         context['grupos'] = grupos
+        return context
+
+
+class RecentesView(TemplateView):
+    template_name = 'forum/recentes.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RecentesView, self).get_context_data(**kwargs)
+
+        topicos_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
+        paginator = Paginator(topicos_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            topicos = paginator.page(page)
+        except PageNotAnInteger:
+            topicos = paginator.page(1)
+        except EmptyPage:
+            topicos = paginator.page(paginator.num_pages)
+
+        context['topicos'] = topicos
         return context
 
 
@@ -247,7 +269,7 @@ class TopicoView(DetailView):
             raise PermissionDenied()
 
         # Atualiza o número de conversas lidas
-        obj.topicousuario_set.filter(usuario=self.request.user).update(num_conversa_lida=obj.conversa_set.count())
+        obj.topicoouvinte_set.filter(ouvinte=self.request.user).update(dtleitura=datetime.now())
         return obj
 
     def form_valid(self, form):

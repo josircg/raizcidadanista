@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap forum_tags %}
 
-{% block title %}Teia Digital - {% endblock %}
-{% block ogtitle %}Teia Digital - {% endblock %}
+{% block title %}Diretório - Teia Digital - {% endblock %}
+{% block ogtitle %}Diretório - Teia Digital - {% endblock %}
 
-{% block description %}Teia Digital - {% endblock %}
-{% block ogdescription %}Teia Digital - {% endblock %}
+{% block description %}Diretório - Teia Digital - {% endblock %}
+{% block ogdescription %}Diretório - Teia Digital - {% endblock %}
 
 {% block main %}
 
@@ -27,11 +27,7 @@
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
-                                    {% if user|has_grupo_perm:grupo %}
-                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
-                                    {% else %}
-                                        <h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4>
-                                    {% endif %}
+                                    <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
                                     <footer>{{ grupo.descricao|striptags|safe }}</footer>
                                 </blockquote>
                             </div>

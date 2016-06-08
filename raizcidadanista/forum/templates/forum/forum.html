@@ -26,11 +26,7 @@
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
-                                    {% if user|has_grupo_perm:grupo %}
-                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
-                                    {% else %}
-                                        <h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4>
-                                    {% endif %}
+                                    <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
                                     <footer>{{ grupo.descricao|striptags|safe }}</footer>
                                 </blockquote>
                             </div>

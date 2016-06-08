@@ -46,8 +46,8 @@ class GrupoUsuario(models.Model):
 @receiver(signals.post_save, sender=GrupoUsuario)
 def create_topicousuario_grupousuario_save(sender, instance, created, raw, using, *args, **kwargs):
     for topico in instance.grupo.topico_set.filter(status='A'):
-        if not topico.topicousuario_set.filter(usuario=instance.usuario):
-            TopicoUsuario.objects.create(topico=topico, usuario=instance.usuario)
+        if not topico.topicoouvinte_set.filter(ouvinte=instance.usuario):
+            TopicoOuvinte.objects.create(topico=topico, ouvinte=instance.usuario)
 
 
 STATUS_TOPICO = (
@@ -72,27 +72,16 @@ class Topico(models.Model):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
     def num_conversa_nao_lidas(self, usuario):
-        return self.conversa_set.count()-self.topicousuario_set.get(usuario=usuario).num_conversa_lida
+        topico_ouvinte = self.topicoouvinte_set.get(ouvinte=usuario)
+        return self.conversa_set.filter(dt_criacao__gt=topico_ouvinte.dtleitura).count()
 
     def __unicode__(self):
         return u'%s' % self.titulo
 @receiver(signals.post_save, sender=Topico)
 def create_topicousuario_topico_save(sender, instance, created, raw, using, *args, **kwargs):
     for grupo_usuario in instance.grupo.grupousuario_set.all():
-        if not instance.topicousuario_set.filter(usuario=grupo_usuario.usuario):
-            TopicoUsuario.objects.create(topico=instance, usuario=grupo_usuario.usuario)
-
-
-class TopicoUsuario(models.Model):
-    class Meta:
-        unique_together = (('topico', 'usuario', ), )
-
-    topico = models.ForeignKey(Topico)
-    usuario = models.ForeignKey(User)
-    num_conversa_lida = models.PositiveIntegerField(default=0)
-
-    def __unicode__(self):
-        return u'%s/%s' % (self.topico, self.usuario)
+        if not instance.topicoouvinte_set.filter(ouvinte=grupo_usuario.usuario):
+            TopicoOuvinte.objects.create(topico=instance, ouvinte=grupo_usuario.usuario)
 
 
 STATUS_NOTIFICACAO = (
@@ -105,11 +94,13 @@ class TopicoOuvinte(models.Model):
     class Meta:
         verbose_name = u'Participante'
         verbose_name_plural = u'Participantes'
+        unique_together = (('topico', 'ouvinte', ), )
 
     topico = models.ForeignKey(Topico)
     ouvinte = models.ForeignKey(User)
-    notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO)
+    notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO, default='N')
     dtentrada = models.DateTimeField(u'Data de criação', auto_now_add=True)
+    dtleitura = models.DateTimeField(u'Data de leitura', default=datetime(day=1, month=1, year=2001))
 
     def __unicode__(self):
         return u'%s/%s' % (self.topico, self.colaborador)

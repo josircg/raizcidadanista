@@ -1,5 +1,5 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap static %}
+{% load bootstrap static forum_tags %}
 
 {% block title %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
 {% block ogtitle %}Tópicos: {{ object.grupo }} - {{ object }} - Teia Digital - {% endblock %}
@@ -33,14 +33,20 @@
                                             <h4>{{ conversa_filho.texto|safe }}</h4>
                                             <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                             <small>
+                                            {% if object.status == 'A' %}
                                                 <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
                                                 | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
-                                            {% if request.user == conversa_filho.autor %}
+                                            {% else %}
+                                                Curtir (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
+                                                | Não Curtir (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                            {% endif %}
+                                            {% if object.status == 'A' and request.user == conversa_filho.autor %}
                                                 | <a class="edit-link" href="javascript://">Editar</a>
                                             {% endif %}
                                             </small>
                                         </blockquote>
-                                        {% if request.user == conversa_filho.autor %}
+
+                                        {% if object.status == 'A' and request.user == conversa_filho.autor %}
                                         <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
                                                 <div class="panel-body">
                                                     <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
@@ -58,7 +64,18 @@
                                 </div>
                                 {% endfor %}
 
-                                <small><a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>) | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>) | <a class="responder-link" href="javascript://">Responder</a></small>
+                                <small>
+                                    {% if object.status == 'A' %}
+                                        <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>)
+                                        | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
+                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                    {% else %}
+                                        Curtir (<span class="like-count">{{ conversa.curtiu.count }}</span>)
+                                        | Não Curti (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
+                                    {% endif %}
+                                </small>
+
+                                {% if object.status == 'A' %}
                                 <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
                                     <div class="panel panel-default panel-conversa">
                                         <div class="panel-body">
@@ -72,6 +89,7 @@
                                 <script type="text/javascript">
                                     CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
                                 </script>
+                                {% endif %}
                             </blockquote>
                         </div>
                     </div>
@@ -88,6 +106,7 @@
                         </ul>
                     </nav>
 
+                    {% if object.status == 'A' %}
                     <form action="" method="POST" role="form">{% csrf_token %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -106,6 +125,7 @@
                             </div>
                         </div>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

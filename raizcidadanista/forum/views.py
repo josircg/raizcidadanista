@@ -142,7 +142,7 @@ class PesquisaView(FormView):
         autor = form.cleaned_data.get('autor')
         grupo = form.cleaned_data.get('grupo')
 
-        results_list = Topico.objects.filter(status='A')
+        results_list = Topico.objects.all()
         if autor:
             results_list = results_list.filter(conversa__autor__first_name__icontains=autor)
         if grupo:
@@ -176,16 +176,10 @@ class GrupoView(DetailView):
     model = Grupo
     template_name = 'forum/grupo.html'
 
-    def get_object(self, queryset=None):
-        obj = super(GrupoView, self).get_object(queryset)
-        if not obj.grupousuario_set.filter(usuario=self.request.user).exists():
-            raise PermissionDenied()
-        return obj
-
     def get_context_data(self, **kwargs):
         context = super(GrupoView, self).get_context_data(**kwargs)
 
-        topicos_list = self.object.topico_set.filter(status='A')
+        topicos_list = self.object.topico_set.all()
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')
@@ -261,14 +255,8 @@ class TopicoView(DetailView):
         else:
             return self.form_invalid(self.form)
 
-    def get_queryset(self):
-        return super(TopicoView, self).get_queryset().filter(status='A')
-
     def get_object(self, queryset=None):
         obj = super(TopicoView, self).get_object(queryset)
-        if not obj.grupo.grupousuario_set.filter(usuario=self.request.user).exists():
-            raise PermissionDenied()
-
         # Atualiza o número de conversas lidas
         obj.topicoouvinte_set.filter(ouvinte=self.request.user).update(dtleitura=datetime.now())
         return obj

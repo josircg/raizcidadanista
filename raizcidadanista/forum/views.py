@@ -134,7 +134,8 @@ class PesquisaView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(PesquisaView, self).get_form_kwargs()
-        kwargs['data'] = self.request.GET.copy()
+        if request.GET.get('texto') != None or request.GET.get('autor') != None or request.GET.get('grupo') != None:
+            kwargs['data'] = self.request.GET.copy()
         return kwargs
 
     def form_valid(self, form):

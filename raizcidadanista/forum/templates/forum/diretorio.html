@@ -1,0 +1,57 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap forum_tags %}
+
+{% block title %}Teia Digital - {% endblock %}
+{% block ogtitle %}Teia Digital - {% endblock %}
+
+{% block description %}Teia Digital - {% endblock %}
+{% block ogdescription %}Teia Digital - {% endblock %}
+
+{% block main %}
+
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>Teia Digital</h3>
+                    <h4>Lista de todos os grupos existentes na Teia Digital</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    {% for grupo in grupos %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {% if user|has_grupo_perm:grupo %}
+                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
+                                    {% else %}
+                                        <h4>{{ grupo.nome }} ({{ grupo.topico_set.count }})</h4>
+                                    {% endif %}
+                                    <footer>{{ grupo.descricao|striptags|safe }}</footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <nav>
+                      <ul class="pager">
+                        {% if grupos.has_previous %}
+                            <li class="previous"><a href="{{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                        {% endif %}
+
+                        {% if grupos.has_next %}
+                            <li class="next"><a href="{{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

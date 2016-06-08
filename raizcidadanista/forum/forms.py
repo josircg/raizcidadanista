@@ -39,3 +39,19 @@ class ConversaForm(forms.ModelForm):
         self.instance.topico = topico
         self.instance.autor = autor
         return super(ConversaForm, self).save(*args, **kwargs)
+
+
+class PesquisaForm(forms.Form):
+
+    texto = forms.CharField(required=False)
+    autor = forms.CharField(required=False)
+    grupo = forms.CharField(required=False)
+
+    def clean(self):
+        cleaned_data = super(PesquisaForm, self).clean()
+        texto = cleaned_data.get('texto')
+        autor = cleaned_data.get('autor')
+        grupo = cleaned_data.get('grupo')
+        if not (texto or autor or grupo):
+            raise forms.ValidationError(u'Preencha pelo menos um campo.')
+        return cleaned_data

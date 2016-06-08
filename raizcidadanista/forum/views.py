@@ -3,11 +3,13 @@ from django.views.generic import DetailView, TemplateView, FormView
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
+from django.db.models import Q
 
 from models import Grupo, Topico, Conversa, ConversaCurtida
-from forms import AddTopicoForm, ConversaForm
+from forms import AddTopicoForm, ConversaForm, PesquisaForm
 
 import json
 
@@ -34,7 +36,7 @@ class ForumView(TemplateView):
 
 
 class DiretorioView(TemplateView):
-    template_name = 'forum/forum.html'
+    template_name = 'forum/diretorio.html'
 
     def get_context_data(self, **kwargs):
         context = super(DiretorioView, self).get_context_data(**kwargs)
@@ -55,7 +57,7 @@ class DiretorioView(TemplateView):
 
 
 class NaoLidosView(TemplateView):
-    template_name = 'forum/forum.html'
+    template_name = 'forum/nao-lidos.html'
 
     def get_context_data(self, **kwargs):
         context = super(NaoLidosView, self).get_context_data(**kwargs)
@@ -77,6 +79,75 @@ class NaoLidosView(TemplateView):
         context['grupos'] = grupos
         return context
 
+
+class MeuPerfilView(TemplateView):
+    template_name = 'forum/meu-perfil.html'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('forum'))
+        return super(MeuPerfilView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MeuPerfilView, self).get_context_data(**kwargs)
+        context['membro'] = self.request.user.membro.all()[0]
+        return context
+
+
+class PesquisaView(FormView):
+    template_name = 'forum/pesquisa.html'
+    form_class = PesquisaForm
+
+    def get(self, request, *args, **kwargs):
+        # Permitir GET and POST
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if request.GET.get('texto') != None or request.GET.get('autor') != None or request.GET.get('grupo') != None:
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_form_kwargs(self):
+        kwargs = super(PesquisaView, self).get_form_kwargs()
+        kwargs['data'] = self.request.GET.copy()
+        return kwargs
+
+    def form_valid(self, form):
+        autor = form.cleaned_data.get('autor')
+        grupo = form.cleaned_data.get('grupo')
+
+        results_list = Topico.objects.filter(status='A')
+        if autor:
+            results_list = results_list.filter(conversa__autor__first_name__icontains=autor)
+        if grupo:
+            results_list = results_list.filter(grupo__nome__icontains=grupo)
+        texto = form.cleaned_data.get('texto')
+        if texto:
+            results_list = results_list.filter(Q(titulo__icontains=texto) | Q(conversa__texto__icontains=texto))
+
+        results_list = results_list.distinct()
+
+        paginator = Paginator(results_list, 10)
+
+        page = self.request.GET.get('page')
+        try:
+            results = paginator.page(page)
+        except PageNotAnInteger:
+            results = paginator.page(1)
+        except EmptyPage:
+            results = paginator.page(paginator.num_pages)
+
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context={
+                'results': results,
+                'form': form,
+            }
+        )
 
 class GrupoView(DetailView):
     model = Grupo

@@ -132,6 +132,9 @@ class Conversa(models.Model):
     def naocurtiu(self):
         return self.conversacurtida_set.filter(curtida='N')
 
+    def get_absolute_url(self):
+        return u'%s#conversa-%s' % (reverse('forum_topico', kwargs={'grupo_pk': self.topico.grupo.pk, 'pk': self.topico.pk, }), self.pk)
+
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
 @receiver(signals.post_save, sender=Conversa)

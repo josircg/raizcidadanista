@@ -66,8 +66,8 @@
                                     <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
                                     <li><a class="about_proin" href="#">Recentes</a></li>
                                     <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
-                                    <li><a class="about_proin" href="#">Pesquisa</a></li>
-                                    <li><a class="about_proin" href="#">Meu Perfil</a></li>
+                                    <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
+                                    <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
                                     <li><a class="about_proin" href="{% url 'cms_logout' %}">Sair</a></li>
                                 </ul>
                             </div>
@@ -108,6 +108,19 @@
                     {% endblock %}
 
                     <div class="content-main">
+                    {% block messages %}
+                        {% if messages %}
+                        <div class="container cursoDetalhe">
+                            <div class="row-fluid">
+                            {% for message in messages %}
+                                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endblock %}
                     {% block main %}
                     {% endblock %}
                     </div>

@@ -13,7 +13,16 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Teia Digital</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}</h3>
+                    <h3>
+                        <a href="{% url forum %}">Teia Digital</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}
+                        {% if object.criador == user %}
+                            {% if object.editavel %}
+                            <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
+                            {% else %}
+                            <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Tópico</button></a>
+                            {% endif %}
+                        {% endif %}
+                    </h3>
                 </div>
             </div>
         </div>
@@ -28,7 +37,7 @@
                                 <footer>Por: {% firstof conversa.autor.first_name conversa.autor.username %} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
 
                                 <small>
-                                    {% if object.status == 'A' %}
+                                    {% if object.editavel %}
                                         <span class="like-box">
                                             <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curti</a>
                                             (<span class="like-count">{{ conversa.curtiu.count }}</span>)
@@ -52,7 +61,7 @@
                                     {% endif %}
                                 </small>
 
-                                {% if object.status == 'A' %}
+                                {% if object.editavel %}
                                 <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
                                     <div class="panel panel-conversa">
                                         <div class="panel-body">
@@ -75,7 +84,7 @@
                                             <h4>{{ conversa_filho.texto|safe }}</h4>
                                             <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                             <small>
-                                            {% if object.status == 'A' %}
+                                            {% if object.editavel %}
                                                 <span class="like-box">
                                                     <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curti</a>
                                                     (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
@@ -96,16 +105,16 @@
                                                     <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
                                             {% endif %}
-                                            {% if object.status == 'A' and request.user == conversa_filho.autor %}
+                                            {% if object.editavel and request.user == conversa_filho.autor %}
                                                 | <a class="edit-link" href="javascript://">Editar</a>
                                             {% endif %}
-                                            {% if object.status == 'A' and request.user == conversa_filho.autor %}
+                                            {% if object.editavel and request.user == conversa_filho.autor %}
                                                 | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
                                             {% endif %}
                                             </small>
                                         </blockquote>
 
-                                        {% if object.status == 'A' and request.user == conversa_filho.autor %}
+                                        {% if object.editavel and request.user == conversa_filho.autor %}
                                         <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
                                                 <div class="panel-body">
                                                     <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
@@ -139,7 +148,7 @@
                         </ul>
                     </nav>
 
-                    {% if object.status == 'A' %}
+                    {% if object.editavel %}
                     <form action="" method="POST" role="form">{% csrf_token %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -172,6 +181,10 @@
     .cke_bottom { display: none !important }
     .cke_contents {min-height: 100px !important; width: 100% !important;}
     .responder-form, .edit-form { display: none }
+    .button-topic {
+        float: right;
+        margin-left: 5px;
+    }
 </style>
 {% endblock %}
 

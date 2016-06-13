@@ -280,11 +280,31 @@ class TopicoView(DetailView):
     form_class = ConversaForm
 
     def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
         # Excluir conversa
         if request.GET.get('conversa') and request.GET.get('excluir'):
             conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
             conversa.delete()
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
+            messages.info(request, u'Comentário removido com sucesso!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        # Encerrar Tópico
+        if request.GET.get('encerrar'):
+            if self.object.criador != request.user:
+                raise PermissionDenied
+            self.object.status = 'F'
+            self.object.save()
+            messages.info(request, u'Tópico encesstado!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        # Reabrir Tópico
+        if request.GET.get('reabrir'):
+            if self.object.criador != request.user:
+                raise PermissionDenied
+            self.object.status = 'A'
+            self.object.save()
+            messages.info(request, u'Tópico reaberto!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
 
         # Computar curtidas
         if request.is_ajax():

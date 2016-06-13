@@ -73,7 +73,7 @@
                                     </div>
                                 </form>
                                 <script type="text/javascript">
-                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "contentsCss": ["/static/ckeditor_config/content.css"], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 50, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "stylesSet": "my_styles:/static/ckeditor_config/styles.js", "toolbar": [["Bold", "Italic", "Underline", "TextColor", "Styles"]]});
                                 </script>
                                 {% endif %}
 
@@ -125,7 +125,7 @@
                                                 </div>
                                         </form>
                                         <script type="text/javascript">
-                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "contentsCss": ["/static/ckeditor_config/content.css"], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 50, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "stylesSet": "my_styles:/static/ckeditor_config/styles.js", "toolbar": [["Bold", "Italic", "Underline", "TextColor", "Styles"]]});
                                         </script>
                                         {% endif %}
                                     </div>

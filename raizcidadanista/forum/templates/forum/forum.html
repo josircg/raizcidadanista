@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap forum_tags %}
 
-{% block title %}Teia Digital - {% endblock %}
-{% block ogtitle %}Teia Digital - {% endblock %}
+{% block title %}Teia Digital - Meus grupos - {% endblock %}
+{% block ogtitle %}Teia Digital - Meus grupos - {% endblock %}
 
-{% block description %}Teia Digital - {% endblock %}
-{% block ogdescription %}Teia Digital - {% endblock %}
+{% block description %}Teia Digital - Meus grupos - {% endblock %}
+{% block ogdescription %}Teia Digital - Meus grupos - {% endblock %}
 
 {% block main %}
 
@@ -15,6 +15,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
                     <h3>Teia Digital</h3>
+                    <h4>Meus grupos</h4>
                 </div>
             </div>
         </div>
@@ -27,7 +28,6 @@
                             <div class="panel-body">
                                 <blockquote>
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
-                                    <footer>{{ grupo.descricao|striptags|safe }}</footer>
                                 </blockquote>
                             </div>
                         </div>

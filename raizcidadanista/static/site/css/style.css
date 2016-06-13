@@ -87,6 +87,12 @@ body {
     top: 0;
     left: 0;
 }
+
+.main-forum .main-navigation {
+    float: left;
+    position: relative;
+}
+
 .gallery-page .main-navigation,
 .contact-page .main-navigation {
     position: static;

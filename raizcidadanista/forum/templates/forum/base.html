@@ -51,7 +51,7 @@
 </head>
 
 <body>
-    <div class="main-body">
+    <div class="main-body main-forum">
         <div class="container">
             <div class="row">
                 <div class="main-page">
@@ -112,7 +112,7 @@
                         {% if messages %}
                         {% for message in messages %}
                         <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
-                            {{ message }}
+                            {{ message|safe }}
                         </div>
                         {% endfor %}
                         {% endif %}

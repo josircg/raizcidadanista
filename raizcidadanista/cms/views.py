@@ -324,7 +324,7 @@ class LoginView(FormView):
             messages.info(self.request, u'Você foi autenticado com sucesso.')
             return HttpResponseRedirect(self.request.GET.get('next'))
         messages.info(self.request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse('forum'))
 
     def form_invalid(self, form):
         error_message = u"Preencha corretamente todos os dados!"

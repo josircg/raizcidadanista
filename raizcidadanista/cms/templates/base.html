@@ -71,7 +71,7 @@
                                             {% if not user.is_authenticated %}
                                                 <a href="{% url 'cms_login' %}" class="btn">Login</a>
                                             {% else %}
-                                                Seja bem vindo, {% firstof user.first_name user.username %}! <a href="{% url 'meu_perfil' %}">Meu Perfil</a> | <a href="{% url 'cms_logout' %}">Logout</a>
+                                                Seja bem vindo, {% firstof user.first_name user.username %}! <a href="{% url 'forum' %}">Meus grupos</a> | <a href="{% url 'cms_logout' %}">Logout</a>
                                             {% endif %}
                                         </div>
                                       </div>
@@ -148,6 +148,15 @@
                     {% endblock %}
 
                     <div class="content-main">
+                    {% block messages %}
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                            {{ message|safe }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    {% endblock %}
                     {% block main %}
                     {% endblock %}
                     </div>

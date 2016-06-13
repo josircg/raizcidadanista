@@ -196,7 +196,12 @@ CKEDITOR_CONFIGS = {
         'height': 100,
         'width': '100%',
         'skin': 'moono',
-        'toolbar': [['Bold', 'Italic', 'Underline'], ]
+        'toolbar': [['Bold', 'Italic', 'Underline', 'TextColor', 'Styles', ], ],
+        'stylesSet': 'my_styles:%s' % os.path.join(STATIC_URL, 'ckeditor_config/styles.js'),
+        'contentsCss': [
+            os.path.join(STATIC_URL, 'ckeditor_config/content.css'),
+        ],
+        'forcePasteAsPlainText': True,
     },
     'default': {
         'toolbar': [

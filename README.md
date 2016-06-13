@@ -7,12 +7,11 @@ http://www.raiz.org.br/
 Novas rotinas para desenvolver:
 
 1. Fórum de Discussão para substituir o Loomio
-2. Plataforma de Políticas Públicas
-3. Cadastro de Articuladores para a coleta de assinaturas
-4. Cadastro de pessoas expostas politicamente "PEP"  / Fichas Sujas e políticos com histórico reprovável
-5. Banco de Talentos
-6. Cadastro de Despesas e Prestação de Contas
-7. Orçamento Anual
+2. Cadastro de Despesas e Prestação de Contas
+3. Orçamento Anual
+4. Plataforma de Políticas Públicas
+5. Cadastro de pessoas expostas politicamente "PEP"  / Fichas Sujas e políticos com histórico reprovável
+6. Banco de Talentos
 
 Funções Realizadas:
 
@@ -24,6 +23,8 @@ Funções Realizadas:
 6. Envio de Campanhas de Email Marketing
 7. Geração dos Requerimentos de Fundação do Partido
 8. Mapa de Colaboradores
+9. Cadastro de Articuladores para a coleta de assinaturas
+10. Histórico de candidaturas
 
 
  

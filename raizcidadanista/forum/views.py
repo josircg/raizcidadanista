@@ -228,7 +228,7 @@ class GrupoEditMembrosView(DetailView):
         queryset_list = self.object.grupousuario_set.all()
         if request.GET.get('q'):
             queryset_list = queryset_list.filter(Q(usuario__first_name__icontains=request.GET.get('q')) | Q(usuario__username__icontains=request.GET.get('q'))).distinct()
-        paginator = Paginator(queryset_list, 10)
+        paginator = Paginator(queryset_list, 50)
         page = request.GET.get('page')
         try:
             objects = paginator.page(page)

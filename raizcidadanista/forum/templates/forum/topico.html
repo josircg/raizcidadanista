@@ -26,6 +26,48 @@
                             <blockquote>
                                 <h4>{{ conversa.texto|safe }}</h4>
                                 <footer>Por: {% firstof conversa.autor.first_name conversa.autor.username %} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+
+                                <small>
+                                    {% if object.status == 'A' %}
+                                        <span class="like-box">
+                                            <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curti</a>
+                                            (<span class="like-count">{{ conversa.curtiu.count }}</span>)
+                                            <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
+                                        <span class="unlike-box">
+                                            | <a class="unlike-link" href="?conversa={{ conversa.pk }}&curtir=false">Pode melhorar</a>
+                                            (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
+                                            <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
+                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                    {% else %}
+                                        <span class="like-box">
+                                            Curti (<span class="like-count">{{ conversa.curtiu.count }}</span>)
+                                            <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
+                                        <span class="unlike-box">
+                                            | Pode melhorar (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
+                                            <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
+                                    {% endif %}
+                                </small>
+
+                                {% if object.status == 'A' %}
+                                <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
+                                    <div class="panel panel-conversa">
+                                        <div class="panel-body">
+                                            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                            <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                            <br>
+                                            <button type="submit" class="btn btn-success">Responder</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <script type="text/javascript">
+                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
+                                </script>
+                                {% endif %}
+
                                 {% for conversa_filho in conversa.conversa_set.all %}
                                 <div id="conversa_filho-{{ conversa.pk }}" class="panel panel-default panel-conversa">
                                     <div class="panel-body">
@@ -34,14 +76,31 @@
                                             <footer>Por: {% firstof conversa_filho.autor.first_name conversa_filho.autor.username %} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                             <small>
                                             {% if object.status == 'A' %}
-                                                <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
-                                                | <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                                <span class="like-box">
+                                                    <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curti</a>
+                                                    (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
+                                                    <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                </span>
+                                                <span class="unlike-box">
+                                                    | <a class="unlike-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Pode melhorar</a>
+                                                    (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                                    <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                </span>
                                             {% else %}
-                                                Curtir (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
-                                                | Não Curtir (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                                <span class="like-box">
+                                                    Curti (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
+                                                    <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                </span>
+                                                <span class="unlike-box">
+                                                    | Pode melhorar (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                                    <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                </span>
                                             {% endif %}
                                             {% if object.status == 'A' and request.user == conversa_filho.autor %}
                                                 | <a class="edit-link" href="javascript://">Editar</a>
+                                            {% endif %}
+                                            {% if object.status == 'A' and request.user == conversa_filho.autor %}
+                                                | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
                                             {% endif %}
                                             </small>
                                         </blockquote>
@@ -64,32 +123,6 @@
                                 </div>
                                 {% endfor %}
 
-                                <small>
-                                    {% if object.status == 'A' %}
-                                        <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curtir</a> (<span class="like-count">{{ conversa.curtiu.count }}</span>)
-                                        | <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=false">Não Curtir</a> (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
-                                        | <a class="responder-link" href="javascript://">Responder</a>
-                                    {% else %}
-                                        Curtir (<span class="like-count">{{ conversa.curtiu.count }}</span>)
-                                        | Não Curti (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
-                                    {% endif %}
-                                </small>
-
-                                {% if object.status == 'A' %}
-                                <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
-                                    <div class="panel panel-default panel-conversa">
-                                        <div class="panel-body">
-                                            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
-                                            <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
-                                            <br>
-                                            <button type="submit" class="btn btn-success">Responder</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <script type="text/javascript">
-                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"height": 50, "width": '100%', "skin": "moono", "toolbar": [["Bold", "Italic", "Underline"]]});
-                                </script>
-                                {% endif %}
                             </blockquote>
                         </div>
                     </div>
@@ -144,20 +177,43 @@
 
 {% block js %}
 <script type="text/javascript">
+    /* show/hide response ckeditor */
     $('.responder-link').click(function(event) {
         $(this).parent().parent().find('.responder-form').slideToggle();
     });
+    /* show/hide edit ckeditor */
     $('.edit-link').click(function(event) {
         $(this).parent().parent().parent().find('.edit-form').slideToggle();
     });
 
-    $('.like-link').click(function(event) {
+    /* like/unlike interation */
+    $('.like-link, .unlike-link').click(function(event) {
         var likelink = $(this);
         $.getJSON(likelink.attr('href'), function(data) {
-            $(likelink).parent().find('.like-count').html(data.curtiu);
-            $(likelink).parent().find('.unlike-count').html(data.naocurtiu);
+            $(likelink).parent().parent().find('.like-box .like-count').html(data.curtiu.count);
+            $(likelink).parent().parent().find('.like-box .like-people').html('');
+            $.each(data.curtiu.people, function(index, val) {
+                $(likelink).parent().parent().find('.like-box .like-people').append(val+'<br>');
+            });
+            $(likelink).parent().parent().find('.unlike-box .unlike-count').html(data.naocurtiu.count);
+            $(likelink).parent().parent().find('.unlike-box .unlike-people').html('');
+            $.each(data.naocurtiu.people, function(index, val) {
+                $(likelink).parent().parent().find('.unlike-box .unlike-people').append(val+'<br>');
+            });
         });
         return false;
+    });
+
+    /* show like/unlike people */
+    $('.like-box, .unlike-box').hover(function() {
+        $(this).find('.like-people, .unlike-people').show();
+    }, function() {
+        $(this).find('.like-people, .unlike-people').hide();
+    });
+
+    /* remove conversa confirm */
+    $('.remove-link').click(function(event) {
+        return confirm("Você deseja realmente remover o seu comentário?");
     });
 </script>
 {% endblock %}

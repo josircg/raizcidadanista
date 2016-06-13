@@ -280,6 +280,12 @@ class TopicoView(DetailView):
     form_class = ConversaForm
 
     def get(self, request, *args, **kwargs):
+        # Excluir conversa
+        if request.GET.get('conversa') and request.GET.get('excluir'):
+            conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
+            conversa.delete()
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+
         # Computar curtidas
         if request.is_ajax():
             if request.GET.get('conversa') and request.GET.get('curtir'):
@@ -293,10 +299,22 @@ class TopicoView(DetailView):
                 elif request.GET.get('curtir') == 'false':
                     cc.curtida = 'N'
                 cc.save()
-                return HttpResponse(json.dumps({
-                    'curtiu': conversa.curtiu().count(),
-                    'naocurtiu': conversa.naocurtiu().count(),
-                }), mimetype='application/json')
+
+                json_response = {
+                    'curtiu': {
+                        'people': [],
+                        'count': conversa.curtiu().count(),
+                    },
+                    'naocurtiu': {
+                        'people': [],
+                        'count': conversa.naocurtiu().count(),
+                    },
+                }
+                for curtiu in conversa.curtiu():
+                    json_response['curtiu']['people'].append(u'%s' % curtiu.colaborador)
+                for naocurtiu in conversa.naocurtiu():
+                    json_response['naocurtiu']['people'].append(u'%s' % naocurtiu.colaborador)
+                return HttpResponse(json.dumps(json_response), mimetype='application/json')
         self.form = self.form_class()
         return super(TopicoView, self).get(request, *args, **kwargs)
 

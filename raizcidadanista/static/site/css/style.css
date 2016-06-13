@@ -875,14 +875,35 @@ textarea.form-control { height:135px; }
 
 .bullets img{display:none;}
 
-.panel-conversa {background: rgba(240, 240, 240, 0.20);}
+.panel-conversa {
+    background: rgba(240, 240, 240, 0.20);
+    margin-bottom: 10px;
+}
+.panel-conversa .panel-body {padding: 10px}
 blockquote {margin: 0px; border-left: 0; padding: 0;}
 blockquote footer {
     font-size: 60%;
 }
 blockquote footer:before, blockquote small:before {
     content: '';
-    margin-left: 10px;
+}
+
+.like-box, .unlike-box {
+    position: relative;
+    display: inline-block;
+}
+.like-people, .unlike-people {
+    display: none;
+    background: rgba(240, 240, 240, 1);
+    border: 1px #ddd solid;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    width: 150px;
+    padding: 5px;
+    position: absolute;
+    top: -30px;
+    left: 10px;
 }
 
 @media screen and (max-width: 1199px) and (min-width: 992px) {

@@ -104,7 +104,7 @@ class TopicoOuvinte(models.Model):
     dtleitura = models.DateTimeField(u'Data de leitura', default=datetime(day=1, month=1, year=2001))
 
     def __unicode__(self):
-        return u'%s/%s' % (self.topico, self.colaborador)
+        return u'%s/%s' % (self.topico, self.ouvinte)
 
 
 class Conversa(models.Model):

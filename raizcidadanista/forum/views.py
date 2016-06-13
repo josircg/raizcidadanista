@@ -224,10 +224,26 @@ class GrupoEditMembrosView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        formset = self.formset_class(instance=self.object)
+        # Paginação do formset
+        queryset_list = self.object.grupousuario_set.all()
+        if request.GET.get('q'):
+            queryset_list = queryset_list.filter(Q(usuario__first_name__icontains=request.GET.get('q')) | Q(usuario__username__icontains=request.GET.get('q'))).distinct()
+        paginator = Paginator(queryset_list, 10)
+        page = request.GET.get('page')
+        try:
+            objects = paginator.page(page)
+        except PageNotAnInteger:
+            objects = paginator.page(1)
+        except EmptyPage:
+            objects = paginator.page(paginator.num_pages)
+        page_queryset = queryset_list.filter(id__in=[object.pk for object in objects])
+
+        formset = self.formset_class(instance=self.object, queryset=page_queryset)
         return self.render_to_response(
             self.get_context_data(
                 formset=formset,
+                object=self.object,
+                objects=objects,
             )
         )
 
@@ -249,6 +265,7 @@ class GrupoEditMembrosView(DetailView):
         return self.render_to_response(
             self.get_context_data(
                 formset=formset,
+                object=self.object
             )
         )
 

@@ -76,7 +76,14 @@ class Topico(models.Model):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
     def num_conversa_nao_lidas(self, usuario):
-        topico_ouvinte = self.topicoouvinte_set.get(ouvinte=usuario)
+        try:
+            topico_ouvinte = self.topicoouvinte_set.get(ouvinte=usuario)
+        except TopicoOuvinte.DoesNotExist:
+            topico_ouvinte = TopicoOuvinte(
+                topico=self,
+                ouvinte=usuario
+            )
+            topico_ouvinte.save()
         return self.conversa_set.filter(dt_criacao__gt=topico_ouvinte.dtleitura).count()
 
     def __unicode__(self):

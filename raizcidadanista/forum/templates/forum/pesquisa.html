@@ -67,7 +67,7 @@
                         <div class="panel-body">
                             <blockquote>
                                 <a href="{{ result.get_absolute_url }}"><h4>{{ result }} ({{ user|num_conversa_nao_lidas:result }})</h4></a>
-                                <footer>Por: {% firstof result.criador.first_name result.criador.username %} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
                             </blockquote>
                         </div>
                     </div>

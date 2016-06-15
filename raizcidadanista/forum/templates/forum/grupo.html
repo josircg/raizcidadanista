@@ -33,7 +33,7 @@
                         <div class="panel-body">
                             <blockquote>
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                <footer>Por: {{ topico.criador.get_first_name }} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
                             </blockquote>
                         </div>
                     </div>

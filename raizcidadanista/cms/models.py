@@ -213,6 +213,7 @@ class Section(models.Model):
     header = models.TextField(u'Descrição', null=True, blank=True)
     keywords = models.TextField(u'Palavras Chaves', null=True, blank=True, default=None)
     order = models.PositiveIntegerField(u'Ordem', default=1, db_index=True, help_text=u'0 para que a seção não apareça em nenhuma listagem.')
+    template = models.CharField(u'Template', max_length=250, blank=True, null=True)
 
     views = models.IntegerField(default=0)
     conversions = models.IntegerField(default=0)

@@ -16,6 +16,7 @@ from django.utils.http import int_to_base36
 from django.utils.crypto import salted_hmac
 
 from django.core.mail import EmailMultiAlternatives
+from django.template.defaultfilters import slugify
 from django.template.loader import get_template
 from django.template import Template
 from django.template.context import Context
@@ -275,6 +276,7 @@ class Circulo(models.Model):
         ordering = ('tipo', 'titulo', )
 
     titulo = models.CharField(u'Título', max_length=80)
+    slug = models.SlugField(u'Url', max_length=80, blank=True)
     descricao = models.TextField(u'Descricao') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
     uf = models.ForeignKey(UF, blank=True, null=True)
@@ -287,6 +289,13 @@ class Circulo(models.Model):
         upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
     grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
+    section = models.ForeignKey(Section, verbose_name=u'Seção', blank=True, null=True)
+
+    def get_absolute_url(self):
+        if self.section:
+            return u'/%s/' % self.slug
+        return self.site_externo
+    get_absolute_url.short_description = u'URL'
 
     def get_absolute_entrar_url(self):
         return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
@@ -300,6 +309,17 @@ class Circulo(models.Model):
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
+@receiver(signals.pre_save, sender=Circulo)
+def circulo_slug_pre_save(sender, instance, raw, using, *args, **kwargs):
+    if not instance.slug:
+        slug = slugify(instance.titulo)
+        new_slug = slug
+        counter = 0
+        while sender.objects.filter(slug=new_slug).exclude(id=instance.id).count() > 0:
+            counter += 1
+            new_slug = '%s-%d'%(slug, counter)
+        instance.slug = new_slug
+
 
 class CirculoMembro(models.Model):
     class Meta:
@@ -640,3 +660,10 @@ def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
         else:
             instance.articulador.usuario.groups.remove(group)
             instance.articulador.usuario.save()
+
+
+class ArticleCadastro(Article):
+    class Meta:
+        proxy = True
+        verbose_name = u'Artigo'
+        verbose_name_plural = u'Artigos'

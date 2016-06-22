@@ -173,6 +173,8 @@ class SectionDetailView(DetailView):
     model = Section
 
     def get_template_names(self):
+        if self.object.template:
+            return [self.object.template, ]
         return [
             'section/%s.html' % self.object.slug,
             '%s/section.html' % self.object.slug,

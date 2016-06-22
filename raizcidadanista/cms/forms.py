@@ -87,7 +87,6 @@ class CustomGroupForm(forms.ModelForm):
 class PowerArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ('title', 'slug', 'header', 'content', )
         widgets = {
             'header': forms.Textarea(attrs={'style': 'width: 575px'}),
             'content': forms.Textarea(attrs={'style': 'width: 575px'}),

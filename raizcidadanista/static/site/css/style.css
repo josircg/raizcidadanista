@@ -667,7 +667,7 @@ body {
 }
 
 .gallery_main,
-.contact-content {
+.contact-content, .section-content {
     background-color: #fff;
     border-top: 7px solid #94C11E;
     width: auto;
@@ -675,7 +675,7 @@ body {
 }
 .gallery_main { padding: 30px 20px 30px 30px; }
 
-.contact-content { padding: 0 0 30px 0;}
+.contact-content, .section-content { padding: 0 0 30px 0;}
 .contact-content-upper { padding: 30px 40px; }
 
 .gallery_title {
@@ -1062,7 +1062,7 @@ blockquote footer:before, blockquote small:before {
     }
 
     .gallery_main,
-    .contact-content { padding: 15px; }
+    .contact-content, .section-content { padding: 15px; }
 
     .gallery_title h3 { font-size: 50px; }
     .gallery_title h4 { font-size: 20px; }

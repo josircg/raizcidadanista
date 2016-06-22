@@ -33,11 +33,13 @@ from xhtml2pdf.pisa import pisaDocument
 
 from forms import MembroImport, MalaDiretaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
-    ColetaArticulacao
+    ColetaArticulacao, ArticleCadastro
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
 from municipios.models import UF, Municipio
+from cms.models import Section, URLMigrate, SectionItem
+from cms.forms import PowerArticleForm
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
@@ -785,12 +787,12 @@ class CirculoAdmin(PowerModelAdmin):
     list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
     list_filter = ('tipo','uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
+        (None, {"fields" : ('titulo', 'get_absolute_url', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
+        (None, {"fields" : ('titulo', 'get_absolute_url', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
     )
-    readonly_fields = ('num_membros', )
+    readonly_fields = ('num_membros', 'get_absolute_url', )
     actions = ('export_csv', 'criar_forum')
 
     def export_csv(self, request, queryset):
@@ -898,11 +900,33 @@ class CirculoAdmin(PowerModelAdmin):
         messages.error(request, u'Esta ação não é permitida para Círculos que não são Regional ou Esfera!')
         return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
 
+    def criar_pagina(self, request, id_circulo):
+        circulo = get_object_or_404(Circulo, pk=id_circulo)
+        # Se não tiver Circulo.section cria uma Section e associa ao Circulo
+        if not circulo.section:
+            section = Section(title=circulo.titulo, header='', template='section-circulo.html')
+            if circulo.imagem:
+                section.header = u'<img src="%s" width="100%%">' % circulo.imagem.url
+            section.save()
+            circulo.section = section
+            circulo.save()
+
+            # Criar URLMigrate
+            URLMigrate(
+                old_url=circulo.get_absolute_url(),
+                new_url=section.get_absolute_url(),
+                redirect_type='H',
+            ).save()
+
+        messages.info(request, u'Página criada. <a href="%s">Clique aqui</a> para inserir o seu primeiro artigo.' % reverse('admin:cadastro_articlecadastro_add'))
+        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
+
     def get_urls(self):
         urls_originais = super(CirculoAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circulo_enviar_convite_evento'),
             url(r'^(?P<id_circulo>\d+)/incluir-membros-auto/$', self.wrap(self.incluir_membros_auto), name='cadastro_circulo_incluir_membros_auto'),
+            url(r'^(?P<id_circulo>\d+)/criar-pagina/$', self.wrap(self.criar_pagina), name='cadastro_circulo_criar_pagina'),
         )
         return urls_customizadas + urls_originais
 
@@ -912,6 +936,10 @@ class CirculoAdmin(PowerModelAdmin):
         if obj:
             if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Incluir Membros Automaticamente'))
+            if not obj.section:
+                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_criar_pagina', kwargs={'id_circulo': obj.pk}), label=u'Criar página do Círculo'))
+            else:
+                buttons.append(PowerButton(url=reverse('admin:cadastro_articlecadastro_changelist'), label=u'Gerenciar Artigos'))
         return buttons
 
     def save_model(self, request, obj, form, change):
@@ -1200,6 +1228,65 @@ class ColetaArticulacaoAdmin(PowerModelAdmin):
         return qs
 admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
 
+
+class SectionItemInline(admin.TabularInline):
+    model = SectionItem
+    extra = 1
+    verbose_name_plural = u'Seções'
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == "section":
+                section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
+                kwargs["queryset"] = Section.objects.filter(pk__in=section_ids)
+        return super(SectionItemInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+class ArticleCadastroAdmin(PowerModelAdmin):
+    list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
+    list_editable = ('is_active', )
+    multi_search = (
+       ('q1', 'Título', ['title']),
+       ('q2', 'Conteúdo', ['content']),
+       ('q3', 'Palavras Chaves', ['keywords']),
+       ('q4', 'Seção', ['sectionitem__section__title']),
+    )
+    prepopulated_fields = {'slug': ('title',)}
+    fieldsets = (
+        (None, {
+            'fields': [('title', 'slug'), 'header', 'content', 'is_active', 'upload', ]
+        }),
+    )
+    form = PowerArticleForm
+    inlines = (SectionItemInline, )
+
+    def has_change_permission(self, request, obj=None):
+        return super(ArticleCadastroAdmin, self).has_change_permission(request, obj) or request.user.has_perm('cms.' + self.opts.get_change_permission())
+
+    def has_add_permission(self, request):
+        return super(ArticleCadastroAdmin, self).has_add_permission(request) or request.user.has_perm('cms.' + self.opts.get_add_permission())
+
+    def save_model(self, request, obj, form, change):
+        obj.author = request.user
+
+        if request.FILES.get('upload'):
+            # Salvar imagem, usando a view do ckeditor
+            from ckeditor.views import upload
+
+            url = upload(request).content
+            obj.header = u'<img src="%s" style="width: 50px; height: 37px;"/>%s' % (url, obj.header, )
+            obj.content = u'<img src="%s" style="width: 270px; height: 152px; margin: 10px; float: left;"/>%s' % (url, obj.content, )
+
+        # Ajustar html
+        obj.header = u'<p>%s</p>' % u"</p><p>".join(obj.header.split('\n'))
+        obj.content = u'<p>%s</p>' % u"</p><p>".join(obj.content.split('\n'))
+        super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
+
+    def queryset(self, request):
+        qs = super(ArticleCadastroAdmin, self).queryset(request)
+        section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
+        if not request.user.is_superuser:
+            qs = qs.filter(sectionitem__section__pk__in=section_ids)
+        return qs
+admin.site.register(ArticleCadastro, ArticleCadastroAdmin)
 
 admin.site.register(CirculoEvento)
 admin.site.register(UF)

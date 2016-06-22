@@ -30,6 +30,7 @@ import requests
 import cStringIO as StringIO
 import cgi
 from xhtml2pdf.pisa import pisaDocument
+from ckeditor.widgets import CKEditorWidget
 
 from forms import MembroImport, MalaDiretaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
@@ -787,12 +788,12 @@ class CirculoAdmin(PowerModelAdmin):
     list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
     list_filter = ('tipo','uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'get_absolute_url', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
+        (None, {"fields" : ('titulo', 'slug', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'get_absolute_url', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'dtcadastro'),}, ),
+        (None, {"fields" : ('titulo', 'slug', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'imagem', 'dtcadastro'),}, ),
     )
-    readonly_fields = ('num_membros', 'get_absolute_url', )
+    readonly_fields = ('num_membros', )
     actions = ('export_csv', 'criar_forum')
 
     def export_csv(self, request, queryset):
@@ -943,7 +944,10 @@ class CirculoAdmin(PowerModelAdmin):
         return buttons
 
     def save_model(self, request, obj, form, change):
-        return super(CirculoAdmin, self).save_model(request, obj, form, change)
+        super(CirculoAdmin, self).save_model(request, obj, form, change)
+        if obj.section:
+            URLMigrate.objects.filter(new_url=obj.section.get_absolute_url()).update(old_url=obj.get_absolute_url())
+
 #        if not change:
 #            try:
 #                membro = Membro.objects.get(usuario=request.user)
@@ -1264,6 +1268,11 @@ class ArticleCadastroAdmin(PowerModelAdmin):
     def has_add_permission(self, request):
         return super(ArticleCadastroAdmin, self).has_add_permission(request) or request.user.has_perm('cms.' + self.opts.get_add_permission())
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ['header', 'content']:
+            kwargs['widget'] = CKEditorWidget()
+        return super(ArticleCadastroAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
     def save_model(self, request, obj, form, change):
         obj.author = request.user
 
@@ -1275,9 +1284,6 @@ class ArticleCadastroAdmin(PowerModelAdmin):
             obj.header = u'<img src="%s" style="width: 50px; height: 37px;"/>%s' % (url, obj.header, )
             obj.content = u'<img src="%s" style="width: 270px; height: 152px; margin: 10px; float: left;"/>%s' % (url, obj.content, )
 
-        # Ajustar html
-        obj.header = u'<p>%s</p>' % u"</p><p>".join(obj.header.split('\n'))
-        obj.content = u'<p>%s</p>' % u"</p><p>".join(obj.content.split('\n'))
         super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
 
     def queryset(self, request):

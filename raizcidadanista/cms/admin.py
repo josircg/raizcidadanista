@@ -106,12 +106,32 @@ class SectionAdmin(PowerModelAdmin):
     list_display = ['title', 'views', 'conversions', 'num_articles', 'order']
     prepopulated_fields = {'slug': ('title',)}
     list_editable = ('order', )
+    fieldsets_superuser = (
+        (None, {
+            'fields': ['title', 'slug', 'header', 'keywords', 'order', 'template', ]
+        }),
+    )
     fieldsets = (
         (None, {
             'fields': ['title', 'slug', 'header', 'keywords', 'order']
         }),
     )
     inlines = [SectionItemActiveInline, SectionItemCreateInline, PermissaoSectionInline]
+
+    def get_fieldsets(self, request, obj=None):
+        if request.user.is_superuser:
+            return self.fieldsets_superuser
+        return self.fieldsets
+
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {
+            "form": self.form if not obj else forms.ModelForm,
+            "fields": flatten_fieldsets(self.get_fieldsets(request, obj)),
+            "exclude": self.get_readonly_fields(request, obj),
+            "formfield_callback": partial(self.formfield_for_dbfield, request=request),
+        }
+        defaults.update(kwargs)
+        return modelform_factory(self.model, **defaults)
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name in ['header']:

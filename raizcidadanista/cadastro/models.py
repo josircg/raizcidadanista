@@ -25,7 +25,7 @@ from time import sleep
 
 from municipios.models import UF, Municipio
 from forum.models import Grupo, GrupoUsuario
-from cms.models import Article, Section, SectionItem
+from cms.models import Article, Section, SectionItem, URLMigrate
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 from smart_selects.db_fields import ChainedForeignKey
@@ -290,6 +290,11 @@ class Circulo(models.Model):
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
     grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
     section = models.ForeignKey(Section, verbose_name=u'Seção', blank=True, null=True)
+
+    def clean(self):
+        if self.slug and self.section and URLMigrate.objects.filter(old_url=self.get_absolute_url()).exclude(new_url=self.section.get_absolute_url()).exists():
+            raise ValidationError(u'Esta URL já está em uso. Informe outra url.')
+        return super(Circulo, self).clean()
 
     def get_absolute_url(self):
         if self.section:

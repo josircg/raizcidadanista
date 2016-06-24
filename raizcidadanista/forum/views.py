@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
 from django.db.models import Q
 
@@ -301,6 +301,8 @@ class TopicoView(DetailView):
         # Excluir conversa
         if request.GET.get('conversa') and request.GET.get('excluir'):
             conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
+            if not conversa.has_delete(request.user):
+                raise Http404
             conversa.delete()
             messages.info(request, u'Comentário removido com sucesso!')
             return HttpResponseRedirect(self.object.get_absolute_url())

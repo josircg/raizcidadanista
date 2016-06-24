@@ -63,7 +63,7 @@
                                             <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
                                     {% endif %}
-                                    {% if object.editavel and not forloop.first and request.user == conversa.autor %}
+                                    {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
                                         | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
                                     {% endif %}
                                 </small>
@@ -123,7 +123,7 @@
                                             </small>
                                         </blockquote>
 
-                                        {% if object.editavel and request.user == conversa_filho.autor %}
+                                        {% if object.editavel and conversa_filho|has_delete_conversa:request.user %}
                                         <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
                                                 <div class="panel-body">
                                                     <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />

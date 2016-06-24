@@ -128,6 +128,11 @@ class Conversa(models.Model):
     arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
 
+    def has_delete(self, user):
+        if user != self.autor or Conversa.objects.filter(conversa_pai=self).exists():
+            return False
+        return True
+
     def curtiu(self):
         return self.conversacurtida_set.filter(curtida='C')
 

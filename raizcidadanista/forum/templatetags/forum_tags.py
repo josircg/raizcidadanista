@@ -19,3 +19,7 @@ def num_topicos_nao_lidos(user, grupo):
 @register.filter
 def num_conversa_nao_lidas(user, topico):
     return topico.num_conversa_nao_lidas(user)
+
+@register.filter
+def has_delete_conversa(conversa, user):
+    return conversa.has_delete(user)

@@ -43,8 +43,9 @@
                                             (<span class="like-count">{{ conversa.curtiu.count }}</span>)
                                             <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
+                                        |
                                         <span class="unlike-box" data-count="{{ conversa.naocurtiu.count }}">
-                                            | <a class="unlike-link" href="?conversa={{ conversa.pk }}&curtir=false">Pode melhorar</a>
+                                            <a class="unlike-link" href="?conversa={{ conversa.pk }}&curtir=false">Pode melhorar</a>
                                             (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
                                             <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
@@ -56,10 +57,14 @@
                                             Curti (<span class="like-count">{{ conversa.curtiu.count }}</span>)
                                             <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
+                                        |
                                         <span class="unlike-box" data-count="{{ conversa.naocurtiu.count }}">
-                                            | Pode melhorar (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
+                                            Pode melhorar (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
                                             <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
+                                    {% endif %}
+                                    {% if object.editavel and not forloop.first and request.user == conversa.autor %}
+                                        | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
                                     {% endif %}
                                 </small>
 
@@ -92,8 +97,9 @@
                                                     (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
                                                     <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
+                                                |
                                                 <span class="unlike-box" data-count="{{ conversa_filho.naocurtiu.count }}">
-                                                    | <a class="unlike-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Pode melhorar</a>
+                                                    <a class="unlike-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Pode melhorar</a>
                                                     (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
                                                     <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
@@ -102,8 +108,9 @@
                                                     Curti (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
                                                     <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
+                                                |
                                                 <span class="unlike-box" data-count="{{ conversa_filho.naocurtiu.count }}">
-                                                    | Pode melhorar (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
+                                                    Pode melhorar (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
                                                     <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
                                             {% endif %}
@@ -224,7 +231,7 @@
     /* show like/unlike people */
     $('.like-box, .unlike-box').hover(function() {
         if($(this).attr('data-count')*1 > 0){
-            $(this).find('.like-people, .unlike-people').show();
+            $(this).find('.like-people, .unlike-people').attr('style', 'display: inline-table');
         }
     }, function() {
         $(this).find('.like-people, .unlike-people').hide();

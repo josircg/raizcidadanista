@@ -9,12 +9,19 @@ from django.dispatch import receiver
 from datetime import datetime
 
 
+LOCALIZACAO = (
+    ('N', u'Nacional'),
+    ('E', u'Estadual'),
+    ('M', u'Municipal'),
+)
 class Grupo(models.Model):
     class Meta:
         verbose_name = "Grupo"
         verbose_name_plural = "Grupos"
 
     nome = models.CharField(u'Nome', max_length=60)
+    localizacao = models.CharField(u'Localização', max_length=1, choices=LOCALIZACAO)
+    tematico = models.BooleanField(u'Temático', default=False)
     descricao = models.TextField(u'Descricao')
 
     def get_absolute_url(self):

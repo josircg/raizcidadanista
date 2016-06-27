@@ -9,15 +9,17 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 class GrupoUsuarioInline(admin.TabularInline):
     model = GrupoUsuario
-    extra = 1
+    extra = max_num = 0
+    fields = readonly_fields = ('usuario', 'admin', )
 class GrupoAdmin(PowerModelAdmin):
-    list_display = ('nome', )
+    list_display = ('nome', 'localizacao', 'tematico', )
+    list_filter = ('localizacao', 'tematico', )
     multi_search = (
        ('q1', 'Nome', ['nome',]),
     )
     inlines = (GrupoUsuarioInline, )
     fieldsets = (
-        (None, {"fields" : ('nome', 'descricao', ),}, ),
+        (None, {"fields" : ('nome', 'localizacao', 'tematico', 'descricao', ),}, ),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):

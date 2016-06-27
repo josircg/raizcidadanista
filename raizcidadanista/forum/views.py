@@ -9,10 +9,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
 from django.db.models import Q
 
-from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA
+from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm
-
-from cadastro.models import LOCALIZACAO
 
 from datetime import datetime
 import json
@@ -52,11 +50,11 @@ class DiretorioView(TemplateView):
             context['grupo'] = self.request.GET.get('grupo')
 
         if self.request.GET.get('localizacao'):
-            grupos_list = grupos_list.filter(circulo__localizacao=self.request.GET.get('localizacao'))
+            grupos_list = grupos_list.filter(localizacao=self.request.GET.get('localizacao'))
             context['localizacao'] = self.request.GET.get('localizacao')
 
         if self.request.GET.get('tematico'):
-            grupos_list = grupos_list.filter(circulo__tematico=True if self.request.GET.get('tematico') == 'true' else False)
+            grupos_list = grupos_list.filter(tematico=True if self.request.GET.get('tematico') == 'true' else False)
             context['tematico'] = self.request.GET.get('tematico')
 
         paginator = Paginator(grupos_list, 10)

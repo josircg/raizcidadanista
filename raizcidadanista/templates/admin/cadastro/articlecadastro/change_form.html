@@ -1,0 +1,16 @@
+﻿{% extends "admin/edit_form.html" %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function($) {
+            if($('#id_link').attr('checked') == true){
+                $('.field-title, .field-header, .field-upload').slideToggle();
+            }
+            $('#id_link').click(function(event) {
+                $('.field-title, .field-header, .field-upload').slideToggle();
+            });
+        });
+    })(django.jQuery);
+</script>
+{% endblock %}

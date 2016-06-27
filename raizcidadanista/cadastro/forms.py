@@ -12,7 +12,7 @@ from municipios.models import UF
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista
+from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro
 from cms.email import sendmail
 
 
@@ -356,3 +356,19 @@ class MalaDiretaForm(forms.Form):
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
     circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())
+
+
+
+class ArticleCadastroForm(forms.ModelForm):
+    class Meta:
+        model = ArticleCadastro
+        widgets = {
+            'header': forms.Textarea(attrs={'style': 'width: 575px'}),
+            'content': forms.Textarea(attrs={'style': 'width: 575px'}),
+        }
+    link = forms.BooleanField(label=u'Cadastro de link?', required=False)
+    upload = forms.ImageField(label=u"Imagem", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(ArticleCadastroForm, self).__init__(*args, **kwargs)
+        self.fields['titulo'].required = False

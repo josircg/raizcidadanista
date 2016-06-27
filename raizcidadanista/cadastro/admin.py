@@ -32,7 +32,7 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao, ArticleCadastro
 from financeiro.models import Receita
@@ -40,7 +40,6 @@ from financeiro.models import Receita
 from forum.models import Grupo, GrupoUsuario
 from municipios.models import UF, Municipio
 from cms.models import Section, URLMigrate, SectionItem
-from cms.forms import PowerArticleForm
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
@@ -785,10 +784,10 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
-    list_display = ('titulo', 'tipo', 'localizacao', 'tematico', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
-    list_filter = ('tipo', 'localizacao', 'tematico', 'uf',)
+    list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
+    list_filter = ('tipo', 'oficial', 'uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'slug', 'descricao', ('tipo', 'localizacao', 'tematico', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
+        (None, {"fields" : ('titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
         (None, {"fields" : ('titulo', 'slug', 'descricao', 'permitecadastro', ('uf', 'municipio', ), 'site_externo', 'imagem', 'dtcadastro'),}, ),
@@ -1256,10 +1255,10 @@ class ArticleCadastroAdmin(PowerModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     fieldsets = (
         (None, {
-            'fields': [('title', 'slug'), 'header', 'content', 'is_active', 'upload', ]
+            'fields': ['link', ('title', 'slug'), 'header', 'content', 'is_active', 'upload', ]
         }),
     )
-    form = PowerArticleForm
+    form = ArticleCadastroForm
     inlines = (SectionItemInline, )
 
     def has_change_permission(self, request, obj=None):
@@ -1275,7 +1274,6 @@ class ArticleCadastroAdmin(PowerModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.author = request.user
-
         if request.FILES.get('upload'):
             # Salvar imagem, usando a view do ckeditor
             from ckeditor.views import upload
@@ -1283,11 +1281,16 @@ class ArticleCadastroAdmin(PowerModelAdmin):
             url = upload(request).content
             obj.header = u'<img src="%s" style="width: 50px; height: 37px;"/>%s' % (url, obj.header, )
             obj.content = u'<img src="%s" style="width: 270px; height: 152px; margin: 10px; float: left;"/>%s' % (url, obj.content, )
-
         super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
+
+        # Se for link colocar o slug == pk
+        if form.cleaned_data.get('link'):
+            obj.slug = obj.pk
+            obj.save()
 
     def queryset(self, request):
         qs = super(ArticleCadastroAdmin, self).queryset(request)
+        qs = qs.exclude(sectionitem__section__circulo=None)
         section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
         if not request.user.is_superuser:
             qs = qs.filter(sectionitem__section__pk__in=section_ids)

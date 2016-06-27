@@ -349,9 +349,15 @@ class TopicoView(DetailView):
                     cc = ConversaCurtida.objects.get(conversa=conversa, colaborador=request.user)
                 except ConversaCurtida.DoesNotExist:
                     cc = ConversaCurtida(conversa=conversa, colaborador=request.user)
-                if request.GET.get('curtir') in ('I', 'C', 'P', 'N', ):
-                    cc.curtida = request.GET.get('curtir')
-                cc.save()
+
+                # Descurtir
+                if cc.curtida == request.GET.get('curtir'):
+                    cc.delete()
+                # Curtir
+                else:
+                    if request.GET.get('curtir') in ('I', 'C', 'P', 'N', ):
+                        cc.curtida = request.GET.get('curtir')
+                    cc.save()
 
                 json_response = []
                 for status, display in STATUS_CURTIDA:

@@ -12,6 +12,8 @@ from django.db.models import Q
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm
 
+from cadastro.models import LOCALIZACAO
+
 from datetime import datetime
 import json
 
@@ -44,6 +46,19 @@ class DiretorioView(TemplateView):
         context = super(DiretorioView, self).get_context_data(**kwargs)
 
         grupos_list = Grupo.objects.all()
+
+        if self.request.GET.get('grupo'):
+            grupos_list = grupos_list.filter(nome__icontains=self.request.GET.get('grupo'))
+            context['grupo'] = self.request.GET.get('grupo')
+
+        if self.request.GET.get('localizacao'):
+            grupos_list = grupos_list.filter(circulo__localizacao=self.request.GET.get('localizacao'))
+            context['localizacao'] = self.request.GET.get('localizacao')
+
+        if self.request.GET.get('tematico'):
+            grupos_list = grupos_list.filter(circulo__tematico=True if self.request.GET.get('tematico') == 'true' else False)
+            context['tematico'] = self.request.GET.get('tematico')
+
         paginator = Paginator(grupos_list, 10)
 
         page = self.request.GET.get('page')
@@ -55,6 +70,7 @@ class DiretorioView(TemplateView):
             grupos = paginator.page(paginator.num_pages)
 
         context['grupos'] = grupos
+        context['localizacao_choices'] = LOCALIZACAO
         return context
 
 

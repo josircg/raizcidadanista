@@ -785,13 +785,13 @@ class CirculoEventoCirculoInline(admin.TabularInline):
 
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
-    list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
-    list_filter = ('tipo','uf',)
+    list_display = ('titulo', 'tipo', 'localizacao', 'tematico', 'permitecadastro', 'uf', 'oficial', 'num_membros', )
+    list_filter = ('tipo', 'localizacao', 'tematico', 'uf',)
     fieldsets_edicao = (
-        (None, {"fields" : ('titulo', 'slug', 'descricao', 'tipo', 'permitecadastro', 'uf', 'municipio', 'oficial', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
+        (None, {"fields" : ('titulo', 'slug', 'descricao', ('tipo', 'localizacao', 'tematico', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'num_membros', ),},),
     )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'slug', 'descricao', 'permitecadastro', 'uf', 'municipio', 'site_externo', 'imagem', 'dtcadastro'),}, ),
+        (None, {"fields" : ('titulo', 'slug', 'descricao', 'permitecadastro', ('uf', 'municipio', ), 'site_externo', 'imagem', 'dtcadastro'),}, ),
     )
     readonly_fields = ('num_membros', )
     actions = ('export_csv', 'criar_forum')

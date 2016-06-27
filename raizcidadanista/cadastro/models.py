@@ -264,6 +264,12 @@ CIRCULO_TIPO = (
     ('S', u'Círculo Estadual'),
 )
 
+LOCALIZACAO = (
+    ('N', u'Nacional'),
+    ('E', u'Estadual'),
+    ('M', u'Municipal'),
+)
+
 CIRCULO_STATUS = (
     ('A', u'Ativo'),
     ('I', u'Desativado'),
@@ -279,6 +285,8 @@ class Circulo(models.Model):
     slug = models.SlugField(u'Url', max_length=80, blank=True)
     descricao = models.TextField(u'Descricao') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
+    localizacao = models.CharField(u'Localização', max_length=1, choices=LOCALIZACAO)
+    tematico = models.BooleanField(u'Temático', default=False)
     uf = models.ForeignKey(UF, blank=True, null=True)
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     oficial = models.BooleanField(u'Oficial', default=False)

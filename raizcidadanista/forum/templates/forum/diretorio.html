@@ -20,7 +20,40 @@
             </div>
         </div>
 
-        <div class="row">
+         <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    <form action="" method="GET" role="form">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <label for="grupo-field">Grupo</label>
+                                <input type="text" class="form-control" id="grupo-field" name="grupo" {% if grupo %}value="{{ grupo }}"{% endif %}>
+                            </div>
+                            <div class="form-group">
+                                <label for="localizacao-field">Localização</label>
+                                <select class="form-control" id="localizacao-field" name="localizacao">
+                                    <option value="">---------</option>
+                                    {% for val, name in localizacao_choices %}
+                                    <option value="{{ val }}" {% if val == localizacao %}selected{% endif %}>{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tematico-field">Temático</label>
+                                <select class="form-control" id="tematico-field" name="tematico">
+                                    <option value="">---------</option>
+                                    <option value="true"{% if tematico == 'true' %}selected{% endif %}>Sim</option>
+                                    <option value="false"{% if tematico == 'false' %}selected{% endif %}>Não</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success bnt-pesquisar">Pesquisar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 25px">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="col-article">
                     {% for grupo in grupos %}
@@ -50,4 +83,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .form-group label {display: block;}
+    .bnt-pesquisar {margin-top: 20px;}
+</style>
 {% endblock %}

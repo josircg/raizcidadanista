@@ -40,11 +40,13 @@ admin.site.register(DashboardPreferences, DashboardPreferencesAdmin)
 
 def user_unicode(obj):
     return u'%s (%s)' % (obj.get_full_name(), obj.username, )
+User.__unicode__ = user_unicode
 def user_first_name(obj):
+    if obj.membro.exists() and obj.membro.latest('pk').apelido:
+        return obj.membro.latest('pk').apelido
     if obj.first_name:
         return obj.first_name
     return obj.username
-User.__unicode__ = user_unicode
 User.get_first_name = user_first_name
 admin.site.unregister(User)
 class CustomUserAdmin(UserAdmin, PowerModelAdmin):

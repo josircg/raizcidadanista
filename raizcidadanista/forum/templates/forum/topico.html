@@ -38,30 +38,26 @@
 
                                 <small>
                                     {% if object.editavel %}
-                                        <span class="like-box" data-count="{{ conversa.curtiu.count }}">
-                                            <a class="like-link" href="?conversa={{ conversa.pk }}&curtir=true">Curti</a>
-                                            (<span class="like-count">{{ conversa.curtiu.count }}</span>)
-                                            <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        {% for tipocurtida in conversa.curtidas %}
+                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                            <a class="like-link" href="?conversa={{ conversa.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
+                                            (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                            <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
-                                        |
-                                        <span class="unlike-box" data-count="{{ conversa.naocurtiu.count }}">
-                                            <a class="unlike-link" href="?conversa={{ conversa.pk }}&curtir=false">Pode melhorar</a>
-                                            (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
-                                            <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
-                                        </span>
+                                        {% if not forloop.last %}|{% endif %}
+                                        {% endfor %}
                                         {% if not forloop.first %}
                                         | <a class="responder-link" href="javascript://">Responder</a>
                                         {% endif %}
                                     {% else %}
-                                        <span class="like-box" data-count="{{ conversa.curtiu.count }}">
-                                            Curti (<span class="like-count">{{ conversa.curtiu.count }}</span>)
-                                            <div class="like-people">{% for like in conversa.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                        {% for tipocurtida in conversa.curtidas %}
+                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                            {{ tipocurtida.display }}
+                                            (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                            <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
                                         </span>
-                                        |
-                                        <span class="unlike-box" data-count="{{ conversa.naocurtiu.count }}">
-                                            Pode melhorar (<span class="unlike-count">{{ conversa.naocurtiu.count }}</span>)
-                                            <div class="unlike-people">{% for like in conversa.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
-                                        </span>
+                                        {% if not forloop.last %}|{% endif %}
+                                        {% endfor %}
                                     {% endif %}
                                     {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
                                         | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
@@ -92,27 +88,23 @@
                                             <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                             <small>
                                             {% if object.editavel %}
-                                                <span class="like-box" data-count="{{ conversa_filho.curtiu.count }}">
-                                                    <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir=true">Curti</a>
-                                                    (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
-                                                    <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                {% for tipocurtida in conversa_filho.curtidas %}
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                                    <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
+                                                    (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                                    <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
-                                                |
-                                                <span class="unlike-box" data-count="{{ conversa_filho.naocurtiu.count }}">
-                                                    <a class="unlike-link" href="?conversa={{ conversa_filho.pk }}&curtir=false">Pode melhorar</a>
-                                                    (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
-                                                    <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
-                                                </span>
+                                                {% if not forloop.last %}|{% endif %}
+                                                {% endfor %}
                                             {% else %}
-                                                <span class="like-box" data-count="{{ conversa_filho.curtiu.count }}">
-                                                    Curti (<span class="like-count">{{ conversa_filho.curtiu.count }}</span>)
-                                                    <div class="like-people">{% for like in conversa_filho.curtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
+                                                {% for tipocurtida in conversa_filho.curtidas %}
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                                    {{ tipocurtida.display }}
+                                                    (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                                    <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
                                                 </span>
-                                                |
-                                                <span class="unlike-box" data-count="{{ conversa_filho.naocurtiu.count }}">
-                                                    Pode melhorar (<span class="unlike-count">{{ conversa_filho.naocurtiu.count }}</span>)
-                                                    <div class="unlike-people">{% for like in conversa_filho.naocurtiu %}{{ like.colaborador }}<br>{% empty %}...{% endfor %}</div>
-                                                </span>
+                                                {% if not forloop.last %}|{% endif %}
+                                                {% endfor %}
                                             {% endif %}
                                             {% if object.editavel and request.user == conversa_filho.autor %}
                                                 | <a class="edit-link" href="javascript://">Editar</a>
@@ -208,33 +200,29 @@
         $(this).parent().parent().parent().find('.edit-form').slideToggle();
     });
 
-    /* like/unlike interation */
-    $('.like-link, .unlike-link').click(function(event) {
+    /* like interation */
+    $('.like-link').click(function(event) {
         var likelink = $(this);
         $.getJSON(likelink.attr('href'), function(data) {
-            $(likelink).parent().parent().find('.like-box .like-count').html(data.curtiu.count);
-            $(likelink).parent().parent().find('.like-box').attr('data-count', data.curtiu.count);
-            $(likelink).parent().parent().find('.like-box .like-people').html('');
-            $.each(data.curtiu.people, function(index, val) {
-                $(likelink).parent().parent().find('.like-box .like-people').append(val+'<br>');
-            });
-            $(likelink).parent().parent().find('.unlike-box .unlike-count').html(data.naocurtiu.count);
-            $(likelink).parent().parent().find('.unlike-box').attr('data-count', data.naocurtiu.count);
-            $(likelink).parent().parent().find('.unlike-box .unlike-people').html('');
-            $.each(data.naocurtiu.people, function(index, val) {
-                $(likelink).parent().parent().find('.unlike-box .unlike-people').append(val+'<br>');
+            $.each(data, function(index, val) {
+                $(likelink).parent().parent().find('.like-'+val.status+' .like-count').html(val.count);
+                $(likelink).parent().parent().find('.like-'+val.status+'').attr('data-count', val.count);
+                $(likelink).parent().parent().find('.like-'+val.status+' .like-people').html('');
+                $.each(val.people, function(index2, val2) {
+                    $(likelink).parent().parent().find('.like-'+val.status+' .like-people').append(val2+'<br>');
+                });
             });
         });
         return false;
     });
 
-    /* show like/unlike people */
-    $('.like-box, .unlike-box').hover(function() {
+    /* show like people */
+    $('.like-box').hover(function() {
         if($(this).attr('data-count')*1 > 0){
-            $(this).find('.like-people, .unlike-people').attr('style', 'display: inline-table');
+            $(this).find('.like-people').attr('style', 'display: inline-table');
         }
     }, function() {
-        $(this).find('.like-people, .unlike-people').hide();
+        $(this).find('.like-people').hide();
     });
 
     /* remove conversa confirm */

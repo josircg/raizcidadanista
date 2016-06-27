@@ -133,11 +133,15 @@ class Conversa(models.Model):
             return False
         return True
 
-    def curtiu(self):
-        return self.conversacurtida_set.filter(curtida='C')
-
-    def naocurtiu(self):
-        return self.conversacurtida_set.filter(curtida='N')
+    def curtidas(self):
+        queryset = []
+        for status, display in STATUS_CURTIDA:
+            queryset.append({
+                'status': status,
+                'display': display,
+                'queryset': self.conversacurtida_set.filter(curtida=status),
+            })
+        return queryset
 
     def get_absolute_url(self):
         return u'%s#conversa-%s' % (reverse('forum_topico', kwargs={'grupo_pk': self.topico.grupo.pk, 'pk': self.topico.pk, }), self.pk)
@@ -151,8 +155,10 @@ def update_topico(sender, instance, created, raw, using, *args, **kwargs):
 
 
 STATUS_CURTIDA = (
-    ('C', u'Curtiu'),
-    ('N', u'Não curtiu'),
+    ('I', u'Ciente'),
+    ('C', u'Concordo'),
+    ('P', u'Concordo em parte'),
+    ('N', u'Discordo'),
 )
 class ConversaCurtida(models.Model):
     conversa = models.ForeignKey(Conversa)

@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
 from django.db.models import Q
 
-from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida
+from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm
 
 from cadastro.models import LOCALIZACAO
@@ -349,26 +349,20 @@ class TopicoView(DetailView):
                     cc = ConversaCurtida.objects.get(conversa=conversa, colaborador=request.user)
                 except ConversaCurtida.DoesNotExist:
                     cc = ConversaCurtida(conversa=conversa, colaborador=request.user)
-                if request.GET.get('curtir') == 'true':
-                    cc.curtida = 'C'
-                elif request.GET.get('curtir') == 'false':
-                    cc.curtida = 'N'
+                if request.GET.get('curtir') in ('I', 'C', 'P', 'N', ):
+                    cc.curtida = request.GET.get('curtir')
                 cc.save()
 
-                json_response = {
-                    'curtiu': {
-                        'people': [],
-                        'count': conversa.curtiu().count(),
-                    },
-                    'naocurtiu': {
-                        'people': [],
-                        'count': conversa.naocurtiu().count(),
-                    },
-                }
-                for curtiu in conversa.curtiu():
-                    json_response['curtiu']['people'].append(u'%s' % curtiu.colaborador)
-                for naocurtiu in conversa.naocurtiu():
-                    json_response['naocurtiu']['people'].append(u'%s' % naocurtiu.colaborador)
+                json_response = []
+                for status, display in STATUS_CURTIDA:
+                    people = []
+                    for curtida in conversa.conversacurtida_set.filter(curtida=status):
+                        people.append(u'%s' % curtida.colaborador.get_first_name())
+                    json_response.append({
+                        'status': status,
+                        'people': people,
+                        'count': len(people),
+                    })
                 return HttpResponse(json.dumps(json_response), mimetype='application/json')
         self.form = self.form_class()
         return super(TopicoView, self).get(request, *args, **kwargs)

@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3><a href="{% url forum %}">Teia Digital</a> › {{ object }}
+                    <h3>{{ object }}
                         <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a>
                         {% if user|has_admin_grupo_perm:object %}
                         <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar membros</button></a>

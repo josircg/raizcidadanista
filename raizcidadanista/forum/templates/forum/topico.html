@@ -14,7 +14,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
                     <h3>
-                        <a href="{% url forum %}">Teia Digital</a> › <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a> › {{ object }}
+                        <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a>
                         {% if object.criador == user %}
                             {% if object.editavel %}
                             <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
@@ -23,6 +23,7 @@
                             {% endif %}
                         {% endif %}
                     </h3>
+                    <h4>{{ object }}</h4>
                 </div>
             </div>
         </div>

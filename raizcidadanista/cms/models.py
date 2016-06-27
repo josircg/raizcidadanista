@@ -64,8 +64,10 @@ class Article(models.Model):
             ("manage_articles", u"Administrar artigos"),
         )
 
-
     def get_absolute_url(self):
+        rex = re.compile(r'^<p>(https?://)(\S+)</p>$')
+        if rex.findall(self.content):
+            return u''.join(rex.findall(self.content)[0])
         return reverse('article', kwargs={'slug': self.slug})
 
     def get_conversion_url(self):

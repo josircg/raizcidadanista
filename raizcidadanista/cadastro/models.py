@@ -409,6 +409,8 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
         )
         artigo.save()
         SectionItem(section=section, article=artigo).save()
+        if instance.circulo.section:
+            SectionItem(section=instance.circulo.section, article=artigo).save()
         # Vincula o artigo ao CirculoEvento
         instance.artigo = artigo
     if instance.artigo:

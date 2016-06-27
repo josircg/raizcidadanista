@@ -1238,8 +1238,10 @@ class SectionItemInline(admin.TabularInline):
     verbose_name_plural = u'Seções'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if not request.user.is_superuser:
-            if db_field.name == "section":
+        if db_field.name == "section":
+            section_ids = Circulo.objects.values_list('section', flat=True)
+            kwargs["queryset"] = Section.objects.filter(pk__in=section_ids)
+            if not request.user.is_superuser:
                 section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
                 kwargs["queryset"] = Section.objects.filter(pk__in=section_ids)
         return super(SectionItemInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
@@ -1266,11 +1268,6 @@ class ArticleCadastroAdmin(PowerModelAdmin):
 
     def has_add_permission(self, request):
         return super(ArticleCadastroAdmin, self).has_add_permission(request) or request.user.has_perm('cms.' + self.opts.get_add_permission())
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        if db_field.name in ['header', 'content']:
-            kwargs['widget'] = CKEditorWidget()
-        return super(ArticleCadastroAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def save_model(self, request, obj, form, change):
         obj.author = request.user

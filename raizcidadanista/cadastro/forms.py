@@ -9,6 +9,7 @@ from django.conf import settings
 
 from municipios.models import UF
 
+from ckeditor.widgets import CKEditorWidget
 from captcha.fields import ReCaptchaField
 
 from datetime import date
@@ -363,12 +364,22 @@ class ArticleCadastroForm(forms.ModelForm):
     class Meta:
         model = ArticleCadastro
         widgets = {
-            'header': forms.Textarea(attrs={'style': 'width: 575px'}),
-            'content': forms.Textarea(attrs={'style': 'width: 575px'}),
+            'header': CKEditorWidget(),
+            'content': CKEditorWidget(),
         }
     link = forms.BooleanField(label=u'Cadastro de link?', required=False)
     upload = forms.ImageField(label=u"Imagem", required=False)
 
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        link = self.cleaned_data.get('link')
+        if not link and not title:
+            raise forms.ValidationError(u'Este campo é obrigatório.')
+        return title
+
     def __init__(self, *args, **kwargs):
         super(ArticleCadastroForm, self).__init__(*args, **kwargs)
-        self.fields['titulo'].required = False
+        self.fields['title'].required = False
+
+        if self.instance and str(self.instance.pk) == self.instance.slug:
+            self.fields['link'].initial = True

@@ -11,7 +11,17 @@ from xhtml2pdf.pisa import pisaDocument
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
-from models import Conta, Receita, MetaArrecadacao
+from models import Conta, Receita, MetaArrecadacao, PeriodoContabil
+
+
+
+class PeriodoContabilAdmin(PowerModelAdmin):
+    list_display = ('ciclo', 'status', )
+    search_fields = ('ciclo', )
+    fieldsets = [
+        (None, {'fields': ('ciclo', 'status', )}),
+    ]
+admin.site.register(PeriodoContabil, PeriodoContabilAdmin)
 
 
 class ContaAdmin(PowerModelAdmin):

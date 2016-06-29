@@ -18,7 +18,6 @@ from cms.email import sendmail
 from cadastro.models import Membro
 
 
-
 class PeriodoContabil(models.Model):
     class Meta:
         verbose_name = u'Período Contábil'
@@ -27,6 +26,7 @@ class PeriodoContabil(models.Model):
 
     ciclo = models.CharField(max_length=6)
     status = models.BooleanField(u'Aberto', default=True)
+    publico = models.BooleanField(u'Público', default=False)
 
     def month(self):
         return self.ciclo[:4]
@@ -55,16 +55,165 @@ class Conta(models.Model):
     def __unicode__(self):
         return u'%s' % self.conta
 
+class TipoDespesa(models.Model):
+    class Meta:
+        verbose_name = u'Tipo de Despesa'
+        verbose_name_plural = u'Tipos de Despesa'
+
+    codigo = models.CharField(u'Código Externo', max_length=20)
+    descricao_breve = models.CharField(u'Descrição Breve', max_length=20)
+    descricao = models.CharField(u'Descrição', max_length=80)
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.descricao_breve, self.descricao)
+
+
+class Fornecedor(models.Model):
+    class Meta:
+        ordering = ('nome', )
+        verbose_name = u'Fornecedor'
+        verbose_name_plural = u'Fornecedores'
+
+    nome = models.CharField(u'Fornecedor', max_length=80)
+    identificador = models.CharField('CPF/CNPJ', max_length=14)
+    dados_financeiros = models.TextField(u'Dados financeiros', blank=True, null=True)
+    servico_padrao = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa Padrão', max_length=30, blank=True, null=True)
+    ativo = models.BooleanField(u'Ativo')
+
+    def tipo(self):
+        return 'PF' if len(self.identificador) == 11 else 'PJ'
+
+    def get_identificador_display(self):
+        identificador = self.identificador
+        if self.tipo() == 'PF':
+            identificador = u'%s.%s.%s-%s' % (identificador[0:3], identificador[3:6], identificador[6:9], identificador[9:11])
+        else:
+            identificador = u'%s.%s.%s/%s-%s' % (identificador[0:2], identificador[2:5], identificador[5:8], identificador[8:12], identificador[12:14])
+        return identificador
+
+    def __unicode__(self):
+        return u"%s" % self.nome
+
+
+class Despesa(models.Model):
+    fornecedor = ForeignKey(Fornecedor)
+    dtemissao = models.DateField(u'Data de Emissão')
+    dtvencimento = models.DateField(u'Data de Vencimento', blank=True, null=True)
+    tipo_documento = models.ForeignKey(TipoDocumento, verbose_name=u'Tipo de documento')
+    documento = models.CharField('Referência', max_length=30, blank=True, null=True)
+    valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
+    integral = models.BooleanField(u'Pagamento integral', default=False)
+    observacoes = models.TextField(u'Observações', blank=True, null=True)
+
+    def clean(self):
+        if self.integral and not Conta.objects.filter(tipo='B').exists():
+            raise ValidationError(u'O sistema ainda não possui nenhuma Conta Banco associada. Crie uma Conta Banco, antes de marcar a Despesa como "Pagamento integral".')
+
+    def saldo_a_pagar(self):
+        return (self.valor or Decimal(0)) + (self.pagamento_set.aggregate(pago=Sum('valor')).get('pago') or Decimal(0))
+
+    def __unicode__(self):
+        return u"%s - %s" % (self.fornecedor, self.dtemissao.strftime('%d/%m/%Y'), )
+
+@receiver(signals.post_save, sender=Despesa)
+def despesa_update_convenio_signal(sender, instance, created, *args, **kwargs):
+    instance.pagamento_set.update(convenio=instance.convenio, tipo='P')
+
+@receiver(signals.post_save, sender=Despesa)
+def despesa_update_pagamento_integral_signal(sender, instance, created, *args, **kwargs):
+    if instance.integral:
+        if not instance.pagamento_set.exists():
+            conta = Conta.objects.filter(convenente=instance.convenio.convenente, tipo='B').latest('pk')
+            Pagamento(
+                conta=conta,
+                tipo='P',
+                dt=instance.dtvencimento or datetime.today(),
+                referencia=instance.documento,
+                valor=instance.valor,
+                convenio=instance.convenio,
+                despesa=instance,
+            ).save()
+        else:
+            pagamento = instance.pagamento_set.latest('pk')
+            pagamento.dt = instance.dtvencimento or datetime.today()
+            pagamento.referencia = instance.documento
+            pagamento.valor = instance.valor
+            pagamento.save()
+
+# Intenção ou Aviso de Receita
+class Receita(models.Model):
+    class Meta:
+        ordering = ('conta__conta', )
+
+    conta = models.ForeignKey(Conta)
+    colaborador = models.ForeignKey(Membro, blank=True, null=True)
+    dtaviso = models.DateField(u'Dt. Informada')
+    valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
+    dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
+    nota = models.TextField(u'Nota', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super(Receita, self).save(*args, **kwargs)
+
+        # todo: se houver dtpgto, gravar o depósito na conta indicada
+
+        if self.colaborador and self.dtpgto:
+            if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dt:
+                if self.colaborador.contrib_tipo in ('1','3','6'):
+                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(months=int(self.colaborador.contrib_tipo))
+                    user = User.objects.get_or_create(username="sys")[0]
+                    # Log do membro
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
+                        object_id = self.colaborador.pk,
+                        object_repr = u"%s" % self.colaborador,
+                        action_flag = CHANGE,
+                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
+                    )
+
+                elif self.colaborador.contrib_tipo == 'A':
+                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(year=self.dt.year+1)
+                    user = User.objects.get_or_create(username="sys")[0]
+                    # Log do membro
+                    LogEntry.objects.log_action(
+                        user_id = user.pk,
+                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
+                        object_id = self.colaborador.pk,
+                        object_repr = u"%s" % self.colaborador,
+                        action_flag = CHANGE,
+                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
+                    )
+                else:
+                    self.colaborador.contrib_prox_pgto = None
+                self.colaborador.save()
+
+@receiver(signals.post_save, sender=Receita)
+def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
+    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O'):
+        sendmail(
+            subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
+            to=[instance.colaborador.email, ],
+            bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
+            template='emails/pagamento-identificado.html',
+            params={
+                'receita': instance,
+            },
+        )
+
 
 TIPO_OPER = (
-    ('D', u'Depósito'),                     # Recurso do Concedente ou Convenente
+    ('D', u'Deposito à vista'),             # Receita de colaborador ou filiado
+    ('C', u'Depósito a compensar'),         # Depósito em cheque/a compensar
     ('H', u'Cheque Devolvido'),             # Cheque não compensado pelo banco
     ('P', u'Pagamento'),                    # Pagamento de Contas a Fornecedores
     ('F', u'Rendimentos Financeiros'),      # Rendimentos Financeiros
-    ('Q', u'Restituição'),                  # Restituição ao Concedente
+    ('Q', u'Restituição'),                  # Restituição a fornecedores ou colaboradores
     ('T', u'Transferência'),                # Transferência entre contas
     ('S', u'Saldo'),                        # Saldo informado pelo Banco/Operador
 )
+
+
 class Operacao(models.Model):
     class Meta:
         ordering = ['dt',]
@@ -79,20 +228,15 @@ class Operacao(models.Model):
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Obs', blank=True, null=True)
 
-    def is_recebimento(self):
-        return self.tipo in ('R','X','E')
+    def is_deposito(self):
+        return self.tipo = 'D','R')
     is_recebimento.boolean = True
-    is_recebimento.short_description = u'Recebimento?'
+    is_recebimento.short_description = u'Receita?'
 
     def is_pagamento(self):
-        return self.tipo in ('P','Q','F')
+        return self.tipo in ('P','Q',)
     is_pagamento.boolean = True
     is_pagamento.short_description = u'Pagamento?'
-
-    def is_deposito(self):
-        return self.tipo == 'D'
-    is_deposito.boolean = True
-    is_deposito.short_description = u'Deposito?'
 
     def is_transferencia(self):
         return self.tipo == 'T'
@@ -118,13 +262,14 @@ class Pagamento(Operacao):
         verbose_name = u'Pagamento'
         verbose_name_plural = u'Pagamentos'
 
-    colaborador = models.ForeignKey(Membro)
+    fornecedor = models.ForeignKey(Fornecedor)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
         return u"R$ %s" % (self.valor, )
+
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
     if instance.valor > 0:
@@ -183,75 +328,17 @@ class Transferencia(Operacao):
         else:
             return u'Transferência para conta %s' % self.destino
 
-
-class ReceitaOperacao(Operacao):
+class Deposito(Operacao):
     class Meta:
-        verbose_name = u'Receita'
-        verbose_name_plural = u'Receitas'
+        verbose_name = u'Depósito'
 
-    colaborador = models.ForeignKey(Membro, blank=True, null=True)
-    dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
+    receita = models.ForeignKey(Receita, blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s/%s | R$ %s' % (self.conta, self.colaborador, self.valor)
-
-    def save(self, *args, **kwargs):
-        super(Receita, self).save(*args, **kwargs)
-        if self.dtpgto and self.colaborador:
-            if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dt:
-                if self.colaborador.contrib_tipo in ('1','3','6'):
-                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(months=int(self.colaborador.contrib_tipo))
-                    user = User.objects.get_or_create(username="sys")[0]
-                    # Log do membro
-                    LogEntry.objects.log_action(
-                        user_id = user.pk,
-                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
-                        object_id = self.colaborador.pk,
-                        object_repr = u"%s" % self.colaborador,
-                        action_flag = CHANGE,
-                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
-                    )
-
-                elif self.colaborador.contrib_tipo == 'A':
-                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(year=self.dt.year+1)
-                    user = User.objects.get_or_create(username="sys")[0]
-                    # Log do membro
-                    LogEntry.objects.log_action(
-                        user_id = user.pk,
-                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
-                        object_id = self.colaborador.pk,
-                        object_repr = u"%s" % self.colaborador,
-                        action_flag = CHANGE,
-                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
-                    )
-                else:
-                    self.colaborador.contrib_prox_pgto = None
-                self.colaborador.save()
-@receiver(signals.post_save, sender=Receita)
-def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O'):
-        sendmail(
-            subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
-            to=[instance.colaborador.email, ],
-            bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
-            template='emails/pagamento-identificado.html',
-            params={
-                'receita': instance,
-            },
-        )
-
-
-# Receita antiga
-class Receita(models.Model):
-    class Meta:
-        ordering = ('conta__conta', )
-
-    conta = models.ForeignKey(Conta)
-    colaborador = models.ForeignKey(Membro, blank=True, null=True)
-    dtaviso = models.DateField(u'Dt. Informada')
-    valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
-    dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
-    nota = models.TextField(u'Nota', blank=True, null=True)
+        if receita:
+            return u'Depósito %s | R$ %s' % (self.receita.colaborador, self.valor)
+        else:
+            return u'Depósito | R$ %s' % self.valor
 
 
 class MetaArrecadacao(models.Model):

@@ -11,7 +11,7 @@ from xhtml2pdf.pisa import pisaDocument
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
-from models import Conta, Receita, MetaArrecadacao, PeriodoContabil
+from models import PeriodoContabil, Conta, Operacao, ReceitaOperacao, MetaArrecadacao
 
 
 
@@ -40,9 +40,62 @@ class ContaAdmin(PowerModelAdmin):
 admin.site.register(Conta, ContaAdmin)
 
 
-class ReceitaAdmin(PowerModelAdmin):
-    list_display = ('conta', 'colaborador', 'dtaviso', 'valor', 'dtpgto',  )
-    list_filter = ('conta', 'colaborador__uf', 'dtaviso', 'dtpgto', )
+class OperacaoAdmin(PowerModelAdmin):
+    list_display = ('conta', 'tipo', 'dt', 'referencia', 'valor', 'conferido',)
+    list_filter = ('conta', 'tipo', 'conferido', )
+    date_hierarchy = 'dt'
+    multi_search = (
+        ('q1', u'Conta', ['conta__conta', ]),
+        ('q2', u'Referência', ['referencia', ]),
+        ('q3', u'Convenente', ['conta__convenente__nome', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('conta', 'tipo', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+    )
+    formfield_overrides = {
+        models.DecimalField: {'localize': True},
+    }
+admin.site.register(Operacao, OperacaoAdmin)
+
+
+class PagamentoAdmin(PowerModelAdmin):
+    list_display = ('conta', 'colaborador', 'despesa_display', 'dt', 'referencia', 'valor', 'conferido',)
+    list_filter = ('colaborador', 'conta', 'tipo', 'conferido', )
+    date_hierarchy = 'dt'
+    multi_search = (
+        ('q1', u'Colaborador', ['colaborador__nome', ]),
+        ('q2', u'Referência', ['referencia', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('conta', 'colaborador', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+    )
+    formfield_overrides = {
+        models.DecimalField: {'localize': True},
+    }
+admin.site.register(Pagamento, PagamentoAdmin)
+
+
+
+class TransferenciaAdmin(PowerModelAdmin):
+    list_display = ('conta', 'destino', 'tipo', 'dt', 'referencia', 'valor', 'conferido',)
+    list_filter = ('conta', 'tipo', 'conferido', )
+    readonly_fields = ('transf_associada_display', )
+    date_hierarchy = 'dt'
+    multi_search = (
+        ('q1', u'Referência', ['referencia', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('conta', 'destino', 'transf_associada_display', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+    )
+    def save_model(self, request, obj, form, change):
+        obj.tipo = 'T'
+        return super(TransferenciaAdmin, self).save_model(request, obj, form, change)
+admin.site.register(Transferencia, TransferenciaAdmin)
+
+
+class ReceitaOperacaoAdmin(PowerModelAdmin):
+    list_display = ('conta', 'colaborador', 'dt', 'valor', 'dtpgto',  )
+    list_filter = ('conta', 'colaborador__uf', 'dt', 'dtpgto', )
     search_fields = ['conta', 'descricao', ]
     raw_id_fields = ('colaborador', )
     multi_search = (
@@ -51,10 +104,14 @@ class ReceitaAdmin(PowerModelAdmin):
     )
     fieldsets = [
         (None, {'fields': ('conta', 'colaborador', )}),
-        (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', )}),
-        (u'Detalhes', {'fields': ('nota', )}),
+        (u'Datas e Valor', {'fields': ('dt', 'valor', 'dtpgto', 'conferido', )}),
+        (u'Detalhes', {'fields': ('referencia', 'obs', )}),
     ]
     actions = ('listagem_doadores', )
+
+    def save_model(self, request, obj, form, change):
+        obj.tipo = 'D'
+        return super(ReceitaOperacaoAdmin, self).save_model(request, obj, form, change)
 
     def listagem_doadores(self, request, queryset, template_name_pdf='admin/financeiro/receita/listagem-doadores-pdf.html'):
         template = get_template(template_name_pdf)
@@ -70,7 +127,7 @@ class ReceitaAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     listagem_doadores.short_description = u'Listagem Doadores'
-admin.site.register(Receita, ReceitaAdmin)
+admin.site.register(ReceitaOperacao, ReceitaOperacaoAdmin)
 
 
 class MetaArrecadacaoAdmin(PowerModelAdmin):

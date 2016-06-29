@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.contrib.admin.widgets import AdminRadioSelect
+from django.contrib.admin.widgets import AdminRadioSelect, AdminDateWidget
 from django.contrib.localflavor.br.forms import BRCNPJField, BRCPFField
 
-from models import Fornecedor
+from models import Fornecedor, Conta
 
 
 class FornecedorAdminForm(forms.ModelForm):
@@ -37,3 +37,9 @@ class FornecedorAdminForm(forms.ModelForm):
             self.fields['identificador'] = BRCPFField(label=u'CPF/CNPJ')
         else:
             self.fields['identificador'] = BRCNPJField(label=u'CPF/CNPJ')
+
+
+class CaixaForm(forms.Form):
+    dt_inicial = forms.DateField(label=u'Data inicial', widget=AdminDateWidget())
+    dt_final = forms.DateField(label=u'Data final', required=False, widget=AdminDateWidget())
+    conta = forms.ModelChoiceField(label=u"Conta", queryset=Conta.objects.all())

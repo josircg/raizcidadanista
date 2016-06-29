@@ -907,6 +907,9 @@ blockquote footer:before, blockquote small:before {
 }
 
 @media screen and (max-width: 1199px) and (min-width: 992px) {
+    .banner-main-home {
+        height: 395px;
+    }
     .banner-main-home-text,
     .banner-main-about-text {
         width: 43%;
@@ -968,6 +971,10 @@ blockquote footer:before, blockquote small:before {
 
     .content-main { padding-left: 0; }
     .content-main.gallery_main { padding: 30px; }
+
+    .banner-main-home {
+        height: 620px;
+    }
 
     .banner-main-home img {
         display: block;
@@ -1034,6 +1041,9 @@ blockquote footer:before, blockquote small:before {
 }
 
 @media (max-width:767px) {
+    .banner-main-home {
+        height: 395px;
+    }
 
     .box {  width: 100%; }
 
@@ -1078,6 +1088,9 @@ blockquote footer:before, blockquote small:before {
     }
 }
 @media (max-width: 550px) {
+    .banner-main-home {
+        height: 395px;
+    }
     .banner-main-home-text {
         width: 92%;
         float: left;

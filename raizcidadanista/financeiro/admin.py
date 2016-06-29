@@ -168,10 +168,6 @@ class ReceitaAdmin(PowerModelAdmin):
     ]
     actions = ('listagem_doadores', )
 
-    def save_model(self, request, obj, form, change):
-        obj.tipo = 'D'
-        return super(ReceitaAdmin, self).save_model(request, obj, form, change)
-
     def listagem_doadores(self, request, queryset, template_name_pdf='admin/financeiro/receita/listagem-doadores-pdf.html'):
         template = get_template(template_name_pdf)
         context = RequestContext(request, {

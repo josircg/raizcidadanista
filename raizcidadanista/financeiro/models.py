@@ -229,10 +229,10 @@ class Operacao(models.Model):
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Obs', blank=True, null=True)
 
-    def is_recebimento(self):
-        return self.tipo in ('D', 'R', )
-    is_recebimento.boolean = True
-    is_recebimento.short_description = u'Receita?'
+    def is_deposito(self):
+        return self.tipo == 'D'
+    is_deposito.boolean = True
+    is_deposito.short_description = u'Deposito?'
 
     def is_pagamento(self):
         return self.tipo in ('P', 'Q', )
@@ -247,8 +247,8 @@ class Operacao(models.Model):
     def descricao_caixa(self):
         if self.is_pagamento():
             return url_display(self.pagamento)
-        elif self.is_recebimento():
-            return url_display(self.recebimento)
+        elif self.is_deposito():
+            return url_display(self.deposito)
         elif self.is_transferencia():
             return url_display(self.transferencia)
         return u'<a href="%s">%s (%s)</a>' % (reverse('admin:convenio_operacao_change', args=(self.pk, )), self.get_tipo_display(), self.conta )

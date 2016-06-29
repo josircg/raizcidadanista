@@ -7,6 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 from utils.fields import BRDecimalField
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ValidationError
+from django.contrib.contenttypes import generic
 from django.db.models import signals
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
@@ -16,6 +18,8 @@ from utils import url_display
 from cms.email import sendmail
 
 from cadastro.models import Membro
+
+from decimal import Decimal
 
 
 class PeriodoContabil(models.Model):
@@ -39,6 +43,7 @@ class PeriodoContabil(models.Model):
 
 
 CONTA_TIPO_CHOICES = (
+    ('B', u'Conta Banco'),
     ('M', u'Movimento'),
     ('P', u'Provisão'),
 )
@@ -77,7 +82,7 @@ class Fornecedor(models.Model):
     nome = models.CharField(u'Fornecedor', max_length=80)
     identificador = models.CharField('CPF/CNPJ', max_length=14)
     dados_financeiros = models.TextField(u'Dados financeiros', blank=True, null=True)
-    servico_padrao = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa Padrão', max_length=30, blank=True, null=True)
+    servico_padrao = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa Padrão', blank=True, null=True)
     ativo = models.BooleanField(u'Ativo')
 
     def tipo(self):
@@ -96,10 +101,9 @@ class Fornecedor(models.Model):
 
 
 class Despesa(models.Model):
-    fornecedor = ForeignKey(Fornecedor)
+    fornecedor = models.ForeignKey(Fornecedor, verbose_name=u'Fornecedor')
     dtemissao = models.DateField(u'Data de Emissão')
     dtvencimento = models.DateField(u'Data de Vencimento', blank=True, null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, verbose_name=u'Tipo de documento')
     documento = models.CharField('Referência', max_length=30, blank=True, null=True)
     valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
     integral = models.BooleanField(u'Pagamento integral', default=False)
@@ -117,20 +121,20 @@ class Despesa(models.Model):
 
 @receiver(signals.post_save, sender=Despesa)
 def despesa_update_convenio_signal(sender, instance, created, *args, **kwargs):
-    instance.pagamento_set.update(convenio=instance.convenio, tipo='P')
+    instance.pagamento_set.update(fornecedor=instance.fornecedor, tipo='P')
 
 @receiver(signals.post_save, sender=Despesa)
 def despesa_update_pagamento_integral_signal(sender, instance, created, *args, **kwargs):
     if instance.integral:
         if not instance.pagamento_set.exists():
-            conta = Conta.objects.filter(convenente=instance.convenio.convenente, tipo='B').latest('pk')
+            conta = Conta.objects.filter(tipo='B').latest('pk')
             Pagamento(
                 conta=conta,
                 tipo='P',
                 dt=instance.dtvencimento or datetime.today(),
                 referencia=instance.documento,
                 valor=instance.valor,
-                convenio=instance.convenio,
+                fornecedor=instance.fornecedor,
                 despesa=instance,
             ).save()
         else:
@@ -139,6 +143,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
             pagamento.referencia = instance.documento
             pagamento.valor = instance.valor
             pagamento.save()
+
 
 # Intenção ou Aviso de Receita
 class Receita(models.Model):
@@ -154,9 +159,7 @@ class Receita(models.Model):
 
     def save(self, *args, **kwargs):
         super(Receita, self).save(*args, **kwargs)
-
-        # todo: se houver dtpgto, gravar o depósito na conta indicada
-
+        # TODO: se houver dtpgto, gravar o depósito na conta indicada
         if self.colaborador and self.dtpgto:
             if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dt:
                 if self.colaborador.contrib_tipo in ('1','3','6'):
@@ -212,8 +215,6 @@ TIPO_OPER = (
     ('T', u'Transferência'),                # Transferência entre contas
     ('S', u'Saldo'),                        # Saldo informado pelo Banco/Operador
 )
-
-
 class Operacao(models.Model):
     class Meta:
         ordering = ['dt',]
@@ -228,13 +229,13 @@ class Operacao(models.Model):
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Obs', blank=True, null=True)
 
-    def is_deposito(self):
-        return self.tipo = 'D','R')
+    def is_recebimento(self):
+        return self.tipo in ('D', 'R', )
     is_recebimento.boolean = True
     is_recebimento.short_description = u'Receita?'
 
     def is_pagamento(self):
-        return self.tipo in ('P','Q',)
+        return self.tipo in ('P', 'Q', )
     is_pagamento.boolean = True
     is_pagamento.short_description = u'Pagamento?'
 
@@ -257,19 +258,20 @@ class Operacao(models.Model):
     def __unicode__(self):
         return u"%s - R$ %s" % (self.conta, self.valor, )
 
+
 class Pagamento(Operacao):
     class Meta:
         verbose_name = u'Pagamento'
         verbose_name_plural = u'Pagamentos'
 
     fornecedor = models.ForeignKey(Fornecedor)
+    despesa = models.ForeignKey(Despesa)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
         return u"R$ %s" % (self.valor, )
-
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
     if instance.valor > 0:
@@ -278,6 +280,7 @@ def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
 def pagamento_tipo_signal(sender, instance, *args, **kwargs):
     if not instance.tipo:
         instance.tipo = 'P'
+
 
 class Transferencia(Operacao):
     class Meta:
@@ -307,7 +310,7 @@ class Transferencia(Operacao):
                 self.transf_associada.referencia = self.referencia
                 self.transf_associada.valor = -self.valor
                 self.transf_associada.conferido = self.conferido
-                self.content_object.save()
+                self.transf_associada.save()
         else:
             transf = Transferencia(
                 conta=self.destino,
@@ -327,6 +330,7 @@ class Transferencia(Operacao):
             return u'Transferência da conta %s' % self.destino
         else:
             return u'Transferência para conta %s' % self.destino
+
 
 class Deposito(Operacao):
     class Meta:

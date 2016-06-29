@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.template.loader import get_template
+from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.http import HttpResponse
+from django.db import models
+from django import forms
 from django.db.models import Sum
 
 import cStringIO as StringIO
@@ -11,7 +14,8 @@ from xhtml2pdf.pisa import pisaDocument
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
-from models import PeriodoContabil, Conta, Operacao, ReceitaOperacao, MetaArrecadacao
+from forms import FornecedorAdminForm
+from models import PeriodoContabil, Conta, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, Receita, MetaArrecadacao
 
 
 
@@ -40,6 +44,62 @@ class ContaAdmin(PowerModelAdmin):
 admin.site.register(Conta, ContaAdmin)
 
 
+class TipoDespesaAdmin(PowerModelAdmin):
+    list_display = ('codigo', 'descricao_breve', )
+    multi_search = (
+        ('q1', u'Código', ['codigo', ]),
+        ('q2', u'Descrição', ['descricao_breve', 'descricao', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('codigo', 'descricao_breve', 'descricao', ),}),
+    )
+admin.site.register(TipoDespesa, TipoDespesaAdmin)
+
+
+class FornecedorAdmin(PowerModelAdmin):
+    list_display = ('nome', 'identificador', 'ativo', )
+    list_filter = ('ativo', )
+    multi_search = (
+        ('q1', u'Nome', ['nome', ]),
+        ('q2', u'CPF/CNPJ', ['identificador', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('nome', 'tipo', 'identificador', 'dados_financeiros', 'servico_padrao', 'ativo', ),}),
+    )
+    form = FornecedorAdminForm
+admin.site.register(Fornecedor, FornecedorAdmin)
+
+
+class PagamentoDespesaInline(admin.TabularInline):
+    model = Pagamento
+    extra = max_num = 0
+    fields = ('referencia', 'dt', 'valor')
+    readonly_fields = ('valor', )
+    fields = ('pagamento_link', 'referencia', 'dt', 'valor')
+    readonly_fields = ('pagamento_link', 'valor')
+
+    def pagamento_link(self, obj):
+        return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_pagamento_change', args=(obj.pk, )), obj)
+    pagamento_link.allow_tags = True
+
+class DespesaAdmin(PowerModelAdmin):
+    list_display = ('fornecedor', 'dtemissao', 'dtvencimento', 'valor', )
+    date_hierarchy = 'dtemissao'
+    multi_search = (
+        ('q1', u'Fornecedor', ['fornecedor__nome', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('fornecedor', ('dtemissao', 'dtvencimento',), 'documento', 'valor', 'saldo_a_pagar', 'integral', ),}),
+        (None, {'fields': ('observacoes', ),}),
+    )
+    readonly_fields = ('saldo_a_pagar', )
+    formfield_overrides = {
+        models.DecimalField: {'localize': True},
+    }
+    inlines = (PagamentoDespesaInline, )
+admin.site.register(Despesa, DespesaAdmin)
+
+
 class OperacaoAdmin(PowerModelAdmin):
     list_display = ('conta', 'tipo', 'dt', 'referencia', 'valor', 'conferido',)
     list_filter = ('conta', 'tipo', 'conferido', )
@@ -59,21 +119,20 @@ admin.site.register(Operacao, OperacaoAdmin)
 
 
 class PagamentoAdmin(PowerModelAdmin):
-    list_display = ('conta', 'colaborador', 'despesa_display', 'dt', 'referencia', 'valor', 'conferido',)
-    list_filter = ('colaborador', 'conta', 'tipo', 'conferido', )
+    list_display = ('conta', 'fornecedor', 'dt', 'referencia', 'valor', 'conferido',)
+    list_filter = ('fornecedor', 'conta', 'tipo', 'conferido', )
     date_hierarchy = 'dt'
     multi_search = (
-        ('q1', u'Colaborador', ['colaborador__nome', ]),
+        ('q1', u'Fornecedor', ['fornecedor__nome', ]),
         ('q2', u'Referência', ['referencia', ]),
     )
     fieldsets = (
-        (None, {'fields': ('conta', 'colaborador', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+        (None, {'fields': ('conta', 'fornecedor', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
     )
     formfield_overrides = {
         models.DecimalField: {'localize': True},
     }
 admin.site.register(Pagamento, PagamentoAdmin)
-
 
 
 class TransferenciaAdmin(PowerModelAdmin):
@@ -93,9 +152,9 @@ class TransferenciaAdmin(PowerModelAdmin):
 admin.site.register(Transferencia, TransferenciaAdmin)
 
 
-class ReceitaOperacaoAdmin(PowerModelAdmin):
-    list_display = ('conta', 'colaborador', 'dt', 'valor', 'dtpgto',  )
-    list_filter = ('conta', 'colaborador__uf', 'dt', 'dtpgto', )
+class ReceitaAdmin(PowerModelAdmin):
+    list_display = ('conta', 'colaborador', 'dtaviso', 'valor', 'dtpgto',  )
+    list_filter = ('conta', 'colaborador__uf', 'dtaviso', 'dtpgto', )
     search_fields = ['conta', 'descricao', ]
     raw_id_fields = ('colaborador', )
     multi_search = (
@@ -104,14 +163,14 @@ class ReceitaOperacaoAdmin(PowerModelAdmin):
     )
     fieldsets = [
         (None, {'fields': ('conta', 'colaborador', )}),
-        (u'Datas e Valor', {'fields': ('dt', 'valor', 'dtpgto', 'conferido', )}),
-        (u'Detalhes', {'fields': ('referencia', 'obs', )}),
+        (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', )}),
+        (u'Detalhes', {'fields': ('nota', )}),
     ]
     actions = ('listagem_doadores', )
 
     def save_model(self, request, obj, form, change):
         obj.tipo = 'D'
-        return super(ReceitaOperacaoAdmin, self).save_model(request, obj, form, change)
+        return super(ReceitaAdmin, self).save_model(request, obj, form, change)
 
     def listagem_doadores(self, request, queryset, template_name_pdf='admin/financeiro/receita/listagem-doadores-pdf.html'):
         template = get_template(template_name_pdf)
@@ -127,7 +186,7 @@ class ReceitaOperacaoAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     listagem_doadores.short_description = u'Listagem Doadores'
-admin.site.register(ReceitaOperacao, ReceitaOperacaoAdmin)
+admin.site.register(Receita, ReceitaAdmin)
 
 
 class MetaArrecadacaoAdmin(PowerModelAdmin):

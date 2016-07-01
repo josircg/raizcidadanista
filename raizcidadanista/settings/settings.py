@@ -196,8 +196,9 @@ CKEDITOR_CONFIGS = {
         'height': 100,
         'width': '100%',
         'skin': 'moono',
-        'toolbar': [['Bold', 'Italic', 'Underline', 'TextColor', 'NumberedList', 'BulletedList', ], ],
+        'toolbar': [['Bold', 'Italic', 'Underline', 'TextColor', 'NumberedList', 'BulletedList', 'Link', 'Smiley', ], ],
         'forcePasteAsPlainText': True,
+        'extraPlugins': 'smiley'
     },
     'default': {
         'toolbar': [

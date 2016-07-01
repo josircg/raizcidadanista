@@ -81,6 +81,7 @@ class CaixaView(TemplateView):
             'form': form,
             'step': step,
             'saldo_inicial': saldo_inicial,
+            'saldo_final': saldo_final,
             'operacoes': operacoes,
             'operacoes_saldo_inicial': operacoes_saldo_inicial,
         },context_instance=RequestContext(request))

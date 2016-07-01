@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ mencao.colaborador }} pediu sua atenção!</title>
+</head>
+<body>
+<h3>{{ mencao.colaborador }} pediu sua atenção!</h3>
+
+<p>
+    {{ mencao.colaborador }} pediu sua atenção para a mensagem abaixo:<br>
+    <a href="{{ host }}{{ mencao.conversa.get_absolute_url }}">{{ mencao.conversa }}</a>
+</p>
+<p>
+    Atenciosamente,<br>
+    RAiZ Movimento Cidadanista
+</p>
+</body>
+</html>

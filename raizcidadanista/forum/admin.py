@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
-from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto
+from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto, ConversaMencao
 
 from ckeditor.widgets import CKEditorWidget
 from cms.email import sendmail

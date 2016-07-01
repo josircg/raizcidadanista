@@ -28,7 +28,7 @@ class PeriodoContabil(models.Model):
         verbose_name_plural = u'Períodos Contábeis'
         ordering = ['ciclo']
 
-    ciclo = models.CharField(max_length=6)
+    ciclo = models.CharField(max_length=6, help_text='Entre no formato AAAAMM onde AAAA é o Ano e MM o mês')
     status = models.BooleanField(u'Aberto', default=True)
     publico = models.BooleanField(u'Público', default=False)
 

@@ -47,6 +47,7 @@
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
+                                        | <a class="mention-link" href="javascript://">Menção</a>
                                         {% if not forloop.first %}
                                         | <a class="responder-link" href="javascript://">Responder</a>
                                         {% endif %}
@@ -59,11 +60,22 @@
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
+                                        | <a class="mention-link" href="javascript://">Menção</a>
                                     {% endif %}
                                     {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
                                         | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
                                     {% endif %}
                                 </small>
+
+                                <form action="{% url forum_mencao %}" method="POST" role="form" class="mention-form">{% csrf_token %}
+                                    <div class="panel panel-conversa">
+                                        <div class="panel-body">
+                                            <input type="hidden" name="conversa" value="{{ conversa.pk }}" />
+                                            <textarea class="mention"></textarea>
+                                            <button type="submit" class="btn btn-success">Enviar</button>
+                                        </div>
+                                    </div>
+                                </form>
 
                                 {% if object.editavel and not forloop.first %}
                                 <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
@@ -107,6 +119,7 @@
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
                                             {% endif %}
+                                            | <a class="mention-link" href="javascript://">Menção</a>
                                             {% if object.editavel and request.user == conversa_filho.autor %}
                                                 | <a class="edit-link" href="javascript://">Editar</a>
                                             {% endif %}
@@ -114,22 +127,31 @@
                                                 | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
                                             {% endif %}
                                             </small>
-                                        </blockquote>
 
-                                        {% if object.editavel and conversa_filho|has_delete_conversa:request.user %}
-                                        <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
-                                                <div class="panel-body">
-                                                    <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
-                                                    <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
-                                                    <textarea id="id_texto-edit-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
-                                                    <br>
-                                                    <button type="submit" class="btn btn-success">Editar</button>
+                                            <form action="{% url forum_mencao %}" method="POST" role="form" class="mention-form">{% csrf_token %}
+                                                <div class="panel panel-conversa">
+                                                    <div class="panel-body">
+                                                        <input type="hidden" name="conversa" value="{{ conversa_filho.pk }}" />
+                                                        <textarea class="mention"></textarea>
+                                                        <button type="submit" class="btn btn-success">Enviar</button>
+                                                    </div>
                                                 </div>
-                                        </form>
-                                        <script type="text/javascript">
-                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
-                                        </script>
-                                        {% endif %}
+                                            </form>
+                                            {% if object.editavel and conversa_filho|has_delete_conversa:request.user %}
+                                            <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
+                                                    <div class="panel-body">
+                                                        <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                                        <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
+                                                        <textarea id="id_texto-edit-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
+                                                        <br>
+                                                        <button type="submit" class="btn btn-success">Editar</button>
+                                                    </div>
+                                            </form>
+                                            <script type="text/javascript">
+                                                CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                            </script>
+                                            {% endif %}
+                                        </blockquote>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -179,10 +201,11 @@
 
 {% block css %}
 <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<link href="{% static 'site/css/jquery.mentionsInput.css' %}" rel='stylesheet' type='text/css'>
 <style type="text/css">
     .cke_bottom { display: none !important }
     .cke_contents {min-height: 100px !important; width: 100% !important;}
-    .responder-form, .edit-form { display: none }
+    .responder-form, .edit-form, .mention-form { display: none }
     .button-topic {
         float: right;
         margin-left: 5px;
@@ -191,6 +214,10 @@
 {% endblock %}
 
 {% block js %}
+<script src="{% static 'site/js/lib/jquery.events.input.js' %}" type='text/javascript'></script>
+<script src="{% static 'site/js/lib/jquery.elastic.js' %}" type='text/javascript'></script>
+<script src='https://cdn.rawgit.com/jashkenas/underscore/1.8.3/underscore-min.js' type='text/javascript'></script>
+<script type="text/javascript" src="{% static 'site/js/jquery.mentionsInput.js' %}"></script>
 <script type="text/javascript">
     /* show/hide response ckeditor */
     $('.responder-link').click(function(event) {
@@ -198,7 +225,12 @@
     });
     /* show/hide edit ckeditor */
     $('.edit-link').click(function(event) {
-        $(this).parent().parent().parent().find('.edit-form').slideToggle();
+        $(this).parent().parent().find('.edit-form').slideToggle();
+    });
+
+    /* show/hide menstion */
+    $('.mention-link').click(function(event) {
+        $(this).parent().parent().find('.mention-form:first').slideToggle();
     });
 
     /* like interation */
@@ -229,6 +261,17 @@
     /* remove conversa confirm */
     $('.remove-link').click(function(event) {
         return confirm("Você deseja realmente remover o seu comentário?");
+    });
+
+
+    /* Menção */
+    $('textarea.mention').mentionsInput({
+        onDataRequest:function (mode, query, callback) {
+            $.getJSON('{% url forum_mencao %}', function(responseData) {
+                responseData = _.filter(responseData, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1 });
+                callback.call(this, responseData);
+            });
+        }
     });
 </script>
 {% endblock %}

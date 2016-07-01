@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 from django import forms
+from django.contrib.auth.models import User
 
 from ckeditor.widgets import CKEditorWidget
-from forum.models import Grupo, Topico, Conversa, GrupoUsuario
+from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao
 
 
 class GrupoForm(forms.ModelForm):
@@ -64,3 +65,11 @@ class PesquisaForm(forms.Form):
         if not (texto or autor or grupo):
             raise forms.ValidationError(u'Preencha pelo menos um campo.')
         return cleaned_data
+
+
+class MencaoForm(forms.ModelForm):
+    class Meta:
+        model = ConversaMencao
+        fields = ('conversa', )
+
+    mencoes = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple, queryset=User.objects.all())

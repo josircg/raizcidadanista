@@ -8,9 +8,10 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
 from django.db.models import Q
+from django.contrib.auth.models import User
 
-from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO
-from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm
+from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, TopicoOuvinte, ConversaMencao
+from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm
 
 from datetime import datetime
 import json
@@ -417,3 +418,30 @@ class TopicoView(DetailView):
         context['form'] = self.form
         context['conversas'] = conversas
         return context
+
+
+class MencaoView(FormView):
+    form_class = MencaoForm
+
+    def get(self, request, *args, **kwargs):
+        # List of users
+        json_response = []
+        for user in User.objects.filter(pk__in=TopicoOuvinte.objects.values_list('ouvinte', flat=True)).distinct():
+            json_response.append({
+              'id': user.pk,
+              'name': u'%s' % user,
+              'avatar': '',
+              'icon': 'icon-16 icon-person',
+              'type': 'contact'
+            })
+        return HttpResponse(json.dumps(json_response), mimetype='application/json')
+
+    def form_valid(self, form):
+        for mencao in form.cleaned_data.get('mencoes'):
+            ConversaMencao(conversa=form.cleaned_data.get('conversa'), mencao=mencao, colaborador=self.request.user).save()
+        messages.info(self.request, u'Menção realizada com sucesso!')
+        return HttpResponseRedirect(form.cleaned_data.get('conversa').get_absolute_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        return HttpResponseRedirect(form.instance.conversa.get_absolute_url())

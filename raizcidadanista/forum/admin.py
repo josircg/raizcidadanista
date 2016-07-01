@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
-from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto
+from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto, ConversaMencao
 
 from ckeditor.widgets import CKEditorWidget
 from cms.email import sendmail
@@ -86,3 +86,5 @@ class PropostaAdmin(PowerModelAdmin):
         (None, {"fields" : ('topico', 'autor', 'texto', 'dt_encerramento', 'arquivo', 'conversa_pai', 'status', ),}, ),
     )
 admin.site.register(Proposta, PropostaAdmin)
+admin.site.register(TopicoOuvinte)
+admin.site.register(ConversaMencao)

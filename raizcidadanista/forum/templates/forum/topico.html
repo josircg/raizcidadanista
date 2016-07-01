@@ -77,7 +77,7 @@
                                     </div>
                                 </form>
                                 <script type="text/javascript">
-                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 50, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList"]]});
+                                    CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
                                 </script>
                                 {% endif %}
 
@@ -127,7 +127,7 @@
                                                 </div>
                                         </form>
                                         <script type="text/javascript">
-                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 50, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList"]]});
+                                            CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
                                         </script>
                                         {% endif %}
                                     </div>

@@ -126,9 +126,6 @@ class OperacaoAdmin(PowerModelAdmin):
                 ('S', u'Saldo'),
             )
         return super(OperacaoAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
-
-    def queryset(self, request):
-        return super(OperacaoAdmin, self).queryset(request).filter(tipo__in=('F', 'Q', 'S'))
 admin.site.register(Operacao, OperacaoAdmin)
 
 

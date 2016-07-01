@@ -15,7 +15,8 @@ from xhtml2pdf.pisa import pisaDocument
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from forms import FornecedorAdminForm
-from models import PeriodoContabil, Conta, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, Receita, MetaArrecadacao
+from models import PeriodoContabil, Conta, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
+    Deposito, Receita, MetaArrecadacao
 
 
 
@@ -115,11 +116,24 @@ class OperacaoAdmin(PowerModelAdmin):
     formfield_overrides = {
         models.DecimalField: {'localize': True},
     }
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == "tipo":
+            kwargs['choices'] = (
+                ('', u'--------'),
+                ('F', u'Rendimentos Financeiros'),
+                ('Q', u'Restituição'),
+                ('S', u'Saldo'),
+            )
+        return super(OperacaoAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
+
+    def queryset(self, request):
+        return super(OperacaoAdmin, self).queryset(request).filter(tipo__in=('F', 'Q', 'S'))
 admin.site.register(Operacao, OperacaoAdmin)
 
 
 class PagamentoAdmin(PowerModelAdmin):
-    list_display = ('conta', 'fornecedor', 'dt', 'referencia', 'valor', 'conferido',)
+    list_display = ('conta', 'fornecedor', 'despesa', 'dt', 'referencia', 'valor', 'conferido',)
     list_filter = ('fornecedor', 'conta', 'tipo', 'conferido', )
     date_hierarchy = 'dt'
     multi_search = (
@@ -127,7 +141,7 @@ class PagamentoAdmin(PowerModelAdmin):
         ('q2', u'Referência', ['referencia', ]),
     )
     fieldsets = (
-        (None, {'fields': ('conta', 'fornecedor', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+        (None, {'fields': ('conta', 'fornecedor', 'despesa', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
     )
     formfield_overrides = {
         models.DecimalField: {'localize': True},
@@ -150,6 +164,22 @@ class TransferenciaAdmin(PowerModelAdmin):
         obj.tipo = 'T'
         return super(TransferenciaAdmin, self).save_model(request, obj, form, change)
 admin.site.register(Transferencia, TransferenciaAdmin)
+
+
+class DepositoAdmin(PowerModelAdmin):
+    list_display = ('conta', 'receita', 'tipo', 'dt', 'referencia', 'valor', 'conferido',)
+    list_filter = ('conta', 'tipo', 'conferido', )
+    date_hierarchy = 'dt'
+    multi_search = (
+        ('q1', u'Referência', ['referencia', ]),
+    )
+    fieldsets = (
+        (None, {'fields': ('conta', 'receita', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+    )
+    def save_model(self, request, obj, form, change):
+        obj.tipo = 'D'
+        return super(DepositoAdmin, self).save_model(request, obj, form, change)
+admin.site.register(Deposito, DepositoAdmin)
 
 
 class ReceitaAdmin(PowerModelAdmin):

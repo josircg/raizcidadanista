@@ -157,9 +157,33 @@ class Receita(models.Model):
     dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
     nota = models.TextField(u'Nota', blank=True, null=True)
 
+    def __unicode__(self):
+        return u'%s/%s | R$ %s' % (self.conta, self.colaborador, self.valor)
+
     def save(self, *args, **kwargs):
         super(Receita, self).save(*args, **kwargs)
-        # TODO: se houver dtpgto, gravar o depósito na conta indicada
+        if self.dtpgto:
+            #Se houver dtpgto, gravar o depósito na conta indicada
+            if not Deposito.objects.filter(receita=self):
+                Deposito(
+                    receita=self,
+                    conta=self.conta,
+                    tipo='D',
+                    dt=self.dtpgto,
+                    referencia='',
+                    valor=self.valor,
+                    conferido=True,
+                    obs=self.nota,
+                ).save()
+            else:
+                Deposito.objects.filter(receita=self).update(
+                    conta=self.conta,
+                    tipo='D',
+                    dt=self.dtpgto,
+                    referencia='',
+                    valor=self.valor,
+                    obs=self.nota,
+                )
         if self.colaborador and self.dtpgto:
             if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dt:
                 if self.colaborador.contrib_tipo in ('1','3','6'):
@@ -265,7 +289,7 @@ class Pagamento(Operacao):
         verbose_name_plural = u'Pagamentos'
 
     fornecedor = models.ForeignKey(Fornecedor)
-    despesa = models.ForeignKey(Despesa)
+    despesa = models.ForeignKey(Despesa, blank=True, null=True)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))
@@ -339,7 +363,7 @@ class Deposito(Operacao):
     receita = models.ForeignKey(Receita, blank=True, null=True)
 
     def __unicode__(self):
-        if receita:
+        if self.receita:
             return u'Depósito %s | R$ %s' % (self.receita.colaborador, self.valor)
         else:
             return u'Depósito | R$ %s' % self.valor

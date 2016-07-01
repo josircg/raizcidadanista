@@ -37,7 +37,7 @@
     <link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,400italic'>
     <link rel="stylesheet" type="text/css" href="{% static 'site/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'site/font-awesome/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.5">
+    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.6">
     {% block css %}{% endblock %}
 
     <script>
@@ -79,24 +79,22 @@
 
                                     <div class="menu-desc">
                                         <nav class="navbar">
-                                            <div class="container-fluid">
-                                                {% block menu %}
-                                                <!-- Brand and toggle get grouped for better mobile display -->
-                                                <div class="navbar-header">
-                                                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                                                    <span class="sr-only">Toggle navigation</span>
-                                                    <span class="icon-bar"></span>
-                                                    <span class="icon-bar"></span>
-                                                    <span class="icon-bar"></span>
-                                                  </button>
-                                                </div>
-                                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                                                    <ul class="nav navbar-nav info-h">
-                                                        {% show_menu 'Menu Topo' %}
-                                                    </ul>
-                                                </div>
-                                                {% endblock %}
+                                            {% block menu %}
+                                            <!-- Brand and toggle get grouped for better mobile display -->
+                                            <div class="navbar-header">
+                                              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                                <span class="sr-only">Toggle navigation</span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                              </button>
                                             </div>
+                                            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                                <ul class="nav navbar-nav info-h">
+                                                    {% show_menu 'Menu Topo' %}
+                                                </ul>
+                                            </div>
+                                            {% endblock %}
                                         </nav>
                                     </div>
                                 </div>

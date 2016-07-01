@@ -86,5 +86,3 @@ class PropostaAdmin(PowerModelAdmin):
         (None, {"fields" : ('topico', 'autor', 'texto', 'dt_encerramento', 'arquivo', 'conversa_pai', 'status', ),}, ),
     )
 admin.site.register(Proposta, PropostaAdmin)
-admin.site.register(TopicoOuvinte)
-admin.site.register(ConversaMencao)

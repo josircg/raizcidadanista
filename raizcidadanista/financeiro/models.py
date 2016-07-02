@@ -198,13 +198,13 @@ class Receita(models.Model):
                 )
 
             if nvl(self.notificado,False) == False:
-                if self.colaborador and not instance.colaborador.status_email in ('S', 'O'):
+                if self.colaborador and not self.colaborador.status_email in ('S', 'O'):
                     sendmail(
                         subject=u'Pagamento Identificado!',
-                        to=[instance.colaborador.email, ],
+                        to=[self.colaborador.email, ],
                         bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
                         template='emails/pagamento-identificado.html',
-                        params={'receita': instance,},
+                        params={'receita': self,},
                     )
                     self.notificado = True
                     super(Receita, self).save(*args, **kwargs)

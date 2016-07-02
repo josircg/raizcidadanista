@@ -185,17 +185,13 @@ class Receita(models.Model):
                     dt=self.dtpgto,
                     referencia='',
                     valor=self.valor,
-                    conferido=True,
-                    obs=self.nota,
                 ).save()
             else:
                 Deposito.objects.filter(receita=self).update(
                     conta=self.conta,
-                    tipo='D',
                     dt=self.dtpgto,
                     referencia='',
                     valor=self.valor,
-                    obs=self.nota,
                 )
 
         if self.colaborador and self.dtpgto:
@@ -229,7 +225,7 @@ class Receita(models.Model):
 
 @receiver(signals.post_save, sender=Receita)
 def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O'):
+    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O') and instance. :
         sendmail(
             subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
             to=[instance.colaborador.email, ],

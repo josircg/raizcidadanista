@@ -168,12 +168,14 @@ class Receita(models.Model):
     dtaviso = models.DateField(u'Dt. Informada')
     valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
     dtpgto = models.DateField(u'Dt. Depósito', blank=True, null=True)
+    notificado = models.BooleanField(default=False)
     nota = models.TextField(u'Nota', blank=True, null=True)
 
     def __unicode__(self):
         return u'%s/%s | R$ %s' % (self.conta, self.colaborador, self.valor)
 
     def save(self, *args, **kwargs):
+
         super(Receita, self).save(*args, **kwargs)
         if self.dtpgto:
             #Se houver dtpgto, gravar o depósito na conta indicada
@@ -193,6 +195,18 @@ class Receita(models.Model):
                     referencia='',
                     valor=self.valor,
                 )
+
+            if nvl(self.notificado,False) == False:
+                if self.colaborador and not instance.colaborador.status_email in ('S', 'O'):
+                    sendmail(
+                        subject=u'Pagamento Identificado!',
+                        to=[instance.colaborador.email, ],
+                        bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
+                        template='emails/pagamento-identificado.html',
+                        params={'receita': instance,},
+                    )
+                    self.notificado = True
+                    super(Receita, self).save(*args, **kwargs)
 
         if self.colaborador and self.dtpgto:
             prox_data = None
@@ -222,20 +236,6 @@ class Receita(models.Model):
                             action_flag = CHANGE,
                             change_message = u'A data do Próximo Pagamento foi alterada para: %s' %prox_data
                 )
-
-@receiver(signals.post_save, sender=Receita)
-def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):
-    if instance.dtpgto and instance.colaborador and not instance.colaborador.status_email in ('S', 'O') and instance. :
-        sendmail(
-            subject=u'Raiz Movimento Cidadanista - Pagamento Identificado!',
-            to=[instance.colaborador.email, ],
-            bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
-            template='emails/pagamento-identificado.html',
-            params={
-                'receita': instance,
-            },
-        )
-
 
 TIPO_OPER = (
     ('D', u'Deposito à vista'),             # Receita de colaborador ou filiado

@@ -47,11 +47,13 @@ CONTA_TIPO_CHOICES = (
     ('M', u'Movimento'),
     ('P', u'Provisão'),
 )
+
 class Conta(models.Model):
     class Meta:
         ordering = ('conta', )
 
     conta = models.CharField(u'Conta', max_length=10, unique=True)
+    conta_contabil = models.CharField(u'Conta Contábil', max_length=15)
     descricao = models.CharField(u'Descrição', max_length=60)
     tipo = models.CharField(u'Tipo', max_length=1, choices=CONTA_TIPO_CHOICES, default='M')
     ativa = models.BooleanField(default=True)
@@ -66,17 +68,27 @@ class TipoDespesa(models.Model):
         verbose_name_plural = u'Tipos de Despesa'
 
     codigo = models.CharField(u'Código Externo', max_length=20)
-    descricao_breve = models.CharField(u'Descrição Breve', max_length=20)
+    descricao_breve = models.CharField(u'Conta Contábil', max_length=20)
     descricao = models.CharField(u'Descrição', max_length=80)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.descricao_breve, self.descricao)
+        return u'%s' % (self.descricao )
 
+class Projeto(models.Model):
+    nome = models.CharField(u'Nome', max_length=40)
+    descricao = models.TextField(u'Descrição')
+    orcamento = BRDecimalField(u'Valor', max_digits=16, decimal_places=2)
+    dtinicio = models.DateField(u'Dt.Início')
+    dtfim = models.DateField(u'Dt.Final')
+    responsavel = models.ForeignKey(User)
+    ativo = models.BooleanField(u'Permite lançamentos',default=True)
+
+    def __unicode__(self):
+        return u'%s' % self.nome
 
 class Fornecedor(models.Model):
     class Meta:
         ordering = ('nome', )
-        verbose_name = u'Fornecedor'
         verbose_name_plural = u'Fornecedores'
 
     nome = models.CharField(u'Fornecedor', max_length=80)
@@ -102,10 +114,11 @@ class Fornecedor(models.Model):
 
 class Despesa(models.Model):
     fornecedor = models.ForeignKey(Fornecedor, verbose_name=u'Fornecedor')
+    tipo_despesa = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa', blank=True, null=True)
     dtemissao = models.DateField(u'Data de Emissão')
     dtvencimento = models.DateField(u'Data de Vencimento', blank=True, null=True)
     documento = models.CharField('Referência', max_length=30, blank=True, null=True)
-    valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
+    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
     integral = models.BooleanField(u'Pagamento integral', default=False)
     observacoes = models.TextField(u'Observações', blank=True, null=True)
 
@@ -280,7 +293,7 @@ class Operacao(models.Model):
     descricao_caixa.allow_tags = True
 
     def __unicode__(self):
-        return u"%s - R$ %s" % (self.conta, self.valor, )
+        return u"%s - R$ %s" % (self.descricao_caixa, self.valor, )
 
 
 class Pagamento(Operacao):
@@ -289,13 +302,16 @@ class Pagamento(Operacao):
         verbose_name_plural = u'Pagamentos'
 
     fornecedor = models.ForeignKey(Fornecedor)
+    projeto = models.ForeignKey(Projeto, blank=True, null=True)
+    tipo_despesa = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa', blank=True, null=True)
     despesa = models.ForeignKey(Despesa, blank=True, null=True)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
-        return u"R$ %s" % (self.valor, )
+        return u"%s (%s)" % (self.tipo_despesa, self.fornecedor, )
+
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
     if instance.valor > 0:

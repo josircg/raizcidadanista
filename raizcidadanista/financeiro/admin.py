@@ -15,7 +15,7 @@ from xhtml2pdf.pisa import pisaDocument
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from forms import FornecedorAdminForm
-from models import PeriodoContabil, Conta, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
+from models import PeriodoContabil, Conta, Projeto, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
     Deposito, Receita, MetaArrecadacao
 
 
@@ -48,13 +48,45 @@ admin.site.register(Conta, ContaAdmin)
 class TipoDespesaAdmin(PowerModelAdmin):
     list_display = ('codigo', 'descricao_breve', )
     multi_search = (
-        ('q1', u'Código', ['codigo', ]),
-        ('q2', u'Descrição', ['descricao_breve', 'descricao', ]),
+        ('q1', u'Código', ['codigo', 'descricao_breve',]),
+        ('q2', u'Descrição', [ 'descricao', ]),
     )
     fieldsets = (
         (None, {'fields': ('codigo', 'descricao_breve', 'descricao', ),}),
     )
 admin.site.register(TipoDespesa, TipoDespesaAdmin)
+
+
+class PagamentoProjetoInline(admin.TabularInline):
+    model = Pagamento
+    extra = max_num = 0
+    fields = ('dt', 'valor', 'referencia')
+    readonly_fields = ('dt', 'valor', 'referencia')
+    fields = ('pagamento_link', 'dt', 'valor', 'referencia', )
+    readonly_fields = ('pagamento_link', 'valor')
+
+    def pagamento_link(self, obj):
+        return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_pagamento_change', args=(obj.pk, )), obj)
+    pagamento_link.allow_tags = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class ProjetoAdmin(PowerModelAdmin):
+    list_display = ('nome', 'orcamento', 'responsavel', 'ativo')
+    multi_search = (
+        ('q1', u'nome', ['nome',]),
+    )
+    fieldsets = (
+        (None, {'fields': ('nome', 'descricao', 'orcamento', 'dtinicio', 'dtfim',
+                           'responsavel', 'ativo'),}),
+    )
+    inlines = (PagamentoProjetoInline, )
+
+admin.site.register(Projeto, ProjetoAdmin)
 
 
 class FornecedorAdmin(PowerModelAdmin):
@@ -130,7 +162,7 @@ admin.site.register(Operacao, OperacaoAdmin)
 
 
 class PagamentoAdmin(PowerModelAdmin):
-    list_display = ('conta', 'fornecedor', 'despesa', 'dt', 'referencia', 'valor', 'conferido',)
+    list_display = ('conta', 'dt', 'despesa', 'tipo_despesa', 'fornecedor', 'referencia', 'valor', 'conferido',)
     list_filter = ('fornecedor', 'conta', 'tipo', 'conferido', )
     date_hierarchy = 'dt'
     multi_search = (
@@ -138,7 +170,7 @@ class PagamentoAdmin(PowerModelAdmin):
         ('q2', u'Referência', ['referencia', ]),
     )
     fieldsets = (
-        (None, {'fields': ('conta', 'fornecedor', 'despesa', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),
+        (None, {'fields': ('conta', 'dt', 'fornecedor', 'despesa', 'tipo_despesa', 'projeto', 'referencia', 'valor', 'conferido', 'obs', ),}),
     )
     formfield_overrides = {
         models.DecimalField: {'localize': True},

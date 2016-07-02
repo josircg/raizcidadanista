@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from utils import url_display
+from utils.stdlib import nvl
 from cms.email import sendmail
 
 from cadastro.models import Membro

@@ -167,7 +167,7 @@ class Receita(models.Model):
     colaborador = models.ForeignKey(Membro, blank=True, null=True)
     dtaviso = models.DateField(u'Dt. Informada')
     valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
-    dtpgto = models.DateField(u'Dt. Conciliação', blank=True, null=True)
+    dtpgto = models.DateField(u'Dt. Depósito', blank=True, null=True)
     nota = models.TextField(u'Nota', blank=True, null=True)
 
     def __unicode__(self):
@@ -197,36 +197,35 @@ class Receita(models.Model):
                     valor=self.valor,
                     obs=self.nota,
                 )
-        if self.colaborador and self.dtpgto:
-            if self.colaborador.contrib_prox_pgto is None or self.colaborador.contrib_prox_pgto < self.dt:
-                if self.colaborador.contrib_tipo in ('1','3','6'):
-                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(months=int(self.colaborador.contrib_tipo))
-                    user = User.objects.get_or_create(username="sys")[0]
-                    # Log do membro
-                    LogEntry.objects.log_action(
-                        user_id = user.pk,
-                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
-                        object_id = self.colaborador.pk,
-                        object_repr = u"%s" % self.colaborador,
-                        action_flag = CHANGE,
-                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
-                    )
 
-                elif self.colaborador.contrib_tipo == 'A':
-                    self.colaborador.contrib_prox_pgto = self.dt + relativedelta(year=self.dt.year+1)
-                    user = User.objects.get_or_create(username="sys")[0]
-                    # Log do membro
-                    LogEntry.objects.log_action(
-                        user_id = user.pk,
-                        content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
-                        object_id = self.colaborador.pk,
-                        object_repr = u"%s" % self.colaborador,
-                        action_flag = CHANGE,
-                        change_message = u'A data do Próximo Pagamento foi alterada para: %s' % self.colaborador.contrib_prox_pgto
-                    )
+        if self.colaborador and self.dtpgto:
+            prox_data = None
+            if self.colaborador.contrib_prox_pgto == None:
+                prox_data = self.dtpgto
+            else:
+                if self.colaborador.contrib_prox_pgto > self.dtpgto:
+                    prox_data = None
                 else:
-                    self.colaborador.contrib_prox_pgto = None
+                    prox_data = self.colaborador.contrib_prox_pgto
+
+            if prox_data:
+                if self.colaborador.contrib_tipo in ('1','3','6'):
+                    prox_data = prox_data + relativedelta(months=int(self.colaborador.contrib_tipo))
+                else:
+                    prox_data = prox_data + relativedelta(year=self.dtpgto.year+1)
+
+                self.colaborador.contrib_prox_pgto = prox_data
                 self.colaborador.save()
+                # Log do membro
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                            user_id = user.pk,
+                            content_type_id = ContentType.objects.get_for_model(self.colaborador).pk,
+                            object_id = self.colaborador.pk,
+                            object_repr = u"%s" % self.colaborador,
+                            action_flag = CHANGE,
+                            change_message = u'A data do Próximo Pagamento foi alterada para: %s' %prox_data
+                )
 
 @receiver(signals.post_save, sender=Receita)
 def pagamentoidentificado_receita_signal(sender, instance, created, raw, using, *args, **kwargs):

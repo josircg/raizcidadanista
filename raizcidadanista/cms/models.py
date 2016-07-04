@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import Group, User
+from django.utils.html import strip_tags
 
 from mptt.models import MPTTModel, TreeForeignKey
 from smart_selects.db_fields import ChainedForeignKey
@@ -15,11 +16,14 @@ from easy_thumbnails.files import get_thumbnailer
 
 from signals import slug_pre_save
 from fields import ListField
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from email import sendmail, resendmail_email_agendado
 
+from HTMLParser import HTMLParser
+from collections import Counter
 from PIL import Image
-import os, shutil, re
+import os, shutil, re, string
+
 
 
 class ItemManager(models.Manager):
@@ -406,14 +410,38 @@ RECURSOS = (
     (u'TAGS-EXC', u'Excluir tags da núvem de tags (separar por virgula)'),
 )
 class Recurso(models.Model):
+    class Meta:
+        verbose_name = u'Parâmetro do Site'
+        verbose_name_plural = u'Parâmetros do Site'
 
     recurso = models.CharField(u"Parâmetro", max_length=10, choices=RECURSOS, unique=True)
     valor = models.TextField(u"Valor", blank=True, null=True)
     ativo = models.BooleanField(u"Ativo?", default=True)
 
-    class Meta:
-        verbose_name = u'Parâmetro do Site'
-        verbose_name_plural = u'Parâmetros do Site'
+    @classmethod
+    def get_cloudtags(self):
+        recurso = Recurso.objects.get_or_create(recurso='TAGS')[0]
+        recurso_exclude = Recurso.objects.get_or_create(recurso='TAGS-EXC')[0].valor.split(',')
+
+        # Pegar todo o conteúdo publicado nos ultimos 7 dias
+        #content = u''.join(list(Article.objects.active().filter(created_at__gte=date.today()+timedelta(days=7)).values_list('content', flat=True)))
+        content = u''.join(list(Article.objects.active().values_list('content', flat=True)))
+        # Remover as marcações HTML
+        content = u'%s' % HTMLParser().unescape(strip_tags(content))
+        # Remover caracteres de pontuação, espaçamento, preposições e artigos
+        prepos = [u'’', u'‘', u'\'', u'”', u'“', u'"', u'\n', u'\t', u'\r',] + recurso_exclude + list(string.punctuation)
+        for prepo in prepos:
+            content = content.replace(prepo, u' ')
+        # Separar palavras
+        content_words = content.split(u' ')
+        # Remover palavras com menos de 3 caracteres
+        content_words = [word for word in content_words if len(word) > 3]
+        #print content_words
+        # Pegar as 30 mais usadas e salvar no recurso
+        content_words_count = Counter(content_words).most_common(30)
+        recurso.valor = content_words_count
+        recurso.save()
+        return recurso
 
     def __unicode__(self):
         return u"%s" % self.get_recurso_display()

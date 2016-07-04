@@ -111,6 +111,7 @@ STATUS_NOTIFICACAO = (
     ('I', u'Intenso'),
     ('V', u'Somente votações'),
 )
+
 class TopicoOuvinte(models.Model):
     class Meta:
         verbose_name = u'Participante'
@@ -178,6 +179,27 @@ class ConversaCurtida(models.Model):
     def __unicode__(self):
         return u'%s (%s) - %s' % (self.conversa, self.colaborador, self.get_curtida_display(), )
 
+class ConversaMencao(models.Model):
+    conversa = models.ForeignKey(Conversa)
+    colaborador = models.ForeignKey(User, related_name='conversao_colaborador_set')
+    mencao = models.ForeignKey(User, related_name='conversao_mencao_set')
+
+    def __unicode__(self):
+        return u'%s (%s/%s)' % (self.conversa, self.colaborador, self.mencao, )
+
+@receiver(signals.post_save, sender=ConversaMencao)
+def update_topico(sender, instance, created, raw, using, *args, **kwargs):
+# and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists()
+    if created:
+        sendmail(
+            subject=u'%s pediu sua atenção na Teia Digital!' % instance.colaborador,
+            to=[instance.mencao.email, ],
+            template='forum/emails/mencao.html',
+            params={
+                'mencao': instance,
+                'host': settings.SITE_HOST,
+            },
+        )
 
 # Conversa sujeita a votação
 STATUS_PROPOSTA = (
@@ -190,7 +212,6 @@ class Proposta(Conversa):
 
     def __unicode__(self):
         return u'%s (%s) - %s' % (self.topico, self.autor, self.get_status_display(), )
-
 
 # Voto na proposta
 TIPO_VOTO =  (
@@ -208,22 +229,3 @@ class Voto(models.Model):
         return u'%s (%s) - %s' % (self.proposta, self.eleitor, self.get_voto_display(), )
 
 
-class ConversaMencao(models.Model):
-    conversa = models.ForeignKey(Conversa)
-    colaborador = models.ForeignKey(User, related_name='conversao_colaborador_set')
-    mencao = models.ForeignKey(User, related_name='conversao_mencao_set')
-
-    def __unicode__(self):
-        return u'%s (%s/%s)' % (self.conversa, self.colaborador, self.mencao, )
-@receiver(signals.post_save, sender=ConversaMencao)
-def update_topico(sender, instance, created, raw, using, *args, **kwargs):
-    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
-        sendmail(
-            subject=u'Raiz Movimento Cidadanista - %s pediu sua atenção!' % instance.colaborador,
-            to=[instance.mencao.email, ],
-            template='forum/emails/mencao.html',
-            params={
-                'mencao': instance,
-                'host': settings.SITE_HOST,
-            },
-        )

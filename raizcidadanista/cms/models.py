@@ -421,7 +421,11 @@ class Recurso(models.Model):
     @classmethod
     def get_cloudtags(self):
         recurso = Recurso.objects.get_or_create(recurso='TAGS')[0]
-        recurso_exclude = Recurso.objects.get_or_create(recurso='TAGS-EXC')[0].valor.split(',')
+        recurso_exclude = Recurso.objects.get_or_create(recurso='TAGS-EXC')[0].valor
+        if recurso_exclude:
+            recurso_exclude = recurso_exclude.split(',')
+        else:
+            recurso_exclude = []
 
         # Pegar todo o conteúdo publicado nos ultimos 7 dias
         #content = u''.join(list(Article.objects.active().filter(created_at__gte=date.today()+timedelta(days=7)).values_list('content', flat=True)))

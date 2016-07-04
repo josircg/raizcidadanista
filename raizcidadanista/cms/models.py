@@ -403,6 +403,7 @@ RECURSOS = (
     (u'SIGNUP', u'Permite cadastro de usuários'),
     (u'EMAILADMIN', u'Quem recebe avisos de novos usuários'),
     (u'TAGS', u'Nuvem de Tags'),
+    (u'TAGS-EXC', u'Excluir tags da núvem de tags (separar por virgula)'),
 )
 class Recurso(models.Model):
 

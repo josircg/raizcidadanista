@@ -13,6 +13,7 @@ import string
 class Command(NoArgsCommand):
     def handle_noargs(self, **options):
         recurso = Recurso.objects.get_or_create(recurso='TAGS')[0]
+        recurso_exclude = Recurso.objects.get_or_create(recurso='TAGS-EXC')[0].valor.split(',')
 
         # Pegar todo o conteúdo publicado nos ultimos 7 dias
         #content = u''.join(list(Article.objects.active().filter(created_at__gte=date.today()+timedelta(days=7)).values_list('content', flat=True)))
@@ -20,10 +21,7 @@ class Command(NoArgsCommand):
         # Remover as marcações HTML
         content = u'%s' % HTMLParser().unescape(strip_tags(content))
         # Remover caracteres de pontuação, espaçamento, preposições e artigos
-        prepos = [u'’', u'‘', u'\'', u'”', u'“', u'"', u'\n', u'\t', u'\r', u'ante', u'após', u'contra', u'desde', u'entre', u'para', u'perante',
-            u'sobre', u'trás', u'conforme', u'consoante', u'segundo', u'durante', u'mediante', u'visto', u'devido', u'como', u'causa',
-            u'porque', u'aquele', u'aquela', u'aqueles', u'naquele', u'naquela', u'aquilo', u'dele', u'deste', u'disto', u'aqui',
-            u'daqui', u'despeito'] + list(string.punctuation)
+        prepos = [u'’', u'‘', u'\'', u'”', u'“', u'"', u'\n', u'\t', u'\r',] + recurso_exclude + list(string.punctuation)
         for prepo in prepos:
             content = content.replace(prepo, u' ')
         # Separar palavras

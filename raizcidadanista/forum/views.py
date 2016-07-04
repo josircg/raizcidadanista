@@ -391,9 +391,7 @@ class TopicoView(DetailView):
     def form_valid(self, form):
         self.object = self.get_object()
         instance = form.save(topico=self.object, autor=self.request.user)
-        self.form = self.form_class()
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
+        return HttpResponseRedirect(instance.get_absolute_url())
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os campos!")

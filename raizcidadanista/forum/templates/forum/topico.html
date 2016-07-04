@@ -23,7 +23,6 @@
                             {% endif %}
                         {% endif %}
                     </h3>
-                    <h4>{{ object }}</h4>
                 </div>
             </div>
         </div>
@@ -34,7 +33,8 @@
                     <div id="conversa-{{ conversa.pk }}" class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
-                                <h4>{{ conversa.texto|safe }}</h4>
+                                {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
+                                {{ conversa.texto|safe }}
                                 <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
 
                                 <small>
@@ -48,6 +48,9 @@
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
                                         | <a class="mention-link" href="javascript://">Menção</a>
+                                        {% if object.editavel and request.user == conversa.autor %}
+                                            | <a class="edit-link" href="javascript://">Editar</a>
+                                        {% endif %}
                                         {% if not forloop.first %}
                                         | <a class="responder-link" href="javascript://">Responder</a>
                                         {% endif %}
@@ -71,11 +74,26 @@
                                     <div class="panel panel-conversa">
                                         <div class="panel-body">
                                             <input type="hidden" name="conversa" value="{{ conversa.pk }}" />
-                                            <textarea class="mention"></textarea>
+                                            <textarea class="mention" placeholder="@Nome"></textarea>
                                             <button type="submit" class="btn btn-success">Enviar</button>
                                         </div>
                                     </div>
                                 </form>
+
+                                {% if object.editavel and request.user == conversa.autor %}
+                                <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
+                                    <div class="panel-body">
+                                        <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
+                                        <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa.pk }}" />
+                                        <textarea id="id_texto-edit-conversa-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa.texto }}</textarea>
+                                        <br>
+                                        <button type="submit" class="btn btn-success">Editar</button>
+                                    </div>
+                                </form>
+                                <script type="text/javascript">
+                                    CKEDITOR.replace("id_texto-edit-conversa-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                </script>
+                                {% endif %}
 
                                 {% if object.editavel and not forloop.first %}
                                 <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
@@ -94,10 +112,10 @@
                                 {% endif %}
 
                                 {% for conversa_filho in conversa.conversa_set.all %}
-                                <div id="conversa_filho-{{ conversa.pk }}" class="panel panel-default panel-conversa">
+                                <div id="conversa-{{ conversa_filho.pk }}" class="panel panel-default panel-conversa">
                                     <div class="panel-body">
                                         <blockquote>
-                                            <h4>{{ conversa_filho.texto|safe }}</h4>
+                                            {{ conversa_filho.texto|safe }}
                                             <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                             <small>
                                             {% if object.editavel %}
@@ -109,6 +127,14 @@
                                                 </span>
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
+                                                | <a class="mention-link" href="javascript://">Menção</a>
+                                                {% if request.user == conversa_filho.autor %}
+                                                    | <a class="edit-link" href="javascript://">Editar</a>
+                                                {% endif %}
+                                                | <a class="responder-link" href="javascript://">Responder</a>
+                                                {% if conversa_filho|has_delete_conversa:request.user %}
+                                                    | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
+                                                {% endif %}
                                             {% else %}
                                                 {% for tipocurtida in conversa_filho.curtidas %}
                                                 <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
@@ -118,13 +144,7 @@
                                                 </span>
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
-                                            {% endif %}
-                                            | <a class="mention-link" href="javascript://">Menção</a>
-                                            {% if object.editavel and request.user == conversa_filho.autor %}
-                                                | <a class="edit-link" href="javascript://">Editar</a>
-                                            {% endif %}
-                                            {% if object.editavel and request.user == conversa_filho.autor %}
-                                                | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
+                                                | <a class="mention-link" href="javascript://">Menção</a>
                                             {% endif %}
                                             </small>
 
@@ -132,23 +152,40 @@
                                                 <div class="panel panel-conversa">
                                                     <div class="panel-body">
                                                         <input type="hidden" name="conversa" value="{{ conversa_filho.pk }}" />
-                                                        <textarea class="mention"></textarea>
+                                                        <textarea class="mention" placeholder="@Nome"></textarea>
                                                         <button type="submit" class="btn btn-success">Enviar</button>
                                                     </div>
                                                 </div>
                                             </form>
-                                            {% if object.editavel and conversa_filho|has_delete_conversa:request.user %}
+
+                                            {% if object.editavel %}
+                                            <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
+                                                <div class="panel panel-conversa">
+                                                    <div class="panel-body">
+                                                        <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                                        <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                        <br>
+                                                        <button type="submit" class="btn btn-success">Responder</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <script type="text/javascript">
+                                                CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                            </script>
+                                            {% endif %}
+
+                                            {% if object.editavel and request.user == conversa_filho.autor %}
                                             <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
                                                     <div class="panel-body">
                                                         <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                         <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
-                                                        <textarea id="id_texto-edit-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
+                                                        <textarea id="id_texto-edit-conversa-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
                                                         <br>
                                                         <button type="submit" class="btn btn-success">Editar</button>
                                                     </div>
                                             </form>
                                             <script type="text/javascript">
-                                                CKEDITOR.replace("id_texto-edit-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                                CKEDITOR.replace("id_texto-edit-conversa-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
                                             </script>
                                             {% endif %}
                                         </blockquote>
@@ -221,11 +258,11 @@
 <script type="text/javascript">
     /* show/hide response ckeditor */
     $('.responder-link').click(function(event) {
-        $(this).parent().parent().find('.responder-form').slideToggle();
+        $(this).parent().parent().find('.responder-form:first').slideToggle();
     });
     /* show/hide edit ckeditor */
     $('.edit-link').click(function(event) {
-        $(this).parent().parent().find('.edit-form').slideToggle();
+        $(this).parent().parent().find('.edit-form:first').slideToggle();
     });
 
     /* show/hide menstion */

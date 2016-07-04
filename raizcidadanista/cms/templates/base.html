@@ -3,6 +3,7 @@
 <head>
     {% load url from future %}
     {% load menu_tags cms_tags compress static thumbnail %}
+    {% load l10n %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -127,6 +128,21 @@
                             </div>
                         </div> <!-- main-menu -->
                         {% endif %}
+
+                        {% get_cloudtags as tags %}
+                        {% if tags %}
+                        {% localize off %}
+                        <div class="main-menu menu-cloudtags">
+                            <div class="box bottom-main block-width-full">
+                                {% for tag, num in tags %}
+                                    <a href="{% url 'search' %}?q={{ tag }}" style="font-size: {{ num }}em">{{ tag }}</a>
+                                {% endfor %}
+                            </div>
+                        </div> <!-- main-menu -->
+                        {% endlocalize %}
+                        {% endif %}
+
+
                         {% get_section_articles 'eventos' 3 as articles_eventos %}
                         {% if articles_eventos %}
                         <div class="main-menu menu-eventos">

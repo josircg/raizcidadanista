@@ -402,6 +402,7 @@ RECURSOS = (
     (u'COMMENT', u'Texto para comentários'),
     (u'SIGNUP', u'Permite cadastro de usuários'),
     (u'EMAILADMIN', u'Quem recebe avisos de novos usuários'),
+    (u'TAGS', u'Nuvem de Tags'),
 )
 class Recurso(models.Model):
 

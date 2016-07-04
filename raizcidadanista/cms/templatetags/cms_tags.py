@@ -3,7 +3,7 @@ from django import template
 from cms.models import Section, Article, ArticleComment, Recurso
 
 from django.conf import settings
-import re
+import re, random
 
 
 register = template.Library()
@@ -98,6 +98,19 @@ def comment_title(article):
         try:
             return Recurso.objects.get(recurso='COMMENT').valor
         except Recurso.DoesNotExist: return u'Adicione um comentário'
+
+
+@register.assignment_tag(takes_context=True)
+def get_cloudtags(context):
+    try:
+        tags_valor = dict(eval(Recurso.objects.get(recurso='TAGS').valor))
+        maior_valor = max(tags_valor.values())
+        tags = []
+        for tag, num in tags_valor.items():
+            tags.append((tag, (float(num)/float(maior_valor))*3.5))
+        return tags
+    except Recurso.DoesNotExist:
+        return []
 
 
 @register.assignment_tag(takes_context=True)

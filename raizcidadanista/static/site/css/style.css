@@ -42,7 +42,7 @@ a:focus, a:hover, .pagination>li>a, .pagination>li>span, .pagination>li>a:focus,
 body {
     margin: 0;
     padding: 0;
-    background-color: #161E2C;
+    background-color: #E6F1C7;
     font-family: 'Open Sans', sans-serif;
     overflow-x: hidden;
 }
@@ -552,7 +552,7 @@ body {
     padding-right: 0;
 }
 .copyright {
-    color: #fff;
+    color: #333;
     font-size: 11px;
     margin-bottom: 0;
     text-align: right;
@@ -560,10 +560,10 @@ body {
 }
 
 .copyright a {
-    color: #fff;
+    color: #333;
 }
 .copyright a:hover {
-    color: #FF0;
+    color: #333;
 }
 
 .about_box_line { border-top: 7px solid #94C11E; }

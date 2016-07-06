@@ -1,9 +1,12 @@
 {% extends "base.html" %}
-{% load i18n bootstrap %}
+{% load i18n bootstrap cms_tags %}
 {% load url from future %}
 
 {% block title %}Entrar | {% endblock %}
 {% block ogtitle %}Entrar | {% endblock %}
+
+{% block colleft %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block main %}
 <div class="content-main contact-content margin-b-30">
@@ -18,14 +21,7 @@
         </div>
 
         <div class="col-md-12">
-            <div id="content-left" class="col-md-12" style="text-align: center; margin: 45px 0;">
-                <a href="{% url 'cms_password_reset' %}"><button type="button" class="btn btn-default btn-primary">Primeiro Acesso / Não sei a senha</button></a>
-                <a href="{% url 'cms_login_twitter' %}"><button type="button" class="btn btn-default btn-primary">Login com Twitter</button></a>
-                <a href="{% url 'cms_login_facebook' %}"><button type="button" class="btn btn-default btn-primary">Login com o Facebook</button></a>
-                <button type="button" class="btn btn-default btn-primary button-login-senha">Login com senha</button>
-            </div>
-
-            <div id="content-left" class="col-md-12 box-login" style="display: none;">
+            <div id="content-left" class="col-md-12 box-login">
                 <div id="texto-content">
                     <span>
                         <form action="" method="POST">{% csrf_token %}
@@ -58,14 +54,20 @@
                                 </div>
                                 {% endif %}
                             {% endfor %}
-                            <a href="{% url 'cms_password_reset' %}">Esqueci a senha</a>
                             <input type="hidden" name="next" value="/">
-                            <button style="float: right;" type="submit" class="btn btn-default btn-primary">Enviar</button>
+                            <button style="float: right;" type="submit" class="btn btn-default btn-primary">Entrar</button>
                         </div>
                         </form>
                     </span>
                 </div>
             </div>
+            <div id="content-left" class="col-md-12" style="text-align: center;">
+                ou<br><br>
+                <a href="{% url 'cms_password_reset' %}"><button type="button" class="btn btn-default btn-primary">Primeiro Acesso / Não sei a senha</button></a>
+                <a href="{% url 'cms_login_twitter' %}"><button type="button" class="btn btn-default btn-primary">Login com Twitter</button></a>
+                <a href="{% url 'cms_login_facebook' %}"><button type="button" class="btn btn-default btn-primary">Login com o Facebook</button></a>
+            </div>
+
         </div>
     </div>
 </div>
@@ -77,4 +79,11 @@
         $('.box-login').show();
     });
 </script>
+{% endblock %}
+
+
+{% block css %}
+    <style type="text/css">
+        .content-main{padding-left: 0;}
+    </style>
 {% endblock %}

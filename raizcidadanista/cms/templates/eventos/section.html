@@ -18,7 +18,7 @@
         {% for article in articles %}
             <div class="bs-callout bs-callout-info">
                 <h3 class='section-inline-title'><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
-                <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
+                <small>{{ article.created_at|date:"d/m/Y - l" }}</small>
             </div>
         {% empty %}
             <div class="bs-callout bs-callout-info">

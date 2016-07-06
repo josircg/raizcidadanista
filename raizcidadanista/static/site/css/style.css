@@ -904,10 +904,10 @@ blockquote footer:before, blockquote small:before {
     content: initial;
 }
 
-.like-box, .unlike-box {
+.like-box, .mention-box {
     position: relative;
 }
-.like-people, .unlike-people {
+.like-people, .mention-people {
     display: none;
     background: rgba(240, 240, 240, 1);
     border: 1px #ddd solid;

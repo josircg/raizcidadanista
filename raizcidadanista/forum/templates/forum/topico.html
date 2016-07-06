@@ -47,7 +47,11 @@
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
-                                        | <a class="mention-link" href="javascript://">Menção</a>
+                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}">
+                                            | <a class="mention-link" href="javascript://">Menção</a>
+                                            (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
+                                            <div class="mention-people">{% for mencao in conversa.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
                                         {% if object.editavel and request.user == conversa.autor %}
                                             | <a class="edit-link" href="javascript://">Editar</a>
                                         {% endif %}
@@ -63,7 +67,11 @@
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
-                                        | <a class="mention-link" href="javascript://">Menção</a>
+                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}">
+                                            | <a class="mention-link" href="javascript://">Menção</a>
+                                            (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
+                                            <div class="mention-people">{% for mencao in conversa.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                        </span>
                                     {% endif %}
                                     {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
                                         | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
@@ -127,7 +135,11 @@
                                                 </span>
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
-                                                | <a class="mention-link" href="javascript://">Menção</a>
+                                                <span class="mention-box" data-count="{{ conversa_filho.conversamencao_set.count }}">
+                                                    | <a class="mention-link" href="javascript://">Menção</a>
+                                                    (<span class="mention-count">{{ conversa_filho.conversamencao_set.count }}</span>)
+                                                    <div class="mention-people">{% for mencao in conversa_filho.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                                </span>
                                                 {% if request.user == conversa_filho.autor %}
                                                     | <a class="edit-link" href="javascript://">Editar</a>
                                                 {% endif %}
@@ -267,7 +279,7 @@
 
     /* show/hide menstion */
     $('.mention-link').click(function(event) {
-        $(this).parent().parent().find('.mention-form:first').slideToggle();
+        $(this).parent().parent().parent().find('.mention-form:first').slideToggle();
     });
 
     /* like interation */
@@ -293,6 +305,14 @@
         }
     }, function() {
         $(this).find('.like-people').hide();
+    });
+    /* show mention people */
+    $('.mention-box').hover(function() {
+        if($(this).attr('data-count')*1 > 0){
+            $(this).find('.mention-people').attr('style', 'display: inline-table');
+        }
+    }, function() {
+        $(this).find('.mention-people').hide();
     });
 
     /* remove conversa confirm */

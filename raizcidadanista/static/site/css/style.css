@@ -252,6 +252,12 @@ body {
 
 .navbar-search {
     float: right;
+    padding: 0px;
+}
+.navbar-search .navbar-form{
+    padding: 10px;
+    max-width: 100%;
+    margin-left: 0;
 }
 
 .banner-main-about {

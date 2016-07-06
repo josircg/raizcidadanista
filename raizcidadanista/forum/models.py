@@ -30,6 +30,12 @@ class Grupo(models.Model):
     def get_absolute_url(self):
         return reverse('forum_grupo', kwargs={'pk': self.pk, })
 
+    def dt_ultima_atualizacao(self):
+        try:
+            return self.topico_set.latest('dt_ultima_atualizacao').dt_ultima_atualizacao
+        except Topico.DoesNotExist:
+            return None
+
     def num_topicos_nao_lidos(self, usuario):
         num = 0
         for topico in self.topico_set.filter(status='A'):

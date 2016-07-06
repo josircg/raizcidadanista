@@ -157,7 +157,7 @@ body {
 
 .block-keep-ratio:after {
     display: block;
-    content: '';
+    content: initial;
 }
 
 .block-width-full { width: 100%; }
@@ -894,7 +894,7 @@ blockquote footer {
     font-size: 60%;
 }
 blockquote footer:before, blockquote small:before {
-    content: '';
+    content: initial;
 }
 
 .like-box, .unlike-box {

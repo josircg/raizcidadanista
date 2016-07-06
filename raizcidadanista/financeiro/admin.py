@@ -116,13 +116,14 @@ class PagamentoDespesaInline(admin.TabularInline):
     pagamento_link.allow_tags = True
 
 class DespesaAdmin(PowerModelAdmin):
-    list_display = ('fornecedor', 'dtemissao', 'dtvencimento', 'valor', )
+    list_display = ('fornecedor', 'tipo_despesa', 'dtemissao', 'dtvencimento', 'valor', )
+    list_filter = ('tipo_despesa', 'integral',)
     date_hierarchy = 'dtemissao'
     multi_search = (
         ('q1', u'Fornecedor', ['fornecedor__nome', ]),
     )
     fieldsets = (
-        (None, {'fields': ('fornecedor', ('dtemissao', 'dtvencimento',), 'documento', 'valor', 'saldo_a_pagar', 'integral', ),}),
+        (None, {'fields': ('fornecedor', 'tipo_despesa', ('dtemissao', 'dtvencimento',), 'documento', 'valor', 'saldo_a_pagar', 'integral', ),}),
         (None, {'fields': ('observacoes', ),}),
     )
     readonly_fields = ('saldo_a_pagar', )

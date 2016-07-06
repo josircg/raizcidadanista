@@ -17,8 +17,8 @@ from django.contrib.auth.models import User
 from utils import url_display
 from utils.stdlib import nvl
 from cms.email import sendmail
-
 from cadastro.models import Membro
+from smart_selects.db_fields import ChainedForeignKey
 
 from decimal import Decimal
 
@@ -299,8 +299,8 @@ class Pagamento(Operacao):
 
     fornecedor = models.ForeignKey(Fornecedor)
     projeto = models.ForeignKey(Projeto, blank=True, null=True)
-    tipo_despesa = models.ForeignKey(TipoDespesa, verbose_name=u'Tipo de Despesa', blank=True, null=True)
-    despesa = models.ForeignKey(Despesa, blank=True, null=True)
+    despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True)
+    tipo_despesa = ChainedForeignKey(TipoDespesa, chained_fields={'despesa': 'despesa', }, show_all=False, auto_choose=False, verbose_name=u'Tipo de Despesa', blank=True, null=True)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))

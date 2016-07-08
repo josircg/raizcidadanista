@@ -63,6 +63,26 @@ class Conta(models.Model):
     def __unicode__(self):
         return u'%s' % self.conta
 
+class ContaContabil(models.Model):
+    codigo = models.CharField(u'Conta', max_length=20, unique=True)
+    descricao = models.CharField(u'Descrição', max_length=80)
+    dtini = models.DateField('Dt.Inicial SPED')
+    dtfim = models.DateField('Dt.Fim SPED', blank=True, null=True)
+    ordem_sped = models.CharField('Ordem SPED', max_length=10)
+    tipo_sped = models.CharField('Tipo SPED', max_length=10)
+
+    def __unicode__(self):
+        return u'%s' % (self.descricao )
+
+    def natureza_sped(self):
+        return len(self.codigo.split('.'))
+    natureza_sped.short_description = u'Natureza SPED'
+
+    def conta_superior(self):
+        # Tem que retornar sem o último código
+        return None
+    conta_superior.short_description = u'Conta Superior'
+
 class TipoDespesa(models.Model):
     class Meta:
         verbose_name = u'Tipo de Despesa'
@@ -380,6 +400,13 @@ class Deposito(Operacao):
         else:
             return u'Depósito | R$ %s' % self.valor
 
+'''
+class Diario(models.Model):
+    debito = models.ForeignKey(ContaContabil)
+    credito = models.ForeignKey(ContaContabil)
+    data = models.DateField()
+    valor =
+'''
 
 class MetaArrecadacao(models.Model):
     class Meta:

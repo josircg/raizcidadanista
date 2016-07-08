@@ -15,9 +15,8 @@ from xhtml2pdf.pisa import pisaDocument
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from forms import FornecedorAdminForm
-from models import PeriodoContabil, Conta, Projeto, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
+from models import PeriodoContabil, Conta, ContaContabil, Projeto, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
     Deposito, Receita, MetaArrecadacao
-
 
 
 class PeriodoContabilAdmin(PowerModelAdmin):
@@ -28,6 +27,13 @@ class PeriodoContabilAdmin(PowerModelAdmin):
     ]
 admin.site.register(PeriodoContabil, PeriodoContabilAdmin)
 
+class ContaContabilAdmin(PowerModelAdmin):
+    list_display = ('codigo', 'descricao', 'ordem_sped', 'tipo_sped' )
+    multi_search = (
+        ('q1', u'Código', ['codigo', ]),
+        ('q2', u'Descrição', ['descricao', ]),
+    )
+admin.site.register(ContaContabil, ContaContabilAdmin)
 
 class ContaAdmin(PowerModelAdmin):
     list_display = ('conta', 'descricao', 'tipo', 'ativa', )

@@ -292,7 +292,10 @@ class Operacao(models.Model):
         if self.is_pagamento():
             return u'%s' % self.pagamento
         elif self.is_deposito():
-            return u'%s' % self.deposito
+            if self.deposito.receita and self.deposito.receita.colaborador:
+                return u'Depósito Colaborador #%s | R$ %s' % (self.deposito.receita.colaborador.pk, self.deposito.valor)
+            else:
+                return u'Depósito | R$ %s' % self.deposito.valor
         elif self.is_transferencia():
             return u'%s' % self.transferencia
         return u'%s (%s)' % (self.get_tipo_display(), self.conta )

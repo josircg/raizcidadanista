@@ -40,17 +40,17 @@
                                 <small>
                                     {% if object.editavel %}
                                         {% for tipocurtida in conversa.curtidas %}
-                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
                                             <a class="like-link" href="?conversa={{ conversa.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
                                             (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                            <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                            <div class="like-people"></div>
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
-                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}">
+                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
                                             | <a class="mention-link" href="javascript://">Menção</a>
                                             (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
-                                            <div class="mention-people">{% for mencao in conversa.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                            <div class="mention-people"></div>
                                         </span>
                                         {% if object.editavel and request.user == conversa.autor %}
                                             | <a class="edit-link" href="javascript://">Editar</a>
@@ -60,17 +60,17 @@
                                         {% endif %}
                                     {% else %}
                                         {% for tipocurtida in conversa.curtidas %}
-                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                        <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
                                             {{ tipocurtida.display }}
                                             (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                            <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                            <div class="like-people"></div>
                                         </span>
                                         {% if not forloop.last %}|{% endif %}
                                         {% endfor %}
-                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}">
+                                        <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
                                             | <a class="mention-link" href="javascript://">Menção</a>
                                             (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
-                                            <div class="mention-people">{% for mencao in conversa.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                            <div class="mention-people"></div>
                                         </span>
                                     {% endif %}
                                     {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
@@ -128,17 +128,17 @@
                                             <small>
                                             {% if object.editavel %}
                                                 {% for tipocurtida in conversa_filho.curtidas %}
-                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa_filho.pk }}" data-curtir="{{ tipocurtida.status }}">
                                                     <a class="like-link" href="?conversa={{ conversa_filho.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
                                                     (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                                    <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                                    <div class="like-people"></div>
                                                 </span>
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
-                                                <span class="mention-box" data-count="{{ conversa_filho.conversamencao_set.count }}">
+                                                <span class="mention-box" data-count="{{ conversa_filho.conversamencao_set.count }}" data-id="{{ conversa_filho.pk }}">
                                                     | <a class="mention-link" href="javascript://">Menção</a>
                                                     (<span class="mention-count">{{ conversa_filho.conversamencao_set.count }}</span>)
-                                                    <div class="mention-people">{% for mencao in conversa_filho.conversamencao_set.all %}{{ mencao.mencao.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                                    <div class="mention-people"></div>
                                                 </span>
                                                 {% if request.user == conversa_filho.autor %}
                                                     | <a class="edit-link" href="javascript://">Editar</a>
@@ -149,14 +149,18 @@
                                                 {% endif %}
                                             {% else %}
                                                 {% for tipocurtida in conversa_filho.curtidas %}
-                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}">
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa_filho.pk }}" data-curtir="{{ tipocurtida.status }}">
                                                     {{ tipocurtida.display }}
                                                     (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                                    <div class="like-people">{% for like in tipocurtida.queryset %}{{ like.colaborador.get_first_name }}<br>{% empty %}...{% endfor %}</div>
+                                                    <div class="like-people"></div>
                                                 </span>
                                                 {% if not forloop.last %}|{% endif %}
                                                 {% endfor %}
-                                                | <a class="mention-link" href="javascript://">Menção</a>
+                                                <span class="mention-box" data-count="{{ conversa_filho.conversamencao_set.count }}" data-id="{{ conversa_filho.pk }}">
+                                                    | <a class="mention-link" href="javascript://">Menção</a>
+                                                    (<span class="mention-count">{{ conversa_filho.conversamencao_set.count }}</span>)
+                                                    <div class="mention-people"></div>
+                                                </span>
                                             {% endif %}
                                             </small>
 
@@ -289,10 +293,6 @@
             $.each(data, function(index, val) {
                 $(likelink).parent().parent().find('.like-'+val.status+' .like-count').html(val.count);
                 $(likelink).parent().parent().find('.like-'+val.status+'').attr('data-count', val.count);
-                $(likelink).parent().parent().find('.like-'+val.status+' .like-people').html('');
-                $.each(val.people, function(index2, val2) {
-                    $(likelink).parent().parent().find('.like-'+val.status+' .like-people').append(val2+'<br>');
-                });
             });
         });
         return false;
@@ -301,6 +301,16 @@
     /* show like people */
     $('.like-box').hover(function() {
         if($(this).attr('data-count')*1 > 0){
+            var likebox = $(this);
+            var link = '?conversa='+$(likebox).attr('data-id')+'&get-curtir='+$(likebox).attr('data-curtir');
+            $.getJSON(link, function(data) {
+                $(likebox).find('.like-count').html(data.count);
+                $(likebox).attr('data-count', data.count);
+                $(likebox).find('.like-people').html('');
+                $.each(data.people, function(index, val) {
+                    $(likebox).find('.like-people').append(val+'<br>');
+                });
+            });
             $(this).find('.like-people').attr('style', 'display: inline-table');
         }
     }, function() {
@@ -309,6 +319,16 @@
     /* show mention people */
     $('.mention-box').hover(function() {
         if($(this).attr('data-count')*1 > 0){
+            var mentionbox = $(this);
+            var link = '?conversa='+$(mentionbox).attr('data-id')+'&get-mencao=true';
+            $.getJSON(link, function(data) {
+                $(mentionbox).find('.mention-count').html(data.count);
+                $(mentionbox).attr('data-count', data.count);
+                $(mentionbox).find('.mention-people').html('');
+                $.each(data.people, function(index, val) {
+                    $(mentionbox).find('.mention-people').append(val+'<br>');
+                });
+            });
             $(this).find('.mention-people').attr('style', 'display: inline-table');
         }
     }, function() {

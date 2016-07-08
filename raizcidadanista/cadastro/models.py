@@ -418,6 +418,7 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
         instance.artigo.header = instance.local.replace('\n', '<br>')
         instance.artigo.content = instance.local.replace('\n', '<br>')
         instance.artigo.is_active = not instance.privado
+        instance.artigo.created_at = instance.dt_evento
         instance.artigo.save()
 
 

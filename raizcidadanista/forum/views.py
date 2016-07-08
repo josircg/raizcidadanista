@@ -340,8 +340,8 @@ class TopicoView(DetailView):
             messages.info(request, u'Tópico reaberto!')
             return HttpResponseRedirect(self.object.get_absolute_url())
 
-        # Computar curtidas
         if request.is_ajax():
+            # Computar curtidas
             if request.GET.get('conversa') and request.GET.get('curtir'):
                 conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'))
                 try:
@@ -360,14 +360,40 @@ class TopicoView(DetailView):
 
                 json_response = []
                 for status, display in STATUS_CURTIDA:
-                    people = []
-                    for curtida in conversa.conversacurtida_set.filter(curtida=status):
-                        people.append(u'%s' % curtida.colaborador.get_first_name())
                     json_response.append({
                         'status': status,
-                        'people': people,
-                        'count': len(people),
+                        'count': conversa.conversacurtida_set.filter(curtida=status).count(),
                     })
+                return HttpResponse(json.dumps(json_response), mimetype='application/json')
+
+            # Ajax get likes
+            if request.GET.get('conversa') and request.GET.get('get-curtir'):
+                conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'))
+                people = []
+                curtidas = conversa.conversacurtida_set.filter(curtida=request.GET.get('get-curtir'))
+                for curtida in curtidas[:15]:
+                    people.append(u'%s' % curtida.colaborador.get_first_name())
+                if curtidas.count() > 15:
+                    people.append(u'e mais %s...' % (curtidas.count()-15))
+                json_response= {
+                    'status': request.GET.get('get-curtir'),
+                    'people': people,
+                    'count': curtidas.count(),
+                }
+                return HttpResponse(json.dumps(json_response), mimetype='application/json')
+            # Ajax get mencao
+            if request.GET.get('conversa') and request.GET.get('get-mencao'):
+                conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'))
+                people = []
+                mencoes = conversa.conversamencao_set.all()
+                for mencao in mencoes[:15]:
+                    people.append(u'%s' % mencao.mencao.get_first_name())
+                if mencoes.count() > 15:
+                    people.append(u'e mais %s...' % (mencoes.count()-15))
+                json_response= {
+                    'people': people,
+                    'count': mencoes.count(),
+                }
                 return HttpResponse(json.dumps(json_response), mimetype='application/json')
         self.form = self.form_class()
         return super(TopicoView, self).get(request, *args, **kwargs)

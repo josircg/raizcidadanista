@@ -21,11 +21,17 @@ from models import PeriodoContabil, Conta, Projeto, TipoDespesa, Fornecedor, Ope
 
 
 class PeriodoContabilAdmin(PowerModelAdmin):
-    list_display = ('ciclo', 'status', )
+    list_display = ('ciclo', 'status', 'publico', )
     search_fields = ('ciclo', )
     fieldsets = [
-        (None, {'fields': ('ciclo', 'status', )}),
+        (None, {'fields': ('ciclo', ('status', 'publico', ), )}),
     ]
+    def get_buttons(self, request, object_id):
+        buttons = super(PeriodoContabilAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj and obj.publico:
+            buttons.append(PowerButton(url=reverse('financeiro_caixa_periodo', kwargs={'ciclo': obj.ciclo}), label='Caixa'))
+        return buttons
 admin.site.register(PeriodoContabil, PeriodoContabilAdmin)
 
 

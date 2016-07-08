@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static l10n %}
+    <title>Caixa {{ object }}</title>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    {% if object.publico %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Despesa', 'Valor'],
+                {% localize off %}
+                {% for pagamento in pagamentos %}
+                    ['{{ pagamento.tipo }}', {{ pagamento.total }}],
+                {% endfor %}
+                {% endlocalize %}
+            ]);
+
+            var options = {
+                title: 'Despesas'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
+        }
+    </script>
+    {% endif %}
+</head>
+<body>
+    <div class="container-fluid">
+        <h2>Caixa {{ object }}</h2>
+        <div class="row">
+            {% if object.publico %}
+            <div class="col-md-6">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Saldo inicial:</th>
+                            <th class="text-right">R$ {{ saldo_inicial }}</th>
+                        </tr>
+                        <tr>
+                            <th>Total de Receitas:</th>
+                            <th class="text-right">R$ {{ total_receitas }}</th>
+                        </tr>
+                        {% for pagamento in pagamentos %}
+                        <tr>
+                            <th>Depesas ({{ pagamento.tipo }}):</th>
+                            <th class="text-right">R$ {{ pagamento.total }}</th>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <th>Saldo final:</th>
+                            <th class="text-right">R$ {{ saldo_final }}</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="text-right">
+                    <a  href="{% url financeiro_caixa_detalhe_periodo object.ciclo %}"><button type="button" class="btn btn-primary">Detalhes</button></a>
+                </div>
+            </div>
+            <div id="piechart" class="col-md-6" style="height: 400px;"></div>
+            {% else %}
+                <div class="col-md-12">
+                    <p class="text-danger">Período não está disponível para consulta.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -34,10 +34,10 @@ class PeriodoContabil(models.Model):
     publico = models.BooleanField(u'Público', default=False)
 
     def month(self):
-        return self.ciclo[:4]
+        return int(self.ciclo[-2:])
 
     def year(self):
-        return self.ciclo[-2:]
+        return int(self.ciclo[:4])
 
     def __unicode__(self):
         return u'%s/%s' % (self.ciclo[:4], self.ciclo[-2:])
@@ -288,8 +288,17 @@ class Operacao(models.Model):
     descricao_caixa.short_description = u"Descrição"
     descricao_caixa.allow_tags = True
 
+    def descricao_caixa_display(self):
+        if self.is_pagamento():
+            return u'%s' % self.pagamento
+        elif self.is_deposito():
+            return u'%s' % self.deposito
+        elif self.is_transferencia():
+            return u'%s' % self.transferencia
+        return u'%s (%s)' % (self.get_tipo_display(), self.conta )
+
     def __unicode__(self):
-        return u"%s - R$ %s" % (self.descricao_caixa, self.valor, )
+        return u"%s - R$ %s" % (self.descricao_caixa_display(), self.valor, )
 
 
 class Pagamento(Operacao):
@@ -306,7 +315,9 @@ class Pagamento(Operacao):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.tipo_despesa, self.fornecedor, )
+        if self.tipo_despesa:
+            return u"%s (%s)" % (self.tipo_despesa, self.fornecedor, )
+        return u"%s" % (self.fornecedor, )
 
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
@@ -375,7 +386,7 @@ class Deposito(Operacao):
     receita = models.ForeignKey(Receita, blank=True, null=True)
 
     def __unicode__(self):
-        if self.receita:
+        if self.receita and self.receita.colaborador:
             return u'Depósito %s | R$ %s' % (self.receita.colaborador, self.valor)
         else:
             return u'Depósito | R$ %s' % self.valor

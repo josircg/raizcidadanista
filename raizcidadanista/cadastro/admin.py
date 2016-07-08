@@ -26,6 +26,7 @@ from functools import partial
 import os
 import csv
 import requests
+from bs4 import BeautifulSoup
 
 import cStringIO as StringIO
 import cgi
@@ -1280,8 +1281,18 @@ class ArticleCadastroAdmin(PowerModelAdmin):
             obj.content = u'<img src="%s" style="width: 270px; height: 152px; margin: 10px; float: left;"/>%s' % (url, obj.content, )
         super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
 
-        # Se for link colocar o slug == pk
+        # Se for link colocar o slug == pk, e captura o titulo, chamada e imagem do artigo
         if form.cleaned_data.get('link'):
+            #try:
+            html = requests.get(form.cleaned_data.get('content')).text
+            soup = BeautifulSoup(html)
+            obj.title = soup.title.string
+            obj.header = u''
+            if soup.select('meta[property="og:image"]'):
+                obj.header += u'<img style="width: 270px; height: 152px; margin: 10px; float: left;" src="%s">' % soup.select('meta[property="og:image"]')[0].get('content')
+            if soup.select('meta[name="description"]'):
+                obj.header += soup.select('meta[name="description"]')[0].get('content')
+            #except: pass
             obj.slug = obj.pk
             obj.save()
 

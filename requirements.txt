@@ -25,3 +25,4 @@ facebook-sdk
 twython
 unicodecsv
 requests
+beautifulsoup4

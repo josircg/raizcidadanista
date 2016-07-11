@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static cadastro_tags %}
+    <title></title>
+    <style type="text/css" media="screen">
+        #box-cidades {padding: 10px 0; }
+        #box-cidades .articulador, .articulador-item{display: none;}
+        .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
+        .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
+        .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
+    </style>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="/static/site/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <br>
+    {% block messages %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock messages %}
+    <label>
+        Selecione o seu estado:
+        <select id="select-uf-articulador">
+            <option cidades="">---</option>
+            {% for uf in estados %}
+            <option value="{{ uf.pk }}">{{ uf.nome }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <br>
+    <label>
+        Ou então busque pelo nome da cidade:
+        <input id="input-cidade-articulador" type="text">
+    </label>
+
+    <div id="box-cidades">
+        <div class="articulador">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>UF</th>
+                        <th>Município</th>
+                        <th>Articulador</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for uf in estados %}
+                    {% if uf.coletaarticulacao_set.all %}
+                    {% for articulador in uf.coletaarticulacao_set.all %}
+                        <tr class="articulador-item" data-cidade="{% if articulador.municipio %}{{ articulador.municipio }}{% else %}{% endif %}" data-uf="{{ uf.pk }}">
+                            <td>{{ articulador.UF }}</td>
+                            <td>{% if articulador.municipio %}{{ articulador.municipio }}{% else %}-{% endif %}</td>
+                            <td width="40%">
+                                {{ articulador.articulador.nome }}
+                                {% if articulador.articulador.celular %}<br>Cel.: {{ articulador.articulador.celular }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% else %}
+                        <tr class="articulador-item" data-uf="{{ uf.pk }}">
+                            <td colspan="4">Ainda não existe nenhum articulador selecionado.</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr class="articulador-item busca-item-none">
+                    <td colspan="4">Caso a sua cidade não esteja listada, busque um articulador estadual.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('#select-uf-articulador').change(function(event) {
+            $('#box-cidades .articulador').show();
+            $('#box-cidades .articulador-item').hide();
+            $('#box-cidades .articulador-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+        });
+        $('#input-cidade-articulador').keydown(function(event) {
+            $('#box-cidades .articulador').show();
+            $('#box-cidades .articulador-item, #box-cidades .busca-item-none').hide();
+            $('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"]').show();
+            if($('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"]').length == 0){
+                $('#box-cidades .busca-item-none').show();
+            }
+        });
+    </script>
+</body>
+</html>

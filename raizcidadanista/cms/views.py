@@ -38,6 +38,15 @@ class CirculosView(TemplateView):
         return context
 
 
+class ArticuladoresView(TemplateView):
+    template_name = 'articuladores.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ArticuladoresView, self).get_context_data(**kwargs)
+        context['estados'] = UF.objects.all().order_by('nome')
+        return context
+
+
 class MapaView(TemplateView):
     template_name = 'mapa.html'
 

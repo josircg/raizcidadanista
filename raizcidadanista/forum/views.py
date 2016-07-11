@@ -340,6 +340,14 @@ class TopicoView(DetailView):
             messages.info(request, u'Tópico reaberto!')
             return HttpResponseRedirect(self.object.get_absolute_url())
 
+        # Alterar o tipo de notificação
+        if request.GET.get('notificacao'):
+            ouvinte = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
+            ouvinte.notificacao = request.GET.get('notificacao')
+            ouvinte.save()
+            messages.info(request, u'Notificações alterada para: %s.' % ouvinte.get_notificacao_display())
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
         if request.is_ajax():
             # Computar curtidas
             if request.GET.get('conversa') and request.GET.get('curtir'):
@@ -441,6 +449,7 @@ class TopicoView(DetailView):
 
         context['form'] = self.form
         context['conversas'] = conversas
+        context['ouvinte'] = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
         return context
 
 

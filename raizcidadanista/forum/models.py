@@ -112,10 +112,10 @@ def create_topicousuario_topico_save(sender, instance, created, raw, using, *arg
 
 
 STATUS_NOTIFICACAO = (
-    ('N', u'Nenhum'),
+    ('I', u'Sempre receber notificações'),
     ('R', u'Resumo Diário'),
-    ('I', u'Intenso'),
-    ('V', u'Somente votações'),
+    ('V', u'Apenas notificações de votação'),
+    ('N', u'Não receber notificações'),
 )
 
 class TopicoOuvinte(models.Model):

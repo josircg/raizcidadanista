@@ -5,7 +5,7 @@
     <title></title>
     <style type="text/css" media="screen">
         #box-cidades {padding: 10px 0; }
-        #box-cidades .articulador, .articulador-item{display: none;}
+        #box-cidades .articulador, .articulador-item, .fields-cidade{display: none;}
         .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
         .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
         .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
@@ -30,7 +30,7 @@
             {% endfor %}
         {% endif %}
     {% endblock messages %}
-    <label>
+    <label class="fields-estado">
         Selecione o seu estado:
         <select id="select-uf-articulador">
             <option cidades="">---</option>
@@ -40,8 +40,8 @@
         </select>
     </label>
     <br>
-    <label>
-        Ou então busque pelo nome da cidade:
+    <label class="fields-cidade">
+        Busque pelo nome da cidade:
         <input id="input-cidade-articulador" type="text">
     </label>
 
@@ -85,6 +85,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">
         $('#select-uf-articulador').change(function(event) {
+            if($(this).find('option:selected').val() == ''){
+                $('.fields-cidade').hide();
+            }else{
+                $('.fields-cidade').show();
+            }
             $('#box-cidades .articulador').show();
             $('#box-cidades .articulador-item').hide();
             $('#box-cidades .articulador-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
@@ -92,9 +97,14 @@
         $('#input-cidade-articulador').keydown(function(event) {
             $('#box-cidades .articulador').show();
             $('#box-cidades .articulador-item, #box-cidades .busca-item-none').hide();
-            $('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"]').show();
-            if($('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"]').length == 0){
-                $('#box-cidades .busca-item-none').show();
+            if($(this).val() != ''){
+                $('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"][data-uf="'+$('#select-uf-articulador option:selected').attr('value')+'"]').show();
+                if($('#box-cidades .articulador-item[data-cidade*="'+$(this).val()+'"][data-uf="'+$('#select-uf-articulador option:selected').attr('value')+'"]').length == 0){
+                    $('#box-cidades .busca-item-none').show();
+                }
+            }else{
+                $('#box-cidades .articulador-item').hide();
+                $('#box-cidades .articulador-item[data-uf="'+$('#select-uf-articulador option:selected').attr('value')+'"]').show();
             }
         });
     </script>

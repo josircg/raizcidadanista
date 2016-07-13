@@ -414,13 +414,17 @@ class Deposito(Operacao):
         else:
             return u'Depósito | R$ %s' % self.valor
 
-'''
-class Diario(models.Model):
+class Lancamento(models.Model):
+    class Meta:
+        verbose_name = u'Lançamento Contábil'
+        verbose_name_plural = u'Lançamentos Contábeis'
+
     debito = models.ForeignKey(ContaContabil)
     credito = models.ForeignKey(ContaContabil)
-    data = models.DateField()
-    valor =
-'''
+    dt = models.DateField()
+    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
+    dtupdate = models.DateField(auto_now=True)
+    operacao = models.ForeignKey(Operacao, blank=True, null=True)
 
 class MetaArrecadacao(models.Model):
     class Meta:

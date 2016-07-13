@@ -7,6 +7,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.conf import settings
 
+from cadastro.telegram import bot
 from cms.email import sendmail
 
 from datetime import datetime, timedelta
@@ -191,6 +192,19 @@ def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *arg
         )
         ouvinte.dtnotificacao = datetime.now()
         ouvinte.save()
+@receiver(signals.post_save, sender=Conversa)
+def telegram_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I'):
+        if ouvinte.ouvinte.membro.exists():
+            membro = ouvinte.ouvinte.membro.all()[0]
+            if membro.telegram_id:
+                mensagem = u'Tópico %s atualizado no grupo %s. Clique no link abaixo para ler o tópico: %s%s' % (
+                    instance.topico,
+                    instance.topico.grupo,
+                    settings.SITE_HOST,
+                    instance.get_absolute_url()
+                )
+                bot.sendMessage(membro.telegram_id, mensagem)
 
 STATUS_CURTIDA = (
     ('I', u'Ciente'),

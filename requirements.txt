@@ -26,3 +26,5 @@ twython
 unicodecsv
 requests
 beautifulsoup4
+
+telepot

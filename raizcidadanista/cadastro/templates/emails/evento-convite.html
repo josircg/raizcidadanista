@@ -8,7 +8,7 @@
 
     <p>A coordenação do <b>{{ evento.circulo }}</b> convida você para participar da <b>{{ evento.nome }}</b>.</p>
     <p>Será realizado no dia {{ evento.dt_evento }}.</p>
-    <p>Local: {{ evento.local|safe|linenumbers }}</p>
+    <p>Local: {{ evento.local|linebreaksbr|safe }}</p>
     <p></p>
     <p>
         Atenciosamente,<br>

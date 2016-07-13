@@ -6,12 +6,12 @@ import telepot
 
 
 class BotRaiz(object):
-
     TELEGRAM_API_TOKEN = '222913462:AAF7jAFEDDMcuBnddUltEJkDOmTCmqQ_AfY'
 
     def __init__(self, *args, **kwargs):
         super(BotRaiz, self).__init__(*args, **kwargs)
         self.bot = telepot.Bot(self.TELEGRAM_API_TOKEN)
+        self.bot.setWebhook()
 
     def listen(self):
         def handle(msg):

@@ -9,7 +9,7 @@ from django.conf import settings
 
 from cms.email import sendmail
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 LOCALIZACAO = (
@@ -135,6 +135,7 @@ class TopicoOuvinte(models.Model):
     notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO, default='N')
     dtentrada = models.DateTimeField(u'Data de criação', auto_now_add=True)
     dtleitura = models.DateTimeField(u'Data de leitura', default=datetime(day=1, month=1, year=2001))
+    dtnotificacao = models.DateTimeField(u'Data de notificação', default=datetime(day=1, month=1, year=2001))
 
     def __unicode__(self):
         return u'%s/%s' % (self.topico, self.ouvinte)
@@ -175,7 +176,21 @@ class Conversa(models.Model):
 def update_topico(sender, instance, created, raw, using, *args, **kwargs):
     instance.topico.dt_ultima_atualizacao = datetime.now()
     instance.topico.save()
-
+@receiver(signals.post_save, sender=Conversa)
+def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I', dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
+        sendmail(
+            subject=u'Tópico %s atualizado no grupo %s' % (instance.topico, instance.topico.grupo),
+            to=[ouvinte.ouvinte.email, ],
+            template='forum/emails/notificacao.html',
+            params={
+                'conversa': instance,
+                'ouvinte': ouvinte,
+                'host': settings.SITE_HOST,
+            },
+        )
+        ouvinte.dtnotificacao = datetime.now()
+        ouvinte.save()
 
 STATUS_CURTIDA = (
     ('I', u'Ciente'),

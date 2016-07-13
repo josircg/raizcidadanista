@@ -471,8 +471,11 @@ class MencaoView(FormView):
 
     def form_valid(self, form):
         for mencao in form.cleaned_data.get('mencoes'):
-            ConversaMencao(conversa=form.cleaned_data.get('conversa'), mencao=mencao, colaborador=self.request.user).save()
-        messages.info(self.request, u'Menção realizada com sucesso!')
+            if not ConversaMencao.objects.filter(conversa=form.cleaned_data.get('conversa'), mencao=mencao).exists():
+                ConversaMencao(conversa=form.cleaned_data.get('conversa'), mencao=mencao, colaborador=self.request.user).save()
+                messages.info(self.request, u'Menção realizada com sucesso!')
+            else:
+                messages.error(self.request, u"%s já foi mencionado anteriormente!" % mencao)
         return HttpResponseRedirect(form.cleaned_data.get('conversa').get_absolute_url())
 
     def form_invalid(self, form):

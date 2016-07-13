@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tópico {{ conversa.topico }} atualizado no grupo {{ conversa.topico.grupo }}</title>
+</head>
+<body>
+<h3>Tópico {{ conversa.topico }} atualizado no grupo {{ conversa.topico.grupo }}</h3>
+
+<p>
+    <a href="{{ host }}{{ conversa.get_absolute_url }}">Clique aqui</a> para ler o tópico.<br>
+    <a href="{{ host }}{{ conversa.topico.get_absolute_url }}?notificacao=N">Clique aqui</a> para desabilitar essa notificação.<br>
+</p>
+<p>
+    Atenciosamente,<br>
+    RAiZ Movimento Cidadanista
+</p>
+</body>
+</html>

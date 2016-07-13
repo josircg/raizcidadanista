@@ -193,7 +193,7 @@ def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *arg
         ouvinte.dtnotificacao = datetime.now()
         ouvinte.save()
 @receiver(signals.post_save, sender=Conversa)
-def telegram_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
+def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **kwargs):
     for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I'):
         if ouvinte.ouvinte.membro.exists():
             membro = ouvinte.ouvinte.membro.all()[0]
@@ -229,9 +229,8 @@ class ConversaMencao(models.Model):
         return u'%s (%s/%s)' % (self.conversa, self.colaborador, self.mencao, )
 
 @receiver(signals.post_save, sender=ConversaMencao)
-def update_topico(sender, instance, created, raw, using, *args, **kwargs):
-# and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists()
-    if created:
+def enviar_notificacao_emails_mencao(sender, instance, created, raw, using, *args, **kwargs):
+    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
         sendmail(
             subject=u'%s pediu sua atenção na Teia Digital!' % instance.colaborador,
             to=[instance.mencao.email, ],
@@ -241,6 +240,18 @@ def update_topico(sender, instance, created, raw, using, *args, **kwargs):
                 'host': settings.SITE_HOST,
             },
         )
+@receiver(signals.post_save, sender=ConversaMencao)
+def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwargs):
+    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
+        if instance.mencao.membro.exists():
+            membro = instance.mencao.membro.all()[0]
+            if membro.telegram_id:
+                mensagem = u'%s pediu sua atenção na Teia Digital! Clique no link abaixo para ler o tópico: %s%s' % (
+                    instance.colaborador,
+                    settings.SITE_HOST,
+                    instance.conversa.get_absolute_url()
+                )
+                bot.sendMessage(membro.telegram_id, mensagem)
 
 # Conversa sujeita a votação
 STATUS_PROPOSTA = (

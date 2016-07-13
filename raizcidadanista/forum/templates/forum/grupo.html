@@ -13,7 +13,8 @@
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
-                    <h3>{{ object }}
+                    <h3>
+                        {{ object }}
                         <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a>
                         {% if user|has_admin_grupo_perm:object %}
                         <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar membros</button></a>
@@ -33,7 +34,8 @@
                         <div class="panel-body">
                             <blockquote>
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer>Por: {{ topico.criador.get_first_name }} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
+</b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
                             </blockquote>
                         </div>
                     </div>

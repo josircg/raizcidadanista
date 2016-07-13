@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView, View, DetailView
+from django.views.generic import FormView, TemplateView, View, DetailView, RedirectView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
@@ -18,6 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm
+from cadastro.telegram import bot
 
 from datetime import date
 import cStringIO as StringIO
@@ -61,6 +62,18 @@ class MeuPerfilView(TemplateView):
         context['membro'] = self.request.user.membro.all()[0]
         return context
 
+
+class TelegramView(RedirectView):
+    def get(self, request, *args, **kwargs):
+        if not request.user.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('home'))
+        membro = request.user.membro.all()[0]
+        membro.telegram_id = request.GET.get('telegram_id')
+        membro.save()
+        messages.info(request, u'Telegram associado com sucesso!')
+        bot.sendMessage(membro.telegram_id, u'Telegram associado com sucesso ao usuário Raiz!')
+        return HttpResponseRedirect(reverse('meu_perfil'))
 
 
 class MembroView(FormView):

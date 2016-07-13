@@ -7,9 +7,10 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.conf import settings
 
+from cadastro.telegram import bot
 from cms.email import sendmail
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 LOCALIZACAO = (
@@ -91,6 +92,12 @@ class Topico(models.Model):
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
+    def num_comentarios(self):
+        return self.conversa_set.count()-1
+
+    def num_participantes(self):
+        return len(set(list(self.conversa_set.all().values_list('autor', flat=True))))
+
     def num_conversa_nao_lidas(self, usuario):
         try:
             topico_ouvinte = self.topicoouvinte_set.get(ouvinte=usuario)
@@ -112,10 +119,10 @@ def create_topicousuario_topico_save(sender, instance, created, raw, using, *arg
 
 
 STATUS_NOTIFICACAO = (
-    ('N', u'Nenhum'),
+    ('I', u'Sempre receber notificações'),
     ('R', u'Resumo Diário'),
-    ('I', u'Intenso'),
-    ('V', u'Somente votações'),
+    ('V', u'Apenas notificações de votação'),
+    ('N', u'Não receber notificações'),
 )
 
 class TopicoOuvinte(models.Model):
@@ -129,6 +136,7 @@ class TopicoOuvinte(models.Model):
     notificacao = models.CharField(u'Tipo de Notificação', max_length=1, choices=STATUS_NOTIFICACAO, default='N')
     dtentrada = models.DateTimeField(u'Data de criação', auto_now_add=True)
     dtleitura = models.DateTimeField(u'Data de leitura', default=datetime(day=1, month=1, year=2001))
+    dtnotificacao = models.DateTimeField(u'Data de notificação', default=datetime(day=1, month=1, year=2001))
 
     def __unicode__(self):
         return u'%s/%s' % (self.topico, self.ouvinte)
@@ -169,7 +177,34 @@ class Conversa(models.Model):
 def update_topico(sender, instance, created, raw, using, *args, **kwargs):
     instance.topico.dt_ultima_atualizacao = datetime.now()
     instance.topico.save()
-
+@receiver(signals.post_save, sender=Conversa)
+def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I', dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
+        sendmail(
+            subject=u'Tópico %s atualizado no grupo %s' % (instance.topico, instance.topico.grupo),
+            to=[ouvinte.ouvinte.email, ],
+            template='forum/emails/notificacao.html',
+            params={
+                'conversa': instance,
+                'ouvinte': ouvinte,
+                'host': settings.SITE_HOST,
+            },
+        )
+        ouvinte.dtnotificacao = datetime.now()
+        ouvinte.save()
+@receiver(signals.post_save, sender=Conversa)
+def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **kwargs):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I'):
+        if ouvinte.ouvinte.membro.exists():
+            membro = ouvinte.ouvinte.membro.all()[0]
+            if membro.telegram_id:
+                mensagem = u'Tópico %s atualizado no grupo %s. Clique no link abaixo para ler o tópico: %s%s' % (
+                    instance.topico,
+                    instance.topico.grupo,
+                    settings.SITE_HOST,
+                    instance.get_absolute_url()
+                )
+                bot.sendMessage(membro.telegram_id, mensagem)
 
 STATUS_CURTIDA = (
     ('I', u'Ciente'),
@@ -194,9 +229,8 @@ class ConversaMencao(models.Model):
         return u'%s (%s/%s)' % (self.conversa, self.colaborador, self.mencao, )
 
 @receiver(signals.post_save, sender=ConversaMencao)
-def update_topico(sender, instance, created, raw, using, *args, **kwargs):
-# and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists()
-    if created:
+def enviar_notificacao_emails_mencao(sender, instance, created, raw, using, *args, **kwargs):
+    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
         sendmail(
             subject=u'%s pediu sua atenção na Teia Digital!' % instance.colaborador,
             to=[instance.mencao.email, ],
@@ -206,6 +240,18 @@ def update_topico(sender, instance, created, raw, using, *args, **kwargs):
                 'host': settings.SITE_HOST,
             },
         )
+@receiver(signals.post_save, sender=ConversaMencao)
+def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwargs):
+    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
+        if instance.mencao.membro.exists():
+            membro = instance.mencao.membro.all()[0]
+            if membro.telegram_id:
+                mensagem = u'%s pediu sua atenção na Teia Digital! Clique no link abaixo para ler o tópico: %s%s' % (
+                    instance.colaborador,
+                    settings.SITE_HOST,
+                    instance.conversa.get_absolute_url()
+                )
+                bot.sendMessage(membro.telegram_id, mensagem)
 
 # Conversa sujeita a votação
 STATUS_PROPOSTA = (

@@ -18,11 +18,9 @@
         function drawChart() {
             var data = google.visualization.arrayToDataTable([
                 ['Despesa', 'Valor'],
-                {% localize off %}
                 {% for pagamento in pagamentos %}
-                    ['{{ pagamento.tipo }}', {{ pagamento.total }}],
+                    ['{{ pagamento.tipo }}', {{ pagamento.total|unlocalize }}],
                 {% endfor %}
-                {% endlocalize %}
             ]);
 
             var options = {

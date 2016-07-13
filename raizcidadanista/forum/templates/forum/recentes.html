@@ -26,8 +26,9 @@
                         <div class="panel-body">
                             <blockquote>
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer>Grupo: <a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
-                                <footer>Por: {{ topico.criador.get_first_name }} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
+                                <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
+</b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
                             </blockquote>
                         </div>
                     </div>

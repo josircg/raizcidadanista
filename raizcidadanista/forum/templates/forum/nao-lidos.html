@@ -27,7 +27,13 @@
                             <div class="panel-body">
                                 <blockquote>
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
-                                    <footer>{{ grupo.descricao|striptags|safe }}</footer>
+                                    <footer>
+                                        {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
+                                        <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
+                                        <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                        <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
+                                        {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
+                                    </footer>
                                 </blockquote>
                             </div>
                         </div>

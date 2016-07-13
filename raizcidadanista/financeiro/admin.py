@@ -183,7 +183,7 @@ class PagamentoAdmin(PowerModelAdmin):
         ('q2', u'Referência', ['referencia', ]),
     )
     fieldsets = (
-        (None, {'fields': ('conta', 'dt', 'fornecedor', 'despesa', 'tipo_despesa', 'projeto', 'referencia', 'valor', 'conferido', 'obs', ),}),
+        (None, {'fields': ('conta', 'dt', 'fornecedor', 'despesa', 'tipo_despesa', 'projeto', 'referencia', 'valor', 'comprovante', 'conferido', 'obs', ),}),
     )
     formfield_overrides = {
         models.DecimalField: {'localize': True},

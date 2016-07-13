@@ -118,6 +118,7 @@ class Membro(Pessoa):
     twitter_id = models.CharField(u'Twitter ID', max_length=120, editable=False, blank=True, null=True)
     twitter_oauth_token = models.TextField(editable=False, blank=True, null=True)
     twitter_oauth_token_secret = models.TextField(editable=False, blank=True, null=True)
+    telegram_id = models.CharField(u'Telegram ID', max_length=120, editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
     dt_prefiliacao = models.DateField(u'Dt de pré-filiação', blank=True, null=True)

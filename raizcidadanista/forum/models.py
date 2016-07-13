@@ -91,6 +91,12 @@ class Topico(models.Model):
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
+    def num_comentarios(self):
+        return self.conversa_set.count()-1
+
+    def num_participantes(self):
+        return len(set(list(self.conversa_set.all().values_list('autor', flat=True))))
+
     def num_conversa_nao_lidas(self, usuario):
         try:
             topico_ouvinte = self.topicoouvinte_set.get(ouvinte=usuario)

@@ -34,7 +34,8 @@
                         <div class="panel-body">
                             <blockquote>
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer>Por: {{ topico.criador.get_first_name }} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
+</b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
                             </blockquote>
                         </div>
                     </div>

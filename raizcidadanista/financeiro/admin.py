@@ -153,7 +153,6 @@ class OperacaoAdmin(PowerModelAdmin):
     multi_search = (
         ('q1', u'Conta', ['conta__conta', ]),
         ('q2', u'Referência', ['referencia', ]),
-        ('q3', u'Convenente', ['conta__convenente__nome', ]),
     )
     fieldsets = (
         (None, {'fields': ('conta', 'tipo', 'dt', 'referencia', 'valor', 'conferido', 'obs', ),}),

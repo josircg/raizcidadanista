@@ -118,7 +118,7 @@ class CaixaPeriodoView(DetailView):
         saldo_inicial += operacoes_root.filter(dt__gte=ultimo_saldo, dt__lt=dt_inicial).exclude(tipo='S').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Calcula o total de receitas
-        total_receitas = Receita.objects.filter(dtpgto__gte=dt_inicial, dtpgto__lt=dt_final).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+        total_receitas = Operacao.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo='D').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Agrupa os Pagamentos por Tipo de Despesa
         total_pagamentos = Decimal(0)
@@ -164,11 +164,11 @@ class CaixaDetalhePeriodoView(DetailView):
         #Pega todas as operações
         operacoes_root = Operacao.objects.all()
         #Pega as operações pela data
-        operacoes = operacoes_root.filter(dt__gte=dt_inicial, dt__lt=dt_final).exclude(tipo='S').order_by('dt', 'id')
+        operacoes = operacoes_root.filter(dt__gte=dt_inicial, dt__lt=dt_final).exclude(tipo__in=('S', 'T' )).order_by('dt', 'id')
         #Tenta encontrar o Saldo inicial Fixo
         try:
             ultimo_saldo = operacoes_root.filter(dt__lte=dt_inicial, tipo='S').order_by('-dt').latest('dt')
-            saldo_inicial = operacoes_root.get(dt=ultimo_saldo.dt, tipo = 'S').valor
+            saldo_inicial = operacoes_root.get(dt=ultimo_saldo.dt, tipo='S').valor
             ultimo_saldo = ultimo_saldo.dt
         except:
             ultimo_saldo = datetime(2000,1,1)

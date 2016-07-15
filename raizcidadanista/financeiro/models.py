@@ -310,12 +310,14 @@ class Operacao(models.Model):
 
     def descricao_caixa_display(self):
         if self.is_pagamento():
+            if self.pagamento.comprovante:
+                return u'<a href="%s" target="_blank">%s</a>' % (self.pagamento.comprovante.url, self.pagamento, )
             return u'%s' % self.pagamento
         elif self.is_deposito():
             if self.deposito.receita:
-                return u'Depósito Colaborador %s | R$ %s' % (self.deposito.receita.pk, self.deposito.valor)
+                return u'Depósito Colaborador %s' % self.deposito.receita.pk
             else:
-                return u'Depósito | R$ %s' % self.deposito.valor
+                return u'Depósito'
         elif self.is_transferencia():
             return u'%s' % self.transferencia
         return u'%s (%s)' % (self.get_tipo_display(), self.conta )

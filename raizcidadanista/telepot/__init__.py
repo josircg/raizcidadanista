@@ -586,6 +586,7 @@ class Bot(_BotBase):
                         offset = max([handle(update) for update in result]) + 1
                 except: pass
                 finally:
+                    import time
                     time.sleep(relax)
 
         def dictify3(data):

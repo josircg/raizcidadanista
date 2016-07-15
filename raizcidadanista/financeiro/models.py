@@ -310,16 +310,25 @@ class Operacao(models.Model):
 
     def descricao_caixa_display(self):
         if self.is_pagamento():
-            if self.pagamento.comprovante:
-                return u'<a href="%s" target="_blank">%s</a>' % (self.pagamento.comprovante.url, self.pagamento, )
-            return u'%s' % self.pagamento
+            try:
+                if self.pagamento.comprovante:
+                    return u'<a href="%s" target="_blank">%s</a>' % (self.pagamento.comprovante.url, self.pagamento, )
+                return u'%s' % self.pagamento
+            except Pagamento.DoesNotExist:
+                return u'Pagamento'
         elif self.is_deposito():
-            if self.deposito.receita:
-                return u'Depósito Colaborador %s' % self.deposito.receita.pk
-            else:
+            try:
+                if self.deposito.receita:
+                    return u'Depósito Colaborador %s' % self.deposito.receita.pk
+                else:
+                    return u'Depósito'
+            except Deposito.DoesNotExist:
                 return u'Depósito'
         elif self.is_transferencia():
-            return u'%s' % self.transferencia
+            try:
+                return u'%s' % self.transferencia
+            except Transferencia.DoesNotExist:
+                return u'Depósito'
         return u'%s (%s)' % (self.get_tipo_display(), self.conta )
 
     def __unicode__(self):

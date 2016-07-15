@@ -242,7 +242,7 @@ def enviar_notificacao_emails_mencao(sender, instance, created, raw, using, *arg
         )
 @receiver(signals.post_save, sender=ConversaMencao)
 def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwargs):
-    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
+    if created:# and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
         if instance.mencao.membro.exists():
             membro = instance.mencao.membro.all()[0]
             if membro.telegram_id:

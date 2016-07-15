@@ -20,6 +20,14 @@
                         <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar membros</button></a>
                         <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar grupo</button></a>
                         {% endif %}
+                        <form style="display: inline; float: right; margin-top: -6px;">
+                            <select name="categoria" class="categoria-option btn btn-success button-topic">
+                                <option value="">Categoria</option>
+                                {% for grupocategoria in object.grupocategoria_set.all %}
+                                <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
                     </h3>
                     {{ object.descricao|safe }}
                 </div>
@@ -66,4 +74,12 @@
         margin-left: 5px;
     }
 </style>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $('.categoria-option').on('change', function(event) {
+        $(this).parent().submit();
+    });
+</script>
 {% endblock %}

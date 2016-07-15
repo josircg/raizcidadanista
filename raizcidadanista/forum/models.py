@@ -7,6 +7,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.conf import settings
 
+from smart_selects.db_fields import ChainedForeignKey
 from cadastro.telegram import bot
 from cms.email import sendmail
 
@@ -68,6 +69,19 @@ def create_topicousuario_grupousuario_save(sender, instance, created, raw, using
             TopicoOuvinte.objects.create(topico=topico, ouvinte=instance.usuario)
 
 
+class GrupoCategoria(models.Model):
+    class Meta:
+        verbose_name = u'Categoria'
+        verbose_name_plural = u'Categorias'
+        ordering = ('descricao', )
+
+    grupo = models.ForeignKey(Grupo)
+    descricao = models.CharField(u'Descrição', max_length=60)
+
+    def __unicode__(self):
+        return u'%s' % self.descricao
+
+
 STATUS_TOPICO = (
     ('A', u'Aberto'),
     ('F', u'Fechado'),
@@ -85,6 +99,7 @@ class Topico(models.Model):
     dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True)
     dt_ultima_atualizacao = models.DateTimeField(u"Ultima atualização", blank=True, null=True)
     visitacoes = models.IntegerField(default=0)
+    categoria = ChainedForeignKey(GrupoCategoria, chained_fields={'grupo': 'grupo', }, show_all=False, auto_choose=False, verbose_name=u'Categoria', null=True, blank=True)
 
     def editavel(self):
         return self.status == 'A'
@@ -279,5 +294,3 @@ class Voto(models.Model):
 
     def __unicode__(self):
         return u'%s (%s) - %s' % (self.proposta, self.eleitor, self.get_voto_display(), )
-
-

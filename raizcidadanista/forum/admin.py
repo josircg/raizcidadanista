@@ -1,12 +1,16 @@
 # -*- coding:utf-8 -*-
 from django.contrib import admin
-from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, Proposta, Voto, ConversaMencao
+from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, \
+    Proposta, Voto, ConversaMencao, GrupoCategoria
 
 from ckeditor.widgets import CKEditorWidget
 from cms.email import sendmail
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
 
+class GrupoCategoriaInline(admin.TabularInline):
+    model = GrupoCategoria
+    extra = 1
 class GrupoUsuarioInline(admin.TabularInline):
     model = GrupoUsuario
     extra = max_num = 0
@@ -17,7 +21,7 @@ class GrupoAdmin(PowerModelAdmin):
     multi_search = (
        ('q1', 'Nome', ['nome',]),
     )
-    inlines = (GrupoUsuarioInline, )
+    inlines = (GrupoUsuarioInline, GrupoCategoriaInline, )
     fieldsets = (
         (None, {"fields" : ('nome', 'localizacao', 'tematico', 'descricao', ),}, ),
     )
@@ -31,17 +35,19 @@ admin.site.register(Grupo, GrupoAdmin)
 
 class TopicoOuvinteTopicoInline(admin.TabularInline):
     model = TopicoOuvinte
-    extra = 1
+    extra = max_num = 0
+    readonly_fields = ('ouvinte', 'notificacao', 'dtentrada', 'dtleitura', 'dtnotificacao', )
 class ConversaTopicoInline(admin.TabularInline):
     model = Conversa
-    extra = 1
+    extra = max_num = 0
+    readonly_fields = ('autor', 'texto', 'dt_criacao', 'arquivo', 'conversa_pai', )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name ==  'texto':
             kwargs['widget'] = CKEditorWidget()
         return super(ConversaTopicoInline, self).formfield_for_dbfield(db_field, **kwargs)
 class TopicoAdmin(PowerModelAdmin):
-    list_display = ('titulo', 'grupo', 'status', 'dt_criacao', 'dt_ultima_atualizacao', 'visitacoes', )
+    list_display = ('titulo', 'grupo', 'categoria', 'status', 'dt_criacao', 'dt_ultima_atualizacao', 'visitacoes', )
     list_filter = ('grupo', 'status', 'dt_criacao', 'dt_ultima_atualizacao', )
     multi_search = (
        ('q1', 'Título', ['titulo']),
@@ -49,7 +55,7 @@ class TopicoAdmin(PowerModelAdmin):
     )
     inlines = (ConversaTopicoInline, TopicoOuvinteTopicoInline, )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'criador', 'grupo', 'status',),}, ),
+        (None, {"fields" : ('titulo', 'criador', 'grupo', 'categoria', 'status',),}, ),
     )
 admin.site.register(Topico, TopicoAdmin)
 

@@ -10,7 +10,8 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, TopicoOuvinte, ConversaMencao
+from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
+    TopicoOuvinte, ConversaMencao, GrupoCategoria
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm
 
 from datetime import datetime
@@ -196,6 +197,9 @@ class GrupoView(DetailView):
         context = super(GrupoView, self).get_context_data(**kwargs)
 
         topicos_list = self.object.topico_set.all()
+        if self.request.GET.get('categoria'):
+            context['categoria'] = get_object_or_404(GrupoCategoria, pk=self.request.GET.get('categoria'))
+            topicos_list = topicos_list.filter(categoria=context['categoria'])
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')
@@ -214,6 +218,7 @@ class GrupoEditView(UpdateView):
     template_name = 'forum/grupo-edit.html'
     model = Grupo
     form_class = GrupoForm
+    formset_class = inlineformset_factory(Grupo, GrupoCategoria, fields=('descricao', ), extra=3, can_delete=False)
 
     def get_object(self, queryset=None):
         obj = super(GrupoEditView, self).get_object(queryset)
@@ -221,9 +226,39 @@ class GrupoEditView(UpdateView):
             raise PermissionDenied()
         return obj
 
-    def form_valid(self, form):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = self.formset_class(instance=self.object, queryset=self.object.grupocategoria_set.all())
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = self.formset_class(request.POST, instance=self.object)
+
+        if form.is_valid() and formset.is_valid():
+            return self.form_valid(form, formset)
+        else:
+            return self.form_invalid(form, formset)
+
+    def form_invalid(self, form, formset):
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                formset=formset,
+                object=self.object
+            )
+        )
+
+    def form_valid(self, form, formset):
         messages.info(self.request, u'Grupo salvo com sucesso!')
-        return super(GrupoEditView, self).form_valid(form)
+        form.save()
+        formset.save()
+        formset = self.formset_class(instance=self.object)
+        return HttpResponseRedirect(reverse('forum_grupo_edit', kwargs={'pk': self.object.pk, }))
 
 
 class GrupoEditMembrosView(DetailView):
@@ -294,6 +329,11 @@ class TopicoAddView(FormView):
         if not obj.grupousuario_set.filter(usuario=self.request.user).exists():
             raise PermissionDenied()
         return obj
+
+    def get_form_kwargs(self):
+        kwargs = super(TopicoAddView, self).get_form_kwargs()
+        kwargs['grupo'] = self.get_grupo()
+        return kwargs
 
     def form_valid(self, form):
         instance = form.save(grupo=self.get_grupo(), criador=self.request.user)

@@ -30,7 +30,7 @@
                         <th>Data</th>
                         <th>Tipo</th>
                         <th>Descrição</th>
-                        <th>Valor</th>
+                        <th class="text-right">Valor</th>
                         <th class="text-right">Total</th>
                     </thead>
                     <tbody>
@@ -38,8 +38,8 @@
                         <tr>
                             <th>{{ operacao.dt }}</th>
                             <th>{{ operacao.get_tipo_display }}</th>
-                            <th>{{ operacao.descricao_caixa_display }}</th>
-                            <th>R$ {{ operacao.valor }}</th>
+                            <th>{{ operacao.descricao_caixa_display|safe }}</th>
+                            <th class="text-right">R$ {{ operacao.valor }}</th>
                             <th class="text-right">R$ {{ operacao.total_caixa }}</th>
                         </tr>
                         {% endfor %}

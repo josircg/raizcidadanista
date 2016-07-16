@@ -44,6 +44,32 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
+
+                                {{ formset.management_form }}
+                                {% for error in formset.non_form_errors %}
+                                    <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                {% endfor %}
+                                <h3>Categorias</h3>
+                                <table class="table table-striped results inline-results">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for form in formset %}
+                                        <tr>
+                                            {% for field in form %}
+                                                {% if field.is_hidden %}
+                                                    {{ field }}
+                                                {% else %}
+                                                <td>{{ field|btform }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
                                 <button type="submit" class="btn btn-success">Salvar</button>
                             </div>
                         </div>

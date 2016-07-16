@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ckeditor.widgets import CKEditorWidget
-from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao
+from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria
 
 
 class GrupoForm(forms.ModelForm):
@@ -18,9 +18,14 @@ class GrupoForm(forms.ModelForm):
 class AddTopicoForm(forms.ModelForm):
     class Meta:
         model = Topico
-        fields = ('titulo', )
+        fields = ('titulo', 'categoria', )
 
     texto = forms.CharField(label=u'Descrição', widget=CKEditorWidget(config_name='basic'))
+    categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all())
+
+    def __init__(self, grupo, *args, **kwargs):
+        super(AddTopicoForm, self).__init__(*args, **kwargs)
+        self.fields['categoria'].queryset = grupo.grupocategoria_set.all()
 
     def save(self, grupo, criador, *args, **kwargs):
         self.instance.grupo = grupo

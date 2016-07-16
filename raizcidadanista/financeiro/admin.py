@@ -16,7 +16,7 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from forms import FornecedorAdminForm
 from models import PeriodoContabil, Conta, ContaContabil, Projeto, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
-    Deposito, Receita, MetaArrecadacao
+    Deposito, Receita, MetaArrecadacao, Orcamento
 
 
 class PeriodoContabilAdmin(PowerModelAdmin):
@@ -265,3 +265,10 @@ class MetaArrecadacaoAdmin(PowerModelAdmin):
         (u'Datas e Valor', {'fields': ('data_inicial', 'data_limite', 'valor', )}),
     ]
 admin.site.register(MetaArrecadacao, MetaArrecadacaoAdmin)
+
+class OrcamentoAdmin(PowerModelAdmin):
+    list_filter = ( 'tipo_despesa', 'periodo', )
+    list_display = ('periodo', 'tipo_despesa', 'valor')
+    fields = ('periodo', 'periodo_final', 'tipo_despesa', 'valor')
+
+admin.site.register(Orcamento, OrcamentoAdmin)

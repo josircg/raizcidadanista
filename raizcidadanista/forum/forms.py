@@ -18,14 +18,18 @@ class GrupoForm(forms.ModelForm):
 class AddTopicoForm(forms.ModelForm):
     class Meta:
         model = Topico
-        fields = ('titulo', 'categoria', )
+        fields = ('titulo',)
 
     texto = forms.CharField(label=u'Descrição', widget=CKEditorWidget(config_name='basic'))
-    categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all())
+    categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all(), required=False, help_text='Pode ficar em branco')
 
     def __init__(self, grupo, *args, **kwargs):
         super(AddTopicoForm, self).__init__(*args, **kwargs)
-        self.fields['categoria'].queryset = grupo.grupocategoria_set.all()
+        if grupo.grupocategoria_set.count() > 0:
+            self.fields['categoria'].queryset = grupo.grupocategoria_set.all()
+        else:
+            del self.fields['categoria']
+
 
     def save(self, grupo, criador, *args, **kwargs):
         self.instance.grupo = grupo

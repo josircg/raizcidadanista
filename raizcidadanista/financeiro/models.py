@@ -481,6 +481,9 @@ class Orcamento(models.Model):
     valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
     orcamento_pai = models.ForeignKey('Orcamento', blank=True, null=True)
 
+    def __unicode__(self):
+        return u'%s %s' % (self.periodo, self.tipo_despesa)
+
     def comprometido(self):
         # calcular o primeiro e o último dia do mês do periodo
         return Despesa.objects.filter(tipo_despesa=self.tipo_despesa).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0

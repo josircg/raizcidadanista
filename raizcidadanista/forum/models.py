@@ -261,7 +261,7 @@ def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwar
         if instance.mencao.membro.exists():
             membro = instance.mencao.membro.all()[0]
             if membro.telegram_id:
-                mensagem = u'%s pediu sua atenção na Teia Digital! Clique no link abaixo para ler o tópico: %s%s' % (
+                mensagem = u'%s pediu sua atenção na Teia Digital. Clique para ler o tópico: %s%s' % (
                     instance.colaborador,
                     settings.SITE_HOST,
                     instance.conversa.get_absolute_url()

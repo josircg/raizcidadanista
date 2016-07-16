@@ -432,8 +432,8 @@ class Lancamento(models.Model):
         verbose_name = u'Lançamento Contábil'
         verbose_name_plural = u'Lançamentos Contábeis'
 
-    debito = models.ForeignKey(ContaContabil, verbose_name='CR', related_name='CR')
-    credito = models.ForeignKey(ContaContabil, verbose_name='DB', related_name='DB')
+    credito = models.ForeignKey(ContaContabil, verbose_name='CR', related_name='CR')
+    debito = models.ForeignKey(ContaContabil, verbose_name='DB', related_name='DB', Null=True)
     dt = models.DateField('Data')
     valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
     dtupdate = models.DateField(auto_now=True)
@@ -448,7 +448,7 @@ class MetaArrecadacao(models.Model):
     descricao = models.CharField(u'Descrição', max_length=100)
     data_inicial = models.DateField(u'Data inicial')
     data_limite = models.DateField(u'Data limite')
-    valor = BRDecimalField(u'Valor', max_digits=12, decimal_places=2)
+    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
 
     def receitas(self):
         return Receita.objects.filter(dtpgto__gte=self.data_inicial).exclude(dtpgto__gt=self.data_limite)
@@ -470,3 +470,24 @@ class MetaArrecadacao(models.Model):
 
     def __unicode__(self):
         return self.descricao
+
+class Orcamento(models.Model):
+    class Meta:
+        verbose_name = u'Orçamento'
+
+    periodo = models.ForeignKey(PeriodoContabil)
+    periodo_final = models.ForeignKey(PeriodoContabil, blank=True, null=True, related_name='final')
+    tipo_despesa = models.ForeignKey(TipoDespesa)
+    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
+    orcamento_pai = models.ForeignKey('Orcamento')
+
+    def comprometido(self):
+        # calcular o primeiro e o último dia do mês do periodo
+        return Despesa.objects.filter(tipo_despesa=self.tipo_despesa).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
+
+    def realizado(self):
+        # calcular o primeiro e o último dia do mês do periodo
+        return Pagamento.objects.filter(tipo_despesa=self.tipo_despesa).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0
+
+    def saldo(self):
+        return self.valor - self.realizado

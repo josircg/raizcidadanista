@@ -27,6 +27,7 @@ class Grupo(models.Model):
     nome = models.CharField(u'Nome', max_length=60)
     localizacao = models.CharField(u'Localização', max_length=1, choices=LOCALIZACAO)
     tematico = models.BooleanField(u'Temático', default=False)
+    privado = models.BooleanField(u'Somente membros autorizados', default=False)
     descricao = models.TextField(u'Descricao')
 
     def get_absolute_url(self):

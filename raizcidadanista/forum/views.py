@@ -9,10 +9,13 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm
+
+from cms.email import sendmail
 
 from datetime import datetime
 import json
@@ -325,10 +328,16 @@ class TopicoAddView(FormView):
     form_class = AddTopicoForm
 
     def get_grupo(self):
-        obj = get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
-        if not obj.grupousuario_set.filter(usuario=self.request.user).exists():
-            raise PermissionDenied()
-        return obj
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get(self, request, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        if not self.grupo.grupousuario_set.filter(usuario=request.user).exists() and self.grupo.privado:
+            messages.error(request, u'Este grupo é privado e só permite a inclusão de novos tópicos pelos membros previamente aprovados. <a href="%s">Clique aqui</a> para solicitar o seu ingresso nesse grupo.' % (
+                reverse('forum_grupo_solicitar_ingresso', kwargs={'pk': self.grupo.pk, })
+            ))
+            return HttpResponseRedirect(self.grupo.get_absolute_url())
+        return super(TopicoAddView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(TopicoAddView, self).get_form_kwargs()
@@ -344,6 +353,47 @@ class TopicoAddView(FormView):
         context = super(TopicoAddView, self).get_context_data(**kwargs)
         context['object'] = self.get_grupo()
         return context
+
+
+
+class SolicitarIngressoView(DetailView):
+    model = Grupo
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        sendmail(
+            subject=u'Solicitação de ingresso no grupo %s' % self.object,
+            to=list(self.object.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
+            template='forum/emails/solicitacao-ingresso.html',
+            params={
+                'grupo': self.object,
+                'usuario': request.user,
+                'host': settings.SITE_HOST,
+            },
+        )
+        messages.info(request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+        return HttpResponseRedirect(self.object.get_absolute_url())
+
+
+class SolicitarIngressoAprovarView(DetailView):
+    model = Grupo
+
+    def get_user(self):
+        return get_object_or_404(User, pk=self.kwargs['user_pk'])
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.user = self.get_user()
+        if not self.object.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            messages.error(request, u'Você não tem permissão para aprovar novos membros!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        GrupoUsuario(
+            grupo=self.object,
+            usuario=self.user,
+        ).save()
+        messages.info(request, u'Usuários %s incluido com sucesso nesse grupo.' % self.user)
+        return HttpResponseRedirect(self.object.get_absolute_url())
 
 
 class TopicoView(DetailView):

@@ -16,14 +16,14 @@ class GrupoUsuarioInline(admin.TabularInline):
     extra = max_num = 0
     fields = readonly_fields = ('usuario', 'admin', )
 class GrupoAdmin(PowerModelAdmin):
-    list_display = ('nome', 'localizacao', 'tematico', )
+    list_display = ('nome', 'localizacao', 'tematico', 'privado', )
     list_filter = ('localizacao', 'tematico', )
     multi_search = (
        ('q1', 'Nome', ['nome',]),
     )
     inlines = (GrupoUsuarioInline, GrupoCategoriaInline, )
     fieldsets = (
-        (None, {"fields" : ('nome', 'localizacao', 'tematico', 'descricao', ),}, ),
+        (None, {"fields" : ('nome', 'localizacao', 'tematico', 'privado', 'descricao', ),}, ),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):

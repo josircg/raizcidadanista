@@ -9,7 +9,7 @@ from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, 
 class GrupoForm(forms.ModelForm):
     class Meta:
         model = Grupo
-        fields = ('nome', 'descricao', )
+        fields = ('nome', 'privado', 'descricao', )
         widgets = {
             'descricao': CKEditorWidget(config_name='basic'),
         }

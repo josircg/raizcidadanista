@@ -875,7 +875,7 @@ class CirculoAdmin(PowerModelAdmin):
 
     def incluir_membros_auto(self, request, id_circulo):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
-        if circulo.tipo == 'R' or (circulo.tipo == 'E' and circulo.uf ):
+        if circulo.tipo == 'R' or (circulo.tipo == 'S' and circulo.uf):
             membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
             membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
             if circulo.municipio:
@@ -943,7 +943,7 @@ class CirculoAdmin(PowerModelAdmin):
         buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
         obj = self.get_object(request, object_id)
         if obj:
-            if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
+            if obj.tipo == 'R' or (obj.tipo == 'S' and obj.uf):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Adicionar Membros'))
             if not obj.section:
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_criar_pagina', kwargs={'id_circulo': obj.pk}), label=u'Criar página do Círculo'))

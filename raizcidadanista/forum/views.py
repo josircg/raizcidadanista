@@ -549,7 +549,7 @@ class MencaoView(FormView):
     def get(self, request, *args, **kwargs):
         # List of users
         json_response = []
-        for user in User.objects.filter(pk__in=TopicoOuvinte.objects.values_list('ouvinte', flat=True)).distinct():
+        for user in User.objects.all():
             json_response.append({
               'id': user.pk,
               'name': u'%s' % user,

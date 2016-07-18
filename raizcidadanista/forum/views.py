@@ -13,7 +13,7 @@ from django.conf import settings
 
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria
-from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm
+from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm
 
 from cms.email import sendmail
 
@@ -321,6 +321,54 @@ class GrupoEditMembrosView(DetailView):
                 object=self.object
             )
         )
+
+
+class GrupoAddMembrosView(FormView):
+    template_name = 'forum/grupo-add-membros.html'
+    form_class = AddMembrosForm
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.is_ajax():
+            # List of users
+            json_response = []
+            for user in User.objects.exclude(pk__in=self.object.grupousuario_set.values_list('usuario', flat=True)):
+                json_response.append({
+                  'id': user.pk,
+                  'name': u'%s' % user,
+                  'avatar': '',
+                  'icon': 'icon-16 icon-person',
+                  'type': 'contact'
+                })
+            return HttpResponse(json.dumps(json_response), mimetype='application/json')
+        return super(GrupoAddMembrosView, self).get(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        obj = get_object_or_404(Grupo, pk=self.kwargs['pk'])
+        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+            raise PermissionDenied()
+        return obj
+
+    def get_form_kwargs(self):
+        kwargs = super(GrupoAddMembrosView, self).get_form_kwargs()
+        kwargs['grupo'] = self.get_object()
+        return kwargs
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def form_valid(self, form):
+        form.save()
+        messages.info(self.request, u'Membros adicionados com sucesso!')
+        return HttpResponseRedirect(reverse('forum_grupo_add_membros', kwargs={'pk': self.get_object().pk, }))
+
+    def get_context_data(self, **kwargs):
+        context = super(GrupoAddMembrosView, self).get_context_data(**kwargs)
+        context['object'] = self.get_object()
+        return context
 
 
 class TopicoAddView(FormView):

@@ -33,7 +33,7 @@
       autocompleteListItemIcon   : _.template('<div class="icon <%= icon %>"></div>'),
       mentionsOverlay            : _.template('<div class="mentions"><div></div></div>'),
       mentionItemSyntax          : _.template('@[<%= value %>](<%= type %>:<%= id %>)'),
-      mentionItemHighlight       : _.template('<strong><span><%= value %><input type="hidden" name="mencoes" value="<%= id %>"></span></strong>')
+      mentionItemHighlight       : _.template('<strong><span><%= value %><input type="hidden" name="<%= name %>" value="<%= id %>"></span></strong>')
     }
   };
 
@@ -150,7 +150,7 @@
       var mentionText = utils.htmlEncode(syntaxMessage); //Encode the syntaxMessage
 
       _.each(mentionsCollection, function (mention) {
-        var formattedMention = _.extend({}, mention, {value: utils.htmlEncode(mention.value)});
+        var formattedMention = _.extend({}, mention, {value: utils.htmlEncode(mention.value), name: $(elmInputBox).attr('data-name')});
         var textSyntax = settings.templates.mentionItemSyntax(formattedMention);
         var textHighlight = settings.templates.mentionItemHighlight(formattedMention);
 

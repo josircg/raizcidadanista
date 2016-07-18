@@ -82,3 +82,17 @@ class MencaoForm(forms.ModelForm):
         fields = ('conversa', )
 
     mencoes = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple, queryset=User.objects.all())
+
+
+class AddMembrosForm(forms.Form):
+
+    usuarios = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple, queryset=User.objects.all())
+
+    def __init__(self, grupo, *args, **kwargs):
+        super(AddMembrosForm, self).__init__(*args, **kwargs)
+        self.grupo = grupo
+        self.fields['usuarios'].queryset = User.objects.exclude(pk__in=grupo.grupousuario_set.values_list('usuario', flat=True))
+
+    def save(self, *args, **kwargs):
+        for usuario in self.cleaned_data.get('usuarios'):
+            GrupoUsuario.objects.get_or_create(grupo=self.grupo, usuario=usuario)

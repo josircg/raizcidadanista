@@ -22,7 +22,7 @@
                         {% endif %}
                         <form style="display: inline; float: right; margin-top: -6px;">
                             <select name="categoria" class="categoria-option btn btn-success button-topic">
-                                <option value="">Categoria</option>
+                                <option value="" hidden>Categoria</option>
                                 {% for grupocategoria in object.grupocategoria_set.all %}
                                 <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
                                 {% endfor %}

@@ -268,7 +268,7 @@ admin.site.register(MetaArrecadacao, MetaArrecadacaoAdmin)
 
 class OrcamentoAdmin(PowerModelAdmin):
     list_filter = ( 'tipo_despesa', 'periodo', )
-    list_display = ('periodo', 'tipo_despesa', 'valor')
+    list_display = ('periodo', 'tipo_despesa', 'valor', 'realizado')
     fields = ('periodo', 'periodo_final', 'tipo_despesa', 'valor')
 
 admin.site.register(Orcamento, OrcamentoAdmin)

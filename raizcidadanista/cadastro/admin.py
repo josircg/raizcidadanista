@@ -147,6 +147,13 @@ class CirculoMembroMembroInline(admin.TabularInline):
     extra = 1
     verbose_name = u'Círculo do Membro'
     verbose_name_plural = u'Círculos do Membro'
+    raw_id_fields = ('membro', )
+
+    def has_add_permission(self, request, obj=None):
+        if not request.user.is_superuser:
+            return False
+        return super(CirculoMembroMembroInline, self).has_add_permission(request, obj)
+
 
 class MembroAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'rg', 'uf', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
@@ -207,6 +214,13 @@ class MembroAdmin(PowerModelAdmin):
         if obj and not request.user.groups.filter(name=u'Comissao').exists() and not request.user.is_superuser:
             return False
         return super(MembroAdmin, self).has_change_permission(request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('usuario', 'aprovador',)
+        else:
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
+
 
     def aprovacao(self, request, queryset):
         contador = 0
@@ -411,12 +425,6 @@ class MembroAdmin(PowerModelAdmin):
                 contador += 1
         self.message_user(request, 'Total de Assinaturas marcadas: %d' % contador)
     assinatura.short_description = u'Assinatura realizada'
-
-    def get_readonly_fields(self, request, obj=None):
-        if request.user.is_superuser:
-            return ('usuario', 'aprovador',)
-        else:
-            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
     def import_membros(self, request, form_class=MembroImport, template_name='admin/cadastro/membro/import.html'):
         var = {

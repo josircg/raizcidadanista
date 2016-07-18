@@ -186,14 +186,14 @@ class Receita(models.Model):
 
     conta = models.ForeignKey(Conta)
     colaborador = models.ForeignKey(Membro, blank=True, null=True)
-    dtaviso = models.DateField(u'Dt. Informada')
+    dtaviso = models.DateField(u'Dt. Informada', help_text='Data informada pelo colaborador')
     valor = BRDecimalField(u'Valor Pago', max_digits=12, decimal_places=2)
-    dtpgto = models.DateField(u'Dt. Depósito', blank=True, null=True)
+    dtpgto = models.DateField(u'Dt. Depósito', blank=True, null=True, help_text='Data em que o valor foi compensado na conta')
     notificado = models.BooleanField(default=False)
     nota = models.TextField(u'Nota', blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s/%s | R$ %s' % (self.conta, self.colaborador, self.valor)
+        return u'%s/%s' % (self.conta, self.colaborador)
 
     def save(self, *args, **kwargs):
 

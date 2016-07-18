@@ -944,7 +944,7 @@ class CirculoAdmin(PowerModelAdmin):
         obj = self.get_object(request, object_id)
         if obj:
             if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
-                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Incluir Membros Automaticamente'))
+                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Adicionar Membros'))
             if not obj.section:
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_criar_pagina', kwargs={'id_circulo': obj.pk}), label=u'Criar página do Círculo'))
             else:

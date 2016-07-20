@@ -69,7 +69,7 @@ class Article(models.Model):
         )
 
     def get_absolute_url(self):
-        if self.pk == self.slug:
+        if str(self.pk) == self.slug:
             return self.content
         return reverse('article', kwargs={'slug': self.slug})
 

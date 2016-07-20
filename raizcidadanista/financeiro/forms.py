@@ -3,7 +3,9 @@ from django import forms
 from django.contrib.admin.widgets import AdminRadioSelect, AdminDateWidget
 from django.contrib.localflavor.br.forms import BRCNPJField, BRCPFField
 
-from models import Fornecedor, Conta
+from models import Fornecedor, Conta, Orcamento
+
+from datetime import date
 
 
 class FornecedorAdminForm(forms.ModelForm):
@@ -43,3 +45,20 @@ class CaixaForm(forms.Form):
     dt_inicial = forms.DateField(label=u'Data inicial', widget=AdminDateWidget())
     dt_final = forms.DateField(label=u'Data final', required=False, widget=AdminDateWidget())
     conta = forms.ModelChoiceField(label=u"Conta", queryset=Conta.objects.all())
+
+
+class OrcamentoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Orcamento
+
+    repetir = forms.CharField(label=u'Repetir até o mês', required=False, max_length=6, help_text=u'Informe um período, ex.: 201701')
+
+    def clean_repetir(self):
+        repetir = self.cleaned_data.get('repetir')
+        periodo = self.cleaned_data.get('periodo')
+        if repetir and periodo:
+            repetir_date = date(day=1, month=int(repetir[-2:]), year=int(repetir[:4]))
+            periodo_date = date(day=1, month=periodo.month(), year=periodo.year())
+            if periodo_date >= repetir_date:
+                raise forms.ValidationError(u'Informe um período superior a %s' % periodo)
+        return repetir

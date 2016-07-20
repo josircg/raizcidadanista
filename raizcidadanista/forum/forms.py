@@ -82,6 +82,7 @@ class PesquisaForm(forms.Form):
     texto = forms.CharField(required=False)
     autor = forms.CharField(required=False)
     grupo = forms.CharField(required=False)
+    listar_conversas = forms.BooleanField(required=False, initial=False, widget=forms.CheckboxInput())
 
     def clean(self):
         cleaned_data = super(PesquisaForm, self).clean()

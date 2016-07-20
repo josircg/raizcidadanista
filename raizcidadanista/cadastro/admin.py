@@ -1361,8 +1361,8 @@ class ArticleCadastroAdmin(PowerModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.author = request.user
+        # Salvar imagem, usando a view do ckeditor
         if request.FILES.get('upload'):
-            # Salvar imagem, usando a view do ckeditor
             from ckeditor.views import upload
 
             url = upload(request).content
@@ -1375,12 +1375,12 @@ class ArticleCadastroAdmin(PowerModelAdmin):
             #try:
             html = requests.get(form.cleaned_data.get('content')).text
             soup = BeautifulSoup(html)
-            obj.title = soup.title.string
+            obj.title = u'%s' % soup.title.string
             obj.header = u''
             if soup.select('meta[property="og:image"]'):
                 obj.header += u'<img style="width: 270px; height: 152px; margin: 10px; float: left;" src="%s">' % soup.select('meta[property="og:image"]')[0].get('content')
             if soup.select('meta[name="description"]'):
-                obj.header += soup.select('meta[name="description"]')[0].get('content')
+                obj.header += u'%s' % soup.select('meta[name="description"]')[0].get('content')
             #except: pass
             obj.slug = obj.pk
             obj.save()

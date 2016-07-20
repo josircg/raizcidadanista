@@ -161,15 +161,25 @@ class PesquisaView(FormView):
     def form_valid(self, form):
         autor = form.cleaned_data.get('autor')
         grupo = form.cleaned_data.get('grupo')
-
-        results_list = Topico.objects.all()
-        if autor:
-            results_list = results_list.filter(conversa__autor__first_name__icontains=autor)
-        if grupo:
-            results_list = results_list.filter(grupo__nome__icontains=grupo)
         texto = form.cleaned_data.get('texto')
-        if texto:
-            results_list = results_list.filter(Q(titulo__icontains=texto) | Q(conversa__texto__icontains=texto))
+        listar_conversas = form.cleaned_data.get('listar_conversas')
+
+        if listar_conversas:
+            results_list = Conversa.objects.all()
+            if autor:
+                results_list = results_list.filter(autor__first_name__icontains=autor)
+            if grupo:
+                results_list = results_list.filter(topico__grupo__nome__icontains=grupo)
+            if texto:
+                results_list = results_list.filter(Q(topico__titulo__icontains=texto) | Q(texto__icontains=texto))
+        else:
+            results_list = Topico.objects.all()
+            if autor:
+                results_list = results_list.filter(conversa__autor__first_name__icontains=autor)
+            if grupo:
+                results_list = results_list.filter(grupo__nome__icontains=grupo)
+            if texto:
+                results_list = results_list.filter(Q(titulo__icontains=texto) | Q(conversa__texto__icontains=texto))
 
         results_list = results_list.distinct()
 
@@ -189,6 +199,7 @@ class PesquisaView(FormView):
             context={
                 'results': results,
                 'form': form,
+                'listar_conversas': listar_conversas,
             }
         )
 

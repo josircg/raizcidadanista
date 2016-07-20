@@ -66,8 +66,14 @@
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
+                                {% if listar_conversas %}
+                                <a href="{{ result.get_absolute_url }}"><h4>Tópico: {{ result.topico }}</h4></a>
+                                {{ result.texto|safe }}
+                                <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                {% else %}
                                 <a href="{{ result.get_absolute_url }}"><h4>{{ result }} ({{ user|num_conversa_nao_lidas:result }})</h4></a>
                                 <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                {% endif %}
                             </blockquote>
                         </div>
                     </div>

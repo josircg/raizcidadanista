@@ -139,10 +139,11 @@ class PessoaAdmin(PowerModelAdmin):
             form = form_class(request.POST, request.FILES)
             if form.is_valid():
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
+
                     if len(record) >= 3:
                         lidos += 1
                     # Se tem email
-                    if _get_data(record, 'email'):
+                    if len(record) > 0 and _get_data(record, 'email'):
                         # Pega o UF
                         uf = None
                         if _get_data(record, 'uf'):
@@ -161,8 +162,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     if _get_data(record, 'nome') and pessoa.nome != _get_data(record, 'nome'):
                                         pessoa.nome = _get_data(record, 'nome')
                                         atualizado = True
-                                    if _get_data(record, 'telefone') and pessoa.celular != _get_data(record, 'telefone'):
-
+                                    if _get_data(record, 'telefone') and pessoa.celular != None:
                                         pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
                                         atualizado = True
                                     if uf and pessoa.uf != uf:

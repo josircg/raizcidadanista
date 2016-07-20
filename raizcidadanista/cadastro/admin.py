@@ -162,7 +162,7 @@ class PessoaAdmin(PowerModelAdmin):
                                         pessoa.nome = _get_data(record, 'nome')
                                         atualizado = True
                                     if _get_data(record, 'telefone') and pessoa.celular != _get_data(record, 'telefone'):
-                                        pessoa.celular = _get_data(record, 'telefone')
+                                        pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
                                         atualizado = True
                                     if uf and pessoa.uf != uf:
                                         pessoa.uf = uf
@@ -884,6 +884,30 @@ class CirculoAdmin(PowerModelAdmin):
     readonly_fields = ('num_membros', )
     actions = ('export_csv', 'criar_forum')
 
+    def get_inline_instances(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
+            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
+        else:
+            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
+        return [inline(self.model, self.admin_site) for inline in self.inlines]
+
+    def get_actions(self, request):
+        actions = super(CirculoAdmin, self).get_actions(request)
+        if not request.user.is_superuser:
+            del actions['delete_selected']
+        return actions
+
+    def get_fieldsets(self, request, obj=None):
+        if request.user.groups.filter(name=u'Cadastro').exists() or request.user.is_superuser:
+            return self.fieldsets_edicao
+        return self.fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
+            return self.readonly_fields
+        else:
+            return flatten_fieldsets(self.get_fieldsets(request, obj))
+
     def export_csv(self, request, queryset):
         csv = u'"Título";"Município";"UF"\n'
         for q in queryset:
@@ -910,23 +934,6 @@ class CirculoAdmin(PowerModelAdmin):
                         cmembro.save()
         self.message_user(request, 'Total de Fórums criados: %d' % contador)
     criar_forum.short_description = u'Criar Fórum de Discussão'
-
-    def get_actions(self, request):
-        actions = super(CirculoAdmin, self).get_actions(request)
-        if not request.user.is_superuser:
-            del actions['delete_selected']
-        return actions
-
-    def get_fieldsets(self, request, obj=None):
-        if request.user.groups.filter(name=u'Cadastro').exists() or request.user.is_superuser:
-            return self.fieldsets_edicao
-        return self.fieldsets
-
-    def get_readonly_fields(self, request, obj=None):
-        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists() or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists():
-            return self.readonly_fields
-        else:
-            return flatten_fieldsets(self.get_fieldsets(request, obj))
 
     def get_form(self, request, obj=None, **kwargs):
         defaults = {
@@ -1047,12 +1054,6 @@ class CirculoAdmin(PowerModelAdmin):
 #            except Membro.DoesNotExist:
 #                return
 
-    def get_inline_instances(self, request, obj=None):
-        if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
-            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
-        else:
-            self.inlines = [CirculoEventoCirculoInline,]
-        return [inline(self.model, self.admin_site) for inline in self.inlines]
 admin.site.register(Circulo, CirculoAdmin)
 
 

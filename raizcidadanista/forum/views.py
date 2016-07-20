@@ -480,7 +480,10 @@ class TopicoView(DetailView):
 
         # Alterar o tipo de notificação
         if request.GET.get('notificacao'):
-            ouvinte = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
+            try:
+                ouvinte = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
+            except TopicoOuvinte.DoesNotExist:
+                ouvinte = TopicoOuvinte.objects.create(topico=self.object, ouvinte=self.request.user)
             ouvinte.notificacao = request.GET.get('notificacao')
             ouvinte.save()
             messages.info(request, u'Notificações alterada para: %s.' % ouvinte.get_notificacao_display())
@@ -587,7 +590,10 @@ class TopicoView(DetailView):
 
         context['form'] = self.form
         context['conversas'] = conversas
-        context['ouvinte'] = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
+        try:
+            context['ouvinte'] = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
+        except TopicoOuvinte.DoesNotExist:
+            context['ouvinte'] = TopicoOuvinte.objects.create(topico=self.object, ouvinte=self.request.user)
         return context
 
 

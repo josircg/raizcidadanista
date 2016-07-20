@@ -33,7 +33,7 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao, ArticleCadastro
 from financeiro.models import Receita
@@ -123,10 +123,56 @@ class PessoaAdmin(PowerModelAdmin):
             'listas': Lista.objects.filter(validade__gte=datetime.now(), status__in=('A', 'P')),
         },context_instance=RequestContext(request))
 
+    def inclusao_em_lote(self, request, form_class=InclusaoEmLoteForm, template_name='admin/cadastro/pessoa/inclusao-em-lote.html'):
+        var = {'email': 0, 'nome': 1, 'telefone': 2, }
+
+        def _get_data(record, name):
+            return force_unicode(record[var[name]].strip())
+
+        if not request.user.is_superuser:
+            raise PermissionDenied()
+
+        form = form_class()
+        if request.method == 'POST':
+            form = form_class(request.POST, request.FILES)
+            if form.is_valid():
+                lidos = importados = atualizados = 0
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
+                    if len(record) >= 3:
+                        lidos += 1
+                    # TODO: Falta terminar
+                    # Se tem email,
+                    if _get_data(record, 'email'):
+                        # Verifica se ele não é de um Membro
+                        if not Membro.objects.filter(email=_get_data(record, 'email')).exists():
+                            # Se exisistir pessoa, atualizar nome e telefone
+                            if Pessoa.objects.filter(email=_get_data(record, 'email')).exists():
+                                atualizados += 1
+                                if _get_data(record, 'nome'):
+                                    Pessoa.objects.filter(email=_get_data(record, 'email')).update(nome=_get_data(record, 'nome'))
+                                if _get_data(record, 'telefone'):
+                                    Pessoa.objects.filter(email=_get_data(record, 'email')).update(celular=_get_data(record, 'telefone'))
+                            # Cria a pessoa
+                            else:
+                                if _get_data(record, 'nome'):
+                                    Pessoa.objects.create(
+                                        email=_get_data(record, 'email'),
+                                        nome=_get_data(record, 'nome'),
+                                        celular=_get_data(record, 'telefone'),
+                                    )
+                                    importados += 1
+
+                    print record
+        return render_to_response(template_name, {
+            'title': u'Inclusão em lote',
+            'form': form,
+        },context_instance=RequestContext(request))
+
     def get_urls(self):
         urls_originais = super(PessoaAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^mala-direta/$', self.wrap(self.mala_direta), name='cadastro_pessoa_mala_direta'),
+            url(r'^inclusao-em-lote/$', self.wrap(self.inclusao_em_lote), name='cadastro_pessoa_inclusao_em_lote'),
         )
         return urls_customizadas + urls_originais
 
@@ -138,6 +184,7 @@ class PessoaAdmin(PowerModelAdmin):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_membro_change', args=(obj.membro.pk, )), label=u'Colaborador'))
         else:
             buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_inclusao_em_lote'), label=u'Inclusão em Lote'))
         return buttons
 admin.site.register(Pessoa, PessoaAdmin)
 

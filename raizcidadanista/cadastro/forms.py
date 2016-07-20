@@ -383,3 +383,13 @@ class ArticleCadastroForm(forms.ModelForm):
 
         if self.instance and str(self.instance.pk) == self.instance.slug:
             self.fields['link'].initial = True
+
+
+class InclusaoEmLoteForm(forms.Form):
+    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha está no formato: email, nome da pessoa, telefone')
+
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data['arquivo']
+        if arquivo.name.split('.')[-1].lower() != 'csv':
+            raise forms.ValidationError(u'Envie um arquivo .csv.')
+        return arquivo

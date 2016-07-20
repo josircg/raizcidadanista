@@ -162,6 +162,7 @@ class PessoaAdmin(PowerModelAdmin):
                                         pessoa.nome = _get_data(record, 'nome')
                                         atualizado = True
                                     if _get_data(record, 'telefone') and pessoa.celular != _get_data(record, 'telefone'):
+
                                         pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
                                         atualizado = True
                                     if uf and pessoa.uf != uf:

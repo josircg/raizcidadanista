@@ -735,7 +735,7 @@ admin.site.register(Filiado, FiliadoAdmin)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro
-    extra = 1
+    extra = max_num = 0
     verbose_name = u'Membro do Círculo'
     verbose_name_plural = u'Membros do Círculo'
     raw_id_fields = ('membro', )
@@ -772,6 +772,17 @@ class CirculoMembroCirculoInline(admin.TabularInline):
 
                 return super(PaginationFormSet, self)._construct_forms(*args, **kwargs)
         return PaginationFormSet
+
+class CirculoMembroCirculoAddInline(admin.TabularInline):
+    model = CirculoMembro
+    extra = max_num = 1
+    verbose_name = u'Adicionar Membro do Círculo'
+    verbose_name_plural = u'Adicionar Membros do Círculo'
+    raw_id_fields = ('membro', )
+    fields = ('membro', 'administrador', 'publico', )
+
+    def queryset(self, request):
+        return super(CirculoMembroCirculoAddInline, self).queryset(request).none()
 
 class CirculoEventoCirculoInline(admin.TabularInline):
     model = CirculoEvento
@@ -969,7 +980,7 @@ class CirculoAdmin(PowerModelAdmin):
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
-            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
+            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
         else:
             self.inlines = [CirculoEventoCirculoInline,]
         return [inline(self.model, self.admin_site) for inline in self.inlines]

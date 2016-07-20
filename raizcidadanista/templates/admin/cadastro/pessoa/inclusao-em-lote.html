@@ -38,5 +38,38 @@
 
         </div>
     </form>
+    {% if visitantes %}
+    <div>
+        <div class="inline-group">
+            <div class="tabular inline-related last-related">
+                <fieldset class="module">
+                    <h2>Emails de quem não é colaborador</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>e-mail</th>
+                                <th>Telefone</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pessoa in visitantes %}
+                            <tr>
+                                <td><p><a href="{% url admin:cadastro_pessoa_change pessoa.pk %}">{{ pessoa.nome }}</a></p></td>
+                                <td><p>{{ pessoa.email }}</p></td>
+                                <td><p>{{ pessoa.celular }}</p></td>
+                                <td><p>{{ pessoa.uf }}</p></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4"><p>Nenhum visitante encontrado!</p></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

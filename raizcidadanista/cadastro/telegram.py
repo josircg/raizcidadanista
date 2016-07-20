@@ -10,7 +10,6 @@ class BotRaiz(object):
     def __init__(self, *args, **kwargs):
         super(BotRaiz, self).__init__(*args, **kwargs)
         self.bot = telepot.Bot(settings.TELEGRAM_API_TOKEN)
-        self.bot.setWebhook()
 
     def listen(self):
         def handle(msg):

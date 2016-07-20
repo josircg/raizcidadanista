@@ -269,6 +269,7 @@ def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwar
                 )
                 bot.sendMessage(membro.telegram_id, mensagem)
 
+
 # Conversa sujeita a votação
 STATUS_PROPOSTA = (
     ('A', u'Aberto'),

@@ -50,6 +50,7 @@
                                 <blockquote>
                                     {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
                                     {{ conversa.texto|safe }}
+                                    {% if conversa.arquivo %}<p><a href="{{ conversa.arquivo.url }}" target="_blank">Arquivo</a></p>{% endif %}
                                     <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
 
                                     <small>
@@ -104,11 +105,12 @@
                                     </form>
 
                                     {% if object.editavel and request.user == conversa.autor %}
-                                    <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
+                                    <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
                                         <div class="panel-body">
                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
                                             <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa.pk }}" />
                                             <textarea id="id_texto-edit-conversa-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa.texto }}</textarea>
+                                            <small>Arquivo:<br>{% if conversa.arquivo %}Atualmente: <a href="{{ conversa.arquivo.url }}" target="_blank">{{ conversa.arquivo.url }}</a> <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span><br />Editar: {% endif %}<input style="display: inline-block;" type="file" name="arquivo" id="id_arquivo" /></small>
                                             <br>
                                             <button type="submit" class="btn btn-success">Editar</button>
                                         </div>
@@ -119,11 +121,13 @@
                                     {% endif %}
 
                                     {% if object.editavel and not forloop.first %}
-                                    <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
+                                    <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
                                         <div class="panel panel-conversa">
                                             <div class="panel-body">
                                                 <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                 <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                <small>Imagem: <input type="file" name="imagem" id="id_imagem" /></small>
+                                                <small>Arquivo: <input type="file" name="arquivo" id="id_arquivo" /></small>
                                                 <br>
                                                 <button type="submit" class="btn btn-success">Responder</button>
                                             </div>
@@ -139,6 +143,7 @@
                                         <div class="panel-body">
                                             <blockquote>
                                                 {{ conversa_filho.texto|safe }}
+                                                {% if conversa_filho.arquivo %}<p><a href="{{ conversa_filho.arquivo.url }}" target="_blank">Arquivo</a></p>{% endif %}
                                                 <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                 <small>
                                                 {% if object.editavel %}
@@ -190,11 +195,13 @@
                                                 </form>
 
                                                 {% if object.editavel %}
-                                                <form action="" method="POST" role="form" class="responder-form">{% csrf_token %}
+                                                <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
                                                     <div class="panel panel-conversa">
                                                         <div class="panel-body">
                                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                             <textarea id="id_texto-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                            <small>Imagem: <input type="file" name="imagem" id="id_imagem" /></small>
+                                                            <small>Arquivo: <input type="file" name="arquivo" id="id_arquivo" /></small>
                                                             <br>
                                                             <button type="submit" class="btn btn-success">Responder</button>
                                                         </div>
@@ -206,11 +213,12 @@
                                                 {% endif %}
 
                                                 {% if object.editavel and request.user == conversa_filho.autor %}
-                                                <form action="" method="POST" role="form" class="edit-form">{% csrf_token %}
+                                                <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
                                                         <div class="panel-body">
                                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                             <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
                                                             <textarea id="id_texto-edit-conversa-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
+                                                            <small>Arquivo:<br>{% if conversa_filho.arquivo %}Atualmente: <a href="{{ conversa_filho.arquivo.url }}" target="_blank">{{ conversa_filho.arquivo.url }}</a> <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span><br />Editar: {% endif %}<input style="display: inline-block;" type="file" name="arquivo" id="id_arquivo" /></small>
                                                             <br>
                                                             <button type="submit" class="btn btn-success">Editar</button>
                                                         </div>
@@ -241,7 +249,7 @@
                         </nav>
 
                         {% if object.editavel %}
-                        <form action="" method="POST" role="form">{% csrf_token %}
+                        <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}
                             <div class="panel panel-default panel-conversa">
                                 <div class="panel-body">
                                     <h3>Novo comentário</h3>
@@ -250,6 +258,22 @@
                                         {% if form.texto.errors %}
                                         <ul class="list-unstyled">
                                             {% for error in form.texto.errors %}
+                                            <li class="text-error"><small>{{ error }}</small></li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                        Imagem: <p class="file-upload">{{ form.imagem }}</p>
+                                        {% if form.imagem.errors %}
+                                        <ul class="list-unstyled">
+                                            {% for error in form.imagem.errors %}
+                                            <li class="text-error"><small>{{ error }}</small></li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                        Arquivo: <p class="file-upload">{{ form.arquivo }}</p>
+                                        {% if form.arquivo.errors %}
+                                        <ul class="list-unstyled">
+                                            {% for error in form.arquivo.errors %}
                                             <li class="text-error"><small>{{ error }}</small></li>
                                             {% endfor %}
                                         </ul>

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from ckeditor.widgets import CKEditorWidget
 from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria
-
+from utils.storage import save_file
 
 class GrupoForm(forms.ModelForm):
     class Meta:
@@ -21,6 +21,8 @@ class AddTopicoForm(forms.ModelForm):
         fields = ('titulo',)
 
     texto = forms.CharField(label=u'Descrição', widget=CKEditorWidget(config_name='basic'))
+    imagem = forms.ImageField(label=u'Imagem', required=False)
+    arquivo = forms.FileField(label=u'Arquivo', required=False)
     categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all(), required=False, help_text='Pode ficar em branco')
 
     def __init__(self, grupo, *args, **kwargs):
@@ -36,27 +38,42 @@ class AddTopicoForm(forms.ModelForm):
         self.instance.criador = criador
         topico = super(AddTopicoForm, self).save(*args, **kwargs)
 
+        texto = self.cleaned_data.get('texto')
+        if self.cleaned_data.get('imagem'):
+            filename = save_file(self.cleaned_data.get('imagem'), 'forum')
+            texto += u'<img src="%s" width="100%%" style="padding: 20px; margin: 0px !important;">' % filename
         # Cria a Conversa com o texto informado pelo autor
-        Conversa(
+        conversa = Conversa(
             topico=topico,
             autor=criador,
-            texto=self.cleaned_data.get('texto'),
-        ).save()
+            texto=texto,
+        )
+        conversa.save()
+        if self.cleaned_data.get('arquivo'):
+            conversa.arquivo.save(self.cleaned_data.get('arquivo').name, self.cleaned_data.get('arquivo'))
         return topico
 
 
 class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa
-        fields = ('texto', 'conversa_pai', )
+        fields = ('texto', 'conversa_pai', 'arquivo', )
         widgets = {
             'texto': CKEditorWidget(config_name='basic'),
             'conversa_pai': forms.HiddenInput(),
         }
 
+    imagem = forms.ImageField(label=u'Imagem', required=False)
+
     def save(self, topico, autor, *args, **kwargs):
         self.instance.topico = topico
         self.instance.autor = autor
+
+        texto = self.cleaned_data.get('texto')
+        if self.cleaned_data.get('imagem'):
+            filename = save_file(self.cleaned_data.get('imagem'), 'forum')
+            texto += u'<img src="%s" width="100%%" style="padding: 20px; margin: 0px !important;">' % filename
+        self.instance.texto = texto
         return super(ConversaForm, self).save(*args, **kwargs)
 
 

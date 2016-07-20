@@ -724,7 +724,7 @@ admin.site.register(Filiado, FiliadoAdmin)
 
 class CirculoMembroCirculoInline(admin.TabularInline):
     model = CirculoMembro
-    extra = 1
+    extra = max_num = 0
     verbose_name = u'Membro do Círculo'
     verbose_name_plural = u'Membros do Círculo'
     raw_id_fields = ('membro', )
@@ -761,6 +761,17 @@ class CirculoMembroCirculoInline(admin.TabularInline):
 
                 return super(PaginationFormSet, self)._construct_forms(*args, **kwargs)
         return PaginationFormSet
+
+class CirculoMembroCirculoAddInline(admin.TabularInline):
+    model = CirculoMembro
+    extra = max_num = 1
+    verbose_name = u'Adicionar Membro do Círculo'
+    verbose_name_plural = u'Adicionar Membros do Círculo'
+    raw_id_fields = ('membro', )
+    fields = ('membro', 'administrador', 'publico', )
+
+    def queryset(self, request):
+        return super(CirculoMembroCirculoAddInline, self).queryset(request).none()
 
 class CirculoEventoCirculoInline(admin.TabularInline):
     model = CirculoEvento
@@ -864,7 +875,7 @@ class CirculoAdmin(PowerModelAdmin):
 
     def incluir_membros_auto(self, request, id_circulo):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
-        if circulo.tipo == 'R' or (circulo.tipo == 'E' and circulo.uf ):
+        if circulo.tipo == 'R' or (circulo.tipo == 'S' and circulo.uf):
             membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
             membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
             if circulo.municipio:
@@ -910,8 +921,8 @@ class CirculoAdmin(PowerModelAdmin):
         buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
         obj = self.get_object(request, object_id)
         if obj:
-            if obj.tipo == 'R' or (obj.tipo == 'E' and obj.uf ):
-                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Incluir Membros Automaticamente'))
+            if obj.tipo == 'R' or (obj.tipo == 'S' and obj.uf):
+                buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Adicionar Membros'))
         return buttons
 
     def save_model(self, request, obj, form, change):
@@ -929,7 +940,7 @@ class CirculoAdmin(PowerModelAdmin):
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
-            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
+            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
         else:
             self.inlines = [CirculoEventoCirculoInline,]
         return [inline(self.model, self.admin_site) for inline in self.inlines]

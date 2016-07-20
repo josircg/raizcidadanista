@@ -218,10 +218,10 @@ class CirculoMembroMembroInline(admin.TabularInline):
     verbose_name_plural = u'Círculos do Membro'
     raw_id_fields = ('membro', )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         if not request.user.is_superuser:
             return False
-        return super(CirculoMembroMembroInline, self).has_add_permission(request, obj)
+        return super(CirculoMembroMembroInline, self).has_add_permission(request)
 
 
 class MembroAdmin(PowerModelAdmin):

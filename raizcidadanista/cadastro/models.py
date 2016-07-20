@@ -362,6 +362,9 @@ class CirculoMembro(models.Model):
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
         instance.grupousuario = GrupoUsuario.objects.get_or_create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)[0]
+    if instance.grupousuario:
+        instance.grupousuario.admin = instance.administrador
+        instance.grupousuario.save()
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:

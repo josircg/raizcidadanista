@@ -178,7 +178,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     pessoa = Pessoa(
                                         email=_get_data(record, 'email'),
                                         nome=_get_data(record, 'nome'),
-                                        celular=_get_data(record, 'telefone'),
+                                        celular=_get_data(record, 'telefone').strip(' ')[0:13],
                                         uf=uf,
                                     )
                                     pessoa.save()

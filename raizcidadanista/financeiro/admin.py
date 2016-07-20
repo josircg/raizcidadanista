@@ -14,9 +14,12 @@ from xhtml2pdf.pisa import pisaDocument
 
 from poweradmin.admin import PowerModelAdmin, PowerButton
 
-from forms import FornecedorAdminForm
+from forms import FornecedorAdminForm, OrcamentoAdminForm
 from models import PeriodoContabil, Conta, ContaContabil, Projeto, TipoDespesa, Fornecedor, Operacao, Pagamento, Despesa, Transferencia, \
     Deposito, Receita, MetaArrecadacao, Orcamento
+
+from dateutil.relativedelta import *
+from datetime import date
 
 
 class PeriodoContabilAdmin(PowerModelAdmin):
@@ -269,6 +272,27 @@ admin.site.register(MetaArrecadacao, MetaArrecadacaoAdmin)
 class OrcamentoAdmin(PowerModelAdmin):
     list_filter = ( 'tipo_despesa', 'periodo', )
     list_display = ('periodo', 'tipo_despesa', 'valor', 'realizado')
-    fields = ('periodo', 'periodo_final', 'tipo_despesa', 'valor')
+    fieldsets = [
+        (None, {'fields': ('periodo', 'periodo_final', 'tipo_despesa', 'valor', 'repetir', )}),
+    ]
+    form = OrcamentoAdminForm
+
+    def save_model(self, request, obj, form, change):
+        super(OrcamentoAdmin, self).save_model(request, obj, form, change)
+        # TODO: Falta terminar #99
+        repetir = form.cleaned_data.get('repetir')
+        if repetir:
+            initial_date = date(day=1, month=obj.periodo.month(), year=obj.periodo.year())
+            repetir_date = date(day=1, month=int(repetir[-2:]), year=int(repetir[:4]))
+            while initial_date <= repetir_date:
+                initial_date = initial_date+relativedelta(months=1)
+                periodo = PeriodoContabil.objects.get_or_create(ciclo=initial_date.strftime('%Y%m'))[0]
+                Orcamento(
+                    periodo=periodo,
+                    periodo_final=obj.periodo_final,
+                    tipo_despesa=obj.tipo_despesa,
+                    valor=obj.valor,
+                    orcamento_pai=obj,
+                ).save()
 
 admin.site.register(Orcamento, OrcamentoAdmin)

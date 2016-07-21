@@ -110,6 +110,7 @@ class Membro(Pessoa):
     zona_eleitoral= models.CharField(u'Zona', max_length=3, blank=True, null=True)
     secao_eleitoral= models.CharField(u'Seção', max_length=4, blank=True, null=True)
     titulo_eleitoral = models.CharField(u'Título', max_length=50, blank=True, null=True)
+    # titulo_dtemissao = models.DateField(u'Dt.Emissão Título', blank=True, null=True)
     nome_da_mae = models.CharField(u'Nome da mãe', max_length=60, blank=True, null=True)
     filiacao_partidaria = models.CharField(u'Filiação Partidária', max_length=100, blank=True, null=True)
     usuario = models.ForeignKey(User, related_name='membro', verbose_name=u'Usuário', blank=True, null=True)
@@ -258,6 +259,7 @@ class Filiado(Membro):
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),
+    ('C', u'Coordenação')
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
@@ -267,12 +269,14 @@ CIRCULO_TIPO = (
 
 CIRCULO_STATUS = (
     ('A', u'Ativo'),
-    ('I', u'Desativado'),
+    ('F', u'Em Formação'),
+    ('G', u'Grupo de Discussão'),
+    ('I', u'Inativo'),
 )
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Círculo/Esfera/GT'
+        verbose_name = u'Círculo/GT/Coordenação/Esfera'
         verbose_name_plural = u'Círculos e Grupos de Trabalho'
         ordering = ('tipo', 'titulo', )
 

@@ -145,11 +145,12 @@ class PessoaAdmin(PowerModelAdmin):
 
                     if len(record) >= 2:
                         num_lidos += 1
-
-                    email = _get_data(record, 'email')
+                        email = _get_data(record, 'email')
+                    else:
+                        email = None
 
                     # Se tem email
-                    if _get_data(record, 'email'):
+                    if email:
                         # Pega o UF
                         uf = _get_data(record, 'uf')
                         if uf:

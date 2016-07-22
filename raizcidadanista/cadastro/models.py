@@ -224,7 +224,7 @@ def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **k
 def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created:
         circulos_ja_cadastrados_pks = CirculoMembro.objects.filter(membro=instance).values_list('circulo', flat=True)
-        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, tipo='R', municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
+        circulos_estaduais_municipais = Circulo.objects.filter(uf=instance.uf, tipo__in=('R', 'S'), municipio__in=(None, '', instance.municipio)).exclude(pk__in=circulos_ja_cadastrados_pks)
         for circulo in circulos_estaduais_municipais:
             CirculoMembro(circulo=circulo, membro=instance).save()
 
@@ -270,7 +270,7 @@ CIRCULO_STATUS = (
 
 class Circulo(models.Model):
     class Meta:
-        verbose_name = u'Círculo/Esfera/GT'
+        verbose_name = u'Círculo/GT/Coordenação/Esfera'
         verbose_name_plural = u'Círculos e Grupos de Trabalho'
         ordering = ('tipo', 'titulo', )
 
@@ -627,8 +627,12 @@ class ColetaArticulacao(models.Model):
                 raise ValidationError(u'O campo Município é obrigatório para esse Articulador.')
         return super(ColetaArticulacao, self).clean()
 
+    def articulador_email(self):
+        return u'%s' % self.articulador.email
+    articulador_email.short_description = u'Email do Articulador'
+
     def __unicode__(self):
-        return u'%s' % self.articulador
+        return u'%s: %s' % (self.UF, self.articulador.nome)
 
 
 @receiver(signals.post_save, sender=ColetaArticulacao)

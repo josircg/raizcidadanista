@@ -1176,7 +1176,7 @@ admin.site.register(Campanha, CampanhaAdmin)
 
 
 class ColetaArticulacaoAdmin(PowerModelAdmin):
-    list_display = ('UF', 'municipio', 'zona', 'articulador', )
+    list_display = ('UF', 'municipio', 'zona', 'articulador', 'articulador_email')
     list_filter = ('UF', 'municipio__nome', )
     multi_search = (
         ('q1', u'Nome', ['articulador__nome', ]),
@@ -1186,6 +1186,7 @@ class ColetaArticulacaoAdmin(PowerModelAdmin):
         (None, { 'fields': ['UF', 'municipio', 'zona', 'articulador',  ], },),
     ]
     raw_id_fields = ('articulador', )
+    ordering = ('UF', )
 
     queryset_filter = {
         'municipio__nome': 'municipio_filter',

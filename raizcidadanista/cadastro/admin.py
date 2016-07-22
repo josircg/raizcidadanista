@@ -124,37 +124,52 @@ class PessoaAdmin(PowerModelAdmin):
         },context_instance=RequestContext(request))
 
     def inclusao_em_lote(self, request, form_class=InclusaoEmLoteForm, template_name='admin/cadastro/pessoa/inclusao-em-lote.html'):
-        var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3}
+        var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3, 'circulo': 4}
 
         def _get_data(record, name):
-            return force_unicode(record[var[name]].strip())
+            if name in var:
+                return force_unicode(record[var[name]].strip())
+            else:
+                return None
 
         if not request.user.is_superuser:
             raise PermissionDenied()
 
         form = form_class()
-        lidos = importados = atualizados = 0
+        num_lidos = importados = atualizados = num_circulo = 0
         visitantes = []
         if request.method == 'POST':
             form = form_class(request.POST, request.FILES)
             if form.is_valid():
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
 
-                    if len(record) >= 3:
-                        lidos += 1
+                    if len(record) >= 2:
+                        num_lidos += 1
+
+                    email = _get_data(record, 'email')
+
                     # Se tem email
-                    if len(record) > 0 and _get_data(record, 'email'):
+                    if _get_data(record, 'email'):
                         # Pega o UF
-                        uf = None
-                        if _get_data(record, 'uf'):
-                            try: uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                        uf = _get_data(record, 'uf')
+                        if uf:
+                            try: uf = UF.objects.get(uf=uf)
                             except UF.DoesNotExist: pass
 
-                        # Verifica se ele não é de um Membro
-                        if not Membro.objects.filter(email=_get_data(record, 'email')).exists():
-                            # Se exisistir pessoa
-                            if Pessoa.objects.filter(email=_get_data(record, 'email')).exists():
-                                for pessoa in Pessoa.objects.filter(email=_get_data(record, 'email')):
+                        # Se for membro, então verifica se é para adicionar no círculo
+                        if Membro.objects.filter(email=email).exists():
+                            if _get_data(record, 'circulo'):
+                                circulo = Circulo.objects.filter(id=_get_data(record, 'circulo'))
+                                if circulo.count() == 1:
+                                    membro = Membro.objects.get(email=email)
+                                    circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo[0])
+                                    if insert:
+                                        num_circulo += 1
+
+                        else:
+                            # Se não for membro, então tenta encontrar a pessoa
+                            if Pessoa.objects.filter(email=email).exists():
+                                for pessoa in Pessoa.objects.filter(email=email):
                                     # Inclui na lista de visitantes
                                     visitantes.append(pessoa)
                                     atualizado = False
@@ -165,7 +180,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     if _get_data(record, 'telefone') and pessoa.celular != None:
                                         pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
                                         atualizado = True
-                                    if uf and pessoa.uf != uf:
+                                    if pessoa.uf == None and uf:
                                         pessoa.uf = uf
                                         atualizado = True
 
@@ -176,7 +191,7 @@ class PessoaAdmin(PowerModelAdmin):
                             else:
                                 if _get_data(record, 'nome') and uf:
                                     pessoa = Pessoa(
-                                        email=_get_data(record, 'email'),
+                                        email=email,
                                         nome=_get_data(record, 'nome'),
                                         celular=_get_data(record, 'telefone').strip(' ')[0:13],
                                         uf=uf,
@@ -184,7 +199,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     pessoa.save()
                                     visitantes.append(pessoa)
                                     importados += 1
-                messages.info(request, u'Registros lidos: %s | Importados: %s | Atualizados: %s' % (lidos, importados, atualizados, ))
+                messages.info(request, u'Registros lidos: %s | Importados: %s | Atualizados: %s | Novos membros no círculo: %s' % (num_lidos, importados, atualizados, num_circulo))
         return render_to_response(template_name, {
             'title': u'Inclusão em lote',
             'form': form,
@@ -1287,7 +1302,7 @@ admin.site.register(Campanha, CampanhaAdmin)
 
 
 class ColetaArticulacaoAdmin(PowerModelAdmin):
-    list_display = ('UF', 'municipio', 'zona', 'articulador__nome', 'articulador__email')
+    list_display = ('UF', 'municipio', 'zona', 'articulador', 'articulador_email')
     list_filter = ('UF', 'municipio__nome', )
     multi_search = (
         ('q1', u'Nome', ['articulador__nome', ]),
@@ -1297,7 +1312,7 @@ class ColetaArticulacaoAdmin(PowerModelAdmin):
         (None, { 'fields': ['UF', 'municipio', 'zona', 'articulador',  ], },),
     ]
     raw_id_fields = ('articulador', )
-    ordering = ('UF', 'articulador__nome',)
+    ordering = ('UF', )
 
     queryset_filter = {
         'municipio__nome': 'municipio_filter',

@@ -386,7 +386,7 @@ class ArticleCadastroForm(forms.ModelForm):
 
 
 class InclusaoEmLoteForm(forms.Form):
-    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha está no formato: email, nome da pessoa, telefone, uf')
+    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha está no formato: email, nome da pessoa, telefone, uf, número do círculo (opcional)')
 
     def clean_arquivo(self):
         arquivo = self.cleaned_data['arquivo']

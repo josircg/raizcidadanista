@@ -52,7 +52,7 @@ class Pessoa(models.Model):
 
     nome = models.CharField(u'Nome Completo (tal como consta na sua identidade)', max_length=150)
     apelido = models.CharField(u'Apelido ou Alcunha', max_length=30, blank=True, null=True)
-    email = models.EmailField(u'Email')
+    email = models.EmailField(u'Email', blank=True, null=True )
     uf = models.ForeignKey(UF, verbose_name='UF')
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
@@ -61,8 +61,16 @@ class Pessoa(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
+    ('I', u'Inválido'),
+
     def __unicode__(self):
-        return u'%s (%s)' % (self.nome, self.email)
+        return u'%s' % self.nome
+
+    def save(self, *args, **kwargs):
+        if self.email is None:
+            self.status_email = 'I'
+        super(Pessoa, self).save(*args, **kwargs)
+
 
 @receiver(signals.post_save, sender=Pessoa)
 def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
@@ -259,7 +267,7 @@ class Filiado(Membro):
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),
-    ('C', u'Coordenação')
+    ('C', u'Coordenação'),
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
@@ -662,8 +670,12 @@ class ColetaArticulacao(models.Model):
                 raise ValidationError(u'O campo Município é obrigatório para esse Articulador.')
         return super(ColetaArticulacao, self).clean()
 
+    def articulador_email(self):
+        return u'%s' % self.articulador.email
+    articulador_email.short_description = u'Email do Articulador'
+
     def __unicode__(self):
-        return u'%s' % self.articulador
+        return u'%s: %s' % (self.UF, self.articulador.nome)
 
 
 @receiver(signals.post_save, sender=ColetaArticulacao)

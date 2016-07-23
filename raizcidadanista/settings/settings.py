@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     'utils.ThreadLocal.ThreadLocalMiddleware',
     'BruteBuster.middleware.RequestMiddleware',
     # Uncomment the next line for simple clickjacking protection:
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'BruteBuster.middleware.Response404Middleware',
 )

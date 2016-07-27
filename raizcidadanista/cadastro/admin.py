@@ -31,7 +31,7 @@ import cStringIO as StringIO
 import cgi
 from xhtml2pdf.pisa import pisaDocument
 
-from forms import MembroImport, MalaDiretaForm
+from forms import MembroImport, MalaDiretaForm, InclusaoEmLoteForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao
 from financeiro.models import Receita

@@ -356,3 +356,13 @@ class MalaDiretaForm(forms.Form):
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
     circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())
+
+
+class InclusaoEmLoteForm(forms.Form):
+    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha está no formato: email, nome da pessoa, telefone, uf, número do círculo (opcional)')
+
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data['arquivo']
+        if arquivo.name.split('.')[-1].lower() != 'csv':
+            raise forms.ValidationError(u'Envie um arquivo .csv.')
+        return arquivo

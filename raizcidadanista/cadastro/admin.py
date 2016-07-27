@@ -120,10 +120,95 @@ class PessoaAdmin(PowerModelAdmin):
             'listas': Lista.objects.filter(validade__gte=datetime.now(), status__in=('A', 'P')),
         },context_instance=RequestContext(request))
 
+    def inclusao_em_lote(self, request, form_class=InclusaoEmLoteForm, template_name='admin/cadastro/pessoa/inclusao-em-lote.html'):
+        var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3, 'circulo': 4}
+
+        def _get_data(record, name):
+            if name in var:
+                return force_unicode(record[var[name]].strip())
+            else:
+                return None
+
+        if not request.user.is_superuser:
+            raise PermissionDenied()
+
+        form = form_class()
+        num_lidos = importados = atualizados = num_circulo = 0
+        visitantes = []
+        if request.method == 'POST':
+            form = form_class(request.POST, request.FILES)
+            if form.is_valid():
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
+
+                    if len(record) >= 2:
+                        num_lidos += 1
+                        email = _get_data(record, 'email')
+                    else:
+                        email = None
+
+                    # Se tem email
+                    if email:
+                        # Pega o UF
+                        uf = _get_data(record, 'uf')
+                        if uf:
+                            try: uf = UF.objects.get(uf=uf)
+                            except UF.DoesNotExist: pass
+
+                        # Se for membro, então verifica se é para adicionar no círculo
+                        if Membro.objects.filter(email=email).exists():
+                            if _get_data(record, 'circulo'):
+                                circulo = Circulo.objects.filter(id=_get_data(record, 'circulo'))
+                                if circulo.count() == 1:
+                                    membro = Membro.objects.get(email=email)
+                                    circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo[0])
+                                    if insert:
+                                        num_circulo += 1
+
+                        else:
+                            # Se não for membro, então tenta encontrar a pessoa
+                            if Pessoa.objects.filter(email=email).exists():
+                                for pessoa in Pessoa.objects.filter(email=email):
+                                    # Inclui na lista de visitantes
+                                    visitantes.append(pessoa)
+                                    atualizado = False
+                                    # Atualizar nome e telefone
+                                    if _get_data(record, 'nome') and pessoa.nome != _get_data(record, 'nome'):
+                                        pessoa.nome = _get_data(record, 'nome')
+                                        atualizado = True
+                                    if _get_data(record, 'telefone') and pessoa.celular != None:
+                                        pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
+                                        atualizado = True
+                                    if pessoa.uf == None and uf:
+                                        pessoa.uf = uf
+                                        atualizado = True
+
+                                    if atualizado:
+                                        pessoa.save()
+                                        atualizados += 1
+                            # Cria a pessoa
+                            else:
+                                if _get_data(record, 'nome') and uf:
+                                    pessoa = Pessoa(
+                                        email=email,
+                                        nome=_get_data(record, 'nome'),
+                                        celular=_get_data(record, 'telefone').strip(' ')[0:13],
+                                        uf=uf,
+                                    )
+                                    pessoa.save()
+                                    visitantes.append(pessoa)
+                                    importados += 1
+                messages.info(request, u'Registros lidos: %s | Importados: %s | Atualizados: %s | Novos membros no círculo: %s' % (num_lidos, importados, atualizados, num_circulo))
+        return render_to_response(template_name, {
+            'title': u'Inclusão em lote',
+            'form': form,
+            'visitantes': visitantes,
+        },context_instance=RequestContext(request))
+
     def get_urls(self):
         urls_originais = super(PessoaAdmin, self).get_urls()
         urls_customizadas = patterns('',
             url(r'^mala-direta/$', self.wrap(self.mala_direta), name='cadastro_pessoa_mala_direta'),
+            url(r'^inclusao-em-lote/$', self.wrap(self.inclusao_em_lote), name='cadastro_pessoa_inclusao_em_lote'),
         )
         return urls_customizadas + urls_originais
 
@@ -135,6 +220,7 @@ class PessoaAdmin(PowerModelAdmin):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_membro_change', args=(obj.membro.pk, )), label=u'Colaborador'))
         else:
             buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_mala_direta'), label=u'Mala direta'))
+            buttons.append(PowerButton(url=reverse('admin:cadastro_pessoa_inclusao_em_lote'), label=u'Inclusão em Lote'))
         return buttons
 admin.site.register(Pessoa, PessoaAdmin)
 

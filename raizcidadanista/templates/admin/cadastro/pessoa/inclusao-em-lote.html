@@ -1,0 +1,75 @@
+{% extends "admin/edit_form.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Core</a> &rsaquo;
+     <a href="../">Membro</a> &rsaquo;
+     {{ title }}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form {% if form.is_multipart %}enctype="multipart/form-data" {% endif %}action="" method="post">{% csrf_token %}
+        <div>
+            {% if form.errors %}
+                <p class="errornote">
+                {% blocktrans count form.errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+                </p>
+            {% endif %}
+
+            <fieldset class="module aligned">
+                {% for field in form %}
+                <div class="form-row{% if field.errors %} errors{% endif %}">
+                    {{ field.errors }}
+                    <label class="required">{{ field.label }}:</label>{{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </fieldset>
+
+            <div class="submit-row">
+                <input type="submit" value="Importar" class="default" name="_save"/>
+            </div>
+
+        </div>
+    </form>
+    {% if visitantes %}
+    <div>
+        <div class="inline-group">
+            <div class="tabular inline-related last-related">
+                <fieldset class="module">
+                    <h2>Emails de quem não é colaborador</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>e-mail</th>
+                                <th>Telefone</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pessoa in visitantes %}
+                            <tr>
+                                <td><p><a href="{% url admin:cadastro_pessoa_change pessoa.pk %}">{{ pessoa.nome }}</a></p></td>
+                                <td><p>{{ pessoa.email }}</p></td>
+                                <td><p>{{ pessoa.celular }}</p></td>
+                                <td><p>{{ pessoa.uf }}</p></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4"><p>Nenhum visitante encontrado!</p></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -89,7 +89,7 @@ class Article(models.Model):
         return True
 
     def get_images(self):
-        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.()]*)(".*)(>)')
+        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.()]*)(".*)(/?>)')
         images = []
         for img_rex in rex.findall(self.header):
             images.append(img_rex[3])
@@ -102,7 +102,7 @@ class Article(models.Model):
         if images:
             # im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
             # if im.size[0] >= 470 and im.size[1] >= 275:
-                return images[0]
+            return images[0]
         return u'/media/uploads/facebook_padrao.png'
 
     def get_comments(self):

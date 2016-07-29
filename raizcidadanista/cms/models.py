@@ -89,7 +89,7 @@ class Article(models.Model):
         return True
 
     def get_images(self):
-        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.()]*)(".*)(/?>)')
+        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.():\?\&\=]*)(".*)(>)')
         images = []
         for img_rex in rex.findall(self.header):
             images.append(img_rex[3])

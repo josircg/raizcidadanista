@@ -273,13 +273,12 @@ class OrcamentoAdmin(PowerModelAdmin):
     list_filter = ( 'tipo_despesa', 'periodo', )
     list_display = ('periodo', 'tipo_despesa', 'valor', 'realizado')
     fieldsets = [
-        (None, {'fields': ('periodo', 'periodo_final', 'tipo_despesa', 'valor', 'repetir', )}),
+        (None, {'fields': ('periodo', 'periodo_final', 'tipo_despesa', 'valor', 'repetir', 'editar_filhos', )}),
     ]
     form = OrcamentoAdminForm
 
     def save_model(self, request, obj, form, change):
         super(OrcamentoAdmin, self).save_model(request, obj, form, change)
-        # TODO: Falta terminar #99
         repetir = form.cleaned_data.get('repetir')
         if repetir:
             initial_date = date(day=1, month=obj.periodo.month(), year=obj.periodo.year())
@@ -294,5 +293,10 @@ class OrcamentoAdmin(PowerModelAdmin):
                     valor=obj.valor,
                     orcamento_pai=obj,
                 ).save()
-
+        if form.cleaned_data.get('editar_filhos'):
+            for orcamento in Orcamento.objects.filter(orcamento_pai=obj):
+                orcamento.periodo_final = obj.periodo_final
+                orcamento.tipo_despesa = obj.tipo_despesa
+                orcamento.valor = obj.valor
+                orcamento.save()
 admin.site.register(Orcamento, OrcamentoAdmin)

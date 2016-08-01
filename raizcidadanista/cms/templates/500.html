@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load cms_tags bootstrap thumbnail %}
+
+{% block title %}Houve uma falha nos servidores - {% endblock %}
+{% block ogtitle %}Houve uma falha nos servidores - {% endblock %}
+
+{% block description %}Houve uma falha nos servidores{% endblock %}
+{% block ogdescription %}Houve uma falha nos servidores{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="article-content col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="content-main contact-content margin-b-30">
+            <div class="contact-content-upper">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="gallery_title">
+                            <h3>Houve uma falha nos servidores</h3>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        Os administradores do sistema já foram notificados e em breve o problema será solucionado.
+                    </div>
+                </div> <!-- .row -->
+            </div>
+        </div> <!-- .contact-content -->
+    </div>
+</div>
+{% endblock %}

@@ -195,8 +195,8 @@ class PlanejamentoOrcamentarioView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(PlanejamentoOrcamentarioView, self).get_context_data(**kwargs)
         ano = datetime.now().strftime('%Y')
-        if self.kwargs.get('ano'):
-            ano = self.kwargs.get('ano')
+        if self.request.GET.get('ano'):
+            ano = self.request.GET.get('ano')
 
         results = []
         periodos = [ano+mes for mes in ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',)]

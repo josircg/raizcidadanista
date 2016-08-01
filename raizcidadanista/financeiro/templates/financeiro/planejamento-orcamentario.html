@@ -18,8 +18,8 @@
             <div class="col-md-12">
             <form class="form-inline">
                 <div class="form-group">
-                    <input type="text" id="ano_id" name="ano" class="form-control" placeholder="Ano" value="{{ ano }}">
-                    <button id="button-ano" type="button" class="btn btn-primary">Buscar</button>
+                    <input type="text" name="ano" class="form-control" placeholder="Ano" value="{{ ano }}">
+                    <button type="button" class="btn btn-primary">Buscar</button>
                 </div>
             </form>
 
@@ -46,12 +46,5 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'site/js/jquery-1.11.3.min.js' %}"></script>
-    <script type="text/javascript">
-        var base_url = '/financeiro/planejamento-orcamentario/';
-        $('#button-ano').click(function(event) {
-            window.location.href = base_url+$('#ano_id').val()+'/';
-        });
-    </script>
 </body>
 </html>

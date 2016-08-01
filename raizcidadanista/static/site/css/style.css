@@ -894,7 +894,7 @@ textarea.form-control { height:135px; }
     background: rgba(56, 79, 107, 0.2);
     margin-bottom: 10px;
 }
-.panel-conversa .panel-body {padding: 10px}
+.panel-conversa .panel-body {padding: 9px}
 blockquote {margin: 0px; border-left: 0; padding: 0; }
 blockquote p {font-size: 16.5px;}
 blockquote footer {

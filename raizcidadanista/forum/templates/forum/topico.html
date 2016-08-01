@@ -146,6 +146,9 @@
                                                 <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
                                                 <div class="form-group form-inline" style="margin: 10px 0px;">
                                                     <div class="upload input-group">
+                                                        <button type="submit" class="btn btn-success">Responder</button>
+                                                    </div>
+                                                    <div class="upload input-group">
                                                         <button type="button" class="input-fake btn btn-default">
                                                             <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                                                             Imagem
@@ -170,7 +173,6 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <button type="submit" class="btn btn-success">Responder</button>
                                             </div>
                                         </div>
                                     </form>
@@ -243,6 +245,9 @@
                                                             <textarea id="id_texto-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
                                                             <div class="form-group form-inline" style="margin: 10px 0px;">
                                                                 <div class="upload input-group">
+                                                                    <button type="submit" class="btn btn-success">Responder</button>
+                                                                </div>
+                                                                <div class="upload input-group">
                                                                     <button type="button" class="input-fake btn btn-default">
                                                                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                                                                         Imagem
@@ -267,7 +272,6 @@
                                                                     </ul>
                                                                 </div>
                                                             </div>
-                                                            <button type="submit" class="btn btn-success">Responder</button>
                                                         </div>
                                                     </div>
                                                 </form>
@@ -347,6 +351,9 @@
                                     </div>
                                     <div class="form-group form-inline" style="margin-bottom: 10px">
                                         <div class="upload input-group">
+                                            <button type="submit" class="btn btn-success">Adicionar</button>
+                                        </div>
+                                        <div class="upload input-group">
                                             <button type="button" class="input-fake btn btn-default">
                                                 <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                                                 Imagem
@@ -371,7 +378,6 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-success">Adicionar</button>
                                 </div>
                             </div>
                         </form>
@@ -403,8 +409,10 @@
     .top-fixed .contact-content-content {padding-top: 80px; }
     .top-fixed .contact-menu {top: 0px; position: fixed; z-index: 999;}
 
+    .upload {vertical-align: top !important;}
     .input-fake{padding-right:50px;}
     .input-file-real{opacity:0;position: absolute !important;top:0px;left:0px;cursor:pointer;height: 34px;width: 100%;}
+    .btn-default-hover {color: #333; background-color: #e6e6e6; border-color: #adadad;}
 </style>
 {% endblock %}
 
@@ -512,6 +520,13 @@
     $(".input-file-real").on("change",function(){
         var txt = $(this).val();
         $(this).parent().find(".input-fake").append('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
+    });
+    $(".input-file-real").mouseenter(function() {
+        $(this).parent().find(".input-fake").addClass('btn-default-hover');
+        console.log('enter');
+    }).mouseleave(function() {
+        $(this).parent().find(".input-fake").removeClass('btn-default-hover');
+        console.log('leave');
     });
 </script>
 {% endblock %}

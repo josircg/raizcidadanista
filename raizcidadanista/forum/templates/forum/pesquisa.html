@@ -51,7 +51,7 @@
                                     {% endif %}
                                 </div>
                             {% endfor %}
-                            <button type="submit" class="btn btn-success bnt-pesquisar">Pesquisar</button>
+                            <button type="submit" class="btn btn-success bnt-pesquisar form-control">Pesquisar</button>
                         </div>
                     </form>
                 </div>
@@ -82,11 +82,11 @@
                     <nav>
                       <ul class="pager">
                         {% if results.has_previous %}
-                            <li class="previous"><a href="{{ results.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            <li class="previous"><a href="?texto={{ form.texto.value }}&autor={{ form.autor.value }}&grupo={{ form.grupo.value }}&listar_conversas={{ form.listar_conversas.value }}&page={{ results.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
                         {% endif %}
 
                         {% if results.has_next %}
-                            <li class="next"><a href="{{ results.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            <li class="next"><a href="?texto={{ form.texto.value }}&autor={{ form.autor.value }}&grupo={{ form.grupo.value }}&listar_conversas={{ form.listar_conversas.value }}&page={{ results.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
                         {% endif %}
                       </ul>
                     </nav>
@@ -102,5 +102,7 @@
 <style type="text/css">
     .form-group label {display: block;}
     .bnt-pesquisar {margin-top: 20px;}
+    .group-listar_conversas {margin-top: 16px;}
+    .group-listar_conversas label {display: inline-block;}
 </style>
 {% endblock %}

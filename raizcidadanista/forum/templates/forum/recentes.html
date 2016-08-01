@@ -37,11 +37,11 @@
                     <nav>
                       <ul class="pager">
                         {% if topicos.has_previous %}
-                            <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
                         {% endif %}
 
                         {% if topicos.has_next %}
-                            <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
                         {% endif %}
                       </ul>
                     </nav>

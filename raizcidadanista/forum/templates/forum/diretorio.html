@@ -45,7 +45,7 @@
                                     <option value="false"{% if tematico == 'false' %}selected{% endif %}>Não</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-success bnt-pesquisar">Pesquisar</button>
+                            <button type="submit" class="btn btn-success bnt-pesquisar form-control">Pesquisar</button>
                         </div>
                     </form>
                 </div>
@@ -75,11 +75,11 @@
                     <nav>
                       <ul class="pager">
                         {% if grupos.has_previous %}
-                            <li class="previous"><a href="{{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            <li class="previous"><a href="?page={{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
                         {% endif %}
 
                         {% if grupos.has_next %}
-                            <li class="next"><a href="{{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            <li class="next"><a href="?page={{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
                         {% endif %}
                       </ul>
                     </nav>

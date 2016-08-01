@@ -12,7 +12,7 @@ from datetime import datetime, date
 from decimal import Decimal
 
 from utils.stdlib import normalizar_data
-from models import Operacao, PeriodoContabil, Receita, TipoDespesa, Pagamento
+from models import Operacao, PeriodoContabil, Receita, TipoDespesa, Pagamento, Orcamento
 from forms import CaixaForm
 
 
@@ -186,4 +186,35 @@ class CaixaDetalhePeriodoView(DetailView):
         context['saldo_inicial'] = saldo_inicial
         context['operacoes'] = operacoes
         context['saldo_final'] = saldo_final
+        return context
+
+
+class PlanejamentoOrcamentarioView(TemplateView):
+    template_name = 'financeiro/planejamento-orcamentario.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PlanejamentoOrcamentarioView, self).get_context_data(**kwargs)
+        ano = datetime.now().strftime('%Y')
+        if self.request.GET.get('ano'):
+            ano = self.request.GET.get('ano')
+
+        results = []
+        periodos = [ano+mes for mes in ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',)]
+        orcamentos_queryset = Orcamento.objects.filter(periodo__ciclo__in=periodos)
+
+        for tipo_despesa in TipoDespesa.objects.filter(pk__in=orcamentos_queryset.values_list('tipo_despesa', flat=True)).distinct():
+            result = {
+                'tipo_despesa': tipo_despesa,
+                'periodos': [],
+                'total': Decimal(0),
+            }
+            for periodo in periodos:
+                valor = Orcamento.objects.filter(periodo__ciclo=periodo).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+                result['periodos'].append(valor)
+                result['total'] += valor
+            results.append(result)
+
+        context['ano'] = ano
+        context['results'] = results
+        context['periodos'] = periodos
         return context

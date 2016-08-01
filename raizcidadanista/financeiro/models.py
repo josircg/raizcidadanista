@@ -486,6 +486,9 @@ class Orcamento(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.periodo, self.tipo_despesa)
 
+    def tem_filhos(self):
+        return Orcamento.objects.filter(orcamento_pai=self).exists()
+
     def comprometido(self):
         # calcular o primeiro e o último dia do mês do periodo
         return Despesa.objects.filter(tipo_despesa=self.tipo_despesa).aggregate(acumulado=Sum('valor')).get('acumulado', 0.0) or 0.0

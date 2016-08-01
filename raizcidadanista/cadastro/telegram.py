@@ -26,4 +26,3 @@ class BotRaiz(object):
 
 # Iniciar o bot
 bot = BotRaiz()
-bot.listen()

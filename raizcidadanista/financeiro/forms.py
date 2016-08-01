@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.admin.widgets import AdminRadioSelect, AdminDateWidget
 from django.contrib.localflavor.br.forms import BRCNPJField, BRCPFField
 
-from models import Fornecedor, Conta, Orcamento
+from models import Fornecedor, Conta, Orcamento, PeriodoContabil
 
 from datetime import date
 
@@ -52,6 +52,7 @@ class OrcamentoAdminForm(forms.ModelForm):
         model = Orcamento
 
     repetir = forms.CharField(label=u'Repetir até o mês', required=False, max_length=6, help_text=u'Informe um período, ex.: 201701')
+    editar_filhos = forms.BooleanField(required=False)#, widget=forms.HiddenInput())
 
     def clean_repetir(self):
         repetir = self.cleaned_data.get('repetir')

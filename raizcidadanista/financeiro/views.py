@@ -209,12 +209,12 @@ class PlanejamentoOrcamentarioView(TemplateView):
                 'total': Decimal(0),
             }
             for periodo in periodos:
-                valor = Orcamento.objects.filter(periodo__ciclo=periodo).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+                valor = Orcamento.objects.filter(periodo__ciclo=periodo, tipo_despesa=tipo_despesa).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
                 result['periodos'].append(valor)
                 result['total'] += valor
             results.append(result)
 
         context['ano'] = ano
         context['results'] = results
-        context['periodos'] = periodos
+        context['periodos'] = [mes+'/'+ano for mes in ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',)]
         return context

@@ -51,7 +51,7 @@ class OrcamentoAdminForm(forms.ModelForm):
     class Meta:
         model = Orcamento
 
-    repetir = forms.CharField(label=u'Repetir até o mês', required=False, max_length=6, help_text=u'Informe um período, ex.: 201701')
+    repetir = forms.CharField(label=u'Periodo final', required=False, max_length=6, help_text=u'Informe um período, ex.: 201701')
     editar_filhos = forms.BooleanField(required=False)#, widget=forms.HiddenInput())
 
     def clean_repetir(self):
@@ -63,3 +63,13 @@ class OrcamentoAdminForm(forms.ModelForm):
             if periodo_date >= repetir_date:
                 raise forms.ValidationError(u'Informe um período superior a %s' % periodo)
         return repetir
+
+    def clean_periodo_final(self):
+        periodo_final = self.cleaned_data.get('periodo_final')
+        periodo = self.cleaned_data.get('periodo')
+        if periodo_final and periodo:
+            periodo_final_date = date(day=1, month=periodo_final.month(), year=periodo_final.year())
+            periodo_date = date(day=1, month=periodo.month(), year=periodo.year())
+            if periodo_date >= periodo_final_date:
+                raise forms.ValidationError(u'Informe um período superior a %s' % periodo)
+        return periodo_final

@@ -50,7 +50,7 @@
                                 <blockquote>
                                     {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
                                     {{ conversa.texto|safe }}
-                                    {% if conversa.arquivo %}<p><a href="{{ conversa.arquivo.url }}" target="_blank">Arquivo</a></p>{% endif %}
+                                    {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
                                     <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
 
                                     <small>
@@ -110,8 +110,26 @@
                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
                                             <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa.pk }}" />
                                             <textarea id="id_texto-edit-conversa-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa.texto }}</textarea>
-                                            <small>Arquivo:<br>{% if conversa.arquivo %}Atualmente: <a href="{{ conversa.arquivo.url }}" target="_blank">{{ conversa.arquivo.url }}</a> <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span><br />Editar: {% endif %}<input style="display: inline-block;" type="file" name="arquivo" id="id_arquivo" /></small>
-                                            <br>
+                                            <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                {% if conversa.arquivo %}
+                                                    <small>
+                                                        Atualmente: <a href="{{ conversa.arquivo.url }}" target="_blank">{{ conversa.arquivo.url }}</a>
+                                                        <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
+                                                    </small>
+                                                {% endif %}
+                                                <div class="upload input-group">
+                                                    <button type="button" class="input-fake btn btn-default">
+                                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                        Arquivo
+                                                    </button>
+                                                    <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                    <ul class="list-unstyled">
+                                                        {% for error in form.arquivo.errors %}
+                                                        <li class="text-error"><small>{{ error }}</small></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
                                             <button type="submit" class="btn btn-success">Editar</button>
                                         </div>
                                     </form>
@@ -126,9 +144,32 @@
                                             <div class="panel-body">
                                                 <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                 <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
-                                                <small>Imagem: <input type="file" name="imagem" id="id_imagem" /></small>
-                                                <small>Arquivo: <input type="file" name="arquivo" id="id_arquivo" /></small>
-                                                <br>
+                                                <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                    <div class="upload input-group">
+                                                        <button type="button" class="input-fake btn btn-default">
+                                                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                            Imagem
+                                                        </button>
+                                                        <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                                        <ul class="list-unstyled">
+                                                        {% for error in form.imagem.errors %}
+                                                            <li class="text-error"><small>{{ error }}</small></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    <div class="upload input-group">
+                                                        <button type="button" class="input-fake btn btn-default">
+                                                            <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                            Arquivo
+                                                        </button>
+                                                        <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                        <ul class="list-unstyled">
+                                                            {% for error in form.arquivo.errors %}
+                                                            <li class="text-error"><small>{{ error }}</small></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                                 <button type="submit" class="btn btn-success">Responder</button>
                                             </div>
                                         </div>
@@ -143,7 +184,7 @@
                                         <div class="panel-body">
                                             <blockquote>
                                                 {{ conversa_filho.texto|safe }}
-                                                {% if conversa_filho.arquivo %}<p><a href="{{ conversa_filho.arquivo.url }}" target="_blank">Arquivo</a></p>{% endif %}
+                                                {% if conversa_filho.arquivo %}<small><a href="{{ conversa_filho.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
                                                 <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                 <small>
                                                 {% if object.editavel %}
@@ -200,9 +241,32 @@
                                                         <div class="panel-body">
                                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                             <textarea id="id_texto-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
-                                                            <small>Imagem: <input type="file" name="imagem" id="id_imagem" /></small>
-                                                            <small>Arquivo: <input type="file" name="arquivo" id="id_arquivo" /></small>
-                                                            <br>
+                                                            <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                                <div class="upload input-group">
+                                                                    <button type="button" class="input-fake btn btn-default">
+                                                                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                                        Imagem
+                                                                    </button>
+                                                                    <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                                                    <ul class="list-unstyled">
+                                                                    {% for error in form.imagem.errors %}
+                                                                        <li class="text-error"><small>{{ error }}</small></li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="upload input-group">
+                                                                    <button type="button" class="input-fake btn btn-default">
+                                                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                        Arquivo
+                                                                    </button>
+                                                                    <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                    <ul class="list-unstyled">
+                                                                        {% for error in form.arquivo.errors %}
+                                                                        <li class="text-error"><small>{{ error }}</small></li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
                                                             <button type="submit" class="btn btn-success">Responder</button>
                                                         </div>
                                                     </div>
@@ -218,8 +282,26 @@
                                                             <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
                                                             <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
                                                             <textarea id="id_texto-edit-conversa-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
-                                                            <small>Arquivo:<br>{% if conversa_filho.arquivo %}Atualmente: <a href="{{ conversa_filho.arquivo.url }}" target="_blank">{{ conversa_filho.arquivo.url }}</a> <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span><br />Editar: {% endif %}<input style="display: inline-block;" type="file" name="arquivo" id="id_arquivo" /></small>
-                                                            <br>
+                                                            <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                                {% if conversa_filho.arquivo %}
+                                                                    <small>
+                                                                        Atualmente: <a href="{{ conversa_filho.arquivo.url }}" target="_blank">{{ conversa_filho.arquivo.url }}</a>
+                                                                        <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
+                                                                    </small>
+                                                                {% endif %}
+                                                                <div class="upload input-group">
+                                                                    <button type="button" class="input-fake btn btn-default">
+                                                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                        Arquivo
+                                                                    </button>
+                                                                    <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                    <ul class="list-unstyled">
+                                                                        {% for error in form.arquivo.errors %}
+                                                                        <li class="text-error"><small>{{ error }}</small></li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
                                                             <button type="submit" class="btn btn-success">Editar</button>
                                                         </div>
                                                 </form>
@@ -262,22 +344,32 @@
                                             {% endfor %}
                                         </ul>
                                         {% endif %}
-                                        Imagem: <p class="file-upload">{{ form.imagem }}</p>
-                                        {% if form.imagem.errors %}
-                                        <ul class="list-unstyled">
+                                    </div>
+                                    <div class="form-group form-inline" style="margin-bottom: 10px">
+                                        <div class="upload input-group">
+                                            <button type="button" class="input-fake btn btn-default">
+                                                <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                Imagem
+                                            </button>
+                                            <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                            <ul class="list-unstyled">
                                             {% for error in form.imagem.errors %}
-                                            <li class="text-error"><small>{{ error }}</small></li>
-                                            {% endfor %}
-                                        </ul>
-                                        {% endif %}
-                                        Arquivo: <p class="file-upload">{{ form.arquivo }}</p>
-                                        {% if form.arquivo.errors %}
-                                        <ul class="list-unstyled">
-                                            {% for error in form.arquivo.errors %}
-                                            <li class="text-error"><small>{{ error }}</small></li>
-                                            {% endfor %}
-                                        </ul>
-                                        {% endif %}
+                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="upload input-group">
+                                            <button type="button" class="input-fake btn btn-default">
+                                                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                Arquivo
+                                            </button>
+                                            <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                            <ul class="list-unstyled">
+                                                {% for error in form.arquivo.errors %}
+                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-success">Adicionar</button>
                                 </div>
@@ -310,6 +402,9 @@
     .content-all .contact-content-content {border-top: 0; }
     .top-fixed .contact-content-content {padding-top: 80px; }
     .top-fixed .contact-menu {top: 0px; position: fixed; z-index: 999;}
+
+    .input-fake{padding-right:50px;}
+    .input-file-real{opacity:0;position: absolute !important;top:0px;left:0px;cursor:pointer;height: 34px;width: 100%;}
 </style>
 {% endblock %}
 
@@ -411,6 +506,12 @@
                 callback.call(this, responseData);
             });
         }
+    });
+
+    //simulação do input file
+    $(".input-file-real").on("change",function(){
+        var txt = $(this).val();
+        $(this).parent().find(".input-fake").append('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
     });
 </script>
 {% endblock %}

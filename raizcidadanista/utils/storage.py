@@ -25,6 +25,9 @@ class UuidFileSystemStorage(FileSystemStorage):
 
 
 def save_file(file, path=''):
+    if path and not os.path.isdir(os.path.join(settings.MEDIA_ROOT, path)):
+        os.makedirs(os.path.join(settings.MEDIA_ROOT, path))
+
     nome, extensao = os.path.splitext(file._get_name())
     filename = os.path.join(str(uuid.uuid4()) + extensao.lower())
     with open(os.path.join(settings.MEDIA_ROOT, path, filename), 'wb') as destination:

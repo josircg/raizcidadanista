@@ -32,6 +32,7 @@ class PeriodoContabil(models.Model):
     ciclo = models.CharField(max_length=6, help_text='Entre no formato AAAAMM onde AAAA é o Ano e MM o mês')
     status = models.BooleanField(u'Aberto', default=True)
     publico = models.BooleanField(u'Público', default=False)
+    nota = models.TextField('Notas Explicativas', blank=True, null=True)
 
     def month(self):
         return int(self.ciclo[-2:])
@@ -40,7 +41,7 @@ class PeriodoContabil(models.Model):
         return int(self.ciclo[:4])
 
     def __unicode__(self):
-        return u'%s/%s' % (self.ciclo[:4], self.ciclo[-2:])
+        return u'%s/%s' % (self.ciclo[-2:], self.ciclo[:4], )
 
 
 CONTA_TIPO_CHOICES = (
@@ -345,6 +346,7 @@ class Pagamento(Operacao):
     despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True)
     tipo_despesa = ChainedForeignKey(TipoDespesa, chained_fields={'despesa': 'despesa', }, show_all=True, auto_choose=False, verbose_name=u'Tipo de Despesa', blank=True, null=True)
     comprovante = models.FileField(u'Comprovante', upload_to="pagamentos", blank=True, null=True)
+    adiantamento = models.BooleanField(default=False)
 
     def get_valor_positivo(self):
         return abs(self.valor or Decimal(0))

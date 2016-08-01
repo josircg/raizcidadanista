@@ -75,7 +75,7 @@ admin.site.register(TipoDespesa, TipoDespesaAdmin)
 class PagamentoProjetoInline(admin.TabularInline):
     model = Pagamento
     extra = max_num = 0
-    fields = ('dt', 'valor', 'referencia')
+    fields = ('dt', 'valor', 'referencia', )
     readonly_fields = ('dt', 'valor', 'referencia')
     fields = ('pagamento_link', 'dt', 'valor', 'referencia', )
     readonly_fields = ('pagamento_link', 'valor')
@@ -185,7 +185,7 @@ class PagamentoAdmin(PowerModelAdmin):
         ('q2', u'Referência', ['referencia', ]),
     )
     fieldsets = (
-        (None, {'fields': ('conta', 'dt', 'fornecedor', 'despesa', 'tipo_despesa', 'projeto', 'referencia', 'valor', 'comprovante', 'conferido', 'obs', ),}),
+        (None, {'fields': ('conta', 'dt', 'fornecedor', 'despesa', 'tipo_despesa', 'projeto', 'referencia', 'valor', 'comprovante', 'adiantamento', 'conferido', 'obs', ),}),
     )
     formfield_overrides = {
         models.DecimalField: {'localize': True},

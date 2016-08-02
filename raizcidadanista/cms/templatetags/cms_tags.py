@@ -23,10 +23,10 @@ def get_section(context, slug):
 def get_article(context, slug):
     try:
         article = Article.objects.get(slug=slug)
-        if article.have_perm(context.get('request').user):
+        if context.get('request') and article.have_perm(context.get('request').user):
             return article
     except Article.DoesNotExist: pass
-
+    except AttributeError: pass
     return None
 
 
@@ -41,6 +41,8 @@ def get_section_articles(context, slug, num=5):
             if len(articles) == num: break
         return articles
     except Section.DoesNotExist:
+        return []
+    except AttributeError:
         return []
 
 

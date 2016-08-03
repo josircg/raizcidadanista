@@ -109,7 +109,7 @@ def get_cloudtags(context):
         for tag, num in tags_valor.items():
             tags.append((tag, (float(num)/float(maior_valor))*3.5))
         return tags
-    except Recurso.DoesNotExist:
+    except:
         return []
 
 

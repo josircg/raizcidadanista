@@ -282,7 +282,7 @@ class GrupoEditMembrosView(DetailView):
 
     def get_object(self, queryset=None):
         obj = super(GrupoEditMembrosView, self).get_object(queryset)
-        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+        if not obj.request.user.is_superuser and not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
             raise PermissionDenied()
         return obj
 

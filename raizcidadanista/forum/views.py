@@ -236,7 +236,7 @@ class GrupoEditView(UpdateView):
 
     def get_object(self, queryset=None):
         obj = super(GrupoEditView, self).get_object(queryset)
-        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+        if not self.request.user.is_superuser and not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
             raise PermissionDenied()
         return obj
 
@@ -282,7 +282,7 @@ class GrupoEditMembrosView(DetailView):
 
     def get_object(self, queryset=None):
         obj = super(GrupoEditMembrosView, self).get_object(queryset)
-        if not obj.request.user.is_superuser and not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+        if not self.request.user.is_superuser and not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
             raise PermissionDenied()
         return obj
 
@@ -356,7 +356,7 @@ class GrupoAddMembrosView(FormView):
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(Grupo, pk=self.kwargs['pk'])
-        if not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
+        if not self.request.user.is_superuser and not obj.grupousuario_set.filter(usuario=self.request.user, admin=True).exists():
             raise PermissionDenied()
         return obj
 

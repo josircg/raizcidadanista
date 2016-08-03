@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.filter
 def has_grupo_perm(user, grupo):
-    return grupo.grupousuario_set.filter(usuario=user).exists()
+    return user.is_superuser or grupo.grupousuario_set.filter(usuario=user).exists()
 
 @register.filter
 def has_admin_grupo_perm(user, grupo):

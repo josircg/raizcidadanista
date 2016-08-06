@@ -688,6 +688,32 @@ def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
             instance.articulador.usuario.groups.remove(group)
             instance.articulador.usuario.save()
 
+CANDIDATURA_CARGO = (
+    ('P', u'Prefeito'),
+    ('V', u'Vereador'),
+)
+
+class Coligacao(models.Model):
+    class Meta:
+        verbose_name = u'Coligação'
+        verbose_name_plural = u'Coligações'
+
+    UF = models.ForeignKey(UF, verbose_name=u'UF')
+    municipio = ChainedForeignKey(Municipio, chained_fields={'UF': 'uf', }, show_all=False, auto_choose=False, verbose_name=u'Município')
+    partidos = models.CharField(u'Partidos',max_length=50, blank=True, null=True)
+
+    def __unicode__(self):
+        return u'%s/%s: %s' % (self.UF, self.municipio, self.partidos)
+
+class Candidatura(models.Model):
+    coligacao = models.ForeignKey(Coligacao)
+    candidato = models.ForeignKey(Membro, verbose_name=u'Candidata/o')
+    partido = models.CharField(max_length=50)
+    cargo = models.CharField(max_length=1, choices=CANDIDATURA_CARGO)
+    eleito = models.BooleanField()
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.candidato.nome, self.coligacao)
 
 class ArticleCadastro(Article):
     class Meta:

@@ -35,7 +35,7 @@ from ckeditor.widgets import CKEditorWidget
 
 from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
-    ColetaArticulacao, ArticleCadastro
+    ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
@@ -1299,9 +1299,6 @@ class CampanhaAdmin(PowerModelAdmin):
             return qs
         return qs.filter(autor=request.user)
 
-admin.site.register(Campanha, CampanhaAdmin)
-
-
 class ColetaArticulacaoAdmin(PowerModelAdmin):
     list_display = ('UF', 'municipio', 'zona', 'articulador', 'articulador_email')
     list_filter = ('UF', 'municipio__nome', )
@@ -1337,7 +1334,31 @@ class ColetaArticulacaoAdmin(PowerModelAdmin):
             uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
             return qs.filter(UF__pk__in=uf_ids)
         return qs
-admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
+
+class CandidaturaInline(admin.TabularInline):
+    model = Candidatura
+    extra = 1
+    verbose_name_plural = u'Candidaturas'
+    raw_id_fields = ('candidato', )
+
+class ColigacaoAdmin(PowerModelAdmin):
+    list_display = ('UF', 'municipio', 'partidos',)
+    list_filter = ('UF', 'municipio__nome', )
+    fieldsets = [
+        (None, { 'fields': ['UF', 'municipio', 'partidos',  ], },),
+    ]
+    ordering = ('UF', )
+    inlines = (CandidaturaInline, )
+
+    queryset_filter = {
+        'municipio__nome': 'municipio_filter',
+    }
+
+    def municipio_filter(self, request):
+        if request.GET.get('UF__id_ibge__exact'):
+            return Municipio.objects.filter(uf__id_ibge=request.GET.get('UF__id_ibge__exact'))
+        return Municipio.objects.none()
+    municipio_filter.short_description = u'Município'
 
 
 class SectionItemInline(admin.TabularInline):
@@ -1410,7 +1431,11 @@ class ArticleCadastroAdmin(PowerModelAdmin):
         if not request.user.is_superuser:
             qs = qs.filter(sectionitem__section__pk__in=section_ids)
         return qs
-admin.site.register(ArticleCadastro, ArticleCadastroAdmin)
 
+admin.site.register(ArticleCadastro, ArticleCadastroAdmin)
 admin.site.register(CirculoEvento)
 admin.site.register(UF)
+admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
+admin.site.register(Coligacao, ColigacaoAdmin)
+
+admin.site.register(Campanha, CampanhaAdmin)

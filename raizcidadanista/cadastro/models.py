@@ -16,6 +16,7 @@ from django.utils.http import int_to_base36
 from django.utils.crypto import salted_hmac
 
 from django.core.mail import EmailMultiAlternatives
+from django.template.defaultfilters import slugify
 from django.template.loader import get_template
 from django.template import Template
 from django.template.context import Context
@@ -24,7 +25,7 @@ from time import sleep
 
 from municipios.models import UF, Municipio
 from forum.models import Grupo, GrupoUsuario
-from cms.models import Article, Section, SectionItem
+from cms.models import Article, Section, SectionItem, URLMigrate
 from utils.storage import UuidFileSystemStorage
 from cms.email import sendmail, send_email_thread
 from smart_selects.db_fields import ChainedForeignKey
@@ -61,7 +62,13 @@ class Pessoa(models.Model):
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.nome, self.email)
+        return u'%s' % self.nome
+
+    def save(self, *args, **kwargs):
+        if self.email is None:
+            self.status_email = 'I'
+        super(Pessoa, self).save(*args, **kwargs)
+
 
 @receiver(signals.post_save, sender=Pessoa)
 def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
@@ -256,6 +263,7 @@ class Filiado(Membro):
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),
+    ('C', u'Coordenação'),
     ('G', u'Grupo de Trabalho (GT)'),
     ('T', u'Círculo Temático'),
     ('I', u'Círculo Identitários'),
@@ -265,7 +273,9 @@ CIRCULO_TIPO = (
 
 CIRCULO_STATUS = (
     ('A', u'Ativo'),
-    ('I', u'Desativado'),
+    ('F', u'Em Formação'),
+    ('G', u'Grupo de Discussão'),
+    ('I', u'Inativo'),
 )
 
 class Circulo(models.Model):

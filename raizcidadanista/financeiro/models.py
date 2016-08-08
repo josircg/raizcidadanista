@@ -223,7 +223,7 @@ class Receita(models.Model):
                     sendmail(
                         subject=u'Pagamento Identificado!',
                         to=[self.colaborador.email, ],
-                        bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
+                        #bcc=list(User.objects.filter(groups__name=u'Financeiro').values_list('email', flat=True)),
                         template='emails/pagamento-identificado.html',
                         params={'receita': self,},
                     )

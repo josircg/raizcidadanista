@@ -21,6 +21,7 @@
                         <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar membros</button></a>
                         <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar grupo</button></a>
                         {% endif %}
+                        {% if object.grupocategoria_set.exists %}
                         <form style="display: inline; float: right; margin-top: -6px;">
                             <select name="categoria" class="categoria-option btn btn-success button-topic">
                                 <option value="" hidden>Categoria</option>
@@ -29,6 +30,7 @@
                                 {% endfor %}
                             </select>
                         </form>
+                        {% endif %}
                     </h3>
                     {{ object.descricao|safe }}
                 </div>

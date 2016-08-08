@@ -1,0 +1,242 @@
+{% extends "admin/base_site.html" %}
+{% load adminmedia admin_list i18n financeiro_tags %}
+{% load url from future %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+    <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}admin/css/ie.css" />
+    <![endif]-->
+    <style type="text/css">
+    .dtmore, .dtless {
+        display: inline-block;
+        width: 10px;
+    }
+    </style>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% url 'admin:jsi18n' as jsi18nurl %}
+    <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+    <script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
+    <script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
+    <script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
+    <script type="text/javascript" src="{% admin_media_prefix %}js/calendar.js"></script>
+    <script type="text/javascript" src="{% admin_media_prefix %}js/admin/DateTimeShortcuts.js"></script>
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function($) {
+                function dateformat(date){
+                    date = date.split('/');
+                    newdate = '';
+                    if(date[0].length == 1){
+                        newdate = '0'+date[0]+'/';
+                    }else{
+                        newdate = date[0]+'/';
+                    }
+                    if(date[1].length == 1){
+                        newdate = newdate+'0'+date[1]+'/';
+                    }else{
+                        newdate = newdate+date[1]+'/';
+                    }
+                    newdate = newdate+date[2];
+                    return newdate;
+                }
+                /* Colocar a data no formato dd/mm/yyyy */
+                var year = '{% now "Y" %}'
+                $('#id_dt_inicial, #id_dt_final').focusout(function() {
+                    var date = $(this).val();
+                    if($(this).val().length < 8){
+                        date = $(this).val()+'/'+year;
+                    }
+                    $(this).val(dateformat(date));
+                });
+                /* Botões de aumentar e diminuir a data */
+                setTimeout(function(){
+                    $('#id_dt_inicial').after('<a field="#id_dt_inicial" class="dtmore" href="javascript://">+</a>');
+                    $('#id_dt_inicial').before('<a field="#id_dt_inicial" class="dtless" href="javascript://">-</a>');
+                    $('#id_dt_final').after('<a field="#id_dt_final" class="dtmore" href="javascript://">+</a>');
+                    $('#id_dt_final').before('<a field="#id_dt_final" class="dtless" href="javascript://">-</a>');
+                }, 2000);
+                $('.dtmore').live('click', function(){
+                    var date = $($(this).attr('field')).val().split('/');
+                    date = new Date(parseInt(date[2]), parseInt(date[1]-1), parseInt(date[0]));
+                    date.setDate(date.getDate() + 1);
+                    $($(this).attr('field')).val(dateformat(date.getDate()+'/'+(date.getMonth() + 1)+'/'+date.getFullYear()));
+                })
+                $('.dtless').live('click', function(){
+                    var date = $($(this).attr('field')).val().split('/');
+                    date = new Date(parseInt(date[2]), parseInt(date[1]-1), parseInt(date[0]));
+                    date.setDate(date.getDate() - 1);
+                    $($(this).attr('field')).val(dateformat(date.getDate()+'/'+(date.getMonth() + 1)+'/'+date.getFullYear()));
+                })
+            });
+        })(django.jQuery);
+    </script>
+{% endblock %}
+
+{% block bodyclass %}change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="../../">{% trans "Home" %}</a>
+    &rsaquo;
+    <a href="../">Financeiro</a>
+    &rsaquo;
+    Caixa
+</div>
+{% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% if form.errors %}
+    <p class="errornote">
+        {% blocktrans count form.errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+    </p>
+    {% endif %}
+    <div class="module" id="changelist">
+        <div id="toolbar">
+            <div>
+                <!-- DIV needed for valid HTML -->
+                <form action="" method="GET" class="changelist-search" id="changelist-search">
+                    <input type="hidden" name="action" value="search">
+                {% for field in form %}
+                    <label class="field-box{% if field.errors %} errors{% endif %}">
+                        {{ field.label_tag }}
+                    {{ field }}
+                    </label>
+                    {% endfor %}
+                    <input type="submit" value="{% trans 'Ok' %}" />
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if step == 2 %}
+    <div class="inline-group">
+        <div class="tabular inline-related ">
+            <fieldset class="module">
+                <h2>Saldo</h2>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th style="text-align: right;">Valor</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if saldo_inicial != 0 or not operacoes_saldo_inicial %}
+                        <tr class="row1">
+                            <td>
+                                <p></p>
+                            </td>
+                            <td>
+                                <p>Saldo Inicial</p>
+                            </td>
+                            <td style="text-align: right;">
+                                <p>{{ saldo_inicial }}</p>
+                            </td>
+                            <td style="text-align: right;">
+                                <p>{{ saldo_inicial }}</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% for saldo in operacoes_saldo_inicial %}
+                        <tr class="{% cycle 'row0' 'row1' %}">
+                            <td>
+                                <p>{{ saldo.dt|date:"d/m/Y" }}</p>
+                            </td>
+                            <td>
+                                <p>{{ saldo.descricao_caixa|safe }}</p>
+                            </td>
+                            <td style="text-align: right;">
+                                <p>{{ saldo.total }}</p>
+                            </td>
+                            <td style="text-align: right;">
+                                <p>{{ saldo.total_caixa }}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="inline-group">
+        <div class="tabular inline-related ">
+            <fieldset class="module">
+                <h2>Movimento</h2>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th style="text-align: right;">Valor</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for operacao in operacoes %}
+                        <tr class="{% cycle 'row1' 'row0' %}">
+                            <td>
+                                <p>{{ operacao.dt|date:"d/m/Y" }}</p>
+                            </td>
+                            <td>
+                                <p>{{ operacao.get_tipo_display }}</p>
+                            </td>
+                            <td>
+                                <p>{{ operacao.descricao_caixa|safe }}</p>
+                            </td>
+                            <td style="text-align: right;">
+                                {% if operacao.valor > 0 %}
+                                <p style="color: green">{{ operacao.valor }}</p>
+                                {% else %}
+                                <p style="color: red">{{ operacao.valor }}</p>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right;">
+                                <p>{{ operacao.total_caixa }}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="inline-group">
+        <div class="tabular inline-related ">
+            <fieldset class="module">
+                <h2>Saldo Final</h2>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row1">
+                            <td>
+                                <p>{{ saldo_final }}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

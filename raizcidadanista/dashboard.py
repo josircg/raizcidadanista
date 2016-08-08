@@ -24,6 +24,11 @@ class CustomIndexDashboard(Dashboard):
     title = ''
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
+        request = context['request']
+
+        financeiro_children = []
+        if request.user.has_perm('auth.view_caixa'):
+            financeiro_children.append({'title': u'Caixa', 'change_url': reverse('financeiro_caixa')})
 
         self.children += [
             modules.ModelList(
@@ -46,9 +51,11 @@ class CustomIndexDashboard(Dashboard):
                 ]
             ),
             modules.ModelList(
-                u'Financeiro', [
+                u'Financeiro',
+                models=[
                     'financeiro.models.*',
-                ]
+                ],
+                children=financeiro_children
             ),
             modules.ModelList(
                 u'Configurações',

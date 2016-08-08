@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static l10n %}
+    <title>Detalhe do Caixa {{ object }}</title>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div class="container-fluid">
+        <h2>Detalhe do Caixa {{ object }}</h2>
+        <div class="row">
+            <div class="col-md-12">
+            {% if object.publico %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Saldo inicial:</th>
+                            <th class="text-right">R$ {{ saldo_inicial }}</th>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table table-striped">
+                    <thead>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th class="text-right">Valor</th>
+                        <th class="text-right">Total</th>
+                    </thead>
+                    <tbody>
+                        {% for operacao in operacoes %}
+                        <tr>
+                            <th>{{ operacao.dt }}</th>
+                            <th>{{ operacao.get_tipo_display }}</th>
+                            <th>{{ operacao.descricao_caixa_display|safe }}</th>
+                            <th class="text-right">R$ {{ operacao.valor }}</th>
+                            <th class="text-right">R$ {{ operacao.total_caixa }}</th>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Saldo final:</th>
+                            <th class="text-right">R$ {{ saldo_final }}</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="text-right">
+                    <a  href="{% url financeiro_caixa_periodo object.ciclo %}"><button type="button" class="btn btn-primary">Voltar</button></a>
+                </div>
+            {% else %}
+                <p class="text-danger">Período não está disponível para consulta.</p>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

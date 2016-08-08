@@ -1,0 +1,28 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+(function($) {
+    'use strict';
+    $(document).ready(function() {
+        /* Pagamento integral */
+        $('.pagamento-box').hide();
+        if($('#id_integral').prop("checked") == true){
+            $('.pagamento-box').show();
+        }
+        $('#id_integral').change(function(event) {
+            $('.pagamento-box').slideToggle();
+        });
+
+    });
+})(django.jQuery);
+</script>
+<style type="text/css">
+    .field-integral label {
+        font-weight: bold !important;
+        color: #333 !important
+    }
+</style>
+{% endblock %}
+

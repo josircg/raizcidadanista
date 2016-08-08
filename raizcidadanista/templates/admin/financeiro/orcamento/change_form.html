@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}{{ block.super }}
+<style type="text/css">
+    .field-editar_filhos {display: none; }
+</style>
+{% if original.tem_filhos %}
+<script type="text/javascript">
+(function($) {
+    'use strict';
+    $(document).ready(function() {
+        $('.submit-row input[type=submit]').click(function(event) {
+            if(confirm("Deseja editar também os orçamentos filhos?") == true) {
+                $('#id_editar_filhos').attr('checked', true);
+            }
+        });
+    });
+})(django.jQuery);
+</script>
+{% endif %}
+{% endblock %}
+

@@ -37,11 +37,15 @@ class CustomAppList(items.AppList):
 class CustomMenu(Menu):
 
     def init_with_context(self, context):
+        request = context['request']
 
-        configuracoes_extra = []
+        configuracoes_children = []
         if context.get('request').user.has_perm('auth.view_filebrowser'):
-            configuracoes_extra.append(items.MenuItem(title=_(u'Visualizador de Arquivos'), url=reverse('filebrowser:fb_browse')))
+            configuracoes_children.append(items.MenuItem(title=_(u'Visualizador de Arquivos'), url=reverse('filebrowser:fb_browse')))
 
+        financeiro_children = []
+        if request.user.has_perm('auth.view_caixa'):
+            financeiro_children.append(items.MenuItem(u'Caixa', reverse('financeiro_caixa')))
 
         self.children += [
             items.MenuItem(' ', reverse('admin:index')),
@@ -54,7 +58,7 @@ class CustomMenu(Menu):
             CustomAppList(
                 u'Configurações',
                 models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
-                extra=configuracoes_extra
+                children=configuracoes_children
             ),
             CustomAppList(
                 u'Cadastro',
@@ -68,6 +72,7 @@ class CustomMenu(Menu):
             CustomAppList(
                 u'Financeiro',
                 models=('financeiro.models.*', ),
+                children=financeiro_children
             ),
             CustomAppList(
                 u'Adminstração',

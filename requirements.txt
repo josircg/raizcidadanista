@@ -4,7 +4,12 @@ gunicorn
 South==0.8.4
 python-dateutil
 django-admin-tools==0.5.2
+
+html5lib==0.9999999
+reportlab==3.3.0
+pisa==3.0.33
 xhtml2pdf==0.0.6
+pyPdf==1.13
 
 #CMS
 django-mptt==0.6.0

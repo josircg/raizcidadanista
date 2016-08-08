@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^municipios/', include('municipios.urls')),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/static/site/icon/favicon.ico')),
     url(r'^forum/', include('forum.urls')),
+    url(r'^financeiro/', include('financeiro.urls')),
     url(r'^', include('cadastro.urls')),
     #CMS
     url(r'^', include('cms.urls')),

@@ -195,26 +195,31 @@ class PlanejamentoOrcamentarioView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(PlanejamentoOrcamentarioView, self).get_context_data(**kwargs)
         ano = datetime.now().strftime('%Y')
-        if self.request.GET.get('ano'):
-            ano = self.request.GET.get('ano')
+        if self.kwargs.get('ano'):
+            ano = self.kwargs.get('ano')
 
         results = []
         periodos = [ano+mes for mes in ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',)]
         orcamentos_queryset = Orcamento.objects.filter(periodo__ciclo__in=periodos)
 
+        total = Decimal(0)
         for tipo_despesa in TipoDespesa.objects.filter(pk__in=orcamentos_queryset.values_list('tipo_despesa', flat=True)).distinct():
             result = {
                 'tipo_despesa': tipo_despesa,
                 'periodos': [],
                 'total': Decimal(0),
+                'saldo': Decimal(0),
             }
             for periodo in periodos:
                 valor = Orcamento.objects.filter(periodo__ciclo=periodo, tipo_despesa=tipo_despesa).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
                 result['periodos'].append(valor)
                 result['total'] += valor
+            result['saldo'] = result['total']+Pagamento.objects.filter(tipo_despesa=tipo_despesa, dt__year=ano).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+            total += result['saldo']
             results.append(result)
 
         context['ano'] = ano
         context['results'] = results
+        context['total'] = total
         context['periodos'] = [mes+'/'+ano for mes in ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',)]
         return context

@@ -288,6 +288,11 @@ class OrcamentoAdmin(PowerModelAdmin):
             return self.fieldsets_edit
         return self.fieldsets
 
+    def get_readonly_fields(self, request, obj=None):
+        if not obj or request.user.groups.filter(name=u'Financeiro'):
+            return super(OrcamentoAdmin, self).get_readonly_fields(request, obj)
+        return ('periodo', 'repetir', 'periodo_final', 'tipo_despesa', 'valor', )
+
     def get_form(self, request, obj=None, **kwargs):
         defaults = {
             "form": self.form,

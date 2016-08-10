@@ -16,7 +16,7 @@
         <h2>Planejamento Orcamentário {{ ano }}</h2>
         <div class="row">
             <div class="col-md-12">
-            <form class="form-inline">
+            <form id="form-ano" class="form-inline">
                 <div class="form-group">
                     <input type="text" name="ano" class="form-control" placeholder="Ano" value="{{ ano }}">
                     <button type="submit" class="btn btn-primary">Buscar</button>
@@ -34,17 +34,34 @@
                     <tbody>
                         {% for result in results %}
                         <tr>
-                            <th>{{ result.tipo_despesa }}</th>
+                            <td>{{ result.tipo_despesa }}</td>
                             {% for val in result.periodos %}
-                            <th class="text-right">R$ {{ val }}</th>
+                            <td class="text-right">R$ {{ val }}</td>
                             {% endfor %}
-                            <th class="text-right">R$ {{ result.total }}</th>
+                            <td class="text-right">R$ {{ result.total }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right" colspan="13"><b>Saldo</b></td>
+                            <td class="text-right"><b>R$ {{ result.saldo }}</b></td>
                         </tr>
                         {% endfor %}
+                        <tr>
+                            <td class="text-right" colspan="13"><b>Total geral</b></td>
+                            <td class="text-right"><b>R$ {{ total }}</b></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+    <script src="{% static 'site/js/jquery-1.11.3.min.js' %}"></script>
+    <script type="text/javascript">
+        var base_url = "{% url financeiro_planejamento_orcamentario '' %}"
+        $('#form-ano').submit(function(event) {
+            var ano = $(this).find('input[name="ano"]').val();
+            window.location.href = base_url+ano;
+            return false;
+        });
+    </script>
 </body>
 </html>

@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
@@ -328,16 +329,18 @@ class MembroConsulta(FormView):
     template_name = 'cadastro/consulta.html'
     form_class = ConsultaForm
 
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('nome'):
-            try:
-                pessoa = Pessoa.objects.get(nome=request.POST.get('nome'))
-                messages.info(self.request, u"%" % pessoa.nome)
-            except Pessoa.DoesNotExist:
-                messages.info(self.request, u'% não encontrada' % pessoa.nome)
-
-        return super(MembroConsulta, self).post(request, *args, **kwargs)
-
+    def form_valid(self, form):
+        if Pessoa.objects.filter(Q(nome=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct().exists():
+            messages.info(self.request, u"%s já está cadastrado." % form.cleaned_data.get('nome'))
+        else:
+            messages.error(self.request, u'%s não encontrada!' % form.cleaned_data.get('nome'))
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context={
+                'form': self.form_class(),
+            }
+        )
 
 class ValidarEmailView(TemplateView):
     template_name = 'cadastro/bem-vindo.html'

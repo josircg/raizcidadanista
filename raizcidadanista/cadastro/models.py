@@ -61,8 +61,6 @@ class Pessoa(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
-    ('I', u'Inválido'),
-
     def __unicode__(self):
         return u'%s' % self.nome
 
@@ -688,6 +686,11 @@ def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
             instance.articulador.usuario.groups.remove(group)
             instance.articulador.usuario.save()
 
+CANDIDATURA_CARGO = (
+    ('P', u'Prefeito'),
+    ('V', u'Vereador'),
+)
+
 class Coligacao(models.Model):
     class Meta:
         verbose_name = u'Coligação'
@@ -699,11 +702,6 @@ class Coligacao(models.Model):
 
     def __unicode__(self):
         return u'%s/%s: %s' % (self.UF, self.municipio, self.partidos)
-
-CANDIDATURA_CARGO = (
-    ('P', u'Prefeito'),
-    ('V', u'Vereador'),
-)
 
 class Candidatura(models.Model):
     coligacao = models.ForeignKey(Coligacao)
@@ -720,15 +718,3 @@ class ArticleCadastro(Article):
         proxy = True
         verbose_name = u'Artigo dos Grupos'
         verbose_name_plural = u'Artigos dos Grupos'
-
-'''
-class StatColheita(models.Model):
-    UF = models.ForeignKey(UF, verbose_name=u'UF')
-    meta = models.IntegerField()
-    coleta = models.IntegerField()
-    validos = models.IntegerField()
-
-    class Meta:
-        verbose_name = u'Estatística do Estado'
-        verbose_name_plural = u'Estatísticas da Colheita'
-'''

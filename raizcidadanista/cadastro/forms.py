@@ -336,6 +336,8 @@ class AtualizarCadastroMembroForm(forms.ModelForm):
         self.instance.status_email = 'A'
         return super(AtualizarCadastroMembroForm, self).save(commit)
 
+class ConsultaForm(forms.Form):
+    nome = forms.CharField(label='Nome ou email')
 
 class MembroImport(forms.Form):
     arquivo = forms.FileField()

@@ -7,6 +7,7 @@ from cadastro import views
 
 urlpatterns = [
     url(r'^newsletter/$', views.NewsletterView.as_view(), name="newsletter"),
+    url(r'^consulta/$', views.MembroConsulta.as_view(), name="consulta"),
     url(r'^meu-perfil/$', login_required(views.MeuPerfilView.as_view()), name="meu_perfil"),
     url(r'^telegram/$', login_required(views.TelegramView.as_view()), name="telegram"),
     url(r'^membro/$', views.MembroView.as_view(), name="membro"),

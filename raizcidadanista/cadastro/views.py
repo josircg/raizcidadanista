@@ -17,7 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
-from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm
+from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm, ConsultaForm
 from cadastro.telegram import bot
 
 from datetime import date
@@ -190,7 +190,6 @@ class AtualizarCadastroLinkView(FormView):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(AtualizarCadastroLinkView, self).form_invalid(form)
 
-
 class AtualizarCadastroView(FormView):
     template_name_filiado = 'cadastro/atualizar-cadastro-filiado.html'
     template_name_membro = 'cadastro/atualizar-cadastro-membro.html'
@@ -323,6 +322,21 @@ class FiliadoView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(FiliadoView, self).form_invalid(form)
+
+
+class MembroConsulta(FormView):
+    template_name = 'cadastro/consulta.html'
+    form_class = ConsultaForm
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('nome'):
+            try:
+                pessoa = Pessoa.objects.get(nome=request.POST.get('nome'))
+                messages.info(self.request, u"%" % pessoa.nome)
+            except Pessoa.DoesNotExist:
+                messages.info(self.request, u'% não encontrada' % pessoa.nome)
+
+        return super(MembroConsulta, self).post(request, *args, **kwargs)
 
 
 class ValidarEmailView(TemplateView):

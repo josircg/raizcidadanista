@@ -214,7 +214,7 @@ class PlanejamentoOrcamentarioView(TemplateView):
                 valor = Orcamento.objects.filter(periodo__ciclo=periodo, tipo_despesa=tipo_despesa).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
                 result['periodos'].append(valor)
                 result['total'] += valor
-            result['saldo'] = result['total']+Pagamento.objects.filter(tipo_despesa=tipo_despesa, dt__year=ano).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+            result['saldo'] = result['total']+(Pagamento.objects.filter(tipo_despesa=tipo_despesa, dt__year=ano).aggregate(Sum('valor'))['valor__sum'] or Decimal(0))
             total += result['saldo']
             results.append(result)
 

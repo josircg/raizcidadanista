@@ -41,12 +41,18 @@
                             <td class="text-right">R$ {{ result.total }}</td>
                         </tr>
                         <tr>
-                            <td class="text-right" colspan="13"><b>Saldo</b></td>
-                            <td class="text-right"><b>R$ {{ result.saldo }}</b></td>
+                            <td><b>Saldo</b></td>
+                            {% for saldo in result.saldos %}
+                            <td class="text-right"><b>R$ {{ saldo }}</b></td>
+                            {% endfor %}
+                            <td class="text-right"><b>R$ {{ result.total_saldos }}</b></td>
                         </tr>
                         {% endfor %}
                         <tr>
-                            <td class="text-right" colspan="13"><b>Total geral</b></td>
+                            <td><b>Total geral</b></td>
+                            {% for mes, val in totais %}
+                            <td class="text-right"><b>R$ {{ val }}</b></td>
+                            {% endfor %}
                             <td class="text-right"><b>R$ {{ total }}</b></td>
                         </tr>
                     </tbody>

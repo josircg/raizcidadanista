@@ -181,7 +181,7 @@ admin.site.register(Operacao, OperacaoAdmin)
 
 class PagamentoAdmin(PowerModelAdmin):
     list_display = ('conta', 'dt', 'despesa', 'tipo_despesa', 'fornecedor', 'referencia', 'valor', 'conferido',)
-    list_filter = ('fornecedor', 'conta', 'tipo', 'conferido', )
+    list_filter = ('fornecedor', 'conta', 'tipo', 'tipo_despesa', 'conferido', )
     date_hierarchy = 'dt'
     multi_search = (
         ('q1', u'Fornecedor', ['fornecedor__nome', ]),

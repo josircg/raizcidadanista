@@ -25,7 +25,7 @@
 
                 <table class="table table-striped">
                     <thead>
-                        <th>Reals</th>
+                        <th>Orçamento x Realizado</th>
                         {% for periodo in periodos %}
                         <th class="text-right">{{ periodo }}</th>
                         {% endfor %}
@@ -35,25 +35,33 @@
                         {% for result in results %}
                         <tr>
                             <td>{{ result.tipo_despesa }}</td>
-                            {% for val in result.periodos %}
-                            <td class="text-right">R$ {{ val }}</td>
+                            {% for periodo, data in result.periodos %}
+                            <td class="text-right">{% if data.valor %}R$ {{ data.valor }}{% else %} - {% endif %}</td>
                             {% endfor %}
-                            <td class="text-right">R$ {{ result.total }}</td>
+                            <td class="text-right">{% if result.total %}R$ {{ result.total }}{% else %} - {% endif %}</td>
                         </tr>
                         <tr>
-                            <td><b>Saldo</b></td>
-                            {% for saldo in result.saldos %}
-                            <td class="text-right"><b>R$ {{ saldo }}</b></td>
+                            <td class="text-right"><b>Saldo</b></td>
+                            {% for periodo, data in result.periodos %}
+                            <td class="text-right"><b data-toggle="tooltip" data-placement="top" title="Pagamentos: R$ {{ data.pagamento }}">
+                                {% if request.user.is_authenticated and request.user.is_staff %}
+                                    <a href="{% url admin:financeiro_pagamento_changelist %}?tipo_despesa__id__exact={{ result.tipo_despesa.pk }}&dt__gte={{ data.dt_inicio|date:"d/m/Y" }}&dt__lte={{ data.dt_fim|date:"d/m/Y" }}">
+                                        {% if data.saldo %}R$ {{ data.saldo }}{% else %} - {% endif %}
+                                    </a>
+                                {% else %}
+                                    {% if data.saldo %}R$ {{ data.saldo }}{% else %} - {% endif %}
+                                {% endif %}
+                            </b></td>
                             {% endfor %}
-                            <td class="text-right"><b>R$ {{ result.total_saldos }}</b></td>
+                            <td class="text-right"><b>{% if result.total_saldos %}R$ {{ result.total_saldos }}{% else %} - {% endif %}</b></td>
                         </tr>
                         {% endfor %}
                         <tr>
                             <td><b>Total geral</b></td>
                             {% for mes, val in totais %}
-                            <td class="text-right"><b>R$ {{ val }}</b></td>
+                            <td class="text-right"><b>{% if val %}R$ {{ val }}{% else %} - {% endif %}</b></td>
                             {% endfor %}
-                            <td class="text-right"><b>R$ {{ total }}</b></td>
+                            <td class="text-right"><b>{% if total %}R$ {{ total }}{% else %} - {% endif %}</b></td>
                         </tr>
                     </tbody>
                 </table>
@@ -61,6 +69,7 @@
         </div>
     </div>
     <script src="{% static 'site/js/jquery-1.11.3.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap-tooltip.js' %}"></script>
     <script type="text/javascript">
         var base_url = "{% url financeiro_planejamento_orcamentario '' %}"
         $('#form-ano').submit(function(event) {
@@ -68,6 +77,10 @@
             window.location.href = base_url+ano;
             return false;
         });
+
+        $(function () {
+          $('[data-toggle="tooltip"]').tooltip();
+        })
     </script>
 </body>
 </html>

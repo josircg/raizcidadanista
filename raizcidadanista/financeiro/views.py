@@ -207,24 +207,33 @@ class PlanejamentoOrcamentarioView(TemplateView):
         for tipo_despesa in TipoDespesa.objects.filter(pk__in=orcamentos_queryset.values_list('tipo_despesa', flat=True)).distinct():
             result = {
                 'tipo_despesa': tipo_despesa,
-                'periodos': [],
+                'periodos': {},
                 'total': Decimal(0),
-                'saldos': [],
                 'total_saldos': Decimal(0),
             }
             for periodo in periodos:
                 valor = Orcamento.objects.filter(periodo__ciclo=periodo, tipo_despesa=tipo_despesa).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
-                result['periodos'].append(valor)
                 result['total'] += valor
 
-                saldo = valor+(Pagamento.objects.filter(tipo_despesa=tipo_despesa, dt__year=ano, dt__month=periodo[4:]).aggregate(Sum('valor'))['valor__sum'] or Decimal(0))
-                result['saldos'].append(saldo)
+                pagamento = Pagamento.objects.filter(tipo_despesa=tipo_despesa, dt__year=ano, dt__month=periodo[4:]).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+                saldo = valor+pagamento
                 result['total_saldos'] += saldo
+
+
+                result['periodos'][periodo] = {
+                    'valor': valor,
+                    'saldo': saldo,
+                    'pagamento': pagamento,
+                    'dt_inicio': date(day=1, month=int(periodo[4:]), year=int(ano)),
+                    'dt_fim': date(day=1, month=int(periodo[4:]), year=int(ano))+relativedelta(months=1),
+                }
 
                 if not totais.get(periodo[4:]):
                     totais[periodo[4:]] = Decimal(0)
                 totais[periodo[4:]] += saldo
                 total += saldo
+
+            result['periodos'] = sorted(result['periodos'].items(), key=lambda t: t[0])
             results.append(result)
 
         totais = sorted(totais.items(), key=lambda t: t[0])

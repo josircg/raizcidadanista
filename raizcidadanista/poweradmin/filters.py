@@ -5,7 +5,7 @@ try:
     from django.contrib.admin.filterspecs import FilterSpec, AllValuesFilterSpec
     filterspec = True
 except ImportError:
-    from django.contrib.admin.filters import AllValuesFieldListFilter, FieldListFilter
+    from django.contrib.admin.filters import RelatedFieldListFilter, AllValuesFieldListFilter, FieldListFilter
     filterspec = False
 
 if filterspec:
@@ -37,6 +37,9 @@ if filterspec:
             self.lookup_choices = \
                 queryset.distinct().order_by(f.name).values_list(f.name, flat=True)
 
+        def expected_parameters(self):
+            return [self.lookup_kwarg, self.lookup_kwarg_isnull]
+
     new_filter_specs = []
     for test, fs in FilterSpec.filter_specs:
         if issubclass(fs, AllValuesFilterSpec):
@@ -48,6 +51,9 @@ if filterspec:
     FilterSpec.filter_specs = new_filter_specs
 else:
     class CustomQuerysetAllValuesFieldListFilter(AllValuesFieldListFilter):
+        '''
+            Usado apenas para filtros por campos.
+        '''
         def __init__(self, field, request, params, model, model_admin, field_path):
             super(CustomQuerysetAllValuesFieldListFilter, self).__init__(
                 field, request, params, model, model_admin, field_path)
@@ -71,10 +77,28 @@ else:
 
             self.lookup_choices = queryset.distinct().order_by(field.name).values_list(field.name, flat=True)
 
+    class CustomRelatedFieldListFilter(RelatedFieldListFilter):
+        '''
+            Usado apenas para filtros por FK.
+        '''
+        def __init__(self, field, request, params, model, model_admin, field_path):
+            super(CustomRelatedFieldListFilter, self).__init__(field, request, params, model, model_admin, field_path)
+
+            queryset_filter = getattr(model_admin, 'queryset_filter', None)
+            if queryset_filter and field_path in queryset_filter:
+                queryset = getattr(model_admin, queryset_filter[field_path])(request)
+                lookup_choices = []
+                for query in queryset:
+                    lookup_choices.append((query.pk, u'%s' % query))
+                self.lookup_choices = lookup_choices
+
     new_filter_list = []
     for test, _filter in FieldListFilter._field_list_filters:
         if issubclass(_filter, AllValuesFieldListFilter):
             new_filter_list += [(test, CustomQuerysetAllValuesFieldListFilter)]
+            continue
+        if issubclass(_filter, RelatedFieldListFilter):
+            new_filter_list += [(test, CustomRelatedFieldListFilter)]
             continue
 
         new_filter_list += [(test, _filter)]

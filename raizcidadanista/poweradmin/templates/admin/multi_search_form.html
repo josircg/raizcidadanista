@@ -5,7 +5,7 @@
     <label for="searchbar"><img src="{% admin_media_prefix %}img/icon_searchbox.png" alt="Search" /></label>
     {% for field in multi_search_keys %}
             <label for="searchbar{{ forloop.counter }}">
-                {{ field.label|capfirst }}
+                {{ field.label }}
             </label>
             <input type="text" name="{{ field.name }}" value="{{ field.value }}" id="searchbar{{ forloop.counter }}" {{ field.attributes|safe }} />
 

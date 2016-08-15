@@ -22,7 +22,7 @@
      <tbody>
         <tr class="inline-filter">
           <td></td>
-          <td><input class="field-filter" type="text" name="nome" {% if request.GET.nome %}value="{{ request.GET.nome }}"{% endif %} style="width: 250px;"></td>
+          <td>Filtro: <input class="field-filter" type="text" name="nome" {% if request.GET.nome %}value="{{ request.GET.nome }}"{% endif %} style="width: 250px;"></td>
           <td><input class="field-filter" type="text" name="email" {% if request.GET.email %}value="{{ request.GET.email }}"{% endif %} style="width: 200px;"></td>
           <td><input class="field-filter" type="text" name="celular" {% if request.GET.celular %}value="{{ request.GET.celular }}"{% endif %}></td>
           <td><input class="field-filter" type="text" name="residencial" {% if request.GET.residencial %}value="{{ request.GET.residencial }}"{% endif %}></td>

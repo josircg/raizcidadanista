@@ -333,7 +333,12 @@ class MembroConsulta(FormView):
         queryset = Pessoa.objects.filter(Q(nome__icontains=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct()
         if queryset.exists():
             for pessoa in queryset:
-                messages.info(self.request, u"%s (%s/%s) já está cadastrado." % (pessoa.nome, pessoa.municipio, pessoa.uf.uf))
+                tipo = u'Colaborador'
+                try:
+                    if pessoa.membro and pessoa.membro.filiado:
+                        tipo = u'Filiado'
+                except Membro.DoesNotExist: pass
+                messages.info(self.request, u"%s (%s/%s) (%s)." % (pessoa.nome, pessoa.municipio or '-', pessoa.uf.uf or '-', tipo))
         else:
             messages.error(self.request, u'%s não encontrada!' % form.cleaned_data.get('nome'))
         return self.response_class(

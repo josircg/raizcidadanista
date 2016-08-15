@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView, View, DetailView
+from django.views.generic import FormView, TemplateView, View, DetailView, RedirectView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
@@ -17,7 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
-from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm
+from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm, ConsultaForm
 
 from datetime import date
 import cStringIO as StringIO
@@ -177,7 +178,6 @@ class AtualizarCadastroLinkView(FormView):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(AtualizarCadastroLinkView, self).form_invalid(form)
 
-
 class AtualizarCadastroView(FormView):
     template_name_filiado = 'cadastro/atualizar-cadastro-filiado.html'
     template_name_membro = 'cadastro/atualizar-cadastro-membro.html'
@@ -311,6 +311,30 @@ class FiliadoView(FormView):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(FiliadoView, self).form_invalid(form)
 
+
+class MembroConsulta(FormView):
+    template_name = 'cadastro/consulta.html'
+    form_class = ConsultaForm
+
+    def form_valid(self, form):
+        queryset = Pessoa.objects.filter(Q(nome__icontains=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct()
+        if queryset.exists():
+            for pessoa in queryset:
+                tipo = u'Colaborador'
+                try:
+                    if pessoa.membro and pessoa.membro.filiado:
+                        tipo = u'Filiado'
+                except Membro.DoesNotExist: pass
+                messages.info(self.request, u"%s (%s/%s) (%s)." % (pessoa.nome, pessoa.municipio or '-', pessoa.uf.uf or '-', tipo))
+        else:
+            messages.error(self.request, u'%s não encontrada!' % form.cleaned_data.get('nome'))
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context={
+                'form': self.form_class(),
+            }
+        )
 
 class ValidarEmailView(TemplateView):
     template_name = 'cadastro/bem-vindo.html'

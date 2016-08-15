@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Consulta Mailing{% endblock %}
+{% block ogtitle %}Consulta Mailing{% endblock %}
+
+{% block description %}Consulta Mailing{% endblock %}
+{% block ogdescription %}Consulta Mailing{% endblock %}
+
+{% block main %}
+    <div class="col-article">
+        <h3>Consulta do cadastro Mala Direta e Facebook</h3>
+        <p>Preencha o nome ou email do usuário para verificar se ele já está cadastrado no nosso grupo do Facebook.</p>
+        <form action="" method="POST" role="form">{% csrf_token %}
+            <div class="panel-body">
+                {% for field in form %}
+                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                        {% if field|btischeckbox %}
+                            {{ field|btform }}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                        {% else %}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {{ field|btform }}
+                        {% endif %}
+                        {% if field.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in field.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">Consultar</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+
+{% block css %}
+<style type="text/css">
+    .has-error .form-control-feedback {
+        margin-top: -6px;
+    }
+    #id_nome {max-width: 500px;}
+    @media (max-width: 992px){
+        .col-left {display: none; }
+    }
+</style>
+{% endblock %}

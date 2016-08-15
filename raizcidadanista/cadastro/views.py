@@ -23,6 +23,7 @@ from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLink
 from datetime import date
 import cStringIO as StringIO
 from PIL import Image
+import operator
 
 
 
@@ -317,7 +318,11 @@ class MembroConsulta(FormView):
     form_class = ConsultaForm
 
     def form_valid(self, form):
-        queryset = Pessoa.objects.filter(Q(nome__icontains=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct()
+
+        or_queries = [Q(**{'email__icontains': form.cleaned_data.get('nome')})]
+        or_queries.append(reduce(operator.and_, [Q(**{'nome__icontains': bit}) for bit in form.cleaned_data.get('nome').split()]))
+        queryset = Pessoa.objects.filter(reduce(operator.or_, or_queries)).distinct()
+
         if queryset.exists():
             for pessoa in queryset:
                 tipo = u'Colaborador'

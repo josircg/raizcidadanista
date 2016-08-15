@@ -339,6 +339,13 @@ class AtualizarCadastroMembroForm(forms.ModelForm):
 class ConsultaForm(forms.Form):
     nome = forms.CharField(label='Nome ou email')
 
+    def clean_nome(self):
+        nome = self.cleaned_data.get('nome')
+        if not '@' in nome and len(nome.split(' ')) < 2:
+            raise forms.ValidationError(u'Informe o nome e sobrenome ou o email.')
+        return nome
+
+
 class MembroImport(forms.Form):
     arquivo = forms.FileField()
 

@@ -330,8 +330,10 @@ class MembroConsulta(FormView):
     form_class = ConsultaForm
 
     def form_valid(self, form):
-        if Pessoa.objects.filter(Q(nome=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct().exists():
-            messages.info(self.request, u"%s já está cadastrado." % form.cleaned_data.get('nome'))
+        queryset = Pessoa.objects.filter(Q(nome__icontains=form.cleaned_data.get('nome'))|Q(email=form.cleaned_data.get('nome'))).distinct()
+        if queryset.exists():
+            for pessoa in queryset:
+                messages.info(self.request, u"%s (%s/%s) já está cadastrado." % (pessoa.nome, pessoa.municipio, pessoa.uf.uf))
         else:
             messages.error(self.request, u'%s não encontrada!' % form.cleaned_data.get('nome'))
         return self.response_class(

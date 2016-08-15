@@ -20,6 +20,17 @@
      </tr></thead>
 
      <tbody>
+        <tr class="inline-filter">
+          <td></td>
+          <td>Filtro: <input class="field-filter" type="text" name="nome" {% if request.GET.nome %}value="{{ request.GET.nome }}"{% endif %} style="width: 250px;"></td>
+          <td><input class="field-filter" type="text" name="email" {% if request.GET.email %}value="{{ request.GET.email }}"{% endif %} style="width: 200px;"></td>
+          <td><input class="field-filter" type="text" name="celular" {% if request.GET.celular %}value="{{ request.GET.celular }}"{% endif %}></td>
+          <td><input class="field-filter" type="text" name="residencial" {% if request.GET.residencial %}value="{{ request.GET.residencial }}"{% endif %}></td>
+          <td><input class="field-filter" type="checkbox" name="filiado" {% if request.GET.filiado %}checked{% endif %}></td>
+          <td><input class="field-filter" type="checkbox" name="administrador" {% if request.GET.administrador %}checked{% endif %}></td>
+          <td><input class="field-filter" type="checkbox" name="publico" {% if request.GET.publico %}checked{% endif %}></td>
+          <td><input type="button" value="Filtrar"></td>
+        </tr>
      {% for inline_admin_form in inline_admin_formset %}
         {% if inline_admin_form.form.non_field_errors %}
         <tr><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>

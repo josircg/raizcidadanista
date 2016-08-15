@@ -323,6 +323,10 @@ class CirculoMembro(models.Model):
     publico = models.BooleanField(u'Público', default=False)
     grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
 
+    def email(self):
+        return self.membro.email
+    email.short_description = u'email'
+
     def celular(self):
         return self.membro.celular
     celular.short_description = u'Tel.Celular'

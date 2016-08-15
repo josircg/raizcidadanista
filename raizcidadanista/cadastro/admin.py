@@ -816,8 +816,8 @@ class CirculoMembroCirculoInline(admin.TabularInline):
     verbose_name_plural = u'Membros do Círculo'
     raw_id_fields = ('membro', )
     ordering = ('membro__nome', )
-    fields = ('membro', 'celular', 'residencial', 'is_filiado', 'administrador', 'publico', )
-    readonly_fields = ('celular', 'residencial', 'is_filiado', )
+    fields = ('membro', 'email', 'celular', 'residencial', 'is_filiado', 'administrador', 'publico', )
+    readonly_fields = ('membro', 'email', 'celular', 'residencial', 'is_filiado', )
     template = 'admin/cadastro/circulo/circulomembro_inline.html'
 
     def queryset(self, request):
@@ -828,6 +828,22 @@ class CirculoMembroCirculoInline(admin.TabularInline):
         class PaginationFormSet(FormSet):
             def _construct_forms(self, *args, **kwargs):
                 qs = self.get_queryset()
+
+                # Filtros
+                if request.GET.get('nome'):
+                    qs = qs.filter(membro__nome__icontains=request.GET.get('nome'))
+                if request.GET.get('email'):
+                    qs = qs.filter(membro__email__icontains=request.GET.get('email'))
+                if request.GET.get('celular'):
+                    qs = qs.filter(membro__celular__icontains=request.GET.get('celular'))
+                if request.GET.get('residencial'):
+                    qs = qs.filter(membro__residencial__icontains=request.GET.get('residencial'))
+                if request.GET.get('filiado'):
+                    qs = qs.filter(membro__filiado=True if request.GET.get('filiado') else False)
+                if request.GET.get('administrador'):
+                    qs = qs.filter(administrador=True if request.GET.get('administrador') else False)
+                if request.GET.get('publico'):
+                    qs = qs.filter(publico=True if request.GET.get('publico') else False)
 
                 paginator = Paginator(qs, 20)
 
@@ -895,7 +911,7 @@ class CirculoAdmin(PowerModelAdmin):
         if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
             self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
         else:
-            self.inlines = [CirculoEventoCirculoInline,]
+            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
         return [inline(self.model, self.admin_site) for inline in self.inlines]
 
     def get_actions(self, request):

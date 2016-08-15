@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.localflavor.br.forms import BRCPFField, BRZipCodeField
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -363,6 +363,7 @@ class MalaDiretaForm(forms.Form):
         ('C', u'Colaborador'),
         ('F', u'Filiado'),
     )
+    grupo = forms.ModelChoiceField(label=u'Grupo', required=False, queryset=Group.objects.all())
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
     circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())

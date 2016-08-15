@@ -86,6 +86,8 @@ class PessoaAdmin(PowerModelAdmin):
             if form.is_valid():
                 pessoas = Pessoa.objects.all()
                 # Filtros
+                if form.cleaned_data.get('grupo'):
+                    pessoas = pessoas.filter(membro__usuario__groups=form.cleaned_data.get('grupo'))
                 if form.cleaned_data.get('uf'):
                     pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
                 if form.cleaned_data.get('tipo'):

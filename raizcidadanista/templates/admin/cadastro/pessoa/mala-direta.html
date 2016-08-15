@@ -68,6 +68,7 @@
     $(document).ready(function(){
         function update(){
             var data = {
+                "grupo": $("#id_grupo").val(),
                 "tipo": $("#id_tipo").val(),
                 "uf": $("#id_uf").val(),
                 "circulo": $("#id_circulo").val(),
@@ -126,7 +127,7 @@
         };
 
         update();
-        $("#id_tipo, #id_uf, #id_pagina, #id_circulo").change(function(){
+        $("#id_grupo, #id_tipo, #id_uf, #id_pagina, #id_circulo").change(function(){
             update();
         });
 

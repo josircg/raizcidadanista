@@ -204,7 +204,7 @@ class SectionDetailView(DetailView):
             if article.have_perm(self.request.user):
                 articles_list.append(article)
 
-        paginator = Paginator(articles_list, 10)
+        paginator = Paginator(articles_list, 6)
 
         page = self.request.GET.get('page')
         try:
@@ -232,6 +232,11 @@ class SectionDetailView(DetailView):
 
 class HomeView(TemplateView):
     template_name = 'home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        context['form'] = ContatoForm()
+        return context
 
 
 class LinkConversionView(View):
@@ -300,7 +305,7 @@ class SearchView(TemplateView):
                     })
             results_list = sorted(results_list, key=lambda k: k['title'])
 
-        paginator = Paginator(results_list, 10)
+        paginator = Paginator(results_list, 6)
         page = self.request.GET.get('page')
         try:
             results = paginator.page(page)

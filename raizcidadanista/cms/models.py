@@ -133,6 +133,20 @@ def article_sendemail_aprovacao(sender, instance, raw, using, *args, **kwargs):
             )
 
 
+class ArticleAttribute(models.Model):
+    class Meta:
+        verbose_name = u'Atributo do Artigo'
+        verbose_name_plural = u'Atributos do Artigo'
+
+    article = models.ForeignKey(Article, verbose_name=u'Artigo')
+    attrib = models.CharField(u'Atributo', max_length=30)
+    value = models.CharField(u'Valor', max_length=100)
+    active = models.BooleanField(u'Ativo', default=False)
+
+    def __unicode__(self):
+        return u"%s %s" % (self.article.title, self.atributo)
+
+
 class ArticleArchive(models.Model):
     class Meta:
         ordering = ('updated_at', )

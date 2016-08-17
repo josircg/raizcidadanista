@@ -8,23 +8,17 @@
 {% block ogdescription %}Acesso não autorizado{% endblock %}
 
 {% block main %}
-<div class="row">
-    <div class="article-content col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="content-main contact-content margin-b-30">
-            <div class="contact-content-upper">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                        <div class="gallery_title">
-                            <h3>Acesso não autorizado</h3>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                        <p>O Usuário {{ request.user }} não tem acesso ao endereço <strong>“{{ request.build_absolute_uri }}”</strong>.</p>
-                        <p>Verifique se a URL digitada está correta e tente novamente.</p>
-                    </div>
-                </div> <!-- .row -->
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Acesso não autorizado</a>
+                </h4>
+                <p>O Usuário {{ request.user }} não tem acesso ao endereço <strong>“{{ request.build_absolute_uri }}”</strong>.</p>
+                <p>Verifique se a URL digitada está correta e tente novamente.</p>
             </div>
-        </div> <!-- .contact-content -->
+        </div>
     </div>
 </div>
 {% endblock %}

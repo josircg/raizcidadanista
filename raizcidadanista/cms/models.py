@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import Group, User
+from django.utils.html import strip_tags
 
 from mptt.models import MPTTModel, TreeForeignKey
 from smart_selects.db_fields import ChainedForeignKey
@@ -15,11 +16,14 @@ from easy_thumbnails.files import get_thumbnailer
 
 from signals import slug_pre_save
 from fields import ListField
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from email import sendmail, resendmail_email_agendado
 
+from HTMLParser import HTMLParser
+from collections import Counter
 from PIL import Image
-import os, shutil, re
+import os, shutil, re, string
+
 
 
 class ItemManager(models.Manager):
@@ -64,8 +68,9 @@ class Article(models.Model):
             ("manage_articles", u"Administrar artigos"),
         )
 
-
     def get_absolute_url(self):
+        if str(self.pk) == self.slug:
+            return self.content
         return reverse('article', kwargs={'slug': self.slug})
 
     def get_conversion_url(self):
@@ -84,18 +89,20 @@ class Article(models.Model):
         return True
 
     def get_images(self):
-        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.()]*)(".*)(>)')
+        rex = re.compile(r'(<img )(.*)(src=")([a-zA-Z0-9- _/\.():\?\&\=]*)(".*)(>)')
         images = []
         for img_rex in rex.findall(self.header):
+            images.append(img_rex[3])
+        for img_rex in rex.findall(self.content):
             images.append(img_rex[3])
         return images
 
     def first_image(self):
         images = self.get_images()
         if images:
-            im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
-            if im.size[0] >= 470 and im.size[1] >= 275:
-                return images[0]
+            # im = Image.open(u'%s%s' % (settings.PROJECT_DIR, images[0]))
+            # if im.size[0] >= 470 and im.size[1] >= 275:
+            return images[0]
         return u'/media/uploads/facebook_padrao.png'
 
     def get_comments(self):

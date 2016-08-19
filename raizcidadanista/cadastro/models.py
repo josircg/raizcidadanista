@@ -52,7 +52,7 @@ class Pessoa(models.Model):
 
     nome = models.CharField(u'Nome Completo (tal como consta na sua identidade)', max_length=150)
     apelido = models.CharField(u'Apelido ou Alcunha', max_length=30, blank=True, null=True)
-    email = models.EmailField(u'Email')
+    email = models.EmailField(u'Email', blank=True, null=True )
     uf = models.ForeignKey(UF, verbose_name='UF')
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
     sexo = models.CharField(max_length=1, choices=GENDER, default='O')
@@ -124,6 +124,7 @@ class Membro(Pessoa):
     twitter_id = models.CharField(u'Twitter ID', max_length=120, editable=False, blank=True, null=True)
     twitter_oauth_token = models.TextField(editable=False, blank=True, null=True)
     twitter_oauth_token_secret = models.TextField(editable=False, blank=True, null=True)
+    telegram_id = models.CharField(u'Telegram ID', max_length=120, editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
     dt_prefiliacao = models.DateField(u'Dt de pré-filiação', blank=True, null=True)
@@ -285,6 +286,7 @@ class Circulo(models.Model):
         ordering = ('tipo', 'titulo', )
 
     titulo = models.CharField(u'Título', max_length=80)
+    slug = models.SlugField(u'Url', max_length=80, blank=True)
     descricao = models.TextField(u'Descricao') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
     uf = models.ForeignKey(UF, blank=True, null=True)
@@ -297,6 +299,18 @@ class Circulo(models.Model):
         upload_to='circulo', storage=UuidFileSystemStorage())
     status = models.CharField('Situação', max_length=1, choices=CIRCULO_STATUS, default='A')
     grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
+    section = models.ForeignKey(Section, verbose_name=u'Seção', blank=True, null=True)
+
+    def clean(self):
+        if self.slug and self.section and URLMigrate.objects.filter(old_url=self.get_absolute_url()).exclude(new_url=self.section.get_absolute_url()).exists():
+            raise ValidationError(u'Esta URL já está em uso. Informe outra url.')
+        return super(Circulo, self).clean()
+
+    def get_absolute_url(self):
+        if self.section:
+            return u'/%s/' % self.slug
+        return self.site_externo
+    get_absolute_url.short_description = u'URL'
 
     def get_absolute_entrar_url(self):
         return reverse('membro_entrar_circulo', kwargs={'circulo_id': self.pk, })
@@ -310,6 +324,17 @@ class Circulo(models.Model):
 
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
+@receiver(signals.pre_save, sender=Circulo)
+def circulo_slug_pre_save(sender, instance, raw, using, *args, **kwargs):
+    if not instance.slug:
+        slug = slugify(instance.titulo)
+        new_slug = slug
+        counter = 0
+        while sender.objects.filter(slug=new_slug).exclude(id=instance.id).count() > 0:
+            counter += 1
+            new_slug = '%s-%d'%(slug, counter)
+        instance.slug = new_slug
+
 
 class CirculoMembro(models.Model):
     class Meta:
@@ -350,6 +375,9 @@ class CirculoMembro(models.Model):
 def cria_grupousuario_circulomemebro_signal(sender, instance, raw, using, *args, **kwargs):
     if instance.circulo.grupo and instance.membro.usuario and not instance.grupousuario:
         instance.grupousuario = GrupoUsuario.objects.get_or_create(grupo=instance.circulo.grupo, usuario=instance.membro.usuario)[0]
+    if instance.grupousuario:
+        instance.grupousuario.admin = instance.administrador
+        instance.grupousuario.save()
 @receiver(signals.post_delete, sender=CirculoMembro)
 def remove_grupousuario_circulomemebro_signal(sender, instance, using, *args, **kwargs):
     if instance.grupousuario:
@@ -398,6 +426,8 @@ def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
         )
         artigo.save()
         SectionItem(section=section, article=artigo).save()
+        if instance.circulo.section:
+            SectionItem(section=instance.circulo.section, article=artigo).save()
         # Vincula o artigo ao CirculoEvento
         instance.artigo = artigo
     if instance.artigo:
@@ -659,3 +689,36 @@ def articulacao_post_save(sender, instance, raw, using, *args, **kwargs):
         else:
             instance.articulador.usuario.groups.remove(group)
             instance.articulador.usuario.save()
+
+CANDIDATURA_CARGO = (
+    ('P', u'Prefeito'),
+    ('V', u'Vereador'),
+)
+
+class Coligacao(models.Model):
+    class Meta:
+        verbose_name = u'Coligação'
+        verbose_name_plural = u'Coligações'
+
+    UF = models.ForeignKey(UF, verbose_name=u'UF')
+    municipio = ChainedForeignKey(Municipio, chained_fields={'UF': 'uf', }, show_all=False, auto_choose=False, verbose_name=u'Município')
+    partidos = models.CharField(u'Partidos',max_length=50, blank=True, null=True)
+
+    def __unicode__(self):
+        return u'%s/%s: %s' % (self.UF, self.municipio, self.partidos)
+
+class Candidatura(models.Model):
+    coligacao = models.ForeignKey(Coligacao)
+    candidato = models.ForeignKey(Membro, verbose_name=u'Candidata/o')
+    partido = models.CharField(max_length=50)
+    cargo = models.CharField(max_length=1, choices=CANDIDATURA_CARGO)
+    eleito = models.BooleanField()
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.candidato.nome, self.coligacao)
+
+class ArticleCadastro(Article):
+    class Meta:
+        proxy = True
+        verbose_name = u'Artigo dos Grupos'
+        verbose_name_plural = u'Artigos dos Grupos'

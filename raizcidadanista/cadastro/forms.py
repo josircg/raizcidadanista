@@ -9,10 +9,11 @@ from django.conf import settings
 
 from municipios.models import UF
 
+from ckeditor.widgets import CKEditorWidget
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista
+from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro
 from cms.email import sendmail
 
 
@@ -366,6 +367,32 @@ class MalaDiretaForm(forms.Form):
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
     circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())
+
+
+
+class ArticleCadastroForm(forms.ModelForm):
+    class Meta:
+        model = ArticleCadastro
+        widgets = {
+            'header': CKEditorWidget(),
+            'content': CKEditorWidget(),
+        }
+    link = forms.BooleanField(label=u'Cadastro de link?', required=False)
+    upload = forms.ImageField(label=u"Imagem", required=False)
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        link = self.cleaned_data.get('link')
+        if not link and not title:
+            raise forms.ValidationError(u'Este campo é obrigatório.')
+        return title
+
+    def __init__(self, *args, **kwargs):
+        super(ArticleCadastroForm, self).__init__(*args, **kwargs)
+        self.fields['title'].required = False
+
+        if self.instance and str(self.instance.pk) == self.instance.slug:
+            self.fields['link'].initial = True
 
 
 class InclusaoEmLoteForm(forms.Form):

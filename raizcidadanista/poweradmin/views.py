@@ -13,6 +13,8 @@ from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.util import (quote, get_fields_from_path,
     lookup_needs_distinct, prepare_lookup_value)
 
+from datetime import datetime, timedelta
+
 class PowerChangeList(ChangeList):
 
     def __init__(self, request, model, list_display, list_display_links,
@@ -29,6 +31,28 @@ class PowerChangeList(ChangeList):
         super(PowerChangeList, self).__init__(request, model, list_display, list_display_links,
             list_filter, date_hierarchy, search_fields, list_select_related,
             list_per_page, list_max_show_all, list_editable, model_admin)
+
+    def get_query_string(self, new_params=None, remove=None):
+        if new_params is None: new_params = {}
+        if remove is None: remove = []
+        p = self.params.copy()
+        for r in remove:
+            for k in p.keys():
+                if k.startswith(r):
+                    del p[k]
+        for k, v in new_params.items():
+            if v is None:
+                if k in p:
+                    del p[k]
+            else:
+                p[k] = v
+        for k, v in self.multi_search_query.items():
+            if v is None:
+                if k in p:
+                    del p[k]
+            else:
+                p[k] = v
+        return '?%s' % urlencode(p)
 
     def get_query_set(self, request):
 
@@ -47,6 +71,13 @@ class PowerChangeList(ChangeList):
             if new_qs is not None:
                 qs = new_qs
 
+        if self.date_hierarchy:
+            for key, val in remaining_lookup_params.items():
+                if '%s__' % self.date_hierarchy in key:
+                    if '/' in val:
+                        remaining_lookup_params[key] = datetime.strptime(val, '%d/%m/%Y')
+                        if '__lte' in key:
+                            remaining_lookup_params[key] = datetime.strptime(val, '%d/%m/%Y') + timedelta(hours=23, minutes=59, seconds=59)
         try:
             # Finally, we apply the remaining lookup parameters from the query
             # string (i.e. those that haven't already been processed by the
@@ -123,7 +154,4 @@ class PowerChangeList(ChangeList):
                         use_distinct = True
                         break
 
-        if use_distinct:
-            return qs.distinct()
-        else:
-            return qs
+        return qs.distinct()

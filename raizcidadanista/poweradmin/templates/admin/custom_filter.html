@@ -1,5 +1,4 @@
 {% load i18n %}
-{% if title != 'ID' %}
 <label>{{ title|capfirst }}<br>
     <select name="_filter">
     {% for choice in choices %}
@@ -9,4 +8,3 @@
     {% endfor %}
     </select>
 </label>
-{% endif %}

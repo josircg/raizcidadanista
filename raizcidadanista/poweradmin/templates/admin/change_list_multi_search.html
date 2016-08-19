@@ -2,26 +2,26 @@
 {% load i18n admin_modify adminmedia custom_admin_list %}
 {% load url from future %}
 
-{% block object-tools %}
-    <ul class="object-tools">
-        {% if admin_old_url %}
-            <li>
-                <a href="{{ admin_old_url }}">
-                    {% blocktrans with cl.opts.verbose_name as name %}Última consulta{% endblocktrans %}
-                </a>
-            </li>
-        {% endif %}
-        {% if has_add_permission %}
-            <li>
-                <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
-                    {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
-                </a>
-            </li>
-        {% endif %}
-        {% for button in buttons %}
-            <li><a href="{{ button.get_url }}" {% for key,val in button.attrs.items %}{{ key }}="{{ val }}"{% endfor %}>{{ button.label }}</a></li>
-        {% endfor %}
-    </ul>
+{% block object-tools-items %}
+    {% if admin_old_url %}
+        <li>
+            <a href="{{ admin_old_url }}">
+                {% blocktrans with cl.opts.verbose_name as name %}Last request{% endblocktrans %}
+            </a>
+        </li>
+    {% endif %}
+    {% for button in buttons %}
+        <li>
+            <a href="{{ button.get_url }}" class="{{ button.classes|join:" " }}">{{ button.label }}</a>
+        </li>
+    {% endfor %}
+    {% if has_add_permission %}
+        <li>
+            <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+        </li>
+    {% endif %}
 {% endblock %}
 
 {% block extrahead %}

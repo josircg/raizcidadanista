@@ -1,52 +1,34 @@
-# -*- coding: utf-8 -*-
-import unicodecsv as csv
+import csv
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.admin import helpers
 from django.contrib.admin.util import get_deleted_objects, model_ngettext
-from django.db import models, router
+from django.db import router
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy, ugettext as _
-from django.utils.html import strip_tags
-from django.contrib.admin.util import label_for_field, display_for_field, lookup_field
 
 
-
-def export_as_csv_action(description=u"Exportar CSV", fields=None, header=True):
+def export_as_csv_action(description="Export selected objects as CSV file",
+                         fields=None, exclude=None, header=True):
     def export_as_csv(modeladmin, request, queryset):
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(modeladmin.opts).replace('.', '_')
+        opts = modeladmin.model._meta
+        field_names = set([field.name for field in opts.fields])
+        if fields:
+            fieldset = set(fields)
+            field_names = field_names & fieldset
+        elif exclude:
+            excludeset = set(exclude)
+            field_names = field_names - excludeset
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
 
         writer = csv.writer(response)
         if header:
-            fields_header = []
-            for field_name in fields:
-                text, attr = label_for_field(
-                    field_name, modeladmin.model,
-                    model_admin=modeladmin,
-                    return_attr=True
-                )
-                fields_header.append(text.capitalize())
-            writer.writerow(fields_header)
-
+            writer.writerow(list(field_names))
         for obj in queryset:
-            line = []
-            for field_name in fields:
-                f, attr, value = lookup_field(field_name, obj, modeladmin)
-                if f is None or f.auto_created:
-                    result_repr = force_unicode(value)
-                else:
-                    if isinstance(f.rel, models.ManyToOneRel):
-                        field_val = getattr(obj, f.name)
-                        if field_val is None:
-                            result_repr = '-'
-                        else:
-                            result_repr = field_val
-                    else:
-                        result_repr = display_for_field(value, f)
-                line.append(strip_tags(result_repr))
-            writer.writerow(line)
+            writer.writerow([unicode(getattr(obj, field)).encode("utf-8", "replace") for field in field_names])
         return response
     export_as_csv.short_description = description
     return export_as_csv

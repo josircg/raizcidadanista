@@ -4,7 +4,6 @@ from models import UserAdminConfig
 from django.db import models
 from django.contrib import admin, messages
 from django.contrib.admin.util import flatten_fieldsets
-from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import resolve
 from django.http import HttpResponse, HttpResponseRedirect
@@ -19,9 +18,8 @@ from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 
-import json
-
-from actions import export_as_csv_action, delete_selected
+import django.utils.simplejson as simplejson
+from django.core.exceptions import ValidationError
 
 '''
  Features:
@@ -35,11 +33,6 @@ from actions import export_as_csv_action, delete_selected
     )
 '''
 
-
-POWERADMIN_USE_WIKI = getattr(settings, 'POWERADMIN_USE_WIKI', False)
-POWERADMIN_WIKI_ARTICLE_URL = getattr(settings, 'POWERADMIN_WIKI_ARTICLE_URL', '/wiki/{path}/')
-
-
 #Trim solution
 class _BaseForm(object):
     def clean(self):
@@ -50,7 +43,6 @@ class _BaseForm(object):
 
 class BaseModelForm(_BaseForm, forms.ModelForm):
     pass
-
 
 class PowerModelAdmin(admin.ModelAdmin):
     buttons = []
@@ -78,30 +70,20 @@ class PowerModelAdmin(admin.ModelAdmin):
 
         return super(PowerModelAdmin, self).__init__(model_class, *args, **kwargs)
 
-    def get_list_csv(self, request):
-        if getattr(self, 'list_csv', None):
-            return self.list_csv
-        return self.get_list_display(request)
-
     def get_actions(self, request):
         actions = super(PowerModelAdmin, self).get_actions(request)
-
-        # Exportação do csv
-        export_as_csv = export_as_csv_action(fields=self.get_list_csv(request))
-        actions['export_as_csv'] = (export_as_csv, 'export_as_csv', export_as_csv.short_description)
-
         if self.active_report:
             from report.actions import report_generic_detailed
-            actions['report_generic_detailed'] = (report_generic_detailed, 'report_generic_detailed', report_generic_detailed.short_description)
+            actions['report_generic_detailed'] = (
+                report_generic_detailed,
+                'report_generic_detailed',
+                report_generic_detailed.short_description)
         #Ajustes no log do action delete_selected
+        from poweradmin.actions import delete_selected
         actions['delete_selected'] = (delete_selected, 'delete_selected', delete_selected.short_description)
         return actions
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-        """
-        Método padrão do ModelAdmin, cutomizado para pegar o template do
-        get_change_form_template() criado para classe.
-        """
         #Verifica se a tela é readonly
         readonly = False
         readonly_fields = list(self.get_readonly_fields(request, obj))
@@ -114,76 +96,16 @@ class PowerModelAdmin(admin.ModelAdmin):
                 readonly = False
 
         opts = self.model._meta
-        app_label = opts.app_label
         ordered_objects = opts.get_ordered_objects()
 
-        object_id = obj.pk if obj else obj
+        object_id = obj.id if obj else obj
         buttons = self.get_buttons(request, object_id)
-
-        if POWERADMIN_USE_WIKI:
-            path = '{0}-{1}'.format(app_label.lower(), opts.object_name.lower())
-            from wiki.models import Article, ArticleRevision, URLPath
-            from django.contrib.sites.models import get_current_site
-
-            if not URLPath.objects.filter(slug=path).count():
-                if not URLPath.objects.count():
-                    URLPath.create_root(
-                        site=get_current_site(request),
-                        title=u'Root',
-                        content=u"",
-                        request=request
-                    )
-                root = URLPath.objects.order_by('id')[0]
-
-                URLPath.create_article(
-                    root,
-                    path,
-                    site=get_current_site(request),
-                    title=path,
-                    content=u"",
-                    user_message=u"",
-                    user=request.user,
-                    ip_address=request.META['REMOTE_ADDR'],
-                    article_kwargs={
-                        'owner': request.user
-                    }
-                )
-            buttons.append(PowerButton(url=POWERADMIN_WIKI_ARTICLE_URL.format(path=path), label=u'Ajuda'))
 
         context.update({
             'buttons': buttons,
-            'add': add,
-            'change': change,
-            'has_add_permission': self.has_add_permission(request),
-            'has_change_permission': self.has_change_permission(request, obj),
-            'has_delete_permission': self.has_delete_permission(request, obj),
-            'has_file_field': True,  # FIXME - this should check if form or formsets have a FileField,
-            'has_absolute_url': hasattr(self.model, 'get_absolute_url'),
-            'ordered_objects': ordered_objects,
-            'form_url': mark_safe(form_url),
-            'opts': opts,
-            'content_type_id': ContentType.objects.get_for_model(self.model).id,
-            'save_as': self.save_as,
-            'save_on_top': self.save_on_top,
-            'root_path': getattr(self.admin_site, 'root_path', None),
             'readonly': readonly,
         })
-        context_instance = template.RequestContext(request, current_app=self.admin_site.name)
-        return render_to_response(self.get_change_form_template(), context, context_instance=context_instance)
-
-    # Método que escolhe o template para renderizar o formulário de edição
-    # Caso não exista formulários customizados retorna o change_form_template da classe.
-    def get_change_form_template(self):
-        opts = self.model._meta
-        app_label = opts.app_label
-
-        return [
-            self.change_form_template,
-            "admin/%s/%s/change_form.html" % (app_label, opts.object_name.lower()),
-            "admin/%s/change_form.html" % app_label,
-            "admin/edit_form.html",
-            "admin/change_form.html",
-        ]
+        return super(PowerModelAdmin, self).render_change_form(request, context, add, change, form_url, obj)
 
     def construct_change_message(self, request, form, formsets):
         """
@@ -200,6 +122,11 @@ class PowerModelAdmin(admin.ModelAdmin):
                 try:
                     if type(form.instance._meta.get_field(field)) == models.fields.related.ForeignKey:
                         initial = getattr(form.instance, field).__class__.objects.get(pk=initial)
+                except: pass
+                #ManyToManyFields
+                try:
+                    if type(form.instance._meta.get_field(field)) == models.fields.related.ManyToManyField:
+                        value = value.all().values_list('pk', flat=True)
                 except: pass
                 #Choices
                 try:
@@ -255,12 +182,32 @@ class PowerModelAdmin(admin.ModelAdmin):
                     obj = self.queryset(request).get(pk=request.GET.get('object_id'))
                     data = {"value": obj.pk, "label": u"%s" % obj}
                 except: pass
-        return HttpResponse(json.dumps(data), content_type='application/javascript')
+        return HttpResponse(simplejson.dumps(data), mimetype='application/javascript')
+
+    def filterchain(self, request):
+        keywords = {}
+        for field, value in request.GET.items():
+            if value == '0':
+                keywords[str("%s__isnull" % field)] = True
+            else:
+                keywords[str(field)] = str(value) or None
+
+        results = self.queryset(request).filter(**keywords)
+        if not len(keywords):
+            results = results.none()
+
+        result = []
+        for item in results:
+            result.append({'value': item.pk, 'display': unicode(item)})
+        result.append({'value': "", 'display': "---------"})
+        return HttpResponse(simplejson.dumps(result), mimetype='application/javascript')
 
     def get_urls(self):
         opts = self.model._meta
+
         buttons_urls = [url(r'^(\d+)/(%s)/$' % but.flag, self.wrap(self.button_view_dispatcher)) for but in self.buttons]
         buttons_urls.append(url(r'^lookup/related/$', self.wrap(self.related_lookup), name="%s_%s_related_lookup" % (opts.app_label, opts.object_name.lower())))
+        buttons_urls.append(url(r'^chained/$', self.wrap(self.filterchain), name="%s_%s_filterchain" % (opts.app_label, opts.object_name.lower())))
         return patterns('', *buttons_urls) + super(PowerModelAdmin, self).get_urls()
 
     def wrap(self, view):
@@ -269,7 +216,7 @@ class PowerModelAdmin(admin.ModelAdmin):
             return self.admin_site.admin_view(view)(*args, **kwargs)
         return update_wrapper(wrapper, view)
 
-    def get_buttons(self, request, object_id=None):
+    def get_buttons(self, request, object_id):
         return [b for b in self.buttons if b.visible]
 
     def get_changelist(self, request, **kwargs):
@@ -326,40 +273,7 @@ class PowerModelAdmin(admin.ModelAdmin):
                 'attributes': ' '.join(['%s="%s"' % (k, v) for k, v in attributes.items()]),
             })
 
-        buttons = self.get_buttons(request, None)
-
-        if POWERADMIN_USE_WIKI:
-            path = '{0}-{1}'.format(app_label.lower(), opts.object_name.lower())
-            from wiki.models import Article, ArticleRevision, URLPath
-            from django.contrib.sites.models import get_current_site
-
-            if not URLPath.objects.filter(slug=path).count():
-                if not URLPath.objects.count():
-                    URLPath.create_root(
-                        site=get_current_site(request),
-                        title=u'Root',
-                        content=u"",
-                        request=request
-                    )
-                root = URLPath.objects.order_by('id')[0]
-
-                URLPath.create_article(
-                    root,
-                    path,
-                    site=get_current_site(request),
-                    title=path,
-                    content=u"",
-                    user_message=u"",
-                    user=request.user,
-                    ip_address=request.META['REMOTE_ADDR'],
-                    article_kwargs={
-                        'owner': request.user
-                    }
-                )
-            buttons.append(PowerButton(url=POWERADMIN_WIKI_ARTICLE_URL.format(path=path), label=u'Ajuda', attrs={'target': '_blank'}))
-
         context_data = {
-            'buttons': buttons,
             'multi_search': True,
             'multi_search_keys': multi_search_fields,
             'admin_old_url': admin_old_url,
@@ -368,13 +282,20 @@ class PowerModelAdmin(admin.ModelAdmin):
         extra_context.update(context_data)
         return super(PowerModelAdmin, self).changelist_view(request, extra_context)
 
+    def delete_model(self, request, obj):
+        try:
+            obj.delete()
+        except ValidationError as error:
+            for msg in error.messages:
+                messages.error(request, u'Erro ao remover: %s' % msg)
+
 
 class PowerButton(object):
     flag = ''  # Usado para URLs fixas do botao, como na versao anterior
     url = ''  # Usado para informar diretamente a URL e assim permitir qualquer URL
     visible = True
     label = 'Label'
-    attrs = {}
+    classes = ['historylink', ]
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():

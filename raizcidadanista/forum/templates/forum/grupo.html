@@ -50,9 +50,9 @@
                         <div class="panel-body">
                             <blockquote>
                                 {% if user|get_notificacao_topico:topico == 'I' %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="button-topic"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
                                 {% else %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=I" class="button-topic"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=I" class="star-button"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
                                 {% endif %}
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
                                 <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
@@ -85,6 +85,7 @@
 <style type="text/css">
     .button-topic {float: right; margin-left: 5px;}
     .button-topic .glyphicon {font-size: 32px;}
+    .star-button {float: right; margin-top: -5px;}
     .panel-conversa .glyphicon {font-size: 25px;}
 </style>
 {% endblock %}

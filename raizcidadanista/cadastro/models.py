@@ -346,7 +346,7 @@ class CirculoMembro(models.Model):
     membro = models.ForeignKey(Membro)
     administrador = models.BooleanField(default=False)
     publico = models.BooleanField(u'Público', default=False)
-    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
+    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True, on_delete=models.SET_NULL)
 
     def email(self):
         return self.membro.email

@@ -39,43 +39,19 @@
             <li data-transition="fade" data-slotamount="{{ forloop.counter }}" data-masterspeed="1000" >
                 <!-- MAIN IMAGE -->
                 <img src="{{ article.first_image }}"  alt="{{ article.title }}"  data-bgfit="cover" data-bgposition="center top" data-bgrepeat="no-repeat">
-                {% comment %}
-                <!-- LAYERS -->
+                {% for attr in article.articleattribute_set.all %}
                 <div class="tp-caption sft str"
-                     data-x="45" data-hoffset="0"
-                     data-y="157"
+                     data-x="45"
+                     data-hoffset="0"
+                     data-y="{% cycle "305" "355" "405" %}"
                      data-speed="500"
-                     data-start="800"
+                     data-start="{% cycle "800" "1100" "1500" %}"
                      data-easing="Back.easeInOut"
                      data-endspeed="300"
-                     style="z-index: 5; font-size: 34px; color: #21252b; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; line-height: 40px; background: rgba(255, 255, 255, 0.9); padding: 12px 16px; border-radius: 3px; box-shadow: 0 1px 1px rgba(0,0,0,0.15);">
-                     Venha Participar
+                     style="z-index: {% cycle "5" "6" "7" %}">
+                     <a href="{{ attr.value }}" class="btn pi-btn-red">{{ attr.attrib }}</a>
                 </div>
-                <!-- LAYER NR. 4 -->
-                <div class="tp-caption sfl str"
-                     data-x="45" data-hoffset="0"
-                     data-y="236"
-                     data-speed="500"
-                     data-start="1100"
-                     data-easing="Back.easeInOut"
-                     data-endspeed="300"
-                     style="z-index: 6; font-size: 20px; color: #fff; font-weight: 300; line-height: 28px; background: rgba(33, 37, 43, 0.8); padding: 12px 16px; border-radius: 3px;">
-                     Cadastre-se como pré-filiado ou colaborador
-                </div>
-                <!-- LAYER NR. 5 -->
-                <div class="tp-caption sfb str"
-                     data-x="45" data-hoffset="0"
-                     data-y="303"
-                     data-speed="500"
-                     data-start="1500"
-                     data-easing="Back.easeInOut"
-                     data-endspeed="300"
-                     style="z-index: 7;">
-                     <a href="venha-participar.html" class="btn pi-btn-red">
-                        Leia mais
-                     </a>
-                </div>
-                {% endcomment %}
+                {% endfor %}
             </li>
             {% endfor %}
         </ul>

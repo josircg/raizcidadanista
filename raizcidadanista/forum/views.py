@@ -107,7 +107,8 @@ class RecentesView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
 
-        topicos_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
+        topicos_prioritarios_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user, topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao')
+        topicos_list = list(topicos_prioritarios_list)+list(Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).exclude(topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao'))
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')
@@ -414,23 +415,42 @@ class TopicoAddView(FormView):
         return context
 
 
+class SaidaGrupoView(DetailView):
+    model = Grupo
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        GrupoUsuario.objects.filter(
+            grupo=self.object,
+            usuario=request.user,
+        ).delete()
+        messages.info(request, u'Você foi removido do grupo %s!' % self.object)
+        return HttpResponseRedirect(self.object.get_absolute_url())
+
 
 class SolicitarIngressoView(DetailView):
     model = Grupo
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        sendmail(
-            subject=u'Solicitação de ingresso no grupo %s' % self.object,
-            to=list(self.object.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
-            template='forum/emails/solicitacao-ingresso.html',
-            params={
-                'grupo': self.object,
-                'usuario': request.user,
-                'host': settings.SITE_HOST,
-            },
-        )
-        messages.info(request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+        if self.object.privado:
+            sendmail(
+                subject=u'Solicitação de ingresso no grupo %s' % self.object,
+                to=list(self.object.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
+                template='forum/emails/solicitacao-ingresso.html',
+                params={
+                    'grupo': self.object,
+                    'usuario': request.user,
+                    'host': settings.SITE_HOST,
+                },
+            )
+            messages.info(request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+        else:
+            GrupoUsuario(
+                grupo=self.object,
+                usuario=request.user,
+            ).save()
+            messages.info(request, u'Seja bem vindo ao grupo %s!' % self.object)
         return HttpResponseRedirect(self.object.get_absolute_url())
 
 
@@ -477,7 +497,7 @@ class TopicoView(DetailView):
                 raise PermissionDenied
             self.object.status = 'F'
             self.object.save()
-            messages.info(request, u'Tópico encesstado!')
+            messages.info(request, u'Tópico encerrado!')
             return HttpResponseRedirect(self.object.get_absolute_url())
 
         # Reabrir Tópico

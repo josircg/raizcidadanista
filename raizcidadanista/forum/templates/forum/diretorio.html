@@ -59,6 +59,11 @@
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
+                                    {% if user|has_grupo_perm:grupo %}
+                                        <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                    {% else %}
+                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                    {% endif %}
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
                                     <footer>
                                         {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
@@ -94,5 +99,10 @@
 <style type="text/css">
     .form-group label {display: block;}
     .bnt-pesquisar {margin-top: 20px;}
+    .button-topic {float: right; margin-left: 5px;}
+    .star-button {float: right; margin-top: -5px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
 </style>
 {% endblock %}

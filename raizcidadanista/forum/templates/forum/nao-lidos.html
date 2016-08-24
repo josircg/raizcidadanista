@@ -26,6 +26,11 @@
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
+                                    {% if user|get_notificacao_topico:topico == 'I' %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                    {% else %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=I" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                    {% endif %}
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
                                     <footer>
                                         {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
@@ -55,4 +60,13 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .star-button {float: right; margin-top: -5px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
+</style>
 {% endblock %}

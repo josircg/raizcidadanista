@@ -35,9 +35,10 @@
     <meta property="fb:app_id" content="958330187571692">
 
     <link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,400italic'>
-    <link rel="stylesheet" type="text/css" href="{% static 'site/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'site/font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.9">
+    <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
     {% block css %}{% endblock %}
 
     <script>
@@ -62,9 +63,9 @@
                             <div class="box bottom-main block-width-full">
                                 {{ header.header|safe }}
                                 <ul class="info">
-                                    <li><a class="about_proin" href="{% url 'forum' %}">Meus grupos</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
                                     <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
+                                    <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
+                                    <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
                                     <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
                                     <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
                                     <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
@@ -166,7 +167,13 @@
 
     <!-- JavaScript -->
     <script src="{% static 'site/js/jquery-1.11.3.min.js' %}"></script>
-    <script src="{% static 'site/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap-tooltip.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+          $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
     {% block js %}{% endblock %}
 
     <!-- Social scripts -->

@@ -144,7 +144,7 @@ class ArticleAttribute(models.Model):
     active = models.BooleanField(u'Ativo', default=False)
 
     def __unicode__(self):
-        return u"%s %s" % (self.article.title, self.atributo)
+        return u"%s %s" % (self.article.title, self.attrib)
 
 
 class ArticleArchive(models.Model):

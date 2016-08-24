@@ -10,9 +10,11 @@
                 }
             });
 
+            {% if original %}
             $('.inline-filter input[type="button"]').click(function(){
                 window.location.href = "{% url admin:cadastro_circulo_change original.pk %}?"+$('.field-filter').serialize()+'#circulomembro_set-group';
             })
+            {% endif %}
         });
     })(django.jQuery)
 </script>

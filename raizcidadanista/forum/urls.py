@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^pesquisa/$', login_required(views.PesquisaView.as_view()), name="forum_pesquisa"),
     url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),
     url(r'^grupo/(?P<pk>\d+)/solicitar-ingresso/$', login_required(views.SolicitarIngressoView.as_view()), name='forum_grupo_solicitar_ingresso'),
+    url(r'^grupo/(?P<pk>\d+)/sair/$', login_required(views.SaidaGrupoView.as_view()), name='forum_grupo_sair'),
     url(r'^grupo/(?P<pk>\d+)/solicitar-ingresso/(?P<user_pk>\d+)/$', login_required(views.SolicitarIngressoAprovarView.as_view()), name='forum_grupo_solicitar_ingresso_aprovar'),
     url(r'^grupo/(?P<pk>\d+)/editar/$', login_required(views.GrupoEditView.as_view()), name='forum_grupo_edit'),
     url(r'^grupo/(?P<pk>\d+)/editar-membros/$', login_required(views.GrupoEditMembrosView.as_view()), name='forum_grupo_edit_membros'),

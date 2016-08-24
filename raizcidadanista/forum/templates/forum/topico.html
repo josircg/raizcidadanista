@@ -17,6 +17,11 @@
                         <h3>
                             <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                             <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a>
+                            {% if ouvinte.notificacao == 'I' %}
+                                <a href="?notificacao=N" class="button-topic link-star"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                            {% else %}
+                                <a href="?notificacao=I" class="button-topic link-star"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                            {% endif %}
                             {% if object.criador == user %}
                                 {% if object.editavel %}
                                 <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
@@ -398,6 +403,7 @@
     .cke_contents {min-height: 100px !important; width: 100% !important;}
     .responder-form, .edit-form, .mention-form {display: none; }
     .button-topic {float: right; margin-left: 5px;}
+    .glyphicon {font-size: 32px;}
 
     /* Top fixed */
     .content-all {width: 100%; overflow: hidden;}

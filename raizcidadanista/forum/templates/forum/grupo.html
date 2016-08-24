@@ -15,14 +15,19 @@
                 <div class="gallery_title">
                     <h3>
                         {{ object }}
-                        <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar novo tópico</button></a>
+                        {% if user|has_grupo_perm:object %}
+                            <a href="{% url forum_grupo_sair object.pk %}" class="button-topic"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                        {% else %}
+                            <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                        {% endif %}
+                        <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar novo tópico</button></a>
                         {% if user|has_admin_grupo_perm:object %}
-                        <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Adicionar membros</button></a>
-                        <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar membros</button></a>
-                        <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success new-topic">Editar grupo</button></a>
+                        <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar membros</button></a>
+                        <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar membros</button></a>
+                        <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
                         {% endif %}
                         {% if object.grupocategoria_set.exists %}
-                        <form style="display: inline; float: right; margin-top: -6px;">
+                        <form style="display: inline; float: right;">
                             <select name="categoria" class="categoria-option btn btn-success button-topic">
                                 <option value="" hidden>Categoria</option>
                                 {% for grupocategoria in object.grupocategoria_set.all %}
@@ -44,9 +49,15 @@
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
+                                {% if user|get_notificacao_topico:topico == 'I' %}
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="button-topic"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                                {% else %}
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=I" class="button-topic"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                                {% endif %}
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
                                 <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
 </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+
                             </blockquote>
                         </div>
                     </div>
@@ -72,10 +83,9 @@
 
 {% block css %}
 <style type="text/css">
-    .new-topic {
-        float: right;
-        margin-left: 5px;
-    }
+    .button-topic {float: right; margin-left: 5px;}
+    .button-topic .glyphicon {font-size: 32px;}
+    .panel-conversa .glyphicon {font-size: 25px;}
 </style>
 {% endblock %}
 

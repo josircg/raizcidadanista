@@ -1,8 +1,17 @@
 # coding: utf-8
 from django import template
 
+from forum.models import TopicoOuvinte
+
 register = template.Library()
 
+
+@register.filter
+def get_notificacao_topico(user, topico):
+    try:
+        return TopicoOuvinte.objects.filter(topico=topico, ouvinte=user).latest('pk').notificacao
+    except TopicoOuvinte.DoesNotExist:
+        return TopicoOuvinte.objects.create(topico=topico, ouvinte=user).notificacao
 
 @register.filter
 def has_grupo_perm(user, grupo):

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static cadastro_tags %}
+    <title></title>
+    <style type="text/css" media="screen">
+        #box-cidades {padding: 10px 0; }
+        #box-cidades .circulo, .circulo-item{display: none;}
+        .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
+        .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
+        .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
+    </style>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="/static/site/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <br>
+    {% block messages %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock messages %}
+    <label>
+        Selecione o seu estado:
+        <select id="select-uf-circulo">
+            <option cidades="">---</option>
+            {% for uf in estados %}
+            <option value="{{ uf.pk }}">{{ uf.nome }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <br>
+    <label>
+        Ou então busque pelo nome da cidade:
+        <input id="input-cidade-circulo" type="text">
+    </label>
+
+    <div id="box-cidades">
+        <div class="circulo">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Círculos</th>
+                        <th colspan="3">Jardineiro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for uf in estados %}
+                    {% if uf.circulo_set.all %}
+                    {% for circulo in uf.circulo_set.all %}
+                        <tr class="circulo-item" data-cidade="{{ circulo.municipio }}" data-uf="{{ uf.pk }}">
+                        {% if circulo.site_externo %}
+                            <td width="40%"><a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a></td>
+                        {% else %}
+                            <td width="40%"><a>{{ circulo.titulo }}</a></td>
+                        {% endif %}
+                        {% if circulo.administrador_publico %}
+                            <td width="40%">
+                                {% for adm in circulo.administrador_publico %}
+                                    {{ adm.membro.nome }}
+                                    {% if adm.membro.celular %}<br>Cel.: {{ adm.membro.celular }}{% endif %}
+                                    <br><a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Envie um email para o Círculo</a>
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td width="40%"></td>
+                        {% endif %}
+
+                        {% if circulo.site_externo %}
+                            <td width="10%" style="min-width: 150px"><a href="{{ circulo.site_externo }}" class="button-membro-add" target="_parent">Visualizar Grupo</a></td>
+                        {% else %}
+                            <td width="10%"></td>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                            {% if user.membro.exists and circulo|is_membro:user %}
+                                <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                            {% else %}
+                            {% if user.membro.exists %}
+                                {% if circulo.permitecadastro %}
+                                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" target="_parent">Se inscrever</a></td>
+                                {% endif %}
+                            {% endif %}
+                            {% endif %}
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    {% else %}
+                        <tr class="circulo-item" data-uf="{{ uf.pk }}">
+                            <td colspan="4">Ainda não existe nenhum círculo selecionado.</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr class="circulo-item busca-item-none">
+                    <td colspan="4">Caso a sua cidade não esteja listada, busque o círculo estadual ou então crie o primeiro círculo na sua cidade!</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if not user.is_authenticated %}
+    <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
+    {% endif %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('#select-uf-circulo').change(function(event) {
+            $('#box-cidades .circulo').show();
+            $('#box-cidades .circulo-item').hide();
+            $('#box-cidades .circulo-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+        });
+        $('#input-cidade-circulo').keydown(function(event) {
+            $('#box-cidades .circulo').show();
+            $('#box-cidades .circulo-item, #box-cidades .busca-item-none').hide();
+            $('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').show();
+            if($('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').length == 0){
+                $('#box-cidades .busca-item-none').show();
+            }
+        });
+    </script>
+</body>
+</html>

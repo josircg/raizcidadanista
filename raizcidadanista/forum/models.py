@@ -135,6 +135,7 @@ def create_topicousuario_topico_save(sender, instance, created, raw, using, *arg
 
 
 STATUS_NOTIFICACAO = (
+    ('P', u'Prioritário'),
     ('I', u'Sempre receber notificações'),
     ('R', u'Resumo Diário'),
     ('V', u'Apenas notificações de votação'),
@@ -195,7 +196,7 @@ def update_topico(sender, instance, created, raw, using, *args, **kwargs):
     instance.topico.save()
 @receiver(signals.post_save, sender=Conversa)
 def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
-    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I', dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', ), dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
         sendmail(
             subject=u'Tópico %s atualizado no grupo %s' % (instance.topico, instance.topico.grupo),
             to=[ouvinte.ouvinte.email, ],
@@ -210,7 +211,7 @@ def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *arg
         ouvinte.save()
 @receiver(signals.post_save, sender=Conversa)
 def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **kwargs):
-    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao='I'):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', )):
         if ouvinte.ouvinte.membro.exists():
             membro = ouvinte.ouvinte.membro.all()[0]
             if membro.telegram_id:

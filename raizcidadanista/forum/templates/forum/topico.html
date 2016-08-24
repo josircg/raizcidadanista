@@ -17,10 +17,10 @@
                         <h3>
                             <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                             <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a>
-                            {% if ouvinte.notificacao == 'I' %}
-                                <a href="?notificacao=N" class="button-topic link-star"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                            {% if ouvinte.notificacao == 'P' %}
+                                <a href="?notificacao=N" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
                             {% else %}
-                                <a href="?notificacao=I" class="button-topic link-star"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                                <a href="?notificacao=P" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
                             {% if object.criador == user %}
                                 {% if object.editavel %}
@@ -32,6 +32,7 @@
                             <form style="display: inline;">
                                 <select name="notificacao" class="notification-option btn btn-success button-topic">
                                     <option value="" disabled selected hidden>Notificações</option>
+                                    <option value="P">{% if ouvinte.notificacao == 'P' %}&rarr; {% endif %}Prioritário</option>
                                     <option value="I">{% if ouvinte.notificacao == 'I' %}&rarr; {% endif %}Sempre receber notificações</option>
                                     <option value="R">{% if ouvinte.notificacao == 'R' %}&rarr; {% endif %}Resumo Diário</option>
                                     <option value="V">{% if ouvinte.notificacao == 'V' %}&rarr; {% endif %}Apenas notificações de votação</option>
@@ -403,7 +404,9 @@
     .cke_contents {min-height: 100px !important; width: 100% !important;}
     .responder-form, .edit-form, .mention-form {display: none; }
     .button-topic {float: right; margin-left: 5px;}
-    .glyphicon {font-size: 32px;}
+    .fa {font-size: 32px; }
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
 
     /* Top fixed */
     .content-all {width: 100%; overflow: hidden;}

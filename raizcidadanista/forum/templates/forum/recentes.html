@@ -25,10 +25,10 @@
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
-                                {% if user|get_notificacao_topico:topico == 'I' %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                                {% if user|get_notificacao_topico:topico == 'P' %}
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
                                 {% else %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=I" class="star-button"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                                    <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                                 {% endif %}
                                 <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
                                 <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
@@ -61,6 +61,8 @@
 <style type="text/css">
     .new-topic {float: right; }
     .star-button {float: right; margin-top: -5px;}
-    .panel-conversa .glyphicon {font-size: 25px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
 </style>
 {% endblock %}

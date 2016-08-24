@@ -27,9 +27,9 @@
                             <div class="panel-body">
                                 <blockquote>
                                     {% if user|has_grupo_perm:grupo %}
-                                        <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>
+                                        <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
                                     {% else %}
-                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>
+                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                                     {% endif %}
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
                                     <footer>
@@ -66,6 +66,8 @@
 {% block css %}
 <style type="text/css">
     .star-button {float: right; margin-top: -5px;}
-    .panel-conversa .glyphicon {font-size: 25px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
 </style>
 {% endblock %}

@@ -107,8 +107,8 @@ class RecentesView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
 
-        topicos_prioritarios_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user, topicoouvinte__notificacao='I').distinct().order_by('-dt_ultima_atualizacao')
-        topicos_list = list(topicos_prioritarios_list)+list(Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).exclude(topicoouvinte__notificacao='I').distinct().order_by('-dt_ultima_atualizacao'))
+        topicos_prioritarios_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user, topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao')
+        topicos_list = list(topicos_prioritarios_list)+list(Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).exclude(topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao'))
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')

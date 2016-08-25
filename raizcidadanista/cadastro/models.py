@@ -665,12 +665,6 @@ class ColetaArticulacao(models.Model):
     zona = models.IntegerField(u'Zona', null=True, blank=True)
     articulador = models.ForeignKey(Membro, verbose_name=u'Articulador')
 
-    def clean(self):
-        if not self.municipio:
-            if not self.articulador.usuario or self.articulador.usuario.groups.filter(name=u'Cadastro'):
-                raise ValidationError(u'O campo Município é obrigatório para esse Articulador.')
-        return super(ColetaArticulacao, self).clean()
-
     def articulador_email(self):
         return u'%s' % self.articulador.email
     articulador_email.short_description = u'Email do Articulador'

@@ -16,7 +16,7 @@ from django.db.models import Q
 from BruteBuster.models import FailedAttempt, BB_MAX_FAILURES, BB_BLOCK_INTERVAL
 
 from municipios.models import UF
-from cadastro.models import Circulo, Membro, CirculoMembro
+from cadastro.models import Circulo, Membro, CirculoMembro, Coligacao
 from financeiro.models import MetaArrecadacao
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
@@ -34,6 +34,15 @@ class CirculosView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CirculosView, self).get_context_data(**kwargs)
+        context['estados'] = UF.objects.all().order_by('nome')
+        return context
+
+
+class ColigacoesView(TemplateView):
+    template_name = 'coligacoes.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ColigacoesView, self).get_context_data(**kwargs)
         context['estados'] = UF.objects.all().order_by('nome')
         return context
 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static cadastro_tags %}
+    <title></title>
+    <style type="text/css" media="screen">
+        #box-cidades {padding: 10px 0; }
+        #box-cidades .circulo, .circulo-item{display: none;}
+        .button-membro {border: 1px #2f7a35 solid; padding: 5px; color: #2f7a35; font-weight: bold;}
+        .button-membro-add {background: #2f7a35; padding: 5px; color: #fff; font-weight: bold;}
+        .button-membro-add:hover {color: #333; background-color: #2f7a35; text-decoration: none;}
+    </style>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="/static/site/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <br>
+    <label>
+        Selecione o seu estado:
+        <select id="select-uf-circulo">
+            <option cidades="">---</option>
+            {% for uf in estados %}
+            <option value="{{ uf.pk }}">{{ uf.nome }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <div id="box-cidades">
+        <div class="circulo">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Município</th>
+                        <th>Partidos</th>
+                        <th>Candidatos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for uf in estados %}
+                    {% if uf.coligacao_set.all %}
+                    {% for coligacao in uf.coligacao_set.all %}
+                        <tr class="circulo-item" data-uf="{{ uf.pk }}">
+                            <td>{{ coligacao.municipio }}</td>
+                            <td>{{ coligacao.partidos }}</td>
+                            <td>
+                                {% for candidato in coligacao.candidatura_set.all %}
+                                    {{ candidato.candidato }} ({{ candidato.get_cargo_display }}/{{ candidato.partido }})<br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% else %}
+                        <tr class="circulo-item" data-uf="{{ uf.pk }}">
+                            <td colspan="2">Ainda não existe nenhuma coligação.</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('#select-uf-circulo').change(function(event) {
+            $('#box-cidades .circulo').show();
+            $('#box-cidades .circulo-item').hide();
+            $('#box-cidades .circulo-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+        });
+    </script>
+</body>
+</html>

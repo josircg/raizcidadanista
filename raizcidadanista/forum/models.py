@@ -276,26 +276,71 @@ STATUS_PROPOSTA = (
     ('A', u'Aberta'),
     ('F', u'Fechada'),
 )
-
 ESCOPO_PROPOSTA = (
-    ('A', u'Aberta'),
-    ('F', u'Fechada'),
+    ('L', u'Local'),
+    ('N', u'Nacional'),
 )
-
 class Proposta(Conversa):
     dt_encerramento = models.DateTimeField(u'Data de encerramento')
-    status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA)
+    status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA, default='A')
     escopo = models.CharField(u'Escopo', max_length=1, choices=ESCOPO_PROPOSTA)
 
+    def get_absolute_url(self):
+        if self.propostaopcao_set.exists():
+            return reverse('forum_topico_enquete', kwargs={
+                'grupo_pk': self.topico.grupo.pk,
+                'topico_pk': self.topico.pk,
+                'pk': self.pk,
+            })
+        return reverse('forum_topico_proposta', kwargs={
+            'grupo_pk': self.topico.grupo.pk,
+            'topico_pk': self.topico.pk,
+            'pk': self.pk,
+        })
+
     def __unicode__(self):
-        return u'%s (%s) - %s' % (self.topico, self.autor, self.get_status_display(), )
+        return u'Proposta %s aberta até %s!' % (self.get_escopo_display(), self.dt_encerramento.strftime('%d/%m/%Y %H:%M'), )
+
+@receiver(signals.post_save, sender=Proposta)
+def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, using, *args, **kwargs):
+    if instance.escopo == 'N':
+        ouvintes = TopicoOuvinte.objects.all().exclude(ouvinte=instance.autor)
+    elif instance.escopo == 'L':
+        ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor)
+
+    for ouvinte in ouvintes:
+        if instance.propostaopcao_set.exists():
+            sendmail(
+                subject=u'Nova Proposta publicada no Tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                to=[ouvinte.ouvinte.email, ],
+                template='forum/emails/notificacao-proposta.html',
+                params={
+                    'conversa': instance,
+                    'ouvinte': ouvinte,
+                    'host': settings.SITE_HOST,
+                },
+            )
+        else:
+            sendmail(
+                subject=u'Nova Enquete publicada no Tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                to=[ouvinte.ouvinte.email, ],
+                template='forum/emails/notificacao-enquete.html',
+                params={
+                    'conversa': instance,
+                    'ouvinte': ouvinte,
+                    'host': settings.SITE_HOST,
+                },
+            )
+        ouvinte.dtnotificacao = datetime.now()
+        ouvinte.save()
 
 class PropostaOpcao(models.Model):
     proposta = models.ForeignKey(Proposta)
-    opcao = models.CharField(u'Opção', max_length=1, choices=STATUS_PROPOSTA)
+    opcao = models.CharField(u'Opção', max_length=120)
 
     def __unicode__(self):
         return u'%s' % (self.opcao )
+
 
 # Voto na proposta
 TIPO_VOTO =  (

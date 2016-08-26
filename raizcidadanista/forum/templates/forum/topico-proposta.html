@@ -1,0 +1,45 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
+
+{% block description %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>
+                        <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
+                        <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
+                        <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
+                    </h3>
+                    <h4>{{ object }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    <div class="panel panel-default panel-conversa">
+                        <div class="panel-body">
+                            <blockquote>
+                                {{ object.texto|safe }}
+                                <footer>
+                                    Por: {{ object.autor.get_first_name }} - {{ object.dt_criacao|date:"d/m/Y H:i" }}<br>
+                                    Votação até {{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}
+                                </footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

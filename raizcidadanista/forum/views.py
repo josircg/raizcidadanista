@@ -12,8 +12,9 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
-    TopicoOuvinte, ConversaMencao, GrupoCategoria
-from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm
+    TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
+from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
+    AddPropostaForm, AddEnqueteForm
 
 from cms.email import sendmail
 
@@ -608,7 +609,7 @@ class TopicoView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(TopicoView, self).get_context_data(**kwargs)
 
-        conversas_list = self.object.conversa_set.filter(conversa_pai=None)
+        conversas_list = self.object.conversa_set.filter(conversa_pai=None, proposta=None)
         paginator = Paginator(conversas_list, 10)
 
         page = self.request.GET.get('page')
@@ -656,3 +657,111 @@ class MencaoView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os campos!")
         return HttpResponseRedirect(form.instance.conversa.get_absolute_url())
+
+
+class NovaPropostaTopicoView(FormView):
+    template_name = 'forum/topico-add-proposta.html'
+    form_class = AddPropostaForm
+
+    def get_topico(self):
+        return get_object_or_404(Topico, pk=self.kwargs['pk'])
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get(self, request, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        if not self.grupo.grupousuario_set.filter(usuario=request.user).exists() and self.grupo.privado:
+            messages.error(request, u'Este grupo é privado e só permite a inclusão de novas propostas pelos membros previamente aprovados. <a href="%s">Clique aqui</a> para solicitar o seu ingresso nesse grupo.' % (
+                reverse('forum_grupo_solicitar_ingresso', kwargs={'pk': self.grupo.pk, })
+            ))
+            return HttpResponseRedirect(self.grupo.get_absolute_url())
+        return super(NovaPropostaTopicoView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        instance = form.save(topico=self.get_topico(), autor=self.request.user)
+        messages.info(self.request, u'Proposta publicada com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(NovaPropostaTopicoView, self).get_context_data(**kwargs)
+        context['object'] = self.get_topico()
+        return context
+
+
+class PropostaTopicoView(DetailView):
+    model = Proposta
+    template_name = 'forum/topico-proposta.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.status == 'F' or self.object.dt_encerramento < datetime.now():
+            messages.error(request, u'Proposta encerrada!')
+            return HttpResponseRedirect(self.object.topico.get_absolute_url())
+        return super(PropostaTopicoView, self).get(request, *args, **kwargs)
+
+
+class NovaEnqueteTopicoView(FormView):
+    template_name = 'forum/topico-add-enquete.html'
+    form_class = AddEnqueteForm
+    formset_class = inlineformset_factory(Proposta, PropostaOpcao, fields=('opcao', ), extra=5, can_delete=False)
+
+    def get_topico(self):
+        return get_object_or_404(Topico, pk=self.kwargs['pk'])
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get(self, request, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        if not self.grupo.grupousuario_set.filter(usuario=request.user).exists() and self.grupo.privado:
+            messages.error(request, u'Este grupo é privado e só permite a inclusão de novas enquetes pelos membros previamente aprovados. <a href="%s">Clique aqui</a> para solicitar o seu ingresso nesse grupo.' % (
+                reverse('forum_grupo_solicitar_ingresso', kwargs={'pk': self.grupo.pk, })
+            ))
+            return HttpResponseRedirect(self.grupo.get_absolute_url())
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = self.formset_class()
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = self.formset_class(request.POST)
+
+        if form.is_valid() and formset.is_valid():
+            return self.form_valid(form, formset)
+        else:
+            return self.form_invalid(form, formset)
+
+    def form_invalid(self, form, formset):
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                formset=formset
+            )
+        )
+
+    def form_valid(self, form, formset):
+        instance = form.save(topico=self.get_topico(), autor=self.request.user)
+        formset.instance = instance
+        formset.save()
+        messages.info(self.request, u'Enquete publicada com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(NovaEnqueteTopicoView, self).get_context_data(**kwargs)
+        context['object'] = self.get_topico()
+        return context
+
+
+class EnqueteTopicoView(DetailView):
+    model = Proposta
+    template_name = 'forum/topico-enquete.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.status == 'F' or self.object.dt_encerramento < datetime.now():
+            messages.error(request, u'Enquete encerrada!')
+            return HttpResponseRedirect(self.object.topico.get_absolute_url())
+        return super(EnqueteTopicoView, self).get(request, *args, **kwargs)

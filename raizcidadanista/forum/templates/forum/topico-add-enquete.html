@@ -1,0 +1,125 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Tópicos: {{ object.grupo }} - {{ object }} - Adicionar enquete - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object.grupo }} - {{ object }} - Adicionar enquete - Teia Digital - {% endblock %}
+
+{% block description %}Tópicos: {{ object.grupo }} - {{ object }} - Adicionar enquete - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object.grupo }} - {{ object }} - Adicionar enquete - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-main contact-content margin-b-30">
+    <div class="contact-content-upper">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="gallery_title">
+                    <h3>
+                        <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
+                        <a href="{{ object.grupo.get_absolute_url }}">Tópicos: {{ object.grupo }}</a> &rsaquo;
+                        <a href="{{ object.get_absolute_url }}">{{ object }}</a>
+                    </h3>
+                    <h4>Adicionar enquete</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-article">
+                    <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h3>Nova enquete</h3>
+                                <div class="form-group{% if form.texto.errors %} has-error has-feedback{% endif %} group-{{ form.texto.name }}">
+                                    <label class="control-label label-{{ form.texto.name }}" for="id_{{ form.texto.name }}">{{ form.texto.label }}{% if form.texto.form.texto.required %}*{% endif %}</label>
+                                    {{ form.texto|btform }}
+                                    {% if form.texto.errors %}
+                                    <ul class="list-unstyled">
+                                    {% for error in form.texto.errors %}
+                                      <li class="text-error"><small>{{ error }}</small></li>
+                                    {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group form-inline">
+                                    <div class="form-group{% if form.escopo.errors %} has-error has-feedback{% endif %} group-{{ form.escopo.name }}">
+                                        <label class="control-label label-{{ form.escopo.name }}" for="id_{{ form.escopo.name }}">{{ form.escopo.label }}{% if form.escopo.form.escopo.required %}*{% endif %}</label>
+                                        {{ form.escopo|btform }}
+                                        {% if form.escopo.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in form.escopo.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group{% if form.dt_encerramento.errors %} has-error has-feedback{% endif %} group-{{ form.dt_encerramento.name }}">
+                                        <label class="control-label label-{{ form.dt_encerramento.name }}" for="id_{{ form.dt_encerramento.name }}">{{ form.dt_encerramento.label }}{% if form.dt_encerramento.form.dt_encerramento.required %}*{% endif %}</label>
+                                        {{ form.dt_encerramento|btform }}
+                                        {% if form.dt_encerramento.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in form.dt_encerramento.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {{ formset.management_form }}
+                                {% for error in formset.non_form_errors %}
+                                    <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                {% endfor %}
+                                <h3>Opções</h3>
+                                <table class="table table-striped results inline-results">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for form in formset %}
+                                        <tr>
+                                            {% for field in form %}
+                                                {% if field.is_hidden %}
+                                                    {{ field }}
+                                                {% else %}
+                                                <td>{{ field|btform }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                <div class="form-group form-inline" style="margin-bottom: 10px">
+                                    <div class="upload input-group">
+                                        <button type="submit" class="btn btn-success">Publicar Proposta</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<style type="text/css">
+    .cke_bottom{display: none !important}
+    .form-inline label {display: block;}
+</style>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_dt_encerramento').mask('00/00/0000 00:00');
+    });
+</script>
+{% endblock %}

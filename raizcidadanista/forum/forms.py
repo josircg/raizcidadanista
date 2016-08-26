@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ckeditor.widgets import CKEditorWidget
-from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria
+from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria, Proposta
 from utils.storage import save_file
 
 class GrupoForm(forms.ModelForm):
@@ -114,3 +114,34 @@ class AddMembrosForm(forms.Form):
     def save(self, *args, **kwargs):
         for usuario in self.cleaned_data.get('usuarios'):
             GrupoUsuario.objects.get_or_create(grupo=self.grupo, usuario=usuario)
+
+
+class AddPropostaForm(forms.ModelForm):
+    class Meta:
+        model = Proposta
+        fields = '__all__'
+        fields = ('texto', 'escopo', 'dt_encerramento' )
+        widgets = {
+            'texto': CKEditorWidget(config_name='basic'),
+        }
+
+    def save(self, topico, autor, *args, **kwargs):
+        self.instance.topico = topico
+        self.instance.autor = autor
+        return super(AddPropostaForm, self).save(*args, **kwargs)
+
+
+class AddEnqueteForm(forms.ModelForm):
+    class Meta:
+        model = Proposta
+        fields = '__all__'
+        fields = ('texto', 'escopo', 'dt_encerramento' )
+        widgets = {
+            'texto': CKEditorWidget(config_name='basic'),
+        }
+
+    def save(self, topico, autor, *args, **kwargs):
+        self.instance.topico = topico
+        self.instance.autor = autor
+        return super(AddEnqueteForm, self).save(*args, **kwargs)
+

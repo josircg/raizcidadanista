@@ -37,6 +37,7 @@
                     <tr>
                         <th>Município</th>
                         <th>Partidos</th>
+                        <th>Candidatos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,6 +47,11 @@
                         <tr class="circulo-item" data-uf="{{ uf.pk }}">
                             <td>{{ coligacao.municipio }}</td>
                             <td>{{ coligacao.partidos }}</td>
+                            <td>
+                                {% for candidato in coligacao.candidatura_set.all %}
+                                    {{ candidato.candidato }} ({{ candidato.get_cargo_display }}/{{ candidato.partido }})<br>
+                                {% endfor %}
+                            </td>
                         </tr>
                     {% endfor %}
                     {% else %}

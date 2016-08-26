@@ -273,27 +273,43 @@ def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwar
 
 # Conversa sujeita a votação
 STATUS_PROPOSTA = (
-    ('A', u'Aberto'),
-    ('F', u'Fechado'),
+    ('A', u'Aberta'),
+    ('F', u'Fechada'),
 )
+
+ESCOPO_PROPOSTA = (
+    ('A', u'Aberta'),
+    ('F', u'Fechada'),
+)
+
 class Proposta(Conversa):
     dt_encerramento = models.DateTimeField(u'Data de encerramento')
     status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA)
+    escopo = models.CharField(u'Escopo', max_length=1, choices=ESCOPO_PROPOSTA)
 
     def __unicode__(self):
         return u'%s (%s) - %s' % (self.topico, self.autor, self.get_status_display(), )
+
+class PropostaOpcao(models.Model):
+    proposta = models.ForeignKey(Proposta)
+    opcao = models.CharField(u'Opção', max_length=1, choices=STATUS_PROPOSTA)
+
+    def __unicode__(self):
+        return u'%s' % (self.opcao )
 
 # Voto na proposta
 TIPO_VOTO =  (
     ('A', u'De acordo'),
     ('S', u'Abstém'),
-    ('D', u'Em desacordo'),
+    ('D', u'Discorda'),
     ('B', u'Bloqueia'),
 )
+
 class Voto(models.Model):
     proposta = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(User)
     voto = models.CharField(u'Tipo de Votação', max_length=1, choices=TIPO_VOTO)
+    opcao = models.ForeignKey(PropostaOpcao, blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s (%s) - %s' % (self.proposta, self.eleitor, self.get_voto_display(), )
+        return u'%s (%s) - %s' % (self.proposta, self.eleitor, self.voto )

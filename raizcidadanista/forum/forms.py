@@ -145,7 +145,7 @@ class AddEnqueteForm(forms.ModelForm):
         return super(AddEnqueteForm, self).save(*args, **kwargs)
 
 
-class VotoForm(forms.ModelForm):
+class VotoPropostaForm(forms.ModelForm):
     class Meta:
         model = Voto
         fields = ('voto', 'justificativa', )
@@ -157,5 +157,25 @@ class VotoForm(forms.ModelForm):
         if proposta.voto_set.filter(eleitor=eleitor).exists():
             proposta.voto_set.filter(eleitor=eleitor).update(voto=self.cleaned_data.get('voto'), justificativa=self.cleaned_data.get('justificativa'))
             return
-        return super(VotoForm, self).save(*args, **kwargs)
+        return super(VotoPropostaForm, self).save(*args, **kwargs)
+
+
+class VotoEnqueteForm(forms.ModelForm):
+    class Meta:
+        model = Voto
+        fields = ('opcao', )
+
+    def __init__(self, proposta, *args, **kwargs):
+        super(VotoEnqueteForm, self).__init__(*args, **kwargs)
+        self.fields['opcao'].queryset = proposta.propostaopcao_set.all()
+
+    def save(self, proposta, eleitor, *args, **kwargs):
+        self.instance.proposta = proposta
+        self.instance.eleitor = eleitor
+        self.instance.voto = ''
+
+        if proposta.voto_set.filter(eleitor=eleitor).exists():
+            proposta.voto_set.filter(eleitor=eleitor).update(opcao=self.cleaned_data.get('opcao'))
+            return
+        return super(VotoEnqueteForm, self).save(*args, **kwargs)
 

@@ -1,5 +1,5 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap static %}
+{% load bootstrap static forum_tags %}
 
 {% block title %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 {% block ogtitle %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
@@ -8,18 +8,21 @@
 {% block ogdescription %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 
 
-{% block colleft %}{% endblock %}
 {% block footer %}{% endblock %}
 
-{% block main %}
-<aside class="main-navigation">
-    <div class="main-menu">
-        <div class="box bottom-main block-width-full">
-            <p><a href="/"><img alt="logo raiz" src="/static/site/images/logo.png"></a></p>
+{% block colleft %}
+<div class="content-main">
+    <div class="row margin-b-30">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="banner-main-home" style="padding: 0px 25px 0 25px; height: 150px;">
+                <a href="/"><img src="{% static 'novosite/img/logo-base.png' %}" style="height: 120px" alt=""></a>
+            </div>
         </div>
     </div>
-</aside>
+</div>
+{% endblock %}
 
+{% block main %}
 <div class="content-main contact-content margin-b-30">
     <div class="contact-content-upper">
 
@@ -30,6 +33,16 @@
                         <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                         <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
                         <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
+
+                        {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
+                            {% if not object.expirada %}
+                                {% if object.status == 'A' %}
+                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Votação</button></a>
+                                {% else %}
+                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Votação</button></a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
                     </h3>
                     <h4>{{ object }}</h4>
                 </div>
@@ -37,28 +50,89 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
                 <div class="col-article">
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
                                 {{ object.texto|safe }}
-                                <ol>
-                                {% for opcao in object.propostaopcao_set.all %}
-                                    <li>{{ opcao }}</li>
-                                {% endfor %}
-                                </ol>
-                                <footer>
-                                    Por: {{ object.autor.get_first_name }} - {{ object.dt_criacao|date:"d/m/Y H:i" }}<br>
-                                    Votação até {{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}
-                                </footer>
 
+                                {% if not finalizado %}
+                                <form action="" method="post">{% csrf_token %}
+                                    <br>
+                                    {% if respondido %}
+                                    <b>Você já votou! Clique abaixo para mudar sua opinião.</b>
+                                    {% endif %}
+
+                                    <ol>
+                                    {% for opcao in object.propostaopcao_set.all %}
+                                        <li><input type="radio" name="opcao" value="{{ opcao.pk }}" {% if respondido.opcao == opcao %}checked="checked"{% endif %}> {{ opcao }}</li>
+                                    {% endfor %}
+                                    </ol>
+                                    {% if form.opcao.errors %}
+                                    <ul class="list-unstyled">
+                                        {% for error in form.opcao.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                    <button type="submit" class="btn btn-primary">Votar</button>
+                                </form>
+                                {% endif %}
                             </blockquote>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <small>
+                    Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                    Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                </small>
+                <br><br>
+                <b>POSIÇÕES</b>
+                <div id="piechart" style="height: 300px;"></div>
+
+                <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                {% for voto in object.voto_set.all %}
+                    <div>
+                        <div class="thread-item__vote-content">
+                            <b>{{ voto.eleitor }}</b>: {{ voto.opcao }}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <br>
+                <a href="{{ object.topico.get_absolute_url }}">Visualizar histórico da proposta</a>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    /* Gráfico */
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Respotas', 'Votos'],
+            {% for resposta, votos in respostas %}
+            ['{{ resposta }}',     {{ votos }}],
+            {% endfor %}
+        ]);
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data);
+      }
+</script>
+{% endblock %}
+
+{% block css %}
+    <style type="text/css">
+        #content-left{padding: 0;}
+        .content-main{padding-left: 0;}
+        .button-topic {float: right; margin-left: 5px;}
+    </style>
 {% endblock %}

@@ -37,9 +37,9 @@
                         {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
                             {% if not object.expirada %}
                                 {% if object.status == 'A' %}
-                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Votação</button></a>
+                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Enquete</button></a>
                                 {% else %}
-                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Votação</button></a>
+                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Enquete</button></a>
                                 {% endif %}
                             {% endif %}
                         {% endif %}

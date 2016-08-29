@@ -813,7 +813,7 @@ class EnqueteTopicoView(FormView):
         if request.GET.get('reabrir') and (self.object.autor == request.user or self.object.topico.grupo.GrupoUsuario_set.filter(usuario=request.user, admin=True).exists()):
             self.object.status = 'A'
             self.object.save()
-            messages.info(request, u'Votação Reaberta!')
+            messages.info(request, u'Enquete Reaberta!')
             return HttpResponseRedirect(self.object.get_absolute_url())
         return super(EnqueteTopicoView, self).get(request, *args, **kwargs)
 
@@ -835,7 +835,7 @@ class EnqueteTopicoView(FormView):
         context['respondido_percent'] = (float(self.object.voto_set.count())/float((self.object.topico.topicoouvinte_set.count() or 1)))*100
         context['finalizado'] = self.object.status == 'F' or self.object.dt_encerramento < datetime.now()
         if context['finalizado']:
-            messages.warning(self.request, u'Votação Encerrada!')
+            messages.warning(self.request, u'Enquete Encerrada!')
 
         context['respostas'] = []
         for opcao in self.object.propostaopcao_set.all():

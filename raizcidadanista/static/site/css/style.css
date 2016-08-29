@@ -1098,6 +1098,8 @@ blockquote footer:before, blockquote small:before {
     .gallery_title h3 { font-size: 23px; }
     .gallery_title h4 { font-size: 20px; }
 
+    .button-topic {float: left !important; margin: 50px 0px 10px 0px; }
+
     .banner-main-home-text,
     .banner-main-home img {
         float: none;

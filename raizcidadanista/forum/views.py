@@ -14,7 +14,7 @@ from django.conf import settings
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
 from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
-    AddPropostaForm, AddEnqueteForm
+    AddPropostaForm, AddEnqueteForm, VotoForm
 
 from cms.email import sendmail
 
@@ -689,16 +689,53 @@ class NovaPropostaTopicoView(FormView):
         return context
 
 
-class PropostaTopicoView(DetailView):
+class PropostaTopicoView(FormView):
     model = Proposta
     template_name = 'forum/topico-proposta.html'
+    form_class = VotoForm
+
+    def get_object(self):
+        return get_object_or_404(Proposta, pk=self.kwargs.get('pk'))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PropostaTopicoView, self).post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.status == 'F' or self.object.dt_encerramento < datetime.now():
-            messages.error(request, u'Proposta encerrada!')
-            return HttpResponseRedirect(self.object.topico.get_absolute_url())
+        if request.GET.get('encerrar') and (self.object.autor == request.user or self.object.topico.grupo.GrupoUsuario_set.filter(usuario=request.user, admin=True).exists()):
+            self.object.status = 'F'
+            self.object.save()
+            return HttpResponseRedirect(self.object.get_absolute_url())
+        if request.GET.get('reabrir') and (self.object.autor == request.user or self.object.topico.grupo.GrupoUsuario_set.filter(usuario=request.user, admin=True).exists()):
+            self.object.status = 'A'
+            self.object.save()
+            messages.info(request, u'Proposta Reaberta!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
         return super(PropostaTopicoView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save(proposta=self.object, eleitor=self.request.user)
+        messages.info(self.request, u'Obrigado pela sua opinião!')
+        return HttpResponseRedirect(self.object.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(PropostaTopicoView, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        try: context['respondido'] = self.object.voto_set.filter(eleitor=self.request.user).latest('pk')
+        except: pass
+        context['respondido_percent'] = (float(self.object.voto_set.count())/float((self.object.topico.topicoouvinte_set.count() or 1)))*100
+        context['finalizado'] = self.object.status == 'F' or self.object.dt_encerramento < datetime.now()
+        if context['finalizado']:
+            messages.warning(self.request, u'Proposta Encerrada!')
+
+        context['respostas'] = [
+            ['Concordar', self.object.voto_set.filter(voto='C').count()],
+            ['Abster', self.object.voto_set.filter(voto='A').count()],
+            ['Discordar', self.object.voto_set.filter(voto='D').count()],
+            ['Vetar', self.object.voto_set.filter(voto='V').count()],
+        ]
+        return context
 
 
 class NovaEnqueteTopicoView(FormView):

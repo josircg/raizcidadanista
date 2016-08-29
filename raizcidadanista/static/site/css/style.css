@@ -1095,7 +1095,7 @@ blockquote footer:before, blockquote small:before {
     .gallery_main,
     .contact-content, .section-content { padding: 15px; }
 
-    .gallery_title h3 { font-size: 50px; }
+    .gallery_title h3 { font-size: 23px; }
     .gallery_title h4 { font-size: 20px; }
 
     .banner-main-home-text,
@@ -1146,4 +1146,84 @@ blockquote footer:before, blockquote small:before {
 
     .gallery_title h3 { font-size: 40px; }
     .gallery_title h4 { font-size: 18px; }
+}
+
+
+
+/* Forum */
+.position-button {
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: solid;
+    margin-right: 5px;
+    background-size: 60px;
+    width: 55px;
+    height: 55px;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 8px;
+    border-width: 1px;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
+}
+.position-button--yes {
+    background-image: url(../img/agree.svg);
+    background-color: #00d374;
+    border-color: #00874a;
+    background-position-x: calc(50% + 1px);
+}
+.position-button--abstain {
+    background-image: url(../img/abstain.svg);
+    background-color: #F6A82B;
+    border-color: #cc8109;
+}
+.position-button--no {
+    background-image: url(../img/disagree.svg);
+    background-color: #F96168;
+    border-color: #eb0913;
+}
+.position-button--block {
+    background-image: url(../img/block.svg);
+    background-color: #CE261B;
+    border-color: #8a1a12;
+    background-position-x: calc(50% - 1px);
+}
+
+.thread-item__vote-content {
+    display: inline-block;
+    vertical-align: 10px;
+}
+.lmo-print-only {
+    display: none;
+}
+.thread-item__vote-icon {
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+    display: inline-block;
+}
+.thread-item__vote-icon--yes {
+    background-image: url(../img/agree.svg);
+}
+.thread-item__vote-icon--abstain {
+    background-image: url(../img/abstain.svg);
+}
+.thread-item__vote-icon--no {
+    background-image: url(../img/disagree.svg);
+}
+.thread-item__vote-icon--block {
+    background-image: url(../img/block.svg);
 }

@@ -3,7 +3,8 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ckeditor.widgets import CKEditorWidget
-from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria, Proposta
+from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria, \
+    Proposta, Voto
 from utils.storage import save_file
 
 class GrupoForm(forms.ModelForm):
@@ -119,7 +120,6 @@ class AddMembrosForm(forms.Form):
 class AddPropostaForm(forms.ModelForm):
     class Meta:
         model = Proposta
-        fields = '__all__'
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
             'texto': CKEditorWidget(config_name='basic'),
@@ -134,7 +134,6 @@ class AddPropostaForm(forms.ModelForm):
 class AddEnqueteForm(forms.ModelForm):
     class Meta:
         model = Proposta
-        fields = '__all__'
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
             'texto': CKEditorWidget(config_name='basic'),
@@ -144,4 +143,19 @@ class AddEnqueteForm(forms.ModelForm):
         self.instance.topico = topico
         self.instance.autor = autor
         return super(AddEnqueteForm, self).save(*args, **kwargs)
+
+
+class VotoForm(forms.ModelForm):
+    class Meta:
+        model = Voto
+        fields = ('voto', 'justificativa', )
+
+    def save(self, proposta, eleitor, *args, **kwargs):
+        self.instance.proposta = proposta
+        self.instance.eleitor = eleitor
+
+        if proposta.voto_set.filter(eleitor=eleitor).exists():
+            proposta.voto_set.filter(eleitor=eleitor).update(voto=self.cleaned_data.get('voto'), justificativa=self.cleaned_data.get('justificativa'))
+            return
+        return super(VotoForm, self).save(*args, **kwargs)
 

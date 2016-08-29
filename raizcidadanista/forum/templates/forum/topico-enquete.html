@@ -7,9 +7,22 @@
 {% block description %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 {% block ogdescription %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 
+
+{% block colleft %}{% endblock %}
+{% block footer %}{% endblock %}
+
 {% block main %}
+<aside class="main-navigation">
+    <div class="main-menu">
+        <div class="box bottom-main block-width-full">
+            <p><a href="/"><img alt="logo raiz" src="/static/site/images/logo.png"></a></p>
+        </div>
+    </div>
+</aside>
+
 <div class="content-main contact-content margin-b-30">
     <div class="contact-content-upper">
+
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">

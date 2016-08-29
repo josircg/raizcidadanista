@@ -1,11 +1,25 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap static %}
+{% load bootstrap static forum_tags %}
 
 {% block title %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 {% block ogtitle %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 
 {% block description %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
 {% block ogdescription %}Tópicos: {{ object.topico.grupo }} - {{ object.topico }} - Proposta {{ object }} - Teia Digital - {% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block colleft %}
+<div class="content-main">
+    <div class="row margin-b-30">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="banner-main-home" style="padding: 0px 25px 0 25px; height: 150px;">
+                <a href="/"><img src="{% static 'novosite/img/logo-base.png' %}" style="height: 120px" alt=""></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block main %}
 <div class="content-main contact-content margin-b-30">
@@ -17,6 +31,16 @@
                         <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                         <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
                         <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
+
+                        {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
+                            {% if not object.expirada %}
+                                {% if object.status == 'A' %}
+                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Proposta</button></a>
+                                {% else %}
+                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Proposta</button></a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
                     </h3>
                     <h4>{{ object }}</h4>
                 </div>
@@ -24,22 +48,137 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
                 <div class="col-article">
                     <div class="panel panel-default panel-conversa">
                         <div class="panel-body">
                             <blockquote>
                                 {{ object.texto|safe }}
-                                <footer>
-                                    Por: {{ object.autor.get_first_name }} - {{ object.dt_criacao|date:"d/m/Y H:i" }}<br>
-                                    Votação até {{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}
-                                </footer>
                             </blockquote>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <small>
+                    Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                    Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                </small>
+                <br><br>
+                {% if not finalizado %}
+                    {% if respondido %}
+                    <b>Você já votou! Clique abaixo para mudar sua opinião.</b>
+                    {% endif %}
+                    <div class="position_buttons_panel__buttons">
+                        <button class="position-button position-button--yes" data-value="C" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Concordar</div></button>
+                        <button class="position-button position-button--abstain" data-value="A" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Abster</div></button>
+                        <button class="position-button position-button--no" data-value="D" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Discordar</div></button>
+                        <button class="position-button position-button--block" data-value="V" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Vetar</div></button>
+                    </div>
+                {% endif %}
+
+                <br><br>
+                <b>POSIÇÕES</b>
+                <div id="piechart" style="height: 300px;"></div>
+
+                <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                {% for voto in object.voto_set.all %}
+                    <div>
+                        <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
+                            {% if voto.voto == 'C' %}<img class="lmo-print-only" src="{% static 'site/img/agree.svg' %}">{% endif %}
+                            {% if voto.voto == 'A' %}<img class="lmo-print-only" src="{% static 'site/img/abstain.svg' %}">{% endif %}
+                            {% if voto.voto == 'D' %}<img class="lmo-print-only" src="{% static 'site/img/disagree.svg' %}">{% endif %}
+                            {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
+                        </div>
+                        <div class="thread-item__vote-content">
+                            <b>{{ voto.eleitor }}</b>{% if voto.justificativa %}: {{ voto.justificativa }}{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <br>
+                <a href="{{ object.topico.get_absolute_url }}">Visualizar histórico da proposta</a>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="proposta-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Dê a sua opinião</h4>
+            </div>
+            <form action="" method="post">{% csrf_token %}
+                <div class="modal-body">
+                {% for field in form %}
+                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                        {% if field|btischeckbox %}
+                            {{ field|btform }}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                        {% else %}
+                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                            {{ field|btform }}
+                        {% endif %}
+                        {% if field.errors %}
+                        <ul class="list-unstyled">
+                        {% for error in field.errors %}
+                          <li class="text-error"><small>{{ error }}</small></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Retornar</button>
+                    <button type="submit" class="btn btn-primary">Confirma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    /* Modal */
+    $('#proposta-modal').on('show.bs.modal', function (event) {
+      var value = $(event.relatedTarget) .data('value');
+      var justificativa = $(event.relatedTarget).data('justificativa');
+      $(this).find('#id_voto option[value="'+value+'"]').attr('selected', 'selected');
+      $(this).find('#id_justificativa').val(justificativa);
+    })
+    {% if form.errors %}
+    $('#proposta-modal').modal('show');
+    {% endif %}
+
+    /* Gráfico */
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Respotas', 'Votos'],
+            {% for resposta, votos in respostas %}
+            ['{{ resposta }}',     {{ votos }}],
+            {% endfor %}
+        ]);
+        var options = {
+            colors: ['#00D177', '#F6A82B', '#F7636B', '#D0230C']
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+      }
+</script>
+{% endblock %}
+
+{% block css %}
+    <style type="text/css">
+        #content-left{padding: 0;}
+        .content-main{padding-left: 0;}
+        .button-topic {float: right; margin-left: 5px;}
+    </style>
 {% endblock %}

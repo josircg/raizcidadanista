@@ -285,6 +285,9 @@ class Proposta(Conversa):
     status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA, default='A')
     escopo = models.CharField(u'Escopo', max_length=1, choices=ESCOPO_PROPOSTA)
 
+    def expirada(self):
+        return self.dt_encerramento < datetime.now()
+
     def get_absolute_url(self):
         if self.propostaopcao_set.exists():
             return reverse('forum_topico_enquete', kwargs={
@@ -344,16 +347,16 @@ class PropostaOpcao(models.Model):
 
 # Voto na proposta
 TIPO_VOTO =  (
-    ('A', u'De acordo'),
-    ('S', u'Abstém'),
-    ('D', u'Discorda'),
-    ('B', u'Bloqueia'),
+    ('C', u'Concordar'),
+    ('D', u'Discordar'),
+    ('A', u'Abster'),
+    ('V', u'Vetar'),
 )
-
 class Voto(models.Model):
     proposta = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(User)
-    voto = models.CharField(u'Tipo de Votação', max_length=1, choices=TIPO_VOTO)
+    voto = models.CharField(u'Posição', max_length=1, choices=TIPO_VOTO)
+    justificativa = models.TextField(u'Justificativa', blank=True, null=True)
     opcao = models.ForeignKey(PropostaOpcao, blank=True, null=True)
 
     def __unicode__(self):

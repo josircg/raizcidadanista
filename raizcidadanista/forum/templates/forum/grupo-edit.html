@@ -14,10 +14,12 @@
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="gallery_title">
                     <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                    <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar membros</button></a>
-                    <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar membros</button></a>
-
                     <h4>Editar</h4>
+
+                    <div class="buttons-top">
+                        <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar membros</button></a>
+                        <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar membros</button></a>
+                    </div>
                 </div>
             </div>
         </div>

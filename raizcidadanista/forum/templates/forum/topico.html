@@ -22,6 +22,8 @@
                             {% else %}
                                 <a href="?notificacao=P" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
+                        </h3>
+                        <div class="buttons-top">
                             {% if object.criador == user %}
                                 {% if object.editavel %}
                                 <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
@@ -39,7 +41,7 @@
                                     <option value="N">{% if ouvinte.notificacao == 'N' %}&rarr; {% endif %}Não receber notificações</option>
                                 </select>
                             </form>
-                        </h3>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -62,15 +62,28 @@
                         <div class="main-menu">
                             <div class="box bottom-main block-width-full">
                                 {{ header.header|safe }}
-                                <ul class="info">
-                                    <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
-                                    <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
-                                    <li><a class="about_proin" href="{% url 'cms_logout' %}">Sair</a></li>
-                                </ul>
+                                <nav class="navbar">
+                                    <!-- Brand and toggle get grouped for better mobile display -->
+                                    <div class="navbar-header">
+                                      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                      </button>
+                                    </div>
+                                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                        <ul class="info">
+                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
+                                            <li><a class="about_proin" href="{% url 'cms_logout' %}">Sair</a></li>
+                                        </ul>
+                                    </div>
+                                </nav>
                             </div>
                         </div> <!-- main-menu -->
                         {% get_section_articles 'redes-sociais' as articles_redes_sociais %}

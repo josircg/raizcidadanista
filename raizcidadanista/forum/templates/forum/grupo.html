@@ -16,10 +16,12 @@
                     <h3>
                         {{ object }}
                         {% if user|has_grupo_perm:object %}
-                            <a href="{% url forum_grupo_sair object.pk %}" class="button-topic" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                            <a href="{% url forum_grupo_sair object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
                         {% else %}
-                            <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                            <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                         {% endif %}
+                    </h3>
+                    <div class="buttons-top">
                         {% if object.grupocategoria_set.exists %}
                         <form style="display: inline; float: right;">
                             <select name="categoria" class="categoria-option btn btn-success button-topic">
@@ -34,7 +36,8 @@
                         {% if user|has_admin_grupo_perm:object %}
                         <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
                         {% endif %}
-                    </h3>
+                    </div>
+
                     {{ object.descricao|safe }}
                 </div>
             </div>

@@ -101,6 +101,10 @@ body {
     padding-right: 30px;
 }
 
+.navbar-toggle .icon-bar {
+    border: 2px solid #94C11E;
+}
+
 .main-menu {
     float: left;
     width: 100%;
@@ -922,6 +926,17 @@ blockquote footer:before, blockquote small:before {
 
 }
 
+.buttons-top {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+}
+.link-star {
+    margin: -3px 5px;
+    position: absolute;
+    right: 20px;
+}
+
 @media screen and (max-width: 1415px) {
     .banner-main-home {
         height: 340px;
@@ -943,6 +958,9 @@ blockquote footer:before, blockquote small:before {
 
 @media screen and (max-width: 719px) {
     #content { float: none; }
+    .menu-social, .menu-eventos {display: none}
+    .contact-content-upper {padding: 10px;}
+    .main-navigation {margin: 0 auto 25px !important;}
 }
 
 @media screen and (min-width: 720px) {
@@ -1098,7 +1116,18 @@ blockquote footer:before, blockquote small:before {
     .gallery_title h3 { font-size: 23px; }
     .gallery_title h4 { font-size: 20px; }
 
-    .button-topic {float: left !important; margin: 50px 0px 10px 0px; }
+    .button-topic {margin: 0px 0px 10px 0px; }
+    .panel-conversa .form-group {
+        margin: 42px 0;
+    }
+    .buttons-top {
+        position: relative;
+        top: 0px;
+        right: 0px;
+    }
+    .link-star {
+        right: 0px;
+    }
 
     .banner-main-home-text,
     .banner-main-home img {

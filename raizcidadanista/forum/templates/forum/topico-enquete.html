@@ -33,7 +33,9 @@
                         <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                         <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
                         <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
-
+                    </h3>
+                    <h4>{{ object }}</h4>
+                    <div class="buttons-top">
                         {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
                             {% if not object.expirada %}
                                 {% if object.status == 'A' %}
@@ -43,8 +45,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endif %}
-                    </h3>
-                    <h4>{{ object }}</h4>
+                    </div>
                 </div>
             </div>
         </div>

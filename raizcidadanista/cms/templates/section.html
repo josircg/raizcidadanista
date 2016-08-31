@@ -21,9 +21,8 @@
                 </h4>
                 {{ section.header|safe }}
                 <div class="row">
-                    <div class="pi-col-sm-6 pi-padding-bottom-30">
+                    <div class="pi-col-sm-8 pi-padding-bottom-30">
                         {% for article in articles %}
-                        {% if forloop.counter == 1 or forloop.counter == 3 or forloop.counter == 5 %}
                         <!-- Post item -->
                         {% if article.get_images %}
                         <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
@@ -44,18 +43,18 @@
                             {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
                         </p>
                         <!-- End post item -->
-                        {% if forloop.counter != 5 %}
+                        {% if not forloop.last %}
                         <br />
                         <hr class="pi-divider pi-divider-dashed">
-                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </div>
                     <!-- End col 6 -->
-                    <!-- Col 6 -->
-                    <div class="pi-col-sm-6 pi-padding-bottom-30">
-                        {% for article in articles %}
-                        {% if forloop.counter == 2 or forloop.counter == 4 or forloop.counter == 6 %}
+                    <!-- Col 4 -->
+                    <div class="pi-col-sm-4 pi-padding-bottom-30">
+                        <h2>Últimas notícias</h2>
+                        {% get_last_articles 5 as last_articles %}
+                        {% for article in last_articles %}
                         <!-- Post item -->
                         {% if article.get_images %}
                         <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
@@ -76,14 +75,13 @@
                             {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
                         </p>
                         <!-- End post item -->
-                        {% if forloop.counter != 6 %}
+                        {% if not forloop.last %}
                         <br />
                         <hr class="pi-divider pi-divider-dashed">
                         {% endif %}
-                        {% endif %}
                         {% endfor %}
                     </div>
-                    <!-- End col 6 -->
+                    <!-- End col 4 -->
 
                     {% if articles.has_previous or articles.has_next %}
                     <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

@@ -63,17 +63,17 @@
                 <!-- Email -->
                 <div class="pi-row-block pi-row-block-txt pi-hidden-xs">
                     <i class="pi-row-block-icon icon-mail pi-icon-base pi-icon-square"></i>Email: <a href="{% url 'contato' %}">contato@raiz.org.br</a>
+                    | <a href="{% url 'forum' %}">Teia Digital</a>
                 </div>
                 <!-- End email -->
 
                 <!-- Social icons -->
                 <div class="pi-row-block pi-pull-right pi-hidden-2xs">
                     <ul class="pi-social-icons pi-stacked pi-jump pi-full-height pi-bordered pi-small pi-colored-bg clearFix">
-                        <li><a href="http://twitter.com/RaizCidadanista" target="_blank" class="pi-social-icon-twitter"><i class="icon-twitter"></i></a></li>
-                        <li><a href="http://facebook.com/RaizMovimentoCidadanista" target="_blank" class="pi-social-icon-facebook"><i class="icon-facebook"></i></a></li>
-                        <li><a href="http://telegram.me/raizcidadanista" target="_blank" class="pi-social-icon-paper-plane"><i class="icon-paper-plane"></i></a></li>
-                        <li><a href="https://www.youtube.com/channel/UCorm0TAWhF0gd8avH22u1XQ" target="_blank" class="pi-social-icon-youtube"><i class="icon-youtube"></i></a></li>
-                        <li><a href="http://www.flickr.com/search/?text=raiz%20movimento%20cidadanista" class="pi-social-icon-flickr"><i class="icon-flickr"></i></a></li>
+                        {% get_section_articles 'redes-sociais' as social_articles %}
+                        {% for article in social_articles %}
+                            <li>{{ article.header|safe }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <!-- End social icons -->

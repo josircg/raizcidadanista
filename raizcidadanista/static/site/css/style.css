@@ -76,6 +76,7 @@ body {
     float: none;
 }
 .contact-content img {margin: 20px !important;}
+.content-all {width: 100%; overflow: hidden;}
 
 .main-navigation {
     padding: 0px 0px;

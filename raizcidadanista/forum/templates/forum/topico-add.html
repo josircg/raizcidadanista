@@ -8,76 +8,78 @@
 {% block ogdescription %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                    <h4>Adicionar novo tópico</h4>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
+                        <h4>Adicionar novo tópico</h4>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h3>Novo tópico</h3>
-                                {% for field in form %}
-                                    {% if field.name != 'imagem' and field.name != 'arquivo' %}
-                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                                        {% if field|btischeckbox %}
-                                            {{ field|btform }}
-                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                        {% else %}
-                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                            {{ field|btform }}
-                                        {% endif %}
-                                        {% if field.errors %}
-                                        <ul class="list-unstyled">
-                                        {% for error in field.errors %}
-                                          <li class="text-error"><small>{{ error }}</small></li>
-                                        {% endfor %}
-                                        </ul>
-                                        {% endif %}
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
-                                <div class="form-group form-inline" style="margin-bottom: 10px">
-                                    <div class="upload input-group">
-                                        <button type="submit" class="btn btn-success">Adicionar</button>
-                                    </div>
-                                    <div class="upload input-group">
-                                        <button type="button" class="input-fake btn btn-default">
-                                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                            Imagem
-                                        </button>
-                                        <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
-                                        <ul class="list-unstyled">
-                                        {% for error in form.imagem.errors %}
-                                            <li class="text-error"><small>{{ error }}</small></li>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <h3>Novo tópico</h3>
+                                    {% for field in form %}
+                                        {% if field.name != 'imagem' and field.name != 'arquivo' %}
+                                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                            {% if field|btischeckbox %}
+                                                {{ field|btform }}
+                                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {% else %}
+                                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                                {{ field|btform }}
+                                            {% endif %}
+                                            {% if field.errors %}
+                                            <ul class="list-unstyled">
+                                            {% for error in field.errors %}
+                                              <li class="text-error"><small>{{ error }}</small></li>
                                             {% endfor %}
-                                        </ul>
-                                    </div>
-                                    <div class="upload input-group">
-                                        <button type="button" class="input-fake btn btn-default">
-                                            <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                                            Arquivo
-                                        </button>
-                                        <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
-                                        <ul class="list-unstyled">
-                                            {% for error in form.arquivo.errors %}
-                                            <li class="text-error"><small>{{ error }}</small></li>
-                                            {% endfor %}
-                                        </ul>
+                                            </ul>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <div class="form-group form-inline" style="margin-bottom: 10px">
+                                        <div class="upload input-group">
+                                            <button type="submit" class="btn btn-success">Adicionar</button>
+                                        </div>
+                                        <div class="upload input-group">
+                                            <button type="button" class="input-fake btn btn-default">
+                                                <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                Imagem
+                                            </button>
+                                            <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                            <ul class="list-unstyled">
+                                            {% for error in form.imagem.errors %}
+                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="upload input-group">
+                                            <button type="button" class="input-fake btn btn-default">
+                                                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                Arquivo
+                                            </button>
+                                            <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                            <ul class="list-unstyled">
+                                                {% for error in form.arquivo.errors %}
+                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

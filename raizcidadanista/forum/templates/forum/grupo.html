@@ -8,73 +8,74 @@
 {% block ogdescription %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>
-                        {{ object }}
-                        {% if user|has_grupo_perm:object %}
-                            <a href="{% url forum_grupo_sair object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
-                        {% else %}
-                            <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
-                        {% endif %}
-                    </h3>
-                    <div class="buttons-top">
-                        {% if object.grupocategoria_set.exists %}
-                        <form style="display: inline; float: right;">
-                            <select name="categoria" class="categoria-option btn btn-success button-topic">
-                                <option value="" hidden>Categoria</option>
-                                {% for grupocategoria in object.grupocategoria_set.all %}
-                                <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
-                                {% endfor %}
-                            </select>
-                        </form>
-                        {% endif %}
-                        <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar novo tópico</button></a>
-                        {% if user|has_admin_grupo_perm:object %}
-                        <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
-                        {% endif %}
-                    </div>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>
+                            {{ object }}
+                            {% if user|has_grupo_perm:object %}
+                                <a href="{% url forum_grupo_sair object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                            {% else %}
+                                <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                            {% endif %}
+                        </h3>
+                        <div class="buttons-top">
+                            {% if object.grupocategoria_set.exists %}
+                            <form style="display: inline; float: right;">
+                                <select name="categoria" class="categoria-option btn btn-success button-topic">
+                                    <option value="" hidden>Categoria</option>
+                                    {% for grupocategoria in object.grupocategoria_set.all %}
+                                    <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                            {% endif %}
+                            <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar novo tópico</button></a>
+                            {% if user|has_admin_grupo_perm:object %}
+                            <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
+                            {% endif %}
+                        </div>
 
-                    {{ object.descricao|safe }}
+                        {{ object.descricao|safe }}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    {% for topico in topicos %}
-                    <div class="panel panel-default panel-conversa">
-                        <div class="panel-body">
-                            <blockquote>
-                                {% if user|get_notificacao_topico:topico == 'P' %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                {% else %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
-                                {% endif %}
-                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
-</b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        {% for topico in topicos %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {% if user|get_notificacao_topico:topico == 'P' %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                    {% else %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                    <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
+                                    <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
 
-                            </blockquote>
+                                </blockquote>
+                            </div>
                         </div>
+                        {% endfor %}
+
+                        <nav>
+                          <ul class="pager">
+                            {% if topicos.has_previous %}
+                                <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
+
+                            {% if topicos.has_next %}
+                                <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
                     </div>
-                    {% endfor %}
-
-                    <nav>
-                      <ul class="pager">
-                        {% if topicos.has_previous %}
-                            <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-                        {% endif %}
-
-                        {% if topicos.has_next %}
-                            <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
-                        {% endif %}
-                      </ul>
-                    </nav>
                 </div>
             </div>
         </div>

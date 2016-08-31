@@ -8,77 +8,79 @@
 {% block ogdescription %}Editar - Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                    <h4>Editar</h4>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
+                        <h4>Editar</h4>
 
-                    <div class="buttons-top">
-                        <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar membros</button></a>
-                        <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar membros</button></a>
+                        <div class="buttons-top">
+                            <a href="{% url forum_grupo_add_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar membros</button></a>
+                            <a href="{% url forum_grupo_edit_membros object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar membros</button></a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    <form action="" method="POST" role="form">{% csrf_token %}
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h3>Editar</h3>
-                                {% for field in form %}
-                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                                        {% if field|btischeckbox %}
-                                            {{ field|btform }}
-                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                        {% else %}
-                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                            {{ field|btform }}
-                                        {% endif %}
-                                        {% if field.errors %}
-                                        <ul class="list-unstyled">
-                                        {% for error in field.errors %}
-                                          <li class="text-error"><small>{{ error }}</small></li>
-                                        {% endfor %}
-                                        </ul>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-
-                                {{ formset.management_form }}
-                                {% for error in formset.non_form_errors %}
-                                    <div class="alert alert-danger" role="alert">{{ error }}</div>
-                                {% endfor %}
-                                <h3>Categorias</h3>
-                                <table class="table table-striped results inline-results">
-                                    <thead>
-                                        <tr>
-                                            <th>Descrição</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for form in formset %}
-                                        <tr>
-                                            {% for field in form %}
-                                                {% if field.is_hidden %}
-                                                    {{ field }}
-                                                {% else %}
-                                                <td>{{ field|btform }}</td>
-                                                {% endif %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <h3>Editar</h3>
+                                    {% for field in form %}
+                                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                            {% if field|btischeckbox %}
+                                                {{ field|btform }}
+                                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {% else %}
+                                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                                {{ field|btform }}
+                                            {% endif %}
+                                            {% if field.errors %}
+                                            <ul class="list-unstyled">
+                                            {% for error in field.errors %}
+                                              <li class="text-error"><small>{{ error }}</small></li>
                                             {% endfor %}
-                                        </tr>
+                                            </ul>
+                                            {% endif %}
+                                        </div>
                                     {% endfor %}
-                                    </tbody>
-                                </table>
-                                <button type="submit" class="btn btn-success">Salvar</button>
+
+                                    {{ formset.management_form }}
+                                    {% for error in formset.non_form_errors %}
+                                        <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                    {% endfor %}
+                                    <h3>Categorias</h3>
+                                    <table class="table table-striped results inline-results">
+                                        <thead>
+                                            <tr>
+                                                <th>Descrição</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for form in formset %}
+                                            <tr>
+                                                {% for field in form %}
+                                                    {% if field.is_hidden %}
+                                                        {{ field }}
+                                                    {% else %}
+                                                    <td>{{ field|btform }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <button type="submit" class="btn btn-success">Salvar</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

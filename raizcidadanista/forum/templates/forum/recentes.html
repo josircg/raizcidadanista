@@ -8,48 +8,49 @@
 {% block ogdescription %}Tópicos recentes- Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>Lista de tópicos recentes</h3>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>Lista de tópicos recentes</h3>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    {% for topico in topicos %}
-                    <div class="panel panel-default panel-conversa">
-                        <div class="panel-body">
-                            <blockquote>
-                                {% if user|get_notificacao_topico:topico == 'P' %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                {% else %}
-                                    <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
-                                {% endif %}
-                                <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
-                                <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
-                                <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em:
-</b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
-                            </blockquote>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        {% for topico in topicos %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {% if user|get_notificacao_topico:topico == 'P' %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                    {% else %}
+                                        <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                    <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
+                                    <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
+                                    <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+                                </blockquote>
+                            </div>
                         </div>
+                        {% endfor %}
+
+                        <nav>
+                          <ul class="pager">
+                            {% if topicos.has_previous %}
+                                <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
+
+                            {% if topicos.has_next %}
+                                <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
                     </div>
-                    {% endfor %}
-
-                    <nav>
-                      <ul class="pager">
-                        {% if topicos.has_previous %}
-                            <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-                        {% endif %}
-
-                        {% if topicos.has_next %}
-                            <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
-                        {% endif %}
-                      </ul>
-                    </nav>
                 </div>
             </div>
         </div>

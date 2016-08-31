@@ -8,77 +8,79 @@
 {% block ogdescription %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                    <h4>Editar membros</h4>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
+                        <h4>Editar membros</h4>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    <form action="" method="get" role="form">
-                        <div class="panel-body">
-                            <div class="form-group pull-right">
-                                <input type="text" name="q" class="search form-control" placeholder="Você está procurando por?">
-                            </div>
-                        </div>
-                    </form>
-                    <form action="" method="POST" role="form">{% csrf_token %}
-                        {{ formset.management_form }}
-                        {% for error in formset.non_form_errors %}
-                            <div class="alert alert-danger" role="alert">{{ error }}</div>
-                        {% endfor %}
-                        <div class="panel panel-default">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="get" role="form">
                             <div class="panel-body">
-                                <h3>Editar membros</h3>
-                                <table class="table table-striped results">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuário</th>
-                                            <th>Administrador</th>
-                                            <th>Remover</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for form in formset %}
-                                        <tr>
-                                            <td><p>{{ form.instance.usuario }}</p></td>
-                                            {% for field in form %}
-                                                {% if field.is_hidden %}
-                                                    {{ field }}
-                                                {% else %}
-                                                <td>{{ field|btform }}</td>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% if objects.has_previous or objects.has_next %}
-                                <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <ul class="pagination">
-                                        {% if objects.has_previous %}
-                                            <li><a href="?page={{ objects.previous_page_number }}">&laquo;</a></li>
-                                        {% endif %}
-
-                                        <li class="active"><a href="#">{{ objects.number }} de {{ objects.paginator.num_pages }}<span class="sr-only"></span></a></li>
-
-                                        {% if objects.has_next %}
-                                            <li><a href="?page={{ objects.next_page_number }}">&raquo;</a></li>
-                                        {% endif %}
-                                    </ul>
+                                <div class="form-group pull-right">
+                                    <input type="text" name="q" class="search form-control" placeholder="Você está procurando por?">
                                 </div>
-                                {% endif %}
-                                <button type="submit" class="btn btn-success">Salvar</button>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            {{ formset.management_form }}
+                            {% for error in formset.non_form_errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <h3>Editar membros</h3>
+                                    <table class="table table-striped results">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuário</th>
+                                                <th>Administrador</th>
+                                                <th>Remover</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for form in formset %}
+                                            <tr>
+                                                <td><p>{{ form.instance.usuario }}</p></td>
+                                                {% for field in form %}
+                                                    {% if field.is_hidden %}
+                                                        {{ field }}
+                                                    {% else %}
+                                                    <td>{{ field|btform }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% if objects.has_previous or objects.has_next %}
+                                    <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <ul class="pagination">
+                                            {% if objects.has_previous %}
+                                                <li><a href="?page={{ objects.previous_page_number }}">&laquo;</a></li>
+                                            {% endif %}
+
+                                            <li class="active"><a href="#">{{ objects.number }} de {{ objects.paginator.num_pages }}<span class="sr-only"></span></a></li>
+
+                                            {% if objects.has_next %}
+                                                <li><a href="?page={{ objects.next_page_number }}">&raquo;</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                    <button type="submit" class="btn btn-success">Salvar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

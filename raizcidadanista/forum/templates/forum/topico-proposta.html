@@ -22,83 +22,85 @@
 {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>
-                        <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
-                        <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
-                        <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
-                    </h3>
-                    <h4>{{ object }}</h4>
-                    <div class="buttons-top">
-                        {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
-                            {% if not object.expirada %}
-                                {% if object.status == 'A' %}
-                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Proposta</button></a>
-                                {% else %}
-                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Proposta</button></a>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>
+                            <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
+                            <a href="{{ object.topico.grupo.get_absolute_url }}">Tópicos: {{ object.topico.grupo }}</a> &rsaquo;
+                            <a href="{{ object.topico.get_absolute_url }}">{{ object.topico }}</a>
+                        </h3>
+                        <h4>{{ object }}</h4>
+                        <div class="buttons-top">
+                            {% if object.autor == user or user|has_admin_grupo_perm:object.topico.grupo %}
+                                {% if not object.expirada %}
+                                    {% if object.status == 'A' %}
+                                    <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Proposta</button></a>
+                                    {% else %}
+                                    <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Proposta</button></a>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    <div class="col-article">
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {{ object.texto|safe }}
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <small>
+                        Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                        Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                    </small>
+                    <br><br>
+                    {% if not finalizado %}
+                        {% if respondido %}
+                        <b>Você já votou! Clique abaixo para mudar sua opinião.</b>
                         {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                <div class="col-article">
-                    <div class="panel panel-default panel-conversa">
-                        <div class="panel-body">
-                            <blockquote>
-                                {{ object.texto|safe }}
-                            </blockquote>
+                        <div class="position_buttons_panel__buttons">
+                            <button class="position-button position-button--yes" data-value="C" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Concordar</div></button>
+                            <button class="position-button position-button--abstain" data-value="A" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Abster</div></button>
+                            <button class="position-button position-button--no" data-value="D" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Discordar</div></button>
+                            <button class="position-button position-button--block" data-value="V" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Vetar</div></button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
-                <small>
-                    Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
-                    Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
-                </small>
-                <br><br>
-                {% if not finalizado %}
-                    {% if respondido %}
-                    <b>Você já votou! Clique abaixo para mudar sua opinião.</b>
                     {% endif %}
-                    <div class="position_buttons_panel__buttons">
-                        <button class="position-button position-button--yes" data-value="C" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Concordar</div></button>
-                        <button class="position-button position-button--abstain" data-value="A" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Abster</div></button>
-                        <button class="position-button position-button--no" data-value="D" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Discordar</div></button>
-                        <button class="position-button position-button--block" data-value="V" {% if respondido %} data-justificativa="{{ respondido.justificativa }}"{% endif %} data-toggle="modal" data-target="#proposta-modal"><div class="sr-only">Vetar</div></button>
-                    </div>
-                {% endif %}
 
-                <br><br>
-                <b>POSIÇÕES</b>
-                <div id="piechart" style="height: 300px;"></div>
+                    <br><br>
+                    <b>POSIÇÕES</b>
+                    <div id="piechart" style="height: 300px;"></div>
 
-                <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
-                {% for voto in object.voto_set.all %}
-                    <div>
-                        <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
-                            {% if voto.voto == 'C' %}<img class="lmo-print-only" src="{% static 'site/img/agree.svg' %}">{% endif %}
-                            {% if voto.voto == 'A' %}<img class="lmo-print-only" src="{% static 'site/img/abstain.svg' %}">{% endif %}
-                            {% if voto.voto == 'D' %}<img class="lmo-print-only" src="{% static 'site/img/disagree.svg' %}">{% endif %}
-                            {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
+                    <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                    {% for voto in object.voto_set.all %}
+                        <div>
+                            <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
+                                {% if voto.voto == 'C' %}<img class="lmo-print-only" src="{% static 'site/img/agree.svg' %}">{% endif %}
+                                {% if voto.voto == 'A' %}<img class="lmo-print-only" src="{% static 'site/img/abstain.svg' %}">{% endif %}
+                                {% if voto.voto == 'D' %}<img class="lmo-print-only" src="{% static 'site/img/disagree.svg' %}">{% endif %}
+                                {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
+                            </div>
+                            <div class="thread-item__vote-content">
+                                <b>{{ voto.eleitor }}</b>{% if voto.justificativa %}: {{ voto.justificativa }}{% endif %}
+                            </div>
                         </div>
-                        <div class="thread-item__vote-content">
-                            <b>{{ voto.eleitor }}</b>{% if voto.justificativa %}: {{ voto.justificativa }}{% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
 
-                <br>
-                <a href="{{ object.topico.get_absolute_url }}">Visualizar histórico da proposta</a>
+                    <br>
+                    <a href="{{ object.topico.get_absolute_url }}">Visualizar histórico da proposta</a>
+                </div>
             </div>
         </div>
     </div>

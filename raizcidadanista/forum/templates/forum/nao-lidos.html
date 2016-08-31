@@ -8,53 +8,54 @@
 {% block ogdescription %}Não lidos - Teia Digital - {% endblock %}
 
 {% block main %}
-
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>Lista de grupos não lidos</h3>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>Lista de grupos não lidos</h3>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    {% for grupo in grupos %}
-                        <div class="panel panel-default panel-conversa">
-                            <div class="panel-body">
-                                <blockquote>
-                                    {% if user|get_notificacao_topico:topico == 'I' %}
-                                        <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                    {% else %}
-                                        <a href="{{ topico.get_absolute_url }}?notificacao=I" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
-                                    {% endif %}
-                                    <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
-                                    <footer>
-                                        {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
-                                        <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
-                                        <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
-                                        <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
-                                        {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
-                                    </footer>
-                                </blockquote>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        {% for grupo in grupos %}
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <blockquote>
+                                        {% if user|get_notificacao_topico:topico == 'I' %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                        {% else %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=I" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
+                                        <footer>
+                                            {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
+                                            <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
+                                            <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                            <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
+                                            {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
+                                        </footer>
+                                    </blockquote>
+                                </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
 
-                    <nav>
-                      <ul class="pager">
-                        {% if grupos.has_previous %}
-                            <li class="previous"><a href="?page={{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-                        {% endif %}
+                        <nav>
+                          <ul class="pager">
+                            {% if grupos.has_previous %}
+                                <li class="previous"><a href="?page={{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
 
-                        {% if grupos.has_next %}
-                            <li class="next"><a href="?page={{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
-                        {% endif %}
-                      </ul>
-                    </nav>
+                            {% if grupos.has_next %}
+                                <li class="next"><a href="?page={{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>

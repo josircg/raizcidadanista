@@ -8,29 +8,31 @@
 {% block ogdescription %}Adicionar Membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                    <h4>Adicionar Membros</h4>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
+                        <h4>Adicionar Membros</h4>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="col-article">
-                    <form action="" method="POST" role="form">{% csrf_token %}
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h3>Adicionar Membros</h3>
-                                <textarea class="usuarios" data-name="usuarios" placeholder="@Nome"></textarea>
-                                <button type="submit" class="btn btn-success">Salvar</button>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <h3>Adicionar Membros</h3>
+                                    <textarea class="usuarios" data-name="usuarios" placeholder="@Nome"></textarea>
+                                    <button type="submit" class="btn btn-success">Salvar</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

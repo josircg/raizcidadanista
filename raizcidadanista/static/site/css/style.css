@@ -12,9 +12,6 @@ http://www.templatemo.com/tm-478-accord
 .share-links .share-twitter {
     vertical-align: sub;
 }
-.contact-content a {
-    text-decoration: underline !important;
-}
 a:hover, a:focus { text-decoration: underline; }
 a:hover {
     -webkit-transition: all 0.3s ease;
@@ -690,7 +687,6 @@ body {
     background-color: #fff;
     border-top: 7px solid #94C11E;
     width: auto;
-    overflow: hidden;
 }
 .gallery_main { padding: 30px 20px 30px 30px; }
 

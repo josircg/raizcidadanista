@@ -22,6 +22,17 @@
                             {% else %}
                                 <a href="?notificacao=P" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
+                            <span class="dropdown">
+                                <button class="dropdown-button"><i class="fa fa-fw fa-envelope" aria-hidden="true"></i></button>
+                                <div class="dropdown-menu">
+                                        <a href="?notificacao=P">{% if ouvinte.notificacao == 'P' %}&rarr; {% endif %}Prioritário</a><br>
+                                        <a href="?notificacao=I">{% if ouvinte.notificacao == 'I' %}&rarr; {% endif %}Sempre receber notificações</a><br>
+                                        <a href="?notificacao=R">{% if ouvinte.notificacao == 'R' %}&rarr; {% endif %}Resumo Diário</a><br>
+                                        <a href="?notificacao=V">{% if ouvinte.notificacao == 'V' %}&rarr; {% endif %}Apenas notificações de votação</a><br>
+                                        <a href="?notificacao=N">{% if ouvinte.notificacao == 'N' %}&rarr; {% endif %}Não receber notificações</a><br>
+                                    </form>
+                                </div>
+                            </span>
                         </h3>
                         <div class="buttons-top">
                             {% if object.criador == user %}
@@ -31,16 +42,6 @@
                                 <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Tópico</button></a>
                                 {% endif %}
                             {% endif %}
-                            <form style="display: inline;">
-                                <select name="notificacao" class="notification-option btn btn-success button-topic">
-                                    <option value="" disabled selected hidden>Notificações</option>
-                                    <option value="P">{% if ouvinte.notificacao == 'P' %}&rarr; {% endif %}Prioritário</option>
-                                    <option value="I">{% if ouvinte.notificacao == 'I' %}&rarr; {% endif %}Sempre receber notificações</option>
-                                    <option value="R">{% if ouvinte.notificacao == 'R' %}&rarr; {% endif %}Resumo Diário</option>
-                                    <option value="V">{% if ouvinte.notificacao == 'V' %}&rarr; {% endif %}Apenas notificações de votação</option>
-                                    <option value="N">{% if ouvinte.notificacao == 'N' %}&rarr; {% endif %}Não receber notificações</option>
-                                </select>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -411,7 +412,7 @@
     .responder-form, .edit-form, .mention-form {display: none; }
     .button-topic {float: right; margin-left: 5px;}
     .fa {font-size: 32px; }
-    .fa-star-o {color: #767676;}
+    .fa-star-o, .fa-envelope {color: #767676;}
     .fa-star {color: #F6A82B;}
 
     /* Top fixed */
@@ -428,6 +429,12 @@
     .input-fake{padding-right:50px;}
     .input-file-real{opacity:0;position: absolute !important;top:0px;left:0px;cursor:pointer;height: 34px;width: 100%;}
     .btn-default-hover {color: #333; background-color: #e6e6e6; border-color: #adadad;}
+
+    .link-star {right: 75px;}
+    .dropdown {margin: -5px 5px; position: absolute; right: 20px;}
+    .dropdown-button, .dropdown-button:focus {background: none; border: none;}
+    .dropdown-button .fa {background: none; border: none; }
+    .dropdown-menu { right: 0; left: initial; padding: 10px; line-height: 22px; width: 250px;}
 </style>
 {% endblock %}
 
@@ -445,11 +452,6 @@
         } else {
             $('.content-all').removeClass("top-fixed");
         }
-    });
-
-    /* Selec das notificações */
-    $('.notification-option').on('change', function(event) {
-        $(this).parent().submit();
     });
 
     /* show/hide response ckeditor */
@@ -542,6 +544,14 @@
     }).mouseleave(function() {
         $(this).parent().find(".input-fake").removeClass('btn-default-hover');
         console.log('leave');
+    });
+
+    $('.dropdown').hover(function(event) {
+        if($(this).hasClass('open')){
+            $(this).removeClass('open');
+        }else{
+            $(this).addClass('open');
+        }
     });
 </script>
 {% endblock %}

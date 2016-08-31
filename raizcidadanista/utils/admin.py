@@ -59,14 +59,16 @@ class CustomUserAdmin(UserAdmin, PowerModelAdmin):
 
     def personificar(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
-        if not request.user.is_superuser:
+        if not user.is_active or not request.user.is_superuser:
             raise PermissionDenied()
 
         logout(request)
         user.backend='django.contrib.auth.backends.ModelBackend'
         login(request, user)
         messages.info(request, u'Você está logado agora como %s!' % user)
-        return HttpResponseRedirect(reverse('admin:index'))
+        if user.is_staff:
+            return HttpResponseRedirect(reverse('admin:index'))
+        return HttpResponseRedirect(reverse('home'))
 
     def get_urls(self):
         urls_originais = super(CustomUserAdmin, self).get_urls()
@@ -78,8 +80,8 @@ class CustomUserAdmin(UserAdmin, PowerModelAdmin):
     def get_buttons(self, request, object_id):
         buttons = super(CustomUserAdmin, self).get_buttons(request, object_id)
         if object_id:
-            # obj = self.get_object(request, object_id)
-            # if obj and obj.is_active and request.user.is_superuser:
-            buttons.append(PowerButton(url=reverse('admin:auth_user_personificar', kwargs={'user_id': object_id, }), label=u'Personificar'))
+            obj = self.get_object(request, object_id)
+            if obj and obj.is_active and request.user.is_superuser:
+                buttons.append(PowerButton(url=reverse('admin:auth_user_personificar', kwargs={'user_id': object_id, }), label=u'Personificar'))
         return buttons
 admin.site.register(User, CustomUserAdmin)

@@ -37,7 +37,7 @@
     <link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,400italic'>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'site/font-awesome/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.9">
+    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.10">
     <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
     {% block css %}{% endblock %}
 
@@ -60,7 +60,7 @@
                     {% block colleft %}
                     <aside class="main-navigation">
                         <div class="main-menu">
-                            <div class="box bottom-main block-width-full">
+                            <div class="box bottom-main block-width-full box-logo" style="padding: 10px">
                                 {{ header.header|safe }}
                                 <nav class="navbar">
                                     <!-- Brand and toggle get grouped for better mobile display -->

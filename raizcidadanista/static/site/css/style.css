@@ -959,7 +959,6 @@ blockquote footer:before, blockquote small:before {
 @media screen and (max-width: 719px) {
     #content { float: none; }
     .menu-social, .menu-eventos {display: none}
-    .contact-content-upper {padding: 10px;}
     .main-navigation {margin: 0 auto 25px !important;}
 }
 
@@ -1070,16 +1069,12 @@ blockquote footer:before, blockquote small:before {
     }
 }
 
-@media (max-width: 800px) {
-
+@media (max-width:767px) {
     .container {
-        padding-left: 40px;
-        padding-right: 40px;
+        padding-left: 25px;
+        padding-right: 25px;
     }
 
-}
-
-@media (max-width:767px) {
     .banner-main-home {
         height: 395px;
     }
@@ -1111,10 +1106,10 @@ blockquote footer:before, blockquote small:before {
     }
 
     .gallery_main,
-    .contact-content, .section-content { padding: 15px; }
+    .contact-content, .section-content, .contact-content-upper { padding: 5px; }
 
-    .gallery_title h3 { font-size: 23px; }
-    .gallery_title h4 { font-size: 20px; }
+    .gallery_title h3 { font-size: 18px; }
+    .gallery_title h4 { font-size: 16px; }
 
     .button-topic {margin: 0px 0px 10px 0px; }
     .panel-conversa .form-group {
@@ -1128,6 +1123,14 @@ blockquote footer:before, blockquote small:before {
     .link-star {
         right: 0px;
     }
+
+    .box-logo img {
+        width: 135px;
+    }
+    .navbar {
+        margin-bottom: 0px;
+    }
+
 
     .banner-main-home-text,
     .banner-main-home img {
@@ -1156,8 +1159,8 @@ blockquote footer:before, blockquote small:before {
 
     .col-xxs-12 { width: 100%; }
 
-    .aenean h3 { font-size: 40px; }
-    .aenean h4 { font-size: 22px; }
+    .aenean h3 { font-size: 18px; }
+    .aenean h4 { font-size: 16px; }
 
     .info-description-container { padding: 20px 0; }
 }
@@ -1165,8 +1168,6 @@ blockquote footer:before, blockquote small:before {
 @media (max-width:400px) {
 
     .desc2 { font-size: 12px; }
-
-    .contact-content-upper { padding: 20px; }
 }
 
 @media (max-width: 370px) {
@@ -1175,8 +1176,8 @@ blockquote footer:before, blockquote small:before {
 
     .main-menu-link-icon {  font-size: 3em; }
 
-    .gallery_title h3 { font-size: 40px; }
-    .gallery_title h4 { font-size: 18px; }
+    .gallery_title h3 { font-size: 18px; }
+    .gallery_title h4 { font-size: 16px; }
 }
 
 

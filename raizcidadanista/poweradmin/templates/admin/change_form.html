@@ -7,6 +7,19 @@
 {% url 'admin:jsi18n' as jsi18nurl %}
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 {{ media }}
+<style type="text/css">
+    .vForeignKeyRawIdAdminField {display: none; }
+</style>
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function(){
+            $('.submit-row input').click(function(){
+                $('.submit-row input').hide();
+                $('.submit-row').append('Processando...');
+            });
+        });
+    })(django.jQuery);
+</script>
 <script type="text/javascript">
     (function($) {
         $(function() {

@@ -76,7 +76,7 @@
                             <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
                         </ul>
                         <p>
-                            {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
+                            {{ article.header|striptags|truncatewords:20|safe}}
                         </p>
                         <!-- End post item -->
                         {% if not forloop.last %}

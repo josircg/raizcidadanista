@@ -66,7 +66,9 @@ class CustomUserAdmin(UserAdmin, PowerModelAdmin):
         user.backend='django.contrib.auth.backends.ModelBackend'
         login(request, user)
         messages.info(request, u'Você está logado agora como %s!' % user)
-        return HttpResponseRedirect(reverse('admin:index'))
+        if user.is_staff:
+            return HttpResponseRedirect(reverse('admin:index'))
+        return HttpResponseRedirect(reverse('home'))
 
     def get_urls(self):
         urls_originais = super(CustomUserAdmin, self).get_urls()

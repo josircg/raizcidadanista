@@ -25,12 +25,12 @@
                 <div class="row">
                     <div class="pi-col-sm-8 pi-padding-bottom-30">
                         {% for article in articles %}
-                        <article style="min-height: 200px;{% if forloop.counter|divisibleby:"2" %} background: #f0f0f0; padding: 15px;{% endif %}">
+                        <article class="pi-divider-dashed" style="min-height: 155px; padding: 15px; border: 1px #d6dfdf solid; margin-bottom: 20px; border-radius: 5px;">
                             <!-- Post item -->
                             {% if article.get_images %}
-                            <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
+                            <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" >
                                 <a href="{{ article.get_absolute_url }}">
-                                    <img src="{{ article.first_image }}" alt="{{ article.title }}">
+                                    <img src="{{ article.first_image }}" alt="{{ article.title }}" style="width: auto; max-height: 120px">
                                     <span class="pi-img-overlay pi-img-overlay-white"></span>
                                 </a>
                             </div>
@@ -42,15 +42,8 @@
                             <ul class="pi-meta pi-margin-bottom-10">
                                 <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
                             </ul>
-                            <p>
-                                {{ article.header|striptags|truncatewords:20|safe}}
-                            </p>
                             <!-- End post item -->
                         </article>
-                        {% if not forloop.last %}
-                        <br />
-                        <hr class="pi-divider pi-divider-dashed">
-                        {% endif %}
                         {% endfor %}
                     </div>
                     <!-- End col 6 -->

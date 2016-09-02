@@ -1133,6 +1133,7 @@ blockquote footer:before, blockquote small:before {
     .navbar {
         min-height: auto;
         margin-bottom: 0px;
+        margin-top: -35px;
     }
     .navbar-toggle {
         padding: 5px 0px;

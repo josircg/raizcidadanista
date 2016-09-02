@@ -956,7 +956,7 @@ blockquote footer:before, blockquote small:before {
 @media screen and (max-width: 719px) {
     #content { float: none; }
     .menu-social, .menu-eventos {display: none}
-    .main-navigation {margin: 0 auto 25px !important;}
+    .main-navigation {margin: 0 auto 10px !important;}
 }
 
 @media screen and (min-width: 720px) {
@@ -1067,6 +1067,9 @@ blockquote footer:before, blockquote small:before {
 }
 
 @media (max-width:767px) {
+    .main-page {
+        margin-top: 10px;
+    }
     .container {
         padding-left: 25px;
         padding-right: 25px;
@@ -1124,10 +1127,18 @@ blockquote footer:before, blockquote small:before {
     .box-logo img {
         width: 135px;
     }
+    .box-logo p {
+        margin: 0px;
+    }
     .navbar {
+        min-height: auto;
         margin-bottom: 0px;
     }
-
+    .navbar-toggle {
+        padding: 5px 0px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
 
     .banner-main-home-text,
     .banner-main-home img {

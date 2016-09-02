@@ -81,7 +81,7 @@ class VotoPropostaInline(admin.TabularInline):
     model = Voto
     extra = 1
 class PropostaAdmin(PowerModelAdmin):
-    list_display = ('topico', 'autor', 'dt_criacao', 'dt_encerramento', 'status', 'conversa_pai', )
+    list_display = ('topico', 'autor', 'dt_criacao', 'dt_encerramento', 'status', 'conversa_pai', 'get_short_absolute_url', )
     list_filter = ('topico', 'autor', 'dt_criacao', 'dt_encerramento', 'status', 'conversa_pai', )
     multi_search = (
        ('q1', 'Tópico', ['topico__titulo']),

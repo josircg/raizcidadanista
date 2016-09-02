@@ -3,6 +3,7 @@ from django.views.generic import DetailView, TemplateView, View, FormView, Redir
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, HttpResponse
+from django.utils.http import base36_to_int
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
@@ -18,6 +19,7 @@ from BruteBuster.models import FailedAttempt, BB_MAX_FAILURES, BB_BLOCK_INTERVAL
 from municipios.models import UF
 from cadastro.models import Circulo, Membro, CirculoMembro, Coligacao
 from financeiro.models import MetaArrecadacao
+from forum.models import Proposta
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
@@ -468,3 +470,12 @@ class LoginTwitterView(RedirectView):
             except:
                 messages.info(request, u'É preciso autorizar o Twitter.')
             return HttpResponseRedirect(reverse('cms_login'))
+
+
+class PropostaShortView(RedirectView):
+
+    def get(self, request, *args, **kwargs):
+        idb36 = self.kwargs.get('idb36')
+        id_int = base36_to_int(idb36)
+        proposta = get_object_or_404(Proposta, pk=id_int)
+        return HttpResponseRedirect(proposta.get_absolute_url())

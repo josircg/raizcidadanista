@@ -53,122 +53,108 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="col-article">
+                        {% for proposta in propostas %}
+                         <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    <div class="button-topic">
+                                        <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                    </div>
+                                    <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
+                                    <footer>
+                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                        Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                    </footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+
                         {% for conversa in conversas %}
                         <div id="conversa-{{ conversa.pk }}" class="panel panel-default panel-conversa" {% if forloop.first %}style="border: 1px #333 solid"{% endif %}>
                             <div class="panel-body">
                                 <blockquote>
                                     {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
-                                    {{ conversa.texto|safe }}
-                                    {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
-                                    <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
-
-                                    <small>
-                                        {% if object.editavel %}
-                                            {% for tipocurtida in conversa.curtidas %}
-                                            <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
-                                                <a class="like-link" href="?conversa={{ conversa.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
-                                                (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                                <div class="like-people"></div>
-                                            </span>
-                                            {% if not forloop.last %}|{% endif %}
-                                            {% endfor %}
-                                            <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
-                                                | <a class="mention-link" href="javascript://">Menção</a>
-                                                (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
-                                                <div class="mention-people"></div>
-                                            </span>
-                                            {% if object.editavel and request.user == conversa.autor %}
-                                                | <a class="edit-link" href="javascript://">Editar</a>
-                                            {% endif %}
-                                            {% if not forloop.first %}
-                                            | <a class="responder-link" href="javascript://">Responder</a>
-                                            {% endif %}
-                                        {% else %}
-                                            {% for tipocurtida in conversa.curtidas %}
-                                            <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
-                                                {{ tipocurtida.display }}
-                                                (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
-                                                <div class="like-people"></div>
-                                            </span>
-                                            {% if not forloop.last %}|{% endif %}
-                                            {% endfor %}
-                                            <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
-                                                | <a class="mention-link" href="javascript://">Menção</a>
-                                                (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
-                                                <div class="mention-people"></div>
-                                            </span>
-                                        {% endif %}
-                                        {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
-                                            | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
-                                        {% endif %}
-                                    </small>
-
-                                    <form action="{% url forum_mencao %}" method="POST" role="form" class="mention-form">{% csrf_token %}
-                                        <div class="panel panel-conversa">
-                                            <div class="panel-body">
-                                                <input type="hidden" name="conversa" value="{{ conversa.pk }}" />
-                                                <textarea class="mention" data-name="mencoes" placeholder="@Nome"></textarea>
-                                                <button type="submit" class="btn btn-success">Enviar</button>
-                                            </div>
+                                    {% if conversa.proposta %}
+                                        <div class="button-topic">
+                                            <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
                                         </div>
-                                    </form>
-
-                                    {% if object.editavel and request.user == conversa.autor %}
-                                    <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
-                                        <div class="panel-body">
-                                            <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
-                                            <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa.pk }}" />
-                                            <textarea id="id_texto-edit-conversa-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa.texto }}</textarea>
-                                            <div class="form-group form-inline" style="margin: 10px 0px;">
-                                                {% if conversa.arquivo %}
-                                                    <small>
-                                                        Atualmente: <a href="{{ conversa.arquivo.url }}" target="_blank">{{ conversa.arquivo.url }}</a>
-                                                        <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
-                                                    </small>
-                                                {% endif %}
-                                                <div class="upload input-group">
-                                                    <button type="button" class="input-fake btn btn-default">
-                                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                                                        Arquivo
-                                                    </button>
-                                                    <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
-                                                    <ul class="list-unstyled">
-                                                        {% for error in form.arquivo.errors %}
-                                                        <li class="text-error"><small>{{ error }}</small></li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="btn btn-success">Editar</button>
-                                        </div>
-                                    </form>
-                                    <script type="text/javascript">
-                                        CKEDITOR.replace("id_texto-edit-conversa-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
-                                    </script>
+                                        <a href="{{ conversa.proposta.get_absolute_url }}">{{ conversa.texto|safe }}</a>
+                                        <footer>
+                                            Iniciado por <b>{{ conversa.autor.get_first_name }}</b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                            Votação até <b>{{ conversa.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                        </footer>
+                                    {% else %}
+                                        {{ conversa.texto|safe }}
+                                        {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
+                                        <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% endif %}
 
-                                    {% if object.editavel and not forloop.first %}
-                                    <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
-                                        <div class="panel panel-conversa">
+                                    {% if not conversa.proposta %}
+                                        <small>
+                                            {% if object.editavel %}
+                                                {% for tipocurtida in conversa.curtidas %}
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
+                                                    <a class="like-link" href="?conversa={{ conversa.pk }}&curtir={{ tipocurtida.status }}">{{ tipocurtida.display }}</a>
+                                                    (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                                    <div class="like-people"></div>
+                                                </span>
+                                                {% if not forloop.last %}|{% endif %}
+                                                {% endfor %}
+                                                <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
+                                                    | <a class="mention-link" href="javascript://">Menção</a>
+                                                    (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
+                                                    <div class="mention-people"></div>
+                                                </span>
+                                                {% if object.editavel and request.user == conversa.autor %}
+                                                    | <a class="edit-link" href="javascript://">Editar</a>
+                                                {% endif %}
+                                                {% if not forloop.first %}
+                                                | <a class="responder-link" href="javascript://">Responder</a>
+                                                {% endif %}
+                                            {% else %}
+                                                {% for tipocurtida in conversa.curtidas %}
+                                                <span class="like-box like-{{ tipocurtida.status }}" data-count="{{ tipocurtida.queryset.count }}" data-id="{{ conversa.pk }}" data-curtir="{{ tipocurtida.status }}">
+                                                    {{ tipocurtida.display }}
+                                                    (<span class="like-count">{{ tipocurtida.queryset.count }}</span>)
+                                                    <div class="like-people"></div>
+                                                </span>
+                                                {% if not forloop.last %}|{% endif %}
+                                                {% endfor %}
+                                                <span class="mention-box" data-count="{{ conversa.conversamencao_set.count }}" data-id="{{ conversa.pk }}">
+                                                    | <a class="mention-link" href="javascript://">Menção</a>
+                                                    (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
+                                                    <div class="mention-people"></div>
+                                                </span>
+                                            {% endif %}
+                                            {% if object.editavel and not forloop.first and conversa|has_delete_conversa:request.user %}
+                                                | <a class="remove-link" href="?conversa={{ conversa.pk }}&excluir=true">Excluir</a>
+                                            {% endif %}
+                                        </small>
+
+                                        <form action="{% url forum_mencao %}" method="POST" role="form" class="mention-form">{% csrf_token %}
+                                            <div class="panel panel-conversa">
+                                                <div class="panel-body">
+                                                    <input type="hidden" name="conversa" value="{{ conversa.pk }}" />
+                                                    <textarea class="mention" data-name="mencoes" placeholder="@Nome"></textarea>
+                                                    <button type="submit" class="btn btn-success">Enviar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        {% if object.editavel and request.user == conversa.autor %}
+                                        <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
                                             <div class="panel-body">
-                                                <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
-                                                <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
+                                                <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa.pk }}" />
+                                                <textarea id="id_texto-edit-conversa-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa.texto }}</textarea>
                                                 <div class="form-group form-inline" style="margin: 10px 0px;">
-                                                    <div class="upload input-group">
-                                                        <button type="submit" class="btn btn-success">Responder</button>
-                                                    </div>
-                                                    <div class="upload input-group">
-                                                        <button type="button" class="input-fake btn btn-default">
-                                                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                                            Imagem
-                                                        </button>
-                                                        <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
-                                                        <ul class="list-unstyled">
-                                                        {% for error in form.imagem.errors %}
-                                                            <li class="text-error"><small>{{ error }}</small></li>
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </div>
+                                                    {% if conversa.arquivo %}
+                                                        <small>
+                                                            Atualmente: <a href="{{ conversa.arquivo.url }}" target="_blank">{{ conversa.arquivo.url }}</a>
+                                                            <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
+                                                        </small>
+                                                    {% endif %}
                                                     <div class="upload input-group">
                                                         <button type="button" class="input-fake btn btn-default">
                                                             <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
@@ -182,12 +168,56 @@
                                                         </ul>
                                                     </div>
                                                 </div>
+                                                <button type="submit" class="btn btn-success">Editar</button>
                                             </div>
-                                        </div>
-                                    </form>
-                                    <script type="text/javascript">
-                                        CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
-                                    </script>
+                                        </form>
+                                        <script type="text/javascript">
+                                            CKEDITOR.replace("id_texto-edit-conversa-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                        </script>
+                                        {% endif %}
+
+                                        {% if object.editavel and not forloop.first %}
+                                        <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
+                                            <div class="panel panel-conversa">
+                                                <div class="panel-body">
+                                                    <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.pk }}" />
+                                                    <textarea id="id_texto-{{ conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                    <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                        <div class="upload input-group">
+                                                            <button type="submit" class="btn btn-success">Responder</button>
+                                                        </div>
+                                                        <div class="upload input-group">
+                                                            <button type="button" class="input-fake btn btn-default">
+                                                                <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                                Imagem
+                                                            </button>
+                                                            <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                                            <ul class="list-unstyled">
+                                                            {% for error in form.imagem.errors %}
+                                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                        <div class="upload input-group">
+                                                            <button type="button" class="input-fake btn btn-default">
+                                                                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                Arquivo
+                                                            </button>
+                                                            <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                            <ul class="list-unstyled">
+                                                                {% for error in form.arquivo.errors %}
+                                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <script type="text/javascript">
+                                            CKEDITOR.replace("id_texto-{{ conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                        </script>
+                                        {% endif %}
                                     {% endif %}
 
                                     {% for conversa_filho in conversa.conversa_set.all %}
@@ -412,14 +442,14 @@
     .responder-form, .edit-form, .mention-form {display: none; }
     .button-topic {float: right; margin-left: 5px;}
     .fa {font-size: 32px; }
-    .fa-star-o, .fa-envelope {color: #767676;}
+    .fa-star-o, .fa-envelope, .fa-bar-chart {color: #767676;}
     .fa-star {color: #F6A82B;}
 
     /* Top fixed */
     .content-all {width: 100%; overflow: hidden;}
     .content-all .contact-content-content .gallery_title {border: 0; padding: 0;}
     .content-all .contact-menu {padding: 0; }
-    .content-all .contact-menu .contact-content-upper{padding: 10px 40px;}
+    .content-all .contact-menu .contact-content-upper{padding: 20px 40px;}
     .content-all .contact-menu .gallery_title{margin-bottom: 20px;}
     .content-all .contact-content-content {border-top: 0; }
     .top-fixed .contact-content-content {padding-top: 80px; }

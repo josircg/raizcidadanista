@@ -22,15 +22,38 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="col-article">
+                        {% for proposta in propostas %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    <div class="new-topic">
+                                        <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                    </div>
+                                    <a href="{{ proposta.get_absolute_url }}"><h4>{{ proposta.texto|safe }}</h4></a>
+                                    <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
+                                    <footer><b>Grupo: </b><a href="{{ proposta.topico.grupo.get_absolute_url }}">{{ proposta.topico.grupo }}</a></footer>
+                                    <footer>
+                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b> | Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                    </footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+
                         {% for topico in topicos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
-                                    {% if user|get_notificacao_topico:topico == 'P' %}
-                                        <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                    {% else %}
-                                        <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
-                                    {% endif %}
+                                    <div class="new-topic">
+                                        {% if user|get_notificacao_topico:topico == 'P' %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                        {% else %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                        {% if topico.has_proposta %}
+                                            <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                        {% endif %}
+                                    </div>
                                     <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
                                     <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
                                     <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
@@ -61,9 +84,9 @@
 {% block css %}
 <style type="text/css">
     .new-topic {float: right; }
-    .star-button {float: right; margin-top: -5px;}
+    .star-button {float: right; margin: -5px 5px;}
     .panel-conversa .fa {font-size: 25px;}
-    .fa-star-o {color: #767676;}
+    .fa-star-o, .fa-bar-chart {color: #767676;}
     .fa-star {color: #F6A82B;}
 </style>
 {% endblock %}

@@ -108,6 +108,9 @@ class RecentesView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
 
+        # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
+        context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()
+
         topicos_prioritarios_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user, topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao')
         topicos_list = list(topicos_prioritarios_list)+list(Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).exclude(topicoouvinte__notificacao='P').distinct().order_by('-dt_ultima_atualizacao'))
         paginator = Paginator(topicos_list, 10)
@@ -211,6 +214,9 @@ class GrupoView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(GrupoView, self).get_context_data(**kwargs)
+
+        # A página do Grupo que tiver uma proposta aberta, deve mostrar um item com a proposta na primeira linha antes da listagem dos tópicos.
+        context['propostas'] = Proposta.objects.filter(topico__grupo=self.object, status='A', dt_encerramento__gte=datetime.now())
 
         topicos_list = self.object.topico_set.all()
         if self.request.GET.get('categoria'):
@@ -609,7 +615,12 @@ class TopicoView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(TopicoView, self).get_context_data(**kwargs)
 
-        conversas_list = self.object.conversa_set.filter(conversa_pai=None, proposta=None)
+        conversas_list = self.object.conversa_set.filter(conversa_pai=None)
+        # A proposta tem que aparecer sempre no timeline do tópico: se já tiver concluída, mostrar pela ordenação da data.
+        conversas_list = conversas_list.filter(Q(proposta=None) | Q(proposta__status='F') | Q(proposta__dt_encerramento__lt=datetime.now())).distinct()
+        # Se estiver em aberto, mostrar no topo do tópico.
+        context['propostas'] = self.object.conversa_set.filter(proposta__status='A', proposta__dt_encerramento__gte=datetime.now())
+
         paginator = Paginator(conversas_list, 10)
 
         page = self.request.GET.get('page')

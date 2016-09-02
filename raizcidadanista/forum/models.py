@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db.models import signals
 from django.dispatch import receiver
 from django.conf import settings
+from django.utils.http import int_to_base36
 
 from smart_selects.db_fields import ChainedForeignKey
 from cadastro.telegram import bot
@@ -104,6 +105,9 @@ class Topico(models.Model):
 
     def editavel(self):
         return self.status == 'A'
+
+    def has_proposta(self):
+        return Proposta.objects.filter(topico=self).exists()
 
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
@@ -287,6 +291,11 @@ class Proposta(Conversa):
 
     def expirada(self):
         return self.dt_encerramento < datetime.now()
+
+    def get_short_absolute_url(self):
+        idb36 = int_to_base36(self.pk)
+        return reverse('proposta_short', kwargs={'idb36': idb36})
+    get_short_absolute_url.short_description = u'Short URL'
 
     def get_absolute_url(self):
         if self.propostaopcao_set.exists():

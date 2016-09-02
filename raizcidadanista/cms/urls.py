@@ -41,5 +41,7 @@ urlpatterns = patterns('',
         name='cms_password_reset_confirm'),
     url(r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete', kwargs={'template_name': 'auth/password_reset_complete.html',}, name='cms_password_reset_complete'),
 
+    # Encurtador da Proposta
+    url(r'^proposta/(?P<idb36>[0-9A-Za-z]{1,13})/$', PropostaShortView.as_view(), name='proposta_short'),
     url(r'^(?P<slug>[-_\w]+)/?$', ArticleDetailView.as_view(), name='article'),
 )

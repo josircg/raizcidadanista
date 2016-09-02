@@ -925,7 +925,7 @@ blockquote footer:before, blockquote small:before {
 
 .buttons-top {
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 20px;
 }
 .link-star {

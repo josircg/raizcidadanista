@@ -17,10 +17,12 @@
                         <h3>
                             <a href="{% url forum_diretorio %}">Teia</a> &rsaquo;
                             <a href="{{ object.grupo.get_absolute_url }}">{{ object.grupo }}</a>
+                        </h3>
+                        <div class="buttons-top">
                             {% if ouvinte.notificacao == 'P' %}
-                                <a href="?notificacao=N" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                <a href="?notificacao=N" class="button-topic link-star" data-toggle="tooltip" data-placement="left" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
                             {% else %}
-                                <a href="?notificacao=P" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="left" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                <a href="?notificacao=P" class="button-topic link-star" data-toggle="tooltip" data-placement="left" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
                             <span class="dropdown">
                                 <button class="dropdown-button"><i class="fa fa-fw fa-envelope" aria-hidden="true"></i></button>
@@ -33,8 +35,6 @@
                                     </form>
                                 </div>
                             </span>
-                        </h3>
-                        <div class="buttons-top">
                             {% if object.criador == user %}
                                 {% if object.editavel %}
                                 <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
@@ -430,8 +430,8 @@
     .input-file-real{opacity:0;position: absolute !important;top:0px;left:0px;cursor:pointer;height: 34px;width: 100%;}
     .btn-default-hover {color: #333; background-color: #e6e6e6; border-color: #adadad;}
 
-    .link-star {right: 75px;}
-    .dropdown {margin: -5px 5px; position: absolute; right: 20px;}
+    .link-star {position: initial; margin: 0px 5px;}
+    .dropdown {margin-left: 5px; float: right;}
     .dropdown-button, .dropdown-button:focus {background: none; border: none;}
     .dropdown-button .fa {background: none; border: none; }
     .dropdown-menu { right: 0; left: initial; padding: 10px; line-height: 22px; width: 250px;}

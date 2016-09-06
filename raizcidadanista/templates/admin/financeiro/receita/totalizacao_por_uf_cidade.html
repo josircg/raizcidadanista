@@ -1,0 +1,55 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../">Financeiro</a> &rsaquo;
+     <a href="">Receita</a> &rsaquo;
+     {{ title }}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div>
+        <div class="inline-group">
+            <div class="tabular inline-related last-related">
+                <fieldset class="module">
+                    <h2>{{ title }}</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Cidade</th>
+                                <th>Nº contribuiçõe</th>
+                                <th>Arrecadado</th>
+                                <th>Média</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estado, data in results %}
+                                {% for cidade, result in data.cidades %}
+                                <tr>
+                                    <td><p>{{ estado }}</p></td>
+                                    <td><p>{{ cidade }}</p></td>
+                                    <td><p>{{ result.n_contrib }}</p></td>
+                                    <td><p>R$ {{ result.total|floatformat:2 }}</p></td>
+                                    <td><p>R$ {{ result.media|floatformat:2 }}</p></td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="row1">
+                                    <td colspan="2"><p><b>Total {{ estado }}</b></p></td>
+                                    <td><p><b>{{ data.totais.n_contrib }}</b></p></td>
+                                    <td><p><b>R$ {{ data.totais.total|floatformat:2 }}</b></p></td>
+                                    <td><p><b>R$ {{ data.totais.media|floatformat:2 }}</b></p></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

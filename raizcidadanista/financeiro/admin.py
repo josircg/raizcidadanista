@@ -5,11 +5,13 @@ from django.forms.models import modelform_factory
 from django.template.loader import get_template
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
+from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.db import models
 from django import forms
 from django.db.models import Sum
 
+from decimal import Decimal
 from functools import partial
 import cStringIO as StringIO
 import cgi
@@ -243,7 +245,7 @@ class ReceitaAdmin(PowerModelAdmin):
         (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', )}),
         (u'Detalhes', {'fields': ('nota', )}),
     ]
-    actions = ('listagem_doadores', )
+    actions = ('listagem_doadores', 'totalizacao_por_uf_cidade')
 
     def listagem_doadores(self, request, queryset, template_name_pdf='admin/financeiro/receita/listagem-doadores-pdf.html'):
         template = get_template(template_name_pdf)
@@ -259,6 +261,76 @@ class ReceitaAdmin(PowerModelAdmin):
             return HttpResponse(dataresult.getvalue(), mimetype='application/pdf')
         return HttpResponse('We had some errors<pre>%s</pre>' % cgi.escape(html))
     listagem_doadores.short_description = u'Listagem Doadores'
+
+
+    def totalizacao_por_uf_cidade(self, request, queryset, template_name='admin/financeiro/receita/totalizacao_por_uf_cidade.html'):
+        '''
+            results = {
+                'RJ': {
+                    'cidades' = {
+                        'São Paulo': {
+                            'total': 0,
+                            'n_contrib': 0,
+                            'media': 0,
+                        },
+                    },
+                    'totais' = {
+                        'total': 0,
+                        'n_contrib': 0,
+                        'media': 0,
+                    }
+                }
+            }
+        '''
+        results = {}
+        for query in queryset:
+            # Estado
+            estado = query.colaborador.uf.nome
+            if query.colaborador.uf_eleitoral:
+                estado = query.colaborador.uf_eleitoral.nome
+            # Cidade
+            cidade = query.colaborador.municipio
+            if query.colaborador.municipio_eleitoral:
+                cidade = query.colaborador.municipio_eleitoral
+            # Criar a estrutura do result caso não exista
+            if not results.get(estado):
+                results[estado] = {
+                    'cidades': {},
+                    'totais': {
+                        'total': Decimal(0),
+                        'n_contrib': 0,
+                        'media': 0,
+                    },
+                }
+            if not results[estado]['cidades'].get(cidade):
+                results[estado]['cidades'][cidade] = {
+                    'total': Decimal(0),
+                    'n_contrib': 0,
+                    'media': 0,
+                }
+            # Atualiza os dados
+            results[estado]['cidades'][cidade]['total'] += query.valor
+            results[estado]['cidades'][cidade]['n_contrib'] += 1
+
+        # Atualiza a media e totais
+        for estado, data in results.items():
+            for cidade, values in data['cidades'].items():
+                results[estado]['cidades'][cidade]['media'] = results[estado]['cidades'][cidade]['total']/results[estado]['cidades'][cidade]['n_contrib']
+                results[estado]['totais']['total'] += results[estado]['cidades'][cidade]['total']
+                results[estado]['totais']['n_contrib'] += results[estado]['cidades'][cidade]['n_contrib']
+
+            results[estado]['totais']['media'] = results[estado]['cidades'][cidade]['total']/results[estado]['cidades'][cidade]['n_contrib']
+
+            # Ordenar cidades
+            results[estado]['cidades'] = sorted(results[estado]['cidades'].items(), key=lambda x: x[0])
+
+        # Ordenar!
+        results = sorted(results.items(), key=lambda x: x[0])
+        return render_to_response(template_name, {
+            'title': u'Totalização por UF/cidade',
+            'results': results,
+        },context_instance=RequestContext(request))
+    totalizacao_por_uf_cidade.short_description = u'Totalização por UF/cidade'
 admin.site.register(Receita, ReceitaAdmin)
 
 

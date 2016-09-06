@@ -284,33 +284,34 @@ class ReceitaAdmin(PowerModelAdmin):
         '''
         results = {}
         for query in queryset:
-            # Estado
-            estado = query.colaborador.uf.nome
-            if query.colaborador.uf_eleitoral:
-                estado = query.colaborador.uf_eleitoral.nome
-            # Cidade
-            cidade = query.colaborador.municipio
-            if query.colaborador.municipio_eleitoral:
-                cidade = query.colaborador.municipio_eleitoral
-            # Criar a estrutura do result caso não exista
-            if not results.get(estado):
-                results[estado] = {
-                    'cidades': {},
-                    'totais': {
+            if query.colaborador:
+                # Estado
+                estado = query.colaborador.uf.nome
+                if query.colaborador.uf_eleitoral:
+                    estado = query.colaborador.uf_eleitoral.nome
+                # Cidade
+                cidade = query.colaborador.municipio
+                if query.colaborador.municipio_eleitoral:
+                    cidade = query.colaborador.municipio_eleitoral
+                # Criar a estrutura do result caso não exista
+                if not results.get(estado):
+                    results[estado] = {
+                        'cidades': {},
+                        'totais': {
+                            'total': Decimal(0),
+                            'n_contrib': 0,
+                            'media': 0,
+                        },
+                    }
+                if not results[estado]['cidades'].get(cidade):
+                    results[estado]['cidades'][cidade] = {
                         'total': Decimal(0),
                         'n_contrib': 0,
                         'media': 0,
-                    },
-                }
-            if not results[estado]['cidades'].get(cidade):
-                results[estado]['cidades'][cidade] = {
-                    'total': Decimal(0),
-                    'n_contrib': 0,
-                    'media': 0,
-                }
-            # Atualiza os dados
-            results[estado]['cidades'][cidade]['total'] += query.valor
-            results[estado]['cidades'][cidade]['n_contrib'] += 1
+                    }
+                # Atualiza os dados
+                results[estado]['cidades'][cidade]['total'] += query.valor
+                results[estado]['cidades'][cidade]['n_contrib'] += 1
 
         # Atualiza a media e totais
         for estado, data in results.items():

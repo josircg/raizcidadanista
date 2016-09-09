@@ -45,6 +45,12 @@
                                     <td><p><b>R$ {{ data.totais.media|floatformat:2 }}</b></p></td>
                                 </tr>
                             {% endfor %}
+                                <tr class="row1">
+                                    <td colspan="2"><p><b>Total Geral</b></p></td>
+                                    <td><p><b>{{ total_geral.n_contrib }}</b></p></td>
+                                    <td><p><b>R$ {{ total_geral.total|floatformat:2 }}</b></p></td>
+                                    <td><p><b>R$ {{ total_geral.media|floatformat:2 }}</b></p></td>
+                                </tr>
                         </tbody>
                     </table>
                 </fieldset>

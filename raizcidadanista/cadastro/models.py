@@ -61,6 +61,11 @@ class Pessoa(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
+    def clean(self):
+        if self.email and Pessoa.objects.filter(email=self.email).exclude(pk=self.pk).exists():
+            raise ValidationError(u'Este email já está em uso.')
+        return super(Pessoa, self).clean()
+
     def __unicode__(self):
         return u'%s' % self.nome
 

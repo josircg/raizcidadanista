@@ -8,51 +8,52 @@
 {% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>Atualização de Cadastro</h3>
-                    <h4>Primeiro, informe o seu email <b>OU</b> o seu CPF.</h4>
-                    <p>Após clicar no botão Enviar, um link será enviado para o seu email para que você possa atualizar seus dados.</p>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Atualização de Cadastro</a>
+                </h4>
+                <p>Primeiro, informe o seu email <b>OU</b> o seu CPF.</p>
+                <p>Após clicar no botão Enviar, um link será enviado para o seu email para que você possa atualizar seus dados.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {{ error|safe }}
+                                </div>
+                                {% endfor %}
+                                <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
+                                    <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
+                                    {{ form.email|btform }}
+                                    {% if form.email.errors %}
+                                    <ul class="list-unstyled">
+                                    {% for error in form.email.errors %}
+                                      <li class="text-error"><small>{{ error }}</small></li>
+                                    {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group{% if form.cpf.errors %} has-error has-feedback{% endif %} group-{{ form.cpf.name }}">
+                                    <label class="control-label label-{{ form.cpf.name }}" for="id_{{ form.cpf.name }}">{{ form.cpf.label }}{% if form.cpf.field.required %}*{% endif %}</label>
+                                    {{ form.cpf|btform }}
+                                    {% if form.cpf.errors %}
+                                    <ul class="list-unstyled">
+                                    {% for error in form.cpf.errors %}
+                                      <li class="text-error"><small>{{ error }}</small></li>
+                                    {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                </div>
+                                <button type="submit" class="btn btn-success">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-12">
-            <form action="" method="POST" role="form">{% csrf_token %}
-                <div class="panel-body">
-                    {% for error in form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ error|safe }}
-                    </div>
-                    {% endfor %}
-                    <div class="form-group{% if form.email.errors %} has-error has-feedback{% endif %} group-{{ form.email.name }}">
-                        <label class="control-label label-{{ form.email.name }}" for="id_{{ form.email.name }}">{{ form.email.label }}{% if form.email.field.required %}*{% endif %}</label>
-                        {{ form.email|btform }}
-                        {% if form.email.errors %}
-                        <ul class="list-unstyled">
-                        {% for error in form.email.errors %}
-                          <li class="text-error"><small>{{ error }}</small></li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <div class="form-group{% if form.cpf.errors %} has-error has-feedback{% endif %} group-{{ form.cpf.name }}">
-                        <label class="control-label label-{{ form.cpf.name }}" for="id_{{ form.cpf.name }}">{{ form.cpf.label }}{% if form.cpf.field.required %}*{% endif %}</label>
-                        {{ form.cpf|btform }}
-                        {% if form.cpf.errors %}
-                        <ul class="list-unstyled">
-                        {% for error in form.cpf.errors %}
-                          <li class="text-error"><small>{{ error }}</small></li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-success">Enviar</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

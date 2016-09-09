@@ -7,7 +7,6 @@ from django.utils.http import base36_to_int
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
-from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.contrib import messages
@@ -23,7 +22,7 @@ from forum.models import Proposta
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
     GroupType
-from forms import ArticleCommentForm, ContatoForm
+from forms import ArticleCommentForm, ContatoForm, LoginForm
 
 from twython import Twython
 import mimetypes, os, cgi, urllib, facebook
@@ -272,9 +271,14 @@ class LinkConversionView(View):
 
 class URLMigrateView(View):
     def get(self, request, old_url, *args, **kwargs):
-        url = get_object_or_404(URLMigrate, old_url=old_url)
-        url.views += 1
-        url.save()
+        try:
+            url = URLMigrate.objects.get(old_url=old_url)
+            url.views += 1
+            url.save()
+        except URLMigrate.DoesNotExist:
+            if old_url[-1] != '/':
+                return HttpResponseRedirect(u'%s/' % old_url)
+            raise Http404()
         if url.redirect_type == 'M':
             return HttpResponsePermanentRedirect(url.new_url)
         return HttpResponseRedirect(url.new_url)
@@ -340,12 +344,16 @@ class RobotsView(View):
 
 class LoginView(FormView):
     template_name = 'auth/login.html'
-    form_class = AuthenticationForm
+    form_class = LoginForm
 
     def form_valid(self, form):
         login(self.request, form.get_user())
         if self.request.session.test_cookie_worked():
             self.request.session.delete_test_cookie()
+
+        # Button remember
+        if not form.cleaned_data.get('remember'):
+            self.request.session.set_expiry(0)
 
         if self.request.GET.get('next'):
             messages.info(self.request, u'Você foi autenticado com sucesso.')

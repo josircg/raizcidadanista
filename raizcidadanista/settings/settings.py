@@ -258,6 +258,8 @@ SOUTH_MIGRATION_MODULES = {
 
 LOGIN_REDIRECT_URL = '/admin/'
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 # One month
+
 DEFAULT_FILE_STORAGE = 'utils.storage.SpecialCharFileSystemStorage'
 
 #Configurations of the tools

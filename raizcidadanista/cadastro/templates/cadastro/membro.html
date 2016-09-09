@@ -8,53 +8,54 @@
 {% block ogdescription %}Cadastro de Colaborador {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>Cadastro de Colaboradores</h3>
-                    <h4>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o Movimento Raiz Cidadanista. O preenchimento deste formulário ratifica o compromisso do membro com a Carta Cidadanista.</h4>
-                    <p>Caso você queira apenas atualizar os seus dados ou a sua contribuição, <a href="{% url atualizar_cadastro_link %}">clique aqui</a>.</p>
-                </div>
-            </div>
-        </div>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Cadastro de Colaboradores</a>
+                </h4>
+                <p>Este Cadastro destina-se ao cadastramento de pessoas que estejam interessadas em colaborar com o Movimento Raiz Cidadanista. O preenchimento deste formulário ratifica o compromisso do membro com a Carta Cidadanista.</p>
+                <p>Caso você queira apenas atualizar os seus dados ou a sua contribuição, <a href="{% url atualizar_cadastro_link %}">clique aqui</a>.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors or field.help_text %}
+                                        <ul class="list-unstyled">
+                                        {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-success">Cadastrar</button>
+                        </form>
 
-        <div class="col-md-12">
-            <form action="" method="POST" role="form">{% csrf_token %}
-                <div class="panel-body">
-                    {% for field in form %}
-                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                            {% if field|btischeckbox %}
-                                {{ field|btform }}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {% else %}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                {{ field|btform }}
-                            {% endif %}
-                            {% if field.errors or field.help_text %}
-                            <ul class="list-unstyled">
-                            {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
-                            {% for error in field.errors %}
-                              <li class="text-error"><small>{{ error }}</small></li>
-                            {% endfor %}
-                            </ul>
-                            {% endif %}
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-body">
+                                ...
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-success">Cadastrar</button>
-            </form>
-
-            <!-- Modal -->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-body">
-                    ...
-                  </div>
-                </div>
-              </div>
             </div>
         </div>
     </div>

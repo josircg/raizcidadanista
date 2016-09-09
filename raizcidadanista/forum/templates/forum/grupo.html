@@ -1,38 +1,127 @@
 {% extends 'forum/base.html' %}
-{% load bootstrap %}
+{% load bootstrap forum_tags %}
 
-{% block title %}Tópicos: {{ object }} - Fórum - {% endblock %}
-{% block ogtitle %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block title %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
-{% block description %}Tópicos: {{ object }} - Fórum - {% endblock %}
-{% block ogdescription %}Tópicos: {{ object }} - Fórum - {% endblock %}
+{% block description %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Fórum › Tópicos: {{ object }}</h3>
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>
+                            {{ object }}
+                            {% if user|has_grupo_perm:object %}
+                                <a href="{% url forum_grupo_sair object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                            {% else %}
+                                <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                            {% endif %}
+                        </h3>
+                        <div class="buttons-top">
+                            {% if object.grupocategoria_set.exists %}
+                            <form style="display: inline; float: right;">
+                                <select name="categoria" class="categoria-option btn btn-success button-topic">
+                                    <option value="" hidden>Categoria</option>
+                                    {% for grupocategoria in object.grupocategoria_set.all %}
+                                    <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                            {% endif %}
+                            <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar novo tópico</button></a>
+                            {% if user|has_admin_grupo_perm:object %}
+                            <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
+                            {% endif %}
+                        </div>
 
-        {{ object.descricao|safe }}
+                        {{ object.descricao|safe }}
+                    </div>
+                </div>
+            </div>
 
-        {% for topico in topicos %}
-        <a href="#">
-            <blockquote>
-              <h4>{{ topico }}</h4>
-              <footer>Por: {% firstof topico.criador.first_name topico.criador.username %} - {{ topico.dt_criacao|date:"d/m/Y H:i" }}</footer>
-            </blockquote>
-        </a>
-        {% endfor %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
 
-        <nav>
-          <ul class="pager">
-            {% if topicos.has_previous %}
-                <li class="previous"><a href="{{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-            {% endif %}
+                        {% for proposta in propostas %}
+                         <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    <div class="new-topic">
+                                        <span class="fa fa-pie-chart button-topic{% if proposta.status == 'A' and not proposta.expirada %} active{% endif %}" aria-hidden="true"></span>
+                                    </div>
+                                    <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
+                                    <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
+                                    <footer>
+                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                        Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                    </footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
 
-            {% if topicos.has_next %}
-                <li class="next"><a href="{{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
-            {% endif %}
-          </ul>
-        </nav>
+                        {% for topico in topicos %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    <div class="new-topic">
+                                        {% if user|get_notificacao_topico:topico == 'P' %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                        {% else %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                        {% if topico.has_proposta %}
+                                            <span class="fa fa-pie-chart star-button{% if topico.has_proposta_ativa %} active{% endif %}" aria-hidden="true"></span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
+                                    <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <nav>
+                          <ul class="pager">
+                            {% if topicos.has_previous %}
+                                <li class="previous"><a href="?page={{ topicos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
+
+                            {% if topicos.has_next %}
+                                <li class="next"><a href="?page={{ topicos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+{% endblock %}
 
+{% block css %}
+<style type="text/css">
+    .button-topic {float: right; margin: 0px 5px;}
+    .button-topic .fa {font-size: 32px;}
+    .star-button {float: right; margin: -5px 5px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o, .fa-pie-chart {color: #767676;}
+    .fa-star, .fa-pie-chart.active {color: #F6A82B;}
+</style>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $('.categoria-option').on('change', function(event) {
+        $(this).parent().submit();
+    });
+</script>
 {% endblock %}

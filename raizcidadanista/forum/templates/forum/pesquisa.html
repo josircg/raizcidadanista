@@ -1,0 +1,110 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static forum_tags %}
+
+{% block title %}Pesquisa - Teia Digital - {% endblock %}
+{% block ogtitle %}Pesquisa - Teia Digital - {% endblock %}
+
+{% block description %}Pesquisa - Teia Digital - {% endblock %}
+{% block ogdescription %}Pesquisa - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>Pesquisa</h3>
+                        {% if form.texto.value or form.autor.value or form.grupo.value %}
+                            <h4>Pesquisando por:
+                                {% if form.texto.value %}Texto ({{ form.texto.value }}) {% endif %}
+                                {% if form.autor.value %}Autor ({{ form.autor.value }}) {% endif %}
+                                {% if form.grupo.value %}Grupo ({{ form.grupo.value }}) {% endif %}
+                            </h4>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="GET" role="form">
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-inline">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-success bnt-pesquisar form-control">Pesquisar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% if results %}
+            <div class="row" style="margin-top: 25px">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        {% for result in results %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {% if listar_conversas %}
+                                    <a href="{{ result.get_absolute_url }}"><h4>Tópico: {{ result.topico }}</h4></a>
+                                    {{ result.texto|safe }}
+                                    <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                    {% else %}
+                                    <a href="{{ result.get_absolute_url }}"><h4>{{ result }} ({{ user|num_conversa_nao_lidas:result }})</h4></a>
+                                    <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                    {% endif %}
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <nav>
+                          <ul class="pager">
+                            {% if results.has_previous %}
+                                <li class="previous"><a href="?texto={{ form.texto.value }}&autor={{ form.autor.value }}&grupo={{ form.grupo.value }}&listar_conversas={{ form.listar_conversas.value }}&page={{ results.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
+
+                            {% if results.has_next %}
+                                <li class="next"><a href="?texto={{ form.texto.value }}&autor={{ form.autor.value }}&grupo={{ form.grupo.value }}&listar_conversas={{ form.listar_conversas.value }}&page={{ results.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .form-group label {display: block;}
+    .bnt-pesquisar {margin-top: 20px;}
+    .group-listar_conversas {margin-top: 16px;}
+    .group-listar_conversas label {display: inline-block;}
+</style>
+{% endblock %}

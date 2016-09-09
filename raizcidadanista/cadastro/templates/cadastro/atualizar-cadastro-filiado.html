@@ -8,14 +8,30 @@
 {% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Atualização de Cadastro da Raiz</h3>
-        <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            {% include 'cadastro/includes/form-filiado.html' %}
-            <button type="submit" class="btn btn-success">Atualizar</button>
-        </form>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Atualização de Cadastro da Raiz</a>
+                </h4>
+                <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="content-left" class="col-md-12 box-login">
+                            <div id="texto-content">
+                                <form action="" method="POST" role="form">{% csrf_token %}
+                                    {% include 'cadastro/includes/form-filiado.html' %}
+                                    <button type="submit" class="btn btn-success">Atualizar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

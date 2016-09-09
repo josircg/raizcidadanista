@@ -1036,7 +1036,7 @@ class CirculoAdmin(PowerModelAdmin):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
         # Se não tiver Circulo.section cria uma Section e associa ao Circulo
         if not circulo.section:
-            section = Section(title=circulo.titulo, header='', template='section-circulo.html')
+            section = Section(title=circulo.titulo, slug=circulo.slug, header='', template='section-circulo.html')
             if circulo.imagem:
                 section.header = u'<img src="%s" width="100%%">' % circulo.imagem.url
             section.save()

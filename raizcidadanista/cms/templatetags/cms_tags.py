@@ -3,7 +3,7 @@ from django import template
 from cms.models import Section, Article, ArticleComment, Recurso
 
 from django.conf import settings
-import re
+import re, random
 
 
 register = template.Library()
@@ -23,10 +23,10 @@ def get_section(context, slug):
 def get_article(context, slug):
     try:
         article = Article.objects.get(slug=slug)
-        if article.have_perm(context.get('request').user):
+        if context.get('request') and article.have_perm(context.get('request').user):
             return article
     except Article.DoesNotExist: pass
-
+    except AttributeError: pass
     return None
 
 
@@ -41,6 +41,8 @@ def get_section_articles(context, slug, num=5):
             if len(articles) == num: break
         return articles
     except Section.DoesNotExist:
+        return []
+    except AttributeError:
         return []
 
 
@@ -98,6 +100,19 @@ def comment_title(article):
         try:
             return Recurso.objects.get(recurso='COMMENT').valor
         except Recurso.DoesNotExist: return u'Adicione um comentário'
+
+
+@register.assignment_tag(takes_context=True)
+def get_cloudtags(context):
+    try:
+        tags_valor = dict(eval(Recurso.objects.get(recurso='TAGS').valor))
+        maior_valor = max(tags_valor.values())
+        tags = []
+        for tag, num in tags_valor.items():
+            tags.append((tag, (float(num)/float(maior_valor))*3.5))
+        return tags
+    except:
+        return []
 
 
 @register.assignment_tag(takes_context=True)

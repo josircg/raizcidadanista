@@ -133,6 +133,20 @@ def article_sendemail_aprovacao(sender, instance, raw, using, *args, **kwargs):
             )
 
 
+class ArticleAttribute(models.Model):
+    class Meta:
+        verbose_name = u'Atributo do Artigo'
+        verbose_name_plural = u'Atributos do Artigo'
+
+    article = models.ForeignKey(Article, verbose_name=u'Artigo')
+    attrib = models.CharField(u'Atributo', max_length=30)
+    value = models.CharField(u'Valor', max_length=100)
+    active = models.BooleanField(u'Ativo', default=False)
+
+    def __unicode__(self):
+        return u"%s %s" % (self.article.title, self.attrib)
+
+
 class ArticleArchive(models.Model):
     class Meta:
         ordering = ('updated_at', )
@@ -218,6 +232,7 @@ class Section(models.Model):
     header = models.TextField(u'Descrição', null=True, blank=True)
     keywords = models.TextField(u'Palavras Chaves', null=True, blank=True, default=None)
     order = models.PositiveIntegerField(u'Ordem', default=1, db_index=True, help_text=u'0 para que a seção não apareça em nenhuma listagem.')
+    template = models.CharField(u'Template', max_length=250, blank=True, null=True)
 
     views = models.IntegerField(default=0)
     conversions = models.IntegerField(default=0)

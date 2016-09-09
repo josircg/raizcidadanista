@@ -1,0 +1,109 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap forum_tags %}
+
+{% block title %}Diretório - Teia Digital - {% endblock %}
+{% block ogtitle %}Diretório - Teia Digital - {% endblock %}
+
+{% block description %}Diretório - Teia Digital - {% endblock %}
+{% block ogdescription %}Diretório - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>Lista de todos os grupos existentes na Teia Digital</h3>
+                    </div>
+                </div>
+            </div>
+
+             <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <form action="" method="GET" role="form">
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label for="grupo-field">Grupo</label>
+                                    <input type="text" class="form-control" id="grupo-field" name="grupo" {% if grupo %}value="{{ grupo }}"{% endif %}>
+                                </div>
+                                <div class="form-group">
+                                    <label for="localizacao-field">Localização</label>
+                                    <select class="form-control" id="localizacao-field" name="localizacao">
+                                        <option value="">---------</option>
+                                        {% for val, name in localizacao_choices %}
+                                        <option value="{{ val }}" {% if val == localizacao %}selected{% endif %}>{{ name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tematico-field">Temático</label>
+                                    <select class="form-control" id="tematico-field" name="tematico">
+                                        <option value="">---------</option>
+                                        <option value="true"{% if tematico == 'true' %}selected{% endif %}>Sim</option>
+                                        <option value="false"{% if tematico == 'false' %}selected{% endif %}>Não</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success bnt-pesquisar form-control">Pesquisar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 25px">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        {% for grupo in grupos %}
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <blockquote>
+                                        {% if user|has_grupo_perm:grupo %}
+                                            <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                        {% else %}
+                                            <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                        <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }} ({{ user|num_topicos_nao_lidos:grupo }})</h4></a>
+                                        <footer>
+                                            {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
+                                            <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
+                                            <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                            <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
+                                            {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <nav>
+                          <ul class="pager">
+                            {% if grupos.has_previous %}
+                                <li class="previous"><a href="?page={{ grupos.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
+                            {% endif %}
+
+                            {% if grupos.has_next %}
+                                <li class="next"><a href="?page={{ grupos.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                          </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+    .form-group label {display: block;}
+    .bnt-pesquisar {margin-top: 20px;}
+    .button-topic {float: right; margin-left: 5px;}
+    .star-button {float: right; margin-top: -5px;}
+    .panel-conversa .fa {font-size: 25px;}
+    .fa-star-o {color: #767676;}
+    .fa-star {color: #F6A82B;}
+</style>
+{% endblock %}

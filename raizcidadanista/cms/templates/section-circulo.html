@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load cms_tags %}
+
+{% block title %}{{ section.title }} / {% endblock %}
+{% block ogtitle %}{{ section.title }} / {% endblock %}
+
+{% block description %}{{ section.title }} / {% endblock %}
+{% block ogdescription %}{{ section.title }} / {% endblock %}
+
+{% block keywords %}
+    {{ section.keywords }}
+{% endblock %}
+
+{% block main %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <!-- Row -->
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="{{ section.get_absolute_url }}" class="pi-link-dark">{{ section.title }}</a>
+                </h4>
+                {{ section.header|safe }}
+                <br><br><br>
+            </div>
+            <!-- Col 6 -->
+            <div class="pi-col-sm-6 pi-padding-bottom-30">
+                {% for article in articles %}
+                {% if forloop.counter == 1 or forloop.counter == 3 or forloop.counter == 5 %}
+                <!-- Post item -->
+                {% if article.get_images %}
+                <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
+                    <a href="{{ article.get_absolute_url }}">
+                        <img src="{{ article.first_image }}" alt="{{ article.title }}">
+                        <span class="pi-img-overlay pi-img-overlay-white"></span>
+                    </a>
+                </div>
+                {% endif %}
+
+                <h2 class="h5 pi-margin-top-minus-5 pi-margin-bottom-5">
+                    <a href="{{ article.get_absolute_url }}" class="pi-link-dark">{{ article.title }}</a>
+                </h2>
+                <ul class="pi-meta pi-margin-bottom-10">
+                    <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
+                </ul>
+                <p>
+                    {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
+                </p>
+                <!-- End post item -->
+                {% if forloop.counter != 5 %}
+                <br />
+                <hr class="pi-divider pi-divider-dashed">
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            <!-- End col 6 -->
+            <!-- Col 6 -->
+            <div class="pi-col-sm-6 pi-padding-bottom-30">
+                {% for article in articles %}
+                {% if forloop.counter == 2 or forloop.counter == 4 or forloop.counter == 6 %}
+                <!-- Post item -->
+                {% if article.get_images %}
+                <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
+                    <a href="{{ article.get_absolute_url }}">
+                        <img src="{{ article.first_image }}" alt="{{ article.title }}">
+                        <span class="pi-img-overlay pi-img-overlay-white"></span>
+                    </a>
+                </div>
+                {% endif %}
+
+                <h2 class="h5 pi-margin-top-minus-5 pi-margin-bottom-5">
+                    <a href="{{ article.get_absolute_url }}" class="pi-link-dark">{{ article.title }}</a>
+                </h2>
+                <ul class="pi-meta pi-margin-bottom-10">
+                    <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
+                </ul>
+                <p>
+                    {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
+                </p>
+                <!-- End post item -->
+                {% if forloop.counter != 6 %}
+                <br />
+                <hr class="pi-divider pi-divider-dashed">
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            <!-- End col 6 -->
+        </div>
+        <!-- End row -->
+    </div>
+</div>
+{% endblock %}

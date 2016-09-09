@@ -20,6 +20,9 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
 from decimal import Decimal
 from datetime import datetime, date, timedelta
 from functools import partial
@@ -127,18 +130,21 @@ class PessoaAdmin(PowerModelAdmin):
 
     def inclusao_em_lote(self, request, form_class=InclusaoEmLoteForm, template_name='admin/cadastro/pessoa/inclusao-em-lote.html'):
         var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3, 'circulo': 4}
+        num_lidos = importados = atualizados = num_circulo = sem_email = 0
 
         def _get_data(record, name):
-            if name in var:
-                return force_unicode(record[var[name]].strip())
-            else:
-                return None
+            try:
+                if name in var:
+                    return force_unicode(record[var[name]].strip())
+                else:
+                    return None
+            except IndexError:
+                messages.info(request, u'Coluna %s indisponível para o registro %d' % (name, num_lidos))
 
         if not request.user.is_superuser:
             raise PermissionDenied()
 
         form = form_class()
-        num_lidos = importados = atualizados = num_circulo = 0
         visitantes = []
         if request.method == 'POST':
             form = form_class(request.POST, request.FILES)
@@ -148,26 +154,25 @@ class PessoaAdmin(PowerModelAdmin):
                     if len(record) >= 2:
                         num_lidos += 1
                         email = _get_data(record, 'email')
+                        try:
+                            validate_email(email)
+                        except ValidationError as e:
+                            messages.info(request, u'Email inválido: %s' % (email))
+                            sem_email += 1
+                            email = None
                     else:
                         email = None
 
                     # Se tem email
                     if email:
-                        # Pega o UF
-                        uf = _get_data(record, 'uf')
-                        if uf:
-                            try: uf = UF.objects.get(uf=uf)
-                            except UF.DoesNotExist: pass
-
                         # Se for membro, então verifica se é para adicionar no círculo
                         if Membro.objects.filter(email=email).exists():
                             if _get_data(record, 'circulo'):
                                 circulo = Circulo.objects.filter(id=_get_data(record, 'circulo'))
-                                if circulo.count() == 1:
-                                    membro = Membro.objects.get(email=email)
-                                    circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo[0])
-                                    if insert:
-                                        num_circulo += 1
+                                membro = Membro.objects.get(email=email)
+                                circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo[0])
+                                if insert:
+                                    num_circulo += 1
 
                         else:
                             # Se não for membro, então tenta encontrar a pessoa
@@ -183,26 +188,46 @@ class PessoaAdmin(PowerModelAdmin):
                                     if _get_data(record, 'telefone') and pessoa.celular != None:
                                         pessoa.celular = _get_data(record, 'telefone').strip(' ')[0:13]
                                         atualizado = True
-                                    if pessoa.uf == None and uf:
-                                        pessoa.uf = uf
-                                        atualizado = True
+
+                                    # Pega o UF
+                                    if pessoa.uf == None:
+                                        uf = _get_data(record, 'uf')
+                                        if uf:
+                                            try:
+                                                uf = UF.objects.get(uf=uf)
+                                                pessoa.uf = uf
+                                                atualizado = True
+                                            except UF.DoesNotExist: pass
 
                                     if atualizado:
                                         pessoa.save()
+                                        LogEntry.objects.log_action(
+                                            user_id = request.user.id,
+                                            content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                            object_id = pessoa.pk,
+                                            object_repr = u'%s' % pessoa,
+                                            action_flag = ADDITION,
+                                            change_message = u'Via Importação em Lote')
+
                                         atualizados += 1
                             # Cria a pessoa
                             else:
-                                if _get_data(record, 'nome') and uf:
-                                    pessoa = Pessoa(
-                                        email=email,
-                                        nome=_get_data(record, 'nome'),
-                                        celular=_get_data(record, 'telefone').strip(' ')[0:13],
-                                        uf=uf,
-                                    )
-                                    pessoa.save()
-                                    visitantes.append(pessoa)
-                                    importados += 1
-                messages.info(request, u'Registros lidos: %s | Importados: %s | Atualizados: %s | Novos membros no círculo: %s' % (num_lidos, importados, atualizados, num_circulo))
+                                uf = _get_data(record, 'uf')
+                                if uf:
+                                    try: uf = UF.objects.get(uf=uf)
+                                    except UF.DoesNotExist: pass
+                                    if _get_data(record, 'nome') and uf:
+                                        pessoa = Pessoa(
+                                            email=email,
+                                            nome=_get_data(record, 'nome'),
+                                            celular=_get_data(record, 'telefone').strip(' ')[0:13],
+                                            uf=uf,
+                                        )
+                                        pessoa.save()
+                                        visitantes.append(pessoa)
+                                        importados += 1
+
+                messages.info(request, u'Registros Lidos: %s | Importados: %s | Atualizados: %s | Emails inválidos: %s | Novos membros no círculo: %s' % (num_lidos, importados, atualizados, sem_email, num_circulo))
         return render_to_response(template_name, {
             'title': u'Inclusão em lote',
             'form': form,

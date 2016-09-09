@@ -145,13 +145,22 @@
     <!-- End header -->
 
     <div id="page">
+
         {% block messages %}
             {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
-                {{ message|safe }}
+            <div class="pi-section-w pi-section-white">
+                <div class="pi-section">
+                    <div class="pi-row">
+                        <div class="pi-col-sm-12">
+                            {% for message in messages %}
+                            <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                                {{ message|safe }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
             {% endif %}
         {% endblock %}
 

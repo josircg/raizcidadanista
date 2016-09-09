@@ -8,41 +8,42 @@
 {% block ogdescription %}Cadastro Mailing e Face - {% endblock %}
 
 {% block main %}
-<div class="content-main contact-content margin-b-30">
-    <div class="contact-content-upper">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="gallery_title">
-                    <h3>Cadastro para Mala Direta e Facebook</h3>
-                    <h4>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></h4>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Cadastro para Mala Direta e Facebook</a>
+                </h4>
+                <p>Preencha seus dados para receber os informes da Raiz Movimento Cidadanista via email. Ao enviar este cadastro você poderá também solicitar a entrada <a href="https://www.facebook.com/groups/RaizMovimentoCidadanista/">no nosso grupo do Facebook. Estes dados não serão divulgados em nenhuma circunstância.</a></p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-success">Cadastrar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-12">
-            <form action="" method="POST" role="form">{% csrf_token %}
-                <div class="panel-body">
-                    {% for field in form %}
-                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                            {% if field|btischeckbox %}
-                                {{ field|btform }}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {% else %}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                {{ field|btform }}
-                            {% endif %}
-                            {% if field.errors %}
-                            <ul class="list-unstyled">
-                            {% for error in field.errors %}
-                              <li class="text-error"><small>{{ error }}</small></li>
-                            {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-success">Cadastrar</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

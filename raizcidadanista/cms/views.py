@@ -272,9 +272,14 @@ class LinkConversionView(View):
 
 class URLMigrateView(View):
     def get(self, request, old_url, *args, **kwargs):
-        url = get_object_or_404(URLMigrate, old_url=old_url)
-        url.views += 1
-        url.save()
+        try:
+            url = URLMigrate.objects.get(old_url=old_url)
+            url.views += 1
+            url.save()
+        except URLMigrate.DoesNotExist:
+            if old_url[-1] != '/':
+                return HttpResponseRedirect(u'%s/' % old_url)
+            raise Http404()
         if url.redirect_type == 'M':
             return HttpResponsePermanentRedirect(url.new_url)
         return HttpResponseRedirect(url.new_url)

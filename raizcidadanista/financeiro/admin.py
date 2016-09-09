@@ -283,6 +283,11 @@ class ReceitaAdmin(PowerModelAdmin):
             }
         '''
         results = {}
+        total_geral = {
+            'total': Decimal(0),
+            'n_contrib': 0,
+            'media': 0,
+        }
         for query in queryset:
             if query.colaborador:
                 # Estado
@@ -320,16 +325,20 @@ class ReceitaAdmin(PowerModelAdmin):
                 results[estado]['totais']['total'] += results[estado]['cidades'][cidade]['total']
                 results[estado]['totais']['n_contrib'] += results[estado]['cidades'][cidade]['n_contrib']
 
-            results[estado]['totais']['media'] = results[estado]['cidades'][cidade]['total']/results[estado]['cidades'][cidade]['n_contrib']
+            results[estado]['totais']['media'] = results[estado]['totais']['total']/results[estado]['totais']['n_contrib']
+            total_geral['total'] += results[estado]['totais']['total']
+            total_geral['n_contrib'] += results[estado]['totais']['n_contrib']
 
             # Ordenar cidades
             results[estado]['cidades'] = sorted(results[estado]['cidades'].items(), key=lambda x: x[0])
 
+        total_geral['media'] = total_geral['total']/total_geral['n_contrib']
         # Ordenar!
         results = sorted(results.items(), key=lambda x: x[0])
         return render_to_response(template_name, {
             'title': u'Totalização por UF/cidade',
             'results': results,
+            'total_geral': total_geral,
         },context_instance=RequestContext(request))
     totalizacao_por_uf_cidade.short_description = u'Totalização por UF/cidade'
 admin.site.register(Receita, ReceitaAdmin)

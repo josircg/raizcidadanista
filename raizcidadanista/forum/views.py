@@ -714,11 +714,11 @@ class PropostaTopicoView(FormView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if request.GET.get('encerrar') and (self.object.autor == request.user or self.object.topico.grupo.GrupoUsuario_set.filter(usuario=request.user, admin=True).exists()):
+        if request.GET.get('encerrar') and (request.user.is_superuser or self.object.autor == request.user or self.object.topico.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists()):
             self.object.status = 'F'
             self.object.save()
             return HttpResponseRedirect(self.object.get_absolute_url())
-        if request.GET.get('reabrir') and (self.object.autor == request.user or self.object.topico.grupo.GrupoUsuario_set.filter(usuario=request.user, admin=True).exists()):
+        if request.GET.get('reabrir') and (request.user.is_superuser or self.object.autor == request.user or self.object.topico.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists()):
             self.object.status = 'A'
             self.object.save()
             messages.info(request, u'Proposta Reaberta!')

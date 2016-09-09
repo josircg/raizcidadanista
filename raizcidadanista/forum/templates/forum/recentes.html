@@ -27,7 +27,7 @@
                             <div class="panel-body">
                                 <blockquote>
                                     <div class="new-topic">
-                                        <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                        <span class="fa fa-pie-chart star-button{% if proposta.status == 'A' and not proposta.expirada %} active{% endif %}" aria-hidden="true"></span>
                                     </div>
                                     <a href="{{ proposta.get_absolute_url }}"><h4>{{ proposta.texto|safe }}</h4></a>
                                     <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
@@ -51,7 +51,7 @@
                                             <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                                         {% endif %}
                                         {% if topico.has_proposta %}
-                                            <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                            <span class="fa fa-pie-chart star-button{% if topico.has_proposta_ativa %} active{% endif %}" aria-hidden="true"></span>
                                         {% endif %}
                                     </div>
                                     <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }} ({{ user|num_conversa_nao_lidas:topico }})</h4></a>
@@ -86,7 +86,7 @@
     .new-topic {float: right; }
     .star-button {float: right; margin: -5px 5px;}
     .panel-conversa .fa {font-size: 25px;}
-    .fa-star-o, .fa-bar-chart {color: #767676;}
-    .fa-star {color: #F6A82B;}
+    .fa-star-o, .fa-pie-chart {color: #767676;}
+    .fa-star, .fa-pie-chart.active {color: #F6A82B;}
 </style>
 {% endblock %}

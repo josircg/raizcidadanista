@@ -109,6 +109,9 @@ class Topico(models.Model):
     def has_proposta(self):
         return Proposta.objects.filter(topico=self).exists()
 
+    def has_proposta_ativa(self):
+        return Proposta.objects.filter(topico=self, status='A', dt_encerramento__gte=datetime.now()).exists()
+
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 

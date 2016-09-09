@@ -58,7 +58,7 @@
                             <div class="panel-body">
                                 <blockquote>
                                     <div class="button-topic">
-                                        <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                        <span class="fa fa-pie-chart star-button active" aria-hidden="true"></span>
                                     </div>
                                     <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
                                     <footer>
@@ -77,7 +77,7 @@
                                     {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
                                     {% if conversa.proposta %}
                                         <div class="button-topic">
-                                            <span class="fa fa-bar-chart star-button" aria-hidden="true"></span>
+                                            <span class="fa fa-pie-chart star-button" aria-hidden="true"></span>
                                         </div>
                                         <a href="{{ conversa.proposta.get_absolute_url }}">{{ conversa.texto|safe }}</a>
                                         <footer>
@@ -442,8 +442,8 @@
     .responder-form, .edit-form, .mention-form {display: none; }
     .button-topic {float: right; margin-left: 5px;}
     .fa {font-size: 32px; }
-    .fa-star-o, .fa-envelope, .fa-bar-chart {color: #767676;}
-    .fa-star {color: #F6A82B;}
+    .fa-star-o, .fa-envelope, .fa-pie-chart {color: #767676;}
+    .fa-star, .fa-pie-chart.active {color: #F6A82B;}
 
     /* Top fixed */
     .content-all {width: 100%; overflow: hidden;}

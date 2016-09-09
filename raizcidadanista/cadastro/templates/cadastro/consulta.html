@@ -8,33 +8,45 @@
 {% block ogdescription %}Consulta Mailing{% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Consulta do cadastro Mala Direta e Facebook</h3>
-        <p>Preencha o nome ou email do usuário para verificar se ele já está cadastrado no nosso grupo do Facebook.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel-body">
-                {% for field in form %}
-                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                        {% if field|btischeckbox %}
-                            {{ field|btform }}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                        {% else %}
-                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {{ field|btform }}
-                        {% endif %}
-                        {% if field.errors %}
-                        <ul class="list-unstyled">
-                        {% for error in field.errors %}
-                          <li class="text-error"><small>{{ error }}</small></li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Consulta do cadastro Mala Direta e Facebook</a>
+                </h4>
+                <p>Preencha o nome ou email do usuário para verificar se ele já está cadastrado no nosso grupo do Facebook.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-success">Consultar</button>
+                            </div>
+                        </form>
                     </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-success">Consultar</button>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

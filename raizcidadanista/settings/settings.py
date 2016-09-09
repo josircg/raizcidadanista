@@ -201,7 +201,9 @@ CKEDITOR_CONFIGS = {
         'height': 100,
         'width': '100%',
         'skin': 'moono',
-        'toolbar': [['Bold', 'Italic', 'Underline'], ]
+        'toolbar': [['Bold', 'Italic', 'Underline', 'TextColor', 'NumberedList', 'BulletedList', 'Link', 'Smiley', ], ],
+        'forcePasteAsPlainText': True,
+        'extraPlugins': 'smiley'
     },
     'default': {
         'toolbar': [
@@ -255,6 +257,8 @@ SOUTH_MIGRATION_MODULES = {
 }
 
 LOGIN_REDIRECT_URL = '/admin/'
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 # One month
 
 DEFAULT_FILE_STORAGE = 'utils.storage.SpecialCharFileSystemStorage'
 

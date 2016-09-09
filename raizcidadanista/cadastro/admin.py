@@ -771,13 +771,14 @@ class MembroAdmin(PowerModelAdmin):
         qs = super(MembroAdmin, self).queryset(request)
         if request.user.is_superuser or request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists():
             return qs
-        if request.user.groups.filter(name=u'Coordenador Local').exists():
-            uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
-            qs = qs.filter(uf__pk__in=uf_administrador_ids)
-        if request.user.groups.filter(name=u'Articulador').exists():
-            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
-            qs = qs.filter(uf__pk__in=uf_ids)
-        return qs
+        else:
+            if request.user.groups.filter(name=u'Coordenador Local').exists():
+                uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
+                qs = qs.filter(uf__pk__in=uf_administrador_ids)
+            if request.user.groups.filter(name=u'Articulador').exists():
+                uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+                qs = qs.filter(uf__pk__in=uf_ids)
+            return qs
 admin.site.register(Membro, MembroAdmin)
 
 
@@ -1035,7 +1036,7 @@ class CirculoAdmin(PowerModelAdmin):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
         # Se não tiver Circulo.section cria uma Section e associa ao Circulo
         if not circulo.section:
-            section = Section(title=circulo.titulo, header='', template='section-circulo.html')
+            section = Section(title=circulo.titulo, slug=circulo.slug, header='', template='section-circulo.html')
             if circulo.imagem:
                 section.header = u'<img src="%s" width="100%%">' % circulo.imagem.url
             section.save()

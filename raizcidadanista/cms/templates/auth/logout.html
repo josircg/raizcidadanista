@@ -6,13 +6,27 @@
 {% block ogtitle %}Sair | {% endblock %}
 
 {% block main %}
-<h3>Sair</h3>
-<div id="content-left">
-    <div id="texto-content">
-        <span>
-            <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
-            <p><a href="{% url 'cms_login' %}">{% trans 'Log in again' %}</a></p>
-        </span>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Sair</a>
+                </h4>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="content-left">
+                            <div id="texto-content">
+                                <span>
+                                    <p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+                                    <p><a href="{% url 'cms_login' %}">{% trans 'Log in again' %}</a></p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

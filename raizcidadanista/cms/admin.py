@@ -30,7 +30,7 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from models import Menu, Section, Article, SectionItem, URLMigrate, \
     FileDownload, ArticleArchive, ArticleComment, EmailAgendado, Recurso, \
-    Permissao, GroupType, GroupItem
+    Permissao, GroupType, GroupItem, ArticleAttribute
 
 from forms import CustomGroupForm, PowerArticleForm
 
@@ -106,12 +106,32 @@ class SectionAdmin(PowerModelAdmin):
     list_display = ['title', 'views', 'conversions', 'num_articles', 'order']
     prepopulated_fields = {'slug': ('title',)}
     list_editable = ('order', )
+    fieldsets_superuser = (
+        (None, {
+            'fields': ['title', 'slug', 'header', 'keywords', 'order', 'template', ]
+        }),
+    )
     fieldsets = (
         (None, {
             'fields': ['title', 'slug', 'header', 'keywords', 'order']
         }),
     )
     inlines = [SectionItemActiveInline, SectionItemCreateInline, PermissaoSectionInline]
+
+    def get_fieldsets(self, request, obj=None):
+        if request.user.is_superuser:
+            return self.fieldsets_superuser
+        return self.fieldsets
+
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {
+            "form": self.form if not obj else forms.ModelForm,
+            "fields": flatten_fieldsets(self.get_fieldsets(request, obj)),
+            "exclude": self.get_readonly_fields(request, obj),
+            "formfield_callback": partial(self.formfield_for_dbfield, request=request),
+        }
+        defaults.update(kwargs)
+        return modelform_factory(self.model, **defaults)
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name in ['header']:
@@ -142,13 +162,14 @@ class SectionItemInline(admin.TabularInline):
     model = SectionItem
     extra = 0
     verbose_name_plural = u'Seções'
-
+class ArticleAttributeInline(admin.TabularInline):
+    model = ArticleAttribute
+    extra = 1
 class ArticleCommentInline(admin.TabularInline):
     model = ArticleComment
     extra = 0
     fields = ('created_at', 'author', 'comment', 'active')
     readonly_fields = ('created_at', 'author', 'comment')
-
 class ArticleAdmin(PowerModelAdmin):
     list_display = ('title', 'slug', 'get_sections_display', 'created_at', 'is_active', 'allow_comments', 'views', 'conversions', )
     list_editable = ('is_active', )
@@ -167,7 +188,7 @@ class ArticleAdmin(PowerModelAdmin):
         }),
     )
     actions = ('reset_views', )
-    inlines = (SectionItemInline, ArticleCommentInline, )
+    inlines = (SectionItemInline, ArticleAttributeInline, ArticleCommentInline, )
 
     @transaction.commit_on_success
     def add_view(self, request, form_url='', extra_context=None):

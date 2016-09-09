@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load cms_tags bootstrap thumbnail %}
+
+{% block title %}Acesso não autorizado - {% endblock %}
+{% block ogtitle %}Acesso não autorizado - {% endblock %}
+
+{% block description %}Acesso não autorizado{% endblock %}
+{% block ogdescription %}Acesso não autorizado{% endblock %}
+
+{% block main %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Acesso não autorizado</a>
+                </h4>
+                <p>O Usuário {{ request.user }} não tem acesso ao endereço <strong>“{{ request.build_absolute_uri }}”</strong>.</p>
+                <p>Verifique se a URL digitada está correta e tente novamente.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

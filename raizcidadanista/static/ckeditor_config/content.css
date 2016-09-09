@@ -1,0 +1,6 @@
+.bullets{
+  padding:6px 0 6px 40px;
+  background:url(../site/icon/bullet.jpg) no-repeat center left;
+}
+
+.bullets img{display:none;}

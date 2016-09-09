@@ -1,64 +1,144 @@
 {% extends 'base.html' %}
-{% load cms_tags %}
+{% load cms_tags static %}
 
 {% block ogimage %}/media/uploads/facebook_padrao.png{% endblock %}
 
-{% block css %}
-<style type="text/css" media="screen">
-    .logo {
-        display: block;
-    }
-    .title-logo {
-        display: none;
-    }
-</style>
-{% endblock %}
-
 {% block main %}
-    {% get_section_articles 'home' 9 as articles %}
 
-    <div class="row">
-        <div class="col-md-4">
-        {% for article in articles %}
-            {% if forloop.counter == 1 or forloop.counter == 4 or forloop.counter == 7 %}
-            <div class="thumbnail">
-                <div class="caption">
-                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
-                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-                    <p>{{ article.header|safe}}</p>
-                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
-                </div>
-            </div>
-            {% endif %}
-        {% endfor %}
-        </div>
-        <div class="col-md-4">
-        {% for article in articles %}
-            {% if forloop.counter == 2 or forloop.counter == 5 or forloop.counter == 8 %}
-            <div class="thumbnail">
-                <div class="caption">
-                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
-                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-                    <p>{{ article.header|safe}}</p>
-                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
-                </div>
-            </div>
-            {% endif %}
-        {% endfor %}
-        </div>
-        <div class="col-md-4">
-        {% for article in articles %}
-            {% if forloop.counter == 3 or forloop.counter == 6 or forloop.counter == 9 %}
-            <div class="thumbnail">
-                <div class="caption">
-                    <a href="{{ article.get_absolute_url }}"><h3>{{ article.title }}</h3></a>
-                    <small>{{ article.created_at|date:"d \d\e F \d\e Y" }}</small>
-                    <p>{{ article.header|safe}}</p>
-                    <p><a href="{{ article.get_absolute_url }}" class="btn btn-success" role="button">Leia mais</a></p>
-                </div>
-            </div>
-            {% endif %}
-        {% endfor %}
-        </div>
+<!-- - - - - - - - - - SECTION - - - - - - - - - -->
+<!--
+<div class="pi-section-w pi-section-parallax" style="background-image: url(img_external/gallery/manifesto.jpg);">
+    <div class="pi-texture" style="background: rgba(24, 28, 32, 0.7);"></div>
+    <div class="pi-section pi-padding-top-150 pi-padding-bottom-130 pi-text-center">
+
+        <h2 class="h1 pi-text-shadow">
+            Manifesto <span class="pi-text-base">Cidadanista</span>
+        </h2>
+
+        <p class="lead-18 pi-weight-300 pi-margin-bottom-30">
+            Nemo enim ipsam voluptatem quia voluptas sit aspernatur <br>aut odit aut fugit, sed quia consequuntur
+        </p>
+
+        <p>
+            <a href="#" class="btn pi-btn-base pi-btn-no-border pi-shadow pi-btn-big">
+                Leia nosso manifesto
+            </a>
+        </p>
+
     </div>
+</div>-->
+<!-- - - - - - - - - - SECTION - - - - - - - - - -->
+
+{% get_section_articles 'slideshow' as slide_articles %}
+{% if slide_articles %}
+<div class="tp-banner-container">
+    <div class="tp-banner pi-revolution-slider" >
+        <ul class="">
+            <!-- SLIDE -->
+            {% for article in slide_articles %}
+            <li data-transition="fade" data-slotamount="{{ forloop.counter }}" data-masterspeed="1000" >
+                <!-- MAIN IMAGE -->
+                <img src="{{ article.first_image }}"  alt="{{ article.title }}"  data-bgfit="cover" data-bgposition="center top" data-bgrepeat="no-repeat">
+                {% for attr in article.articleattribute_set.all %}
+                <div class="tp-caption sft str"
+                     data-x="45"
+                     data-hoffset="0"
+                     data-y="{% cycle "305" "355" "405" %}"
+                     data-speed="500"
+                     data-start="{% cycle "800" "1100" "1500" %}"
+                     data-easing="Back.easeInOut"
+                     data-endspeed="300"
+                     style="z-index: {% cycle "5" "6" "7" %}">
+                     <a href="{{ attr.value }}" class="btn pi-btn-red">{{ attr.attrib }}</a>
+                </div>
+                {% endfor %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<span class="revolution-slider"></span>
+<!-- - - - - - - - - - END SECTION - - - - - - - - - -->
+{% endif %}
+
+<!-- - - - - - - - - - SECTION - - - - - - - - - -->
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <!-- Row -->
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="#" class="pi-link-dark">&Uacute;ltimas Notícias</a>
+                </h4>
+            </div>
+            <!-- Col 6 -->
+            {% get_section_articles 'home' 6 as articles %}
+            <div class="pi-col-sm-6 pi-padding-bottom-30">
+                {% for article in articles %}
+                {% if forloop.counter == 1 or forloop.counter == 3 or forloop.counter == 5 %}
+                <!-- Post item -->
+                {% if article.get_images %}
+                <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
+                    <a href="{{ article.get_absolute_url }}">
+                        <img src="{{ article.first_image }}" alt="{{ article.title }}">
+                        <span class="pi-img-overlay pi-img-overlay-white"></span>
+                    </a>
+                </div>
+                {% endif %}
+
+                <h2 class="h5 pi-margin-top-minus-5 pi-margin-bottom-5">
+                    <a href="{{ article.get_absolute_url }}" class="pi-link-dark">{{ article.title }}</a>
+                </h2>
+                <ul class="pi-meta pi-margin-bottom-10">
+                    <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
+                </ul>
+                <p>
+                    {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
+                </p>
+                <!-- End post item -->
+                {% if forloop.counter != 5 %}
+                <br />
+                <hr class="pi-divider pi-divider-dashed">
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            <!-- End col 6 -->
+            <!-- Col 6 -->
+            <div class="pi-col-sm-6 pi-padding-bottom-30">
+                {% for article in articles %}
+                {% if forloop.counter == 2 or forloop.counter == 4 or forloop.counter == 6 %}
+                <!-- Post item -->
+                {% if article.get_images %}
+                <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
+                    <a href="{{ article.get_absolute_url }}">
+                        <img src="{{ article.first_image }}" alt="{{ article.title }}">
+                        <span class="pi-img-overlay pi-img-overlay-white"></span>
+                    </a>
+                </div>
+                {% endif %}
+
+                <h2 class="h5 pi-margin-top-minus-5 pi-margin-bottom-5">
+                    <a href="{{ article.get_absolute_url }}" class="pi-link-dark">{{ article.title }}</a>
+                </h2>
+                <ul class="pi-meta pi-margin-bottom-10">
+                    <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
+                </ul>
+                <p>
+                    {{ article.header|striptags|truncatewords:20|safe}} <a href="{{ article.get_absolute_url }}" class="pi-italic">Leia mais</a>
+                </p>
+                <!-- End post item -->
+                {% if forloop.counter != 6 %}
+                <br />
+                <hr class="pi-divider pi-divider-dashed">
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            <!-- End col 6 -->
+        </div>
+        <!-- End row -->
+    </div>
+</div>
+<!-- - - - - - - - - - END SECTION - - - - - - - - - -->
 {% endblock %}

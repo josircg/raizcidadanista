@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nova Enquete publicada no Tópico {{ conversa.topico }} do grupo {{ conversa.topico.grupo }}</title>
+</head>
+<body>
+<h3>Nova Enquete publicada no Tópico {{ conversa.topico }} do grupo {{ conversa.topico.grupo }} com data de votação até {{ conversa.dt_encerramento|date:"d/m/Y \à\s H:i" }}</h3>
+
+    {{ conversa.texto|safe }}
+<p>
+    <a href="{{ host }}{{ conversa.get_absolute_url }}">Clique aqui</a> para votar.<br>
+</p>
+<p>
+    Atenciosamente,<br>
+    RAiZ Movimento Cidadanista
+</p>
+</body>
+</html>

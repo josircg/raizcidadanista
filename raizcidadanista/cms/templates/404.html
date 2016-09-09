@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load cms_tags bootstrap thumbnail %}
+
+{% block title %}Página não encontrada - {% endblock %}
+{% block ogtitle %}Página não encontrada - {% endblock %}
+
+{% block description %}Página não encontrada{% endblock %}
+{% block ogdescription %}Página não encontrada{% endblock %}
+
+{% block main %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Página não encontrada</a>
+                </h4>
+                <p>O endereço <strong>“{{ request.build_absolute_uri }}”</strong> foi removido de nossos servidores ou nunca existiu.</p>
+                <p>Verifique se a URL digitada está correta e tente novamente.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

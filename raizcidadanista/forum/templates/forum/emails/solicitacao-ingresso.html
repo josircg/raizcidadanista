@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solicitação de ingresso no grupo {{ grupo }}</title>
+</head>
+<body>
+<h3>O usuário {{ usuario }} solicitou ingresso no grupo {{ grupo }}.</h3>
+
+<p>
+    <a href="{{ host }}{% url forum_grupo_solicitar_ingresso_aprovar grupo.pk usuario.pk %}">Clique aqui</a> aprovar.<br>
+</p>
+<p>
+    Atenciosamente,<br>
+    RAiZ Movimento Cidadanista
+</p>
+</body>
+</html>

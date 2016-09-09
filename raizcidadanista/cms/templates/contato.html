@@ -8,35 +8,46 @@
 {% block ogdescription %}Contato - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Contato</h3>
-        <p>Envie aqui a sua mensagem para nós.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    {% for field in form %}
-                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                            {% if field|btischeckbox %}
-                                {{ field|btform }}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {% else %}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                {{ field|btform }}
-                            {% endif %}
-                            {% if field.errors %}
-                            <ul class="list-unstyled">
-                            {% for error in field.errors %}
-                              <li class="text-error"><small>{{ error }}</small></li>
-                            {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-success">Enviar</button>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Contato</a>
+                </h4>
+                <p>Envie aqui a sua mensagem para nós.</p>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors %}
+                                        <ul class="list-unstyled">
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-success">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

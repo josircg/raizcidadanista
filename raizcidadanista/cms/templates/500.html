@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load cms_tags bootstrap thumbnail %}
+
+{% block title %}Houve uma falha nos servidores - {% endblock %}
+{% block ogtitle %}Houve uma falha nos servidores - {% endblock %}
+
+{% block description %}Houve uma falha nos servidores{% endblock %}
+{% block ogdescription %}Houve uma falha nos servidores{% endblock %}
+
+{% block main %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Houve uma falha nos servidores</a>
+                </h4>
+                <p>Os administradores do sistema já foram notificados e em breve o problema será solucionado.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

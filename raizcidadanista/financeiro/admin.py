@@ -183,7 +183,7 @@ admin.site.register(Operacao, OperacaoAdmin)
 
 class PagamentoAdmin(PowerModelAdmin):
     list_display = ('conta', 'dt', 'despesa', 'tipo_despesa', 'fornecedor', 'referencia', 'valor', 'conferido',)
-    list_filter = ('fornecedor', 'conta', 'tipo', 'conferido', )
+    list_filter = ('fornecedor', 'conta', 'tipo', 'tipo_despesa', 'conferido', )
     date_hierarchy = 'dt'
     multi_search = (
         ('q1', u'Fornecedor', ['fornecedor__nome', ]),
@@ -369,6 +369,11 @@ class OrcamentoAdmin(PowerModelAdmin):
         if obj:
             return self.fieldsets_edit
         return self.fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if not obj or request.user.groups.filter(name=u'Financeiro'):
+            return super(OrcamentoAdmin, self).get_readonly_fields(request, obj)
+        return ('periodo', 'repetir', 'periodo_final', 'tipo_despesa', 'valor', )
 
     def get_form(self, request, obj=None, **kwargs):
         defaults = {

@@ -8,37 +8,48 @@
 {% block ogdescription %}Atualização de Cadastro da Raiz - {% endblock %}
 
 {% block main %}
-    <div class="col-article">
-        <h3>Atualização de Cadastro da Raiz</h3>
-        <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
-        <form action="" method="POST" role="form">{% csrf_token %}
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    {% for field in form %}
-                        <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
-                            {% if field|btischeckbox %}
-                                {{ field|btform }}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                            {% else %}
-                                <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-                                {{ field|btform }}
-                            {% endif %}
-                            {% if field.errors or field.help_text %}
-                            <ul class="list-unstyled">
-                            {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
-                            {% for error in field.errors %}
-                              <li class="text-error"><small>{{ error }}</small></li>
-                            {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <a href="?filiado=true"><button type="button" class="btn btn-success">Clique aqui caso queira se tornar um pré-filiado</button></a>
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">Atualização de Cadastro</a>
+                </h4>
+                <p>Atualização de Cadastro da Raiz</a>
+                <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors or field.help_text %}
+                                        <ul class="list-unstyled">
+                                        {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <a href="?filiado=true"><button type="button" class="btn btn-success">Clique aqui caso queira se tornar um pré-filiado</button></a>
+                                <button type="submit" class="btn btn-success">Atualizar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-success">Atualizar</button>
-        </form>
+            </p>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 

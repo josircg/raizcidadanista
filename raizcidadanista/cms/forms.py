@@ -8,7 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import AuthenticationForm
 from django.template import loader
 from django.utils.http import int_to_base36
 from django.contrib.sites.models import get_current_site
@@ -167,3 +169,27 @@ class ContatoForm(forms.Form):
                 'Reply-To': email,
             }
         )
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(label=u"Usuário ou e-mail", max_length=60)
+    remember = forms.BooleanField(label=u"Lembre do meu login nessa máquina", required=False)
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            if '@' in username:
+                try:
+                    username = User.objects.get(email=username).username
+                except User.DoesNotExist:
+                    raise forms.ValidationError(self.error_messages['invalid_login'])
+
+            self.user_cache = authenticate(username=username, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(self.error_messages['invalid_login'])
+            elif not self.user_cache.is_active:
+                raise forms.ValidationError(self.error_messages['inactive'])
+        self.check_for_test_cookie()
+        return self.cleaned_data

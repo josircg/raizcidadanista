@@ -3152,7 +3152,7 @@ iframe[src="about:blank"] {
 .pi-section {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 60px 40px 40px;
+  padding: 30px 30px 30px;
   position: relative;
 }
 .pi-titlebar {
@@ -3254,12 +3254,12 @@ iframe[src="about:blank"] {
 }
 @media (max-width: 992px) {
   .pi-section {
-    padding: 55px 30px 35px;
+    padding: 30px 30px 35px;
   }
 }
 @media (max-width: 768px) {
   .pi-section {
-    padding: 50px 20px 30px;
+    padding: 30px 20px 30px;
   }
 }
 .pi-section-white {
@@ -7122,6 +7122,7 @@ hr.pi-divider-gap-100 {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+  margin: 3px;
 }
 .btn img {
   width: 16px;

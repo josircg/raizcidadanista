@@ -61,6 +61,11 @@ class Pessoa(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
+    def clean(self):
+        if self.email and Pessoa.objects.filter(email=self.email).exclude(pk=self.pk).exists():
+            raise ValidationError(u'Este email já está em uso.')
+        return super(Pessoa, self).clean()
+
     def __unicode__(self):
         return u'%s' % self.nome
 
@@ -346,7 +351,7 @@ class CirculoMembro(models.Model):
     membro = models.ForeignKey(Membro)
     administrador = models.BooleanField(default=False)
     publico = models.BooleanField(u'Público', default=False)
-    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True)
+    grupousuario = models.ForeignKey(GrupoUsuario, editable=False, blank=True, null=True, on_delete=models.SET_NULL)
 
     def email(self):
         return self.membro.email
@@ -664,12 +669,6 @@ class ColetaArticulacao(models.Model):
     municipio = ChainedForeignKey(Municipio, chained_fields={'UF': 'uf', }, show_all=False, auto_choose=False, verbose_name=u'Município', null=True, blank=True)
     zona = models.IntegerField(u'Zona', null=True, blank=True)
     articulador = models.ForeignKey(Membro, verbose_name=u'Articulador')
-
-    def clean(self):
-        if not self.municipio:
-            if not self.articulador.usuario or self.articulador.usuario.groups.filter(name=u'Cadastro'):
-                raise ValidationError(u'O campo Município é obrigatório para esse Articulador.')
-        return super(ColetaArticulacao, self).clean()
 
     def articulador_email(self):
         return u'%s' % self.articulador.email

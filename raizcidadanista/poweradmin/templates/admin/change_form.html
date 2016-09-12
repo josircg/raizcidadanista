@@ -106,7 +106,7 @@
                     {% endif%}
 
                     {% for button in buttons %}
-                        <li><a href="{{ button.get_url }}" class="{{ button.classes|join:" " }}">{{ button.label }}</a></li>
+                        <li><a href="{{ button.get_url }}" {% for key,val in button.attrs.items %}{{ key }}="{{ val }}"{% endfor %}>{{ button.label }}</a></li>
                     {% endfor %}
 
                 {% endblock %}

@@ -127,6 +127,8 @@ class ContatoView(FormView):
                 form.sendemail(to=[adm.membro.email, ], bcc=['correio@raiz.org.br', ])
             except CirculoMembro.DoesNotExist:
                 form.sendemail()
+        else:
+            form.sendemail()
         messages.info(self.request, u"Mensagem enviada com sucesso!")
         return self.response_class(
             request=self.request,

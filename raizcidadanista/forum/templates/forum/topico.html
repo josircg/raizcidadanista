@@ -35,6 +35,9 @@
                                     </form>
                                 </div>
                             </span>
+                            {% if user|has_admin_grupo_perm:object.grupo %}
+                                <a href="{% url forum_topico_notificar object.grupo.pk object.pk %}"><button type="submit" class="btn btn-success button-topic">Notificar a todos</button></a>
+                            {% endif %}
                             {% if object.criador == user %}
                                 {% if object.editavel %}
                                 <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>

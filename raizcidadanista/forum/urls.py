@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^grupo/(?P<pk>\d+)/adicionar-membros/$', login_required(views.GrupoAddMembrosView.as_view()), name='forum_grupo_add_membros'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/adicionar/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/$', login_required(views.TopicoView.as_view()), name='forum_topico'),
+    url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/notificar/$', login_required(views.NotificarTopicoView.as_view()), name='forum_topico_notificar'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/adicionar-proposta/$', login_required(views.NovaPropostaTopicoView.as_view()), name='forum_topico_novaproposta'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<topico_pk>\d+)/proposta/(?P<pk>\d+)/$', login_required(views.PropostaTopicoView.as_view()), name='forum_topico_proposta'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/adicionar-enquete/$', login_required(views.NovaEnqueteTopicoView.as_view()), name='forum_topico_novaenquete'),

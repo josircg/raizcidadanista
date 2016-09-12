@@ -129,7 +129,7 @@ class PessoaAdmin(PowerModelAdmin):
         },context_instance=RequestContext(request))
 
     def inclusao_em_lote(self, request, form_class=InclusaoEmLoteForm, template_name='admin/cadastro/pessoa/inclusao-em-lote.html'):
-        var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3, 'circulo': 4}
+        var = {'email': 0, 'nome': 1, 'telefone': 2, 'uf': 3, 'circulo': 4,}
         num_lidos = importados = atualizados = num_circulo = sem_email = 0
 
         def _get_data(record, name):
@@ -149,7 +149,10 @@ class PessoaAdmin(PowerModelAdmin):
         if request.method == 'POST':
             form = form_class(request.POST, request.FILES)
             if form.is_valid():
-                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
+
+                    if num_lidos == 0:
+                        grupo_append = 'grupo' in record
 
                     if len(record) >= 2:
                         num_lidos += 1
@@ -167,10 +170,16 @@ class PessoaAdmin(PowerModelAdmin):
                     if email:
                         # Se for membro, então verifica se é para adicionar no círculo
                         if Membro.objects.filter(email=email).exists():
-                            if _get_data(record, 'circulo'):
-                                circulo = Circulo.objects.filter(id=_get_data(record, 'circulo'))
-                                membro = Membro.objects.get(email=email)
-                                circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo[0])
+                            insert = False
+                            membro = Membro.objects.get(email=email)
+                            grupo_id = _get_data(record, 'circulo')
+                            if grupo_id:
+                                if grupo_append and membro.user:
+                                    grupo = Grupo.objects.get(id=grupo_id)
+                                    grupo, insert = GrupoUsuario.objects.get_or_create(usuario=membro.user,grupo=grupo)
+                                else:
+                                    circulo = Circulo.objects.get(id=grupo_id)
+                                    circulo, insert = CirculoUsuario.objects.get_or_create(membro=membro,circulo=circulo)
                                 if insert:
                                     num_circulo += 1
 

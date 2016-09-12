@@ -326,7 +326,7 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
     for ouvinte in ouvintes:
         if instance.propostaopcao_set.exists():
             sendmail(
-                subject=u'Nova Proposta publicada no Tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                subject=u'Nova Proposta iniciada no grupo %s' % (instance.topico, instance.topico.grupo),
                 to=[ouvinte.ouvinte.email, ],
                 template='forum/emails/notificacao-proposta.html',
                 params={
@@ -337,7 +337,7 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
             )
         else:
             sendmail(
-                subject=u'Nova Enquete publicada no Tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                subject=u'Nova Enquete iniciada no grupo %s' % (instance.topico, instance.topico.grupo),
                 to=[ouvinte.ouvinte.email, ],
                 template='forum/emails/notificacao-enquete.html',
                 params={

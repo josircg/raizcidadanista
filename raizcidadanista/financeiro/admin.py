@@ -101,9 +101,9 @@ class ProjetoAdmin(PowerModelAdmin):
         ('q1', u'nome', ['nome',]),
     )
     fieldsets = (
-        (None, {'fields': ('nome', 'descricao', 'orcamento', 'dtinicio', 'dtfim',
-                           'responsavel', 'ativo'),}),
+        (None, {'fields': ('nome', 'descricao', 'orcamento', 'dtinicio', 'dtfim', 'responsavel', 'ativo'),}),
     )
+    raw_id_fields = ('responsavel', )
     inlines = (PagamentoProjetoInline, )
 
 admin.site.register(Projeto, ProjetoAdmin)

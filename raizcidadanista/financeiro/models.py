@@ -171,12 +171,14 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
                 valor=instance.valor,
                 fornecedor=instance.fornecedor,
                 despesa=instance,
+                tipo_despesa=tipo_despesa,
             ).save()
         else:
             pagamento = instance.pagamento_set.latest('pk')
             pagamento.dt = instance.dtvencimento or datetime.today()
             pagamento.referencia = instance.documento[:20]
             pagamento.valor = instance.valor
+            pagamento.tipo_despesa = instance.tipo_despesa
             pagamento.save()
 
 

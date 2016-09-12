@@ -295,7 +295,7 @@ class PowerButton(object):
     url = ''  # Usado para informar diretamente a URL e assim permitir qualquer URL
     visible = True
     label = 'Label'
-    classes = ['historylink', ]
+    attrs = {'class': 'historylink', }
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():

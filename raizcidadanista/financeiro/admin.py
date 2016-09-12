@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.util import flatten_fieldsets
 from django.forms.models import modelform_factory
 from django.template.loader import get_template
@@ -246,6 +246,17 @@ class ReceitaAdmin(PowerModelAdmin):
         (u'Detalhes', {'fields': ('nota', )}),
     ]
     actions = ('listagem_doadores', 'totalizacao_por_uf_cidade')
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj is None:
+            return HttpResponseRedirect(reverse('admin:financeiro_receita_changelist'))
+
+        dtaviso_recente = Receita.objects.filter(colaborador=obj.colaborador, dtaviso__gte=obj.dtaviso-relativedelta(days=5)).filter(dtaviso__lte=obj.dtaviso+relativedelta(days=5)).exclude(pk=obj.pk).exists()
+        dtpgto_recente = obj.dtpgto != None and Receita.objects.filter(colaborador=obj.colaborador, dtpgto__gte=obj.dtpgto-relativedelta(days=5)).filter(dtpgto__lte=obj.dtpgto+relativedelta(days=5)).exclude(pk=obj.pk).exists()
+        if dtaviso_recente or dtpgto_recente:
+            messages.warning(request, u'Existe uma Receita recente cadastrada para esse Colaborador.')
+        return super(ReceitaAdmin, self).change_view(request, object_id, form_url, extra_context)
 
     def listagem_doadores(self, request, queryset, template_name_pdf='admin/financeiro/receita/listagem-doadores-pdf.html'):
         template = get_template(template_name_pdf)

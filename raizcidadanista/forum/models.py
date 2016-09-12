@@ -292,6 +292,9 @@ class Proposta(Conversa):
     status = models.CharField(u'Situação', max_length=1, choices=STATUS_PROPOSTA, default='A')
     escopo = models.CharField(u'Escopo', max_length=1, choices=ESCOPO_PROPOSTA)
 
+    def tempo_para_expirar(self):
+        return (self.dt_encerramento-datetime.now()).total_seconds()/3600
+
     def expirada(self):
         return self.dt_encerramento < datetime.now()
 
@@ -326,7 +329,7 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
     for ouvinte in ouvintes:
         if instance.propostaopcao_set.exists():
             sendmail(
-                subject=u'Nova Proposta iniciada no grupo %s' % (instance.topico, instance.topico.grupo),
+                subject=u'Nova Proposta iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
                 to=[ouvinte.ouvinte.email, ],
                 template='forum/emails/notificacao-proposta.html',
                 params={
@@ -337,7 +340,7 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
             )
         else:
             sendmail(
-                subject=u'Nova Enquete iniciada no grupo %s' % (instance.topico, instance.topico.grupo),
+                subject=u'Nova Enquete iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
                 to=[ouvinte.ouvinte.email, ],
                 template='forum/emails/notificacao-enquete.html',
                 params={

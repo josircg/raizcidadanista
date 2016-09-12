@@ -404,7 +404,7 @@ class CirculoEvento(models.Model):
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Descrição e Local')
     privado = models.BooleanField(u'Privado', default=True)
-    artigo = models.ForeignKey(Article, editable=False, blank=True, null=True)
+    artigo = models.ForeignKey(Article, editable=False, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -414,6 +414,10 @@ class CirculoEvento(models.Model):
         verbose_name_plural = u'Eventos dos círculos'
 @receiver(signals.pre_save, sender=CirculoEvento)
 def create_article_evento_signal(sender, instance, raw, using, *args, **kwargs):
+    if instance.privado and instance.artigo:
+        instance.artigo.delete()
+        instance.artigo = None
+        instance.save()
     if not instance.privado and not instance.artigo:
         # Cria o artigo
         try:

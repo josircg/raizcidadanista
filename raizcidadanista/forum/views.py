@@ -650,7 +650,7 @@ class NotificarTopicoView(DetailView):
             sendmail(
                 subject=self.object.titulo,
                 bcc=emails,
-                template='forum/emails/notificacao-all.html',
+                template='forum/emails/notificacao-topico.html',
                 params={
                     'topico': self.object,
                     'host': settings.SITE_HOST,

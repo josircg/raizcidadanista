@@ -64,6 +64,7 @@
                 <div class="pi-row-block pi-row-block-txt pi-hidden-xs">
                     <i class="pi-row-block-icon icon-mail pi-icon-base pi-icon-square"></i>Email: <a href="{% url 'contato' %}">contato@raiz.org.br</a>
                     | <a href="{% url 'forum' %}">Teia Digital</a>
+                    | <a href="{% url 'admin:index' %}">Sistema Integrado</a>
                 </div>
                 <!-- End email -->
 
@@ -205,7 +206,7 @@
         <!-- - - - - - - - - - END SECTION - - - - - - - - - -->
         {% endif %}
 
-        <!-- - - - - - - - - - SECTION - - - - - - - - - 
+        <!-- - - - - - - - - - SECTION - - - - - - - - -
         <div class="pi-section-w pi-shadow-inside-top pi-section-grey">
             <div class="pi-texture" style="background: url({% static 'novosite/img/wave.png' %}) repeat;"></div>
             <div class="pi-section">
@@ -235,6 +236,30 @@
     </div>
 
     <!-- Footer -->
+    <!-- Widget area -->
+    <div class="pi-section-w pi-border-bottom pi-border-top-light pi-section-dark">
+        <div class="pi-section pi-padding-bottom-10">
+            <!-- Row -->
+            <div class="pi-row">
+                <!-- Col 4 -->
+                <div class="pi-col-md-12 pi-col-sm-6 pi-padding-bottom-30">
+                    <!-- Tags -->
+                    <div>
+                        {% get_cloudtags as tags %}
+                        {% if tags %}
+                        {% for tag, num in tags %}
+                            <a href="{% url 'search' %}?q={{ tag }}" style="font-size: {{ num|unlocalize }}em">{{ tag }}</a>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <!-- End tags -->
+                </div>
+                <!-- End col 4 -->
+            </div>
+            <!-- End row -->
+        </div>
+    </div>
+    <!-- End widget area -->
     <!-- Widget area -->
     <div class="pi-section-w pi-border-bottom pi-border-top-light pi-section-dark">
         <div class="pi-section pi-padding-bottom-10">

@@ -86,21 +86,6 @@
                                 </nav>
                             </div>
                         </div> <!-- main-menu -->
-                        {% get_section_articles 'redes-sociais' as articles_redes_sociais %}
-                        {% if articles_redes_sociais %}
-                        <div class="main-menu menu-social">
-                            <div class="box bottom-main block-width-full">
-                                <ul class="info">
-                                    <li style="display: block !important;"><h3 class="current">REDES SOCIAIS</h3></li>
-                                    {% for article in articles_redes_sociais %}
-                                    <li>
-                                        {{ article.header|safe }}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div> <!-- main-menu -->
-                        {% endif %}
                         {% get_section_articles 'eventos' 3 as articles_eventos %}
                         {% if articles_eventos %}
                         <div class="main-menu menu-eventos">

@@ -171,11 +171,29 @@ class FiliadoForm(forms.ModelForm):
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
         if cpf and Membro.objects.filter(cpf=cpf).exists():
-            raise forms.ValidationError(u'Já existe um cadastro com esse cpf.')
+            raise forms.ValidationError(u'Já existe um cadastro com esse CPF.')
         return cpf
 
     def save(self, commit=True):
+        email = self.cleaned_data.get('email')
         self.instance.filiado = True
+
+        # Converte Pessoa em Filiado
+        if Pessoa.objects.filter(email=email).exists():
+            pessoa = Pessoa.objects.get(email=email)
+            self.instance.pessoa_ptr = pessoa
+            self.instance.status_email = pessoa.status_email
+
+            if self.instance.nome != pessoa.nome:
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                    object_id = pessoa.pk,
+                    object_repr = u"%s" % pessoa,
+                    action_flag = CHANGE,
+                    change_message = u'Nome alterado de %s para %s pelo formulário' % (pessoa.nome, self.instance.nome)
+                )
         return super(FiliadoForm, self).save(commit)
 
 

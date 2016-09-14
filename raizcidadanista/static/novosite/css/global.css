@@ -248,6 +248,17 @@ table {
   color: #843534;
 }
 
+.has-error .form-control {
+  border-color: #ebccd1 !important;
+}
+.has-error label, .text-error {
+  color: #a94442;
+}
+.list-unstyled {
+  list-style: none;
+}
+
+
 /*_____ styles/css/green/main.css*/
 /* Aura version: 1.8.7 */
 

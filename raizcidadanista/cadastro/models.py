@@ -61,11 +61,6 @@ class Pessoa(models.Model):
     dtcadastro = models.DateField(u'Dt.Cadastro', blank=True, default=datetime.now)
     status_email = models.CharField(max_length=1, choices=STATUS_EMAIL, default='N')
 
-    def clean(self):
-        if self.email and Pessoa.objects.filter(email=self.email).exclude(pk=self.pk).exists():
-            raise ValidationError(u'Este email já está em uso.')
-        return super(Pessoa, self).clean()
-
     def __unicode__(self):
         return u'%s' % self.nome
 
@@ -145,6 +140,11 @@ class Membro(Pessoa):
     municipio_naturalidade = models.CharField(u'Naturalidade: Município', max_length=150, blank=True, null=True)
     fundador = models.BooleanField(u'Quero assinar a ata de fundação da RAiZ', default=False)
     assinado = models.BooleanField(u'Requerimento assinado', default=False)
+
+    def clean(self):
+        if self.email and Membro.objects.filter(email=self.email).exclude(pk=self.pk).exists():
+            raise ValidationError(u'Este email já está em uso.')
+        return super(Membro, self).clean()
 
     def vr_apagar(self, data):
         if self.contrib_prox_pgto and (self.contrib_prox_pgto.month == data.month and self.contrib_prox_pgto.year == data.year):
@@ -266,6 +266,7 @@ def add_circulo_membro_signal(sender, instance, created, raw, using, *args, **kw
 class Filiado(Membro):
     class Meta:
         proxy = True
+
 
 CIRCULO_TIPO = (
     ('R', u'Círculo Regional'),

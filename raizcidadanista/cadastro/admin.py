@@ -803,7 +803,7 @@ class MembroAdmin(PowerModelAdmin):
 
     def queryset(self, request):
         qs = super(MembroAdmin, self).queryset(request)
-        if request.user.is_superuser or request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists():
+        if request.user.is_superuser or request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists() or request.GET.get('pop'):
             return qs
         else:
             if request.user.groups.filter(name=u'Coordenador Local').exists():

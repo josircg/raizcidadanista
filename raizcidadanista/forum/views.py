@@ -640,6 +640,36 @@ class TopicoView(DetailView):
         return context
 
 
+class NotificarTopicoView(DetailView):
+    model = Topico
+
+    def get(self, request, *args, **kwargs):
+        def splip_emails(emails, ite=50):
+                ini = 0
+                for i in range(ite, len(emails), ite):
+                    yield emails[ini:i]
+                    ini = i
+                if len(emails) > ini:
+                    yield emails[ini:len(emails)]
+
+        self.object = self.get_object()
+        if request.user.is_superuser or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            emails_list = TopicoOuvinte.objects.filter(topico__grupo=self.object.grupo).values_list('ouvinte__email', flat=True).distinct()
+            for emails in splip_emails(emails_list):
+                sendmail(
+                    subject=self.object.titulo,
+                    bcc=emails,
+                    template='forum/emails/notificacao-topico.html',
+                    params={
+                        'topico': self.object,
+                        'host': settings.SITE_HOST,
+                    },
+                )
+            messages.info(request, u'Notificação enviada com sucesso!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+        raise PermissionDenied()
+
+
 class MencaoView(FormView):
     form_class = MencaoForm
 

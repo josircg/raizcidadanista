@@ -22,6 +22,8 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="col-article">
+                    {% if propostas %}
+                        <h4>Propostas</h4>
                         {% for proposta in propostas %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -33,13 +35,15 @@
                                     <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
                                     <footer><b>Grupo: </b><a href="{{ proposta.topico.grupo.get_absolute_url }}">{{ proposta.topico.grupo }}</a></footer>
                                     <footer>
-                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b> | Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b> | <span {% if proposta.tempo_para_expirar <= 24 %}style="color: red"{% endif %}>Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b></span>
                                     </footer>
                                 </blockquote>
                             </div>
                         </div>
                         {% endfor %}
-
+                    {% endif %}
+                    {% if topicos %}
+                        <h4>Topico recentes</h4>
                         {% for topico in topicos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -61,6 +65,7 @@
                             </div>
                         </div>
                         {% endfor %}
+                    {% endif %}
 
                         <nav>
                           <ul class="pager">

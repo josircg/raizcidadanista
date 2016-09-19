@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ topico.titulo }}</title>
+</head>
+<body>
+<h3>{{ topico.titulo }}</h3>
+
+<p>
+    Atenção, um tópico requer a sua atenção na Teia Digital no {{ topico.grupo }}. <a href="{{ host }}{{ topico.get_absolute_url }}">Clique aqui</a> para visualizá-lo.
+</p>
+<p>
+    Atenciosamente,<br>
+    RAiZ Movimento Cidadanista
+</p>
+</body>
+</html>

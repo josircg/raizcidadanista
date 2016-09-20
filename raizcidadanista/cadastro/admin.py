@@ -179,7 +179,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     grupo, insert = GrupoUsuario.objects.get_or_create(usuario=membro.user,grupo=grupo)
                                 else:
                                     circulo = Circulo.objects.get(id=grupo_id)
-                                    circulo, insert = CirculoUsuario.objects.get_or_create(membro=membro,circulo=circulo)
+                                    circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo)
                                 if insert:
                                     num_circulo += 1
 

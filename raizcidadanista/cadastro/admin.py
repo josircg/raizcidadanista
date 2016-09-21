@@ -151,20 +151,18 @@ class PessoaAdmin(PowerModelAdmin):
             if form.is_valid():
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
 
+                    email = None
                     if num_lidos == 0:
                         grupo_append = 'grupo' in record
-
-                    if len(record) >= 2:
-                        num_lidos += 1
-                        email = _get_data(record, 'email')
-                        try:
-                            validate_email(email)
-                        except ValidationError as e:
-                            messages.info(request, u'Email inválido: %s' % (email))
-                            sem_email += 1
-                            email = None
                     else:
-                        email = None
+                        if len(record) >= 2:
+                            num_lidos += 1
+                            email = _get_data(record, 'email')
+                            try:
+                                validate_email(email)
+                            except ValidationError as e:
+                                messages.info(request, u'Email inválido: %s' % (email))
+                                sem_email += 1
 
                     # Se tem email
                     if email:

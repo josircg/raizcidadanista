@@ -152,11 +152,11 @@ class PessoaAdmin(PowerModelAdmin):
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
 
                     email = None
-                    if num_lidos == 0:
+                    num_lidos += 1
+                    if num_lidos == 1:
                         grupo_append = 'grupo' in record
                     else:
                         if len(record) >= 2:
-                            num_lidos += 1
                             email = _get_data(record, 'email')
                             try:
                                 validate_email(email)

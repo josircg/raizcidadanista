@@ -5,6 +5,7 @@ from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.core.validators import URLValidator
 from django.conf import settings
 
 from municipios.models import UF
@@ -404,6 +405,13 @@ class ArticleCadastroForm(forms.ModelForm):
         if not link and not title:
             raise forms.ValidationError(u'Este campo é obrigatório.')
         return title
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content')
+        link = self.cleaned_data.get('link')
+        if link:
+            URLValidator()(content)
+        return content
 
     def __init__(self, *args, **kwargs):
         super(ArticleCadastroForm, self).__init__(*args, **kwargs)

@@ -20,7 +20,7 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.validators import validate_email
 
 from decimal import Decimal
@@ -179,7 +179,7 @@ class PessoaAdmin(PowerModelAdmin):
                                     grupo, insert = GrupoUsuario.objects.get_or_create(usuario=membro.user,grupo=grupo)
                                 else:
                                     circulo = Circulo.objects.get(id=grupo_id)
-                                    circulo, insert = CirculoUsuario.objects.get_or_create(membro=membro,circulo=circulo)
+                                    circulo, insert = CirculoMembro.objects.get_or_create(membro=membro,circulo=circulo)
                                 if insert:
                                     num_circulo += 1
 

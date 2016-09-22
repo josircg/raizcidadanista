@@ -152,11 +152,11 @@ class PessoaAdmin(PowerModelAdmin):
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
 
                     email = None
-                    if num_lidos == 0:
+                    num_lidos += 1
+                    if num_lidos == 1:
                         grupo_append = 'grupo' in record
                     else:
                         if len(record) >= 2:
-                            num_lidos += 1
                             email = _get_data(record, 'email')
                             try:
                                 validate_email(email)
@@ -276,13 +276,14 @@ class CirculoMembroMembroInline(admin.TabularInline):
 
 
 class MembroAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'rg', 'uf', 'municipio_eleitoral', 'dtcadastro', 'aprovador', )
+    list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', )
     list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
         ('q2', u'E-mail', ['email', ]),
-        ('q3', u'Profissão', ['atividade_profissional', ]),
+        ('q3', u'Município onde Reside', ['municipio', ]),
+        ('q4', u'Município Eleitoral', ['municipio_eleitoral', ]),
     )
     inlines = (CirculoMembroMembroInline, )
     actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )

@@ -50,8 +50,12 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 class PessoaAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'status_email', 'uf', 'municipio', 'dtcadastro',)
-    search_fields = ('nome', 'email',)
-    list_filter = ('uf', 'dtcadastro')
+    multi_search = (
+        ('q1', u'Nome', ['nome', ]),
+        ('q2', u'E-mail', ['email', ]),
+        ('q3', u'Município', ['municipio', ]),
+    )
+    list_filter = ('uf', 'dtcadastro', 'status_email')
     actions = ('validar_email', )
 
     def validar_email(self, request, queryset):

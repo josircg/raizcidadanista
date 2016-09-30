@@ -25,8 +25,9 @@
         Selecione o seu estado:
         <select id="select-uf-circulo">
             <option cidades="">---</option>
+            <option value="all">Todos</option>
             {% for uf in estados %}
-            <option value="{{ uf.pk }}">{{ uf.nome }}</option>
+            {% if uf.pk != 0 %}<option value="{{ uf.pk }}">{{ uf.nome }}</option>{% endif %}
             {% endfor %}
         </select>
     </label>
@@ -55,7 +56,7 @@
                         </tr>
                     {% endfor %}
                     {% else %}
-                        <tr class="circulo-item" data-uf="{{ uf.pk }}">
+                        <tr class="circulo-item circulo-item-none" data-uf="{{ uf.pk }}">
                             <td colspan="2">Ainda não existe nenhuma coligação.</td>
                         </tr>
                     {% endif %}
@@ -70,7 +71,12 @@
         $('#select-uf-circulo').change(function(event) {
             $('#box-cidades .circulo').show();
             $('#box-cidades .circulo-item').hide();
-            $('#box-cidades .circulo-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+            if($(this).find('option:selected').attr('value') == 'all'){
+                $('#box-cidades .circulo-item').show();
+                $('#box-cidades .circulo-item-none').hide();
+            }else{
+                $('#box-cidades .circulo-item[data-uf="'+$(this).find('option:selected').attr('value')+'"]').show();
+            }
         });
     </script>
 </body>

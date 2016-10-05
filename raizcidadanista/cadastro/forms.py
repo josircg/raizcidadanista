@@ -64,7 +64,7 @@ class MembroForm(forms.ModelForm):
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
         if cpf and Membro.objects.filter(cpf=cpf).exists():
-            raise forms.ValidationError(u'Já existe um cadastro com esse cpf.')
+            raise forms.ValidationError(u'Já existe um cadastro com esse CPF.')
         return cpf
 
     def save(self, commit=True):

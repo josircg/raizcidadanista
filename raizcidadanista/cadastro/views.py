@@ -20,6 +20,7 @@ from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, List
 from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm, ConsultaForm
 from cadastro.telegram import bot
+from cms.email import sendmail
 
 from datetime import date
 import cStringIO as StringIO
@@ -108,6 +109,16 @@ class MembroView(FormView):
 
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
+        # TODO: Monitorar issue https://github.com/josircg/raizcidadanista/issues/52
+        sendmail(
+            subject=u'[LOG] Raiz Movimento Cidadanista - Tentativa de cadastro de Colaborador',
+            to=[email for name, email in settings.ADMINS],
+            template='emails/error.html',
+            params={
+                'title': u'Tentativa de cadastro de Colaborador',
+                'error': u'%s<br>%s' % (dict(form.non_field_errors()), dict(form.errors)),
+            },
+        )
         return super(MembroView, self).form_invalid(form)
 
 

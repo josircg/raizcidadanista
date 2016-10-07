@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load cms_tags %}
+{% load cms_tags l10n %}
 
 {% block title %}Pesquisando por "{{ q }}"... / {% endblock %}
 {% block ogtitle %}Pesquisando por "{{ q }}"... / {% endblock %}
@@ -51,34 +51,17 @@
                     <!-- End col 8 -->
                     <!-- Col 4 -->
                     <div class="pi-col-sm-4 pi-padding-bottom-30">
-                        <h2>Últimas notícias</h2>
-                        {% get_last_articles 5 as last_articles %}
-                        {% for article in last_articles %}
-                        <!-- Post item -->
-                        {% if article.get_images %}
-                        <div class="pi-img-w pi-img-round-corners pi-img-left pi-img-shadow" style="width: 170px;">
-                            <a href="{{ article.get_absolute_url }}">
-                                <img src="{{ article.first_image }}" alt="{{ article.title }}">
-                                <span class="pi-img-overlay pi-img-overlay-white"></span>
-                            </a>
+                        <h2>Núvem de tags</h2>
+                        {% get_cloudtags as tags %}
+                        {% if tags %}
+                        <div class="main-menu menu-cloudtags">
+                            <div class="box bottom-main block-width-full">
+                                {% for tag, num in tags %}
+                                    <a href="{% url search %}?q={{ tag }}" style="font-size: {{ num|unlocalize }}em">{{ tag }}</a>
+                                {% endfor %}
+                            </div>
                         </div>
                         {% endif %}
-
-                        <h2 class="h5 pi-margin-top-minus-5 pi-margin-bottom-5">
-                            <a href="{{ article.get_absolute_url }}" class="pi-link-dark">{{ article.title }}</a>
-                        </h2>
-                        <ul class="pi-meta pi-margin-bottom-10">
-                            <li><i class="icon-clock"></i>{{ article.created_at|date:"d \d\e F \d\e Y" }}</li>
-                        </ul>
-                        <p>
-                            {{ article.header|striptags|truncatewords:20|safe}}
-                        </p>
-                        <!-- End post item -->
-                        {% if not forloop.last %}
-                        <br />
-                        <hr class="pi-divider pi-divider-dashed">
-                        {% endif %}
-                        {% endfor %}
                     </div>
                     <!-- End col 6 -->
                     {% if results.has_previous or results.has_next %}

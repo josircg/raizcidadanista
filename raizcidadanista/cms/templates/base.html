@@ -35,7 +35,7 @@
     <meta property="fb:app_id" content="958330187571692">
 
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/bootstrap/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.1"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.2"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/typo.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/colorbox/colorbox.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/portfolio.css' %}"/>
@@ -50,7 +50,9 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'/>
     <!--Fonts with Icons-->
     <link rel="stylesheet" href="{% static 'novosite/3dParty/fontello/css/fontello.css' %}"/>
+    <style type="text/css">
 
+    </style>
 </head>
 <body>
 
@@ -81,6 +83,13 @@
                 <!-- Text -->
                 <div class="pi-row-block pi-row-block-txt pi-pull-right pi-hidden-xs">Redes Sociais:</div>
                 <!-- End text -->
+                <form action="{% url 'search' %}" method="get" class="pi-row-block pi-row-block-txt pi-pull-right pi-hidden-xs form-search">
+                    <label>
+                        <input type="text" name="q">
+                        <i class="icon-search"></i>
+                    </label>
+                </form>
+
             </div>
         </div>
         <!-- End header row -->
@@ -366,6 +375,11 @@
 <script src="{% static 'novosite/scripts/pi.parallax.js' %}"></script>
 <script src="{% static 'novosite/scripts/pi.init.parallax.js' %}"></script>
 {% block js %}{% endblock %}
+<script type="text/javascript">
+    $('.form-search label').hover(function(){
+        $('.form-search input').focus();
+    })
+</script>
 
 <!-- Social scripts -->
 <script>

@@ -258,6 +258,17 @@ table {
   list-style: none;
 }
 
+.form-search label, .form-search input{
+  background: transparent;
+  border: 0;
+  color: #b0bac2;
+}
+
+.form-search input {
+  width: 0px;
+  text-align: right;
+}
+
 
 /*_____ styles/css/green/main.css*/
 /* Aura version: 1.8.7 */

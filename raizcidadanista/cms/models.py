@@ -436,8 +436,9 @@ class Recurso(models.Model):
     def get_cloudtags(self):
         recurso = Recurso.objects.get_or_create(recurso='TAGS')[0]
         recurso_exclude = Recurso.objects.get_or_create(recurso='TAGS-EXC')[0].valor
+        recurso_exclude = recurso_exclude.lower()
         if recurso_exclude:
-            recurso_exclude = recurso_exclude.split(',')
+            recurso_exclude = [exc.strip() for exc in recurso_exclude.split(',')]
         else:
             recurso_exclude = []
 

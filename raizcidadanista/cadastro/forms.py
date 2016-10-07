@@ -47,7 +47,6 @@ class MembroForm(forms.ModelForm):
             'digits_only': u'Preencha apenas com números, ou no formato: XXX.XXX.XXX-XX.',
         }
     )
-    captcha = ReCaptchaField()
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
@@ -107,7 +106,6 @@ class FiliadoForm(forms.ModelForm):
         }
     )
     endereco_cep = BRZipCodeField(label=u'CEP', required=False)
-    captcha = ReCaptchaField()
 
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)

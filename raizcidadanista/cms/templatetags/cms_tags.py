@@ -109,7 +109,7 @@ def get_cloudtags(context):
         maior_valor = max(tags_valor.values())
         tags = []
         for tag, num in tags_valor.items():
-            tags.append((tag, (float(num)/float(maior_valor))*3.5))
+            tags.append((tag, (float(num)/float(maior_valor))*3.0))
         return tags
     except:
         return []

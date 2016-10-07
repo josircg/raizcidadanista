@@ -462,6 +462,25 @@ admin.site.register(EmailAgendado, EmailAgendadoAdmin)
 
 class RecursoAdmin(PowerModelAdmin):
     list_display = ('recurso', 'ativo',)
+
+    def criar_cloudtags(self, request):
+        recurso = Recurso.get_cloudtags()
+        messages.info(request, u'Nuvem de tags criada com sucesso!')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('admin:cms_recurso_change', args=(recurso.pk, ))))
+
+    def get_urls(self):
+        urls_originais = super(RecursoAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^criar-cloudtags/$', self.wrap(self.criar_cloudtags), name='cms_recurso_criar_cloudtags'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(RecursoAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj and obj.recurso in (u'TAGS', u'TAGS-EXC'):
+            buttons.append(PowerButton(url=reverse('admin:cms_recurso_criar_cloudtags'), label=u'Criar nuvem de tags'))
+        return buttons
 admin.site.register(Recurso, RecursoAdmin)
 
 

@@ -35,7 +35,7 @@
     <meta property="fb:app_id" content="958330187571692">
 
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/bootstrap/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.1"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.3"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/typo.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/colorbox/colorbox.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/portfolio.css' %}"/>
@@ -68,19 +68,30 @@
                 </div>
                 <!-- End email -->
 
-                <!-- Social icons -->
-                <div class="pi-row-block pi-pull-right pi-hidden-2xs">
-                    <ul class="pi-social-icons pi-stacked pi-jump pi-full-height pi-bordered pi-small pi-colored-bg clearFix">
-                        {% get_section_articles 'redes-sociais' as social_articles %}
-                        {% for article in social_articles %}
-                            <li>{{ article.header|safe }}</li>
-                        {% endfor %}
-                    </ul>
+                <div class="pi-col-sm-7">
+                    <!-- Social icons -->
+                    <div class="pi-row-block pi-pull-right pi-hidden-2xs">
+                        <ul class="pi-social-icons pi-stacked pi-jump pi-full-height pi-bordered pi-small pi-colored-bg clearFix">
+                            {% get_section_articles 'redes-sociais' as social_articles %}
+                            {% for article in social_articles %}
+                                <li>{{ article.header|safe }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <!-- End social icons -->
+                    <!-- Text -->
+                    <div class="pi-row-block pi-row-block-txt pi-pull-right pi-hidden-xs">Redes Sociais:</div>
+                    <!-- End text -->
+                    <div class="pi-col-sm-2 pi-row-block pi-hidden-xs">
+                        <form class="form-inline pi-search-form-wide ng-pristine ng-valid" role="form" action="{% url 'search' %}">
+                            <div class="pi-input-with-icon">
+                                <div class="pi-input-icon"><i class="icon-search-1"></i></div>
+                                <input type="text" name="q" class="form-control pi-input-wide" placeholder="Pesquisar">
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <!-- End social icons -->
-                <!-- Text -->
-                <div class="pi-row-block pi-row-block-txt pi-pull-right pi-hidden-xs">Redes Sociais:</div>
-                <!-- End text -->
+
             </div>
         </div>
         <!-- End header row -->
@@ -96,6 +107,7 @@
                     </div>
                     <!-- End logo -->
 
+
                     <!-- Text -->
                     <div class="pi-row-block pi-row-block-txt pi-hidden-2xs">&nbsp; </div>
                     <!-- End text -->
@@ -107,6 +119,7 @@
                         </ul>
                     </div>
                     <!-- End menu -->
+
 
                     <!-- Mobile menu button -->
                     <div class="pi-row-block pi-pull-right pi-hidden-lg-only pi-hidden-md-only">
@@ -122,13 +135,13 @@
 
                             <!-- Search form -->
                             <form class="form-inline pi-search-form-wide ng-pristine ng-valid" role="form" action="{% url 'search' %}">
+                                <a href="{% url 'forum' %}">Teia Digital</a> | <a href="{% url 'admin:index' %}">Sistema Integrado</a>
                                 <div class="pi-input-with-icon">
                                     <div class="pi-input-icon"><i class="icon-search-1"></i></div>
-                                    <input type="text" name="q" class="form-control pi-input-wide" placeholder="Search..">
+                                    <input type="text" name="q" class="form-control pi-input-wide" placeholder="Pesquisar">
                                 </div>
                             </form>
                             <!-- End search form -->
-
                             <ul class="pi-menu-mobile pi-items-have-borders pi-menu-mobile-dark">
                                 {% show_menu 'Menu Topo' %}
                             </ul>
@@ -206,7 +219,7 @@
         <!-- - - - - - - - - - END SECTION - - - - - - - - - -->
         {% endif %}
 
-        <!-- - - - - - - - - - SECTION - - - - - - - - - 
+        <!-- - - - - - - - - - SECTION - - - - - - - - -
         <div class="pi-section-w pi-shadow-inside-top pi-section-grey">
             <div class="pi-texture" style="background: url({% static 'novosite/img/wave.png' %}) repeat;"></div>
             <div class="pi-section">
@@ -236,6 +249,30 @@
     </div>
 
     <!-- Footer -->
+    <!-- Widget area -->
+    <div class="pi-section-w pi-border-bottom pi-border-top-light pi-section-dark">
+        <div class="pi-section pi-padding-bottom-10">
+            <!-- Row -->
+            <div class="pi-row">
+                <!-- Col 4 -->
+                <div class="pi-col-md-12 pi-col-sm-6 pi-padding-bottom-30">
+                    <!-- Tags -->
+                    <div>
+                        {% get_cloudtags as tags %}
+                        {% if tags %}
+                        {% for tag, num in tags %}
+                            <a href="{% url 'search' %}?q={{ tag }}" style="font-size: {{ num|unlocalize }}em">{{ tag }}</a>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <!-- End tags -->
+                </div>
+                <!-- End col 4 -->
+            </div>
+            <!-- End row -->
+        </div>
+    </div>
+    <!-- End widget area -->
     <!-- Widget area -->
     <div class="pi-section-w pi-border-bottom pi-border-top-light pi-section-dark">
         <div class="pi-section pi-padding-bottom-10">

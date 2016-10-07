@@ -446,6 +446,8 @@ class Recurso(models.Model):
         content = u''.join(list(Article.objects.active().values_list('content', flat=True)))
         # Remover as marcações HTML
         content = u'%s' % HTMLParser().unescape(strip_tags(content))
+        # Deixa tudo em minusculo
+        content = content.lower()
         # Remover caracteres de pontuação, espaçamento, preposições e artigos
         prepos = [u'’', u'‘', u'\'', u'”', u'“', u'"', u'\n', u'\t', u'\r',] + recurso_exclude + list(string.punctuation)
         for prepo in prepos:

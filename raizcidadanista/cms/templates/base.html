@@ -109,6 +109,7 @@
                     </div>
                     <!-- End logo -->
 
+
                     <!-- Text -->
                     <div class="pi-row-block pi-row-block-txt pi-hidden-2xs">&nbsp; </div>
                     <!-- End text -->
@@ -120,6 +121,7 @@
                         </ul>
                     </div>
                     <!-- End menu -->
+
 
                     <!-- Mobile menu button -->
                     <div class="pi-row-block pi-pull-right pi-hidden-lg-only pi-hidden-md-only">
@@ -135,13 +137,13 @@
 
                             <!-- Search form -->
                             <form class="form-inline pi-search-form-wide ng-pristine ng-valid" role="form" action="{% url 'search' %}">
+                                <a href="{% url 'forum' %}">Teia Digital</a> | <a href="{% url 'admin:index' %}">Sistema Integrado</a>
                                 <div class="pi-input-with-icon">
                                     <div class="pi-input-icon"><i class="icon-search-1"></i></div>
                                     <input type="text" name="q" class="form-control pi-input-wide" placeholder="Pesquisar">
                                 </div>
                             </form>
                             <!-- End search form -->
-
                             <ul class="pi-menu-mobile pi-items-have-borders pi-menu-mobile-dark">
                                 {% show_menu 'Menu Topo' %}
                             </ul>

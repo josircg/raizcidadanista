@@ -6024,6 +6024,13 @@ iframe[src="about:blank"] {
 .pi-menu-mobile-dark ul li.active a:hover {
   color: #94C11E;
 }
+.pi-menu-mobile .pi-active {
+  visibility: visible;
+  opacity: 1;
+  width: 100%;
+  position: initial;
+}
+
 
 
 

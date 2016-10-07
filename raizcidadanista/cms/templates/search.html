@@ -47,11 +47,27 @@
                             {% endif %}
                         </article>
                         {% endfor %}
+                        <!-- End col 6 -->
+                        {% if results.has_previous or results.has_next %}
+                        <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                {% if results.has_previous %}
+                                    <a href="?page={{ results.previous_page_number }}">&laquo;</a>
+                                {% endif %}
+
+                                <a href="">{{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span></a>
+
+                                {% if results.has_next %}
+                                    <a href="?page={{ results.next_page_number }}">&raquo;</a>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div> <!-- row -->
                     </div>
                     <!-- End col 8 -->
                     <!-- Col 4 -->
                     <div class="pi-col-sm-4 pi-padding-bottom-30">
-                        <h2>Núvem de tags</h2>
+                        <h2>Nuvem de tags</h2>
                         {% get_cloudtags as tags %}
                         {% if tags %}
                         <div class="main-menu menu-cloudtags">
@@ -63,22 +79,6 @@
                         </div>
                         {% endif %}
                     </div>
-                    <!-- End col 6 -->
-                    {% if results.has_previous or results.has_next %}
-                    <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            {% if results.has_previous %}
-                                <a href="?page={{ results.previous_page_number }}">&laquo;</a>
-                            {% endif %}
-
-                            <a href="">{{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span></a>
-
-                            {% if results.has_next %}
-                                <a href="?page={{ results.next_page_number }}">&raquo;</a>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div> <!-- row -->
             </div>
         </div>
     </div>

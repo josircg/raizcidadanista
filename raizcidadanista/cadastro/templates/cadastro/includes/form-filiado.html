@@ -334,15 +334,4 @@
         </ul>
         {% endif %}
     </div>
-    <div class="form-group{% if form.captcha.errors %} has-error has-feedback{% endif %} group-{{ form.captcha.name }}">
-        <label class="control-label label-{{ form.captcha.name }}" for="id_{{ form.captcha.name }}">{{ form.captcha.label }}{% if form.captcha.field.required %}*{% endif %}</label>
-        {{ form.captcha|btform }}
-        {% if form.captcha.errors %}
-        <ul class="list-unstyled">
-        {% for error in form.captcha.errors %}
-          <li class="text-error"><small>{{ error }}</small></li>
-        {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
 </div>

@@ -110,13 +110,15 @@ class MembroView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         # TODO: Monitorar issue https://github.com/josircg/raizcidadanista/issues/52
+        errors = dict(form.non_field_errors())
+        errors.update(dict(form.errors))
         sendmail(
             subject=u'[LOG] Raiz Movimento Cidadanista - Tentativa de cadastro de Colaborador',
             to=[email for name, email in settings.ADMINS],
             template='emails/error.html',
             params={
                 'title': u'Tentativa de cadastro de Colaborador',
-                'error': u'%s<br>%s' % (dict(form.non_field_errors()), dict(form.errors)),
+                'error': u'<b>Erros:</b> %s<br><br><b>Dados:</b> %s' % (errors, dict(form.data)),
             },
         )
         return super(MembroView, self).form_invalid(form)

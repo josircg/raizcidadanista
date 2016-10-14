@@ -354,7 +354,7 @@ class GrupoAddMembrosView(FormView):
             for user in User.objects.exclude(pk__in=self.object.grupousuario_set.values_list('usuario', flat=True)):
                 json_response.append({
                   'id': user.pk,
-                  'name': u'%s' % user,
+                  'name': u'%s' % user.first_name if user.first_name else user.username,
                   'avatar': '',
                   'icon': 'icon-16 icon-person',
                   'type': 'contact'
@@ -376,7 +376,7 @@ class GrupoAddMembrosView(FormView):
     def form_invalid(self, form):
         messages.error(self.request, u"Preencha corretamente todos os campos!")
         self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
+        context = self.get_context_data(object=self.object, form=form)
         return self.render_to_response(context)
 
     def form_valid(self, form):

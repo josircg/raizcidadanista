@@ -8401,8 +8401,7 @@ select.form-control {
 }
 .pi-section-white .form-control {
   background: #f8fafa;
-  border-color: #dde1e1;
-  border-top-color: #dde1e1;
+  border: 1px #000 solid;
   color: #000;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
@@ -8410,8 +8409,7 @@ select.form-control {
 }
 .pi-section-white .form-control:hover {
   background: #f8fafa;
-  border-color: #dde1e1;
-  border-top-color: #dde1e1;
+  border: 1px #000 solid;
   color: #000;
   -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
   -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -8419,8 +8417,7 @@ select.form-control {
 }
 .pi-section-white .form-control:focus {
   background: #ffffff;
-  border-color: #33bb7d;
-  border-top-color: #33bb7d;
+  border: 1px #000 solid;
   color: #000;
   -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
   -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);

@@ -153,7 +153,6 @@
         var formattedMention = _.extend({}, mention, {value: utils.htmlEncode(mention.value), name: $(elmInputBox).attr('data-name')});
         var textSyntax = settings.templates.mentionItemSyntax(formattedMention);
         var textHighlight = settings.templates.mentionItemHighlight(formattedMention);
-
         mentionText = mentionText.replace(new RegExp(utils.regexpEncode(textSyntax), 'g'), textHighlight);
       });
 
@@ -161,7 +160,7 @@
       mentionText = mentionText.replace(/ {2}/g, '&nbsp; '); //Replace the 2 preceding token to &nbsp;
 
       elmInputBox.data('messageText', syntaxMessage); //Save the messageText to elmInputBox
-	  elmInputBox.trigger('updated');
+	    elmInputBox.trigger('updated');
       elmMentionsOverlay.find('div').html(mentionText); //Insert into a div of the elmMentionsOverlay the mention text
     }
 

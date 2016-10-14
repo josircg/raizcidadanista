@@ -33,6 +33,7 @@
                                 <div class="panel-body">
                                     <h3>Adicionar Membros</h3>
                                     <textarea class="usuarios" data-name="usuarios" placeholder="@Nome"></textarea>
+                                    <p class="help-block">Se o usuário não estiver aparecendo provavelmente ele está inativo ou já faz parte do grupo.</p>
                                     {% if form.usuarios.errors %}
                                     <ul class="list-unstyled">
                                     {% for error in form.usuarios.errors %}

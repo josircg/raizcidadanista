@@ -85,8 +85,19 @@
                                         <a href="{{ conversa.proposta.get_absolute_url }}">{{ conversa.texto|safe }}</a>
                                         <footer>
                                             Iniciado por <b>{{ conversa.autor.get_first_name }}</b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                            {% if not conversa.proposta.expirada %}
                                             Votação até <b>{{ conversa.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                            {% else %}
+                                            Votação encerrada!
                                         </footer>
+                                        <p>
+                                            <b>{{ conversa.proposta.voto_set.count|percent:conversa.proposta.topico.topicoouvinte_set.count|floatformat }}%</b> dos membros manifestaram suas posições ({{ conversa.proposta.voto_set.count }}/{{ conversa.proposta.topico.topicoouvinte_set.count }})<br>
+                                            {% for resposta, votos in conversa.proposta.respostas %}
+                                            <b>{{ votos|percent:conversa.proposta.voto_set.count|floatformat }}%</b> marcaram "{{ resposta }}"<br>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </p>
+
                                     {% else %}
                                         {{ conversa.texto|safe }}
                                         {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}

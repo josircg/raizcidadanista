@@ -57,8 +57,31 @@
                                 <blockquote>
                                     {{ object.texto|safe }}
                                 </blockquote>
+
                             </div>
                         </div>
+                    </div>
+                    <br>
+                    <div class="col-article">
+                        <h3>Histórico de votação</h3>
+                        {% for voto in object.voto_set.all %}
+                            <div>
+                                <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
+                                    {% if voto.voto == 'C' %}<img class="lmo-print-only" src="{% static 'site/img/agree.svg' %}">{% endif %}
+                                    {% if voto.voto == 'A' %}<img class="lmo-print-only" src="{% static 'site/img/abstain.svg' %}">{% endif %}
+                                    {% if voto.voto == 'D' %}<img class="lmo-print-only" src="{% static 'site/img/disagree.svg' %}">{% endif %}
+                                    {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
+                                </div>
+                                <div class="thread-item__vote-content">
+                                    <b>{{ voto.eleitor }}</b>
+                                </div>
+                                <br>
+                                {% if voto.justificativa %}
+                                {{ voto.justificativa }}
+                                {% endif %}
+                                <hr>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
@@ -83,7 +106,12 @@
                     <b>POSIÇÕES</b>
                     <div id="piechart" style="height: 300px;"></div>
 
-                    <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                    <small><b>{{ respondido_percent|floatformat }}%</b> dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                    {% for resposta, votos in respostas %}
+                    <small><b>{{ votos|percent:object.voto_set.count|floatformat }}%</b> marcaram "{{ resposta }}"</small><br>
+                    {% endfor %}
+
+                    <br><br>
                     {% for voto in object.voto_set.all %}
                         <div>
                             <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
@@ -93,7 +121,7 @@
                                 {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
                             </div>
                             <div class="thread-item__vote-content">
-                                <b>{{ voto.eleitor }}</b>{% if voto.justificativa %}: {{ voto.justificativa }}{% endif %}
+                                <b>{{ voto.eleitor }}</b>
                             </div>
                         </div>
                     {% endfor %}

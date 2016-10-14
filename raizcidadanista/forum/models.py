@@ -298,6 +298,14 @@ class Proposta(Conversa):
     def expirada(self):
         return self.dt_encerramento < datetime.now()
 
+    def respostas(self):
+        return [
+            ['Concordar', self.voto_set.filter(voto='C').count()],
+            ['Abster', self.voto_set.filter(voto='A').count()],
+            ['Discordar', self.voto_set.filter(voto='D').count()],
+            ['Vetar', self.voto_set.filter(voto='V').count()],
+        ]
+
     def get_short_absolute_url(self):
         idb36 = int_to_base36(self.pk)
         return reverse('proposta_short', kwargs={'idb36': idb36})

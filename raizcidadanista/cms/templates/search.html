@@ -51,13 +51,13 @@
                         {% if results.has_previous or results.has_next %}
                         <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                 {% if results.has_previous %}
-                                    <a href="?page={{ results.previous_page_number }}">&laquo;</a>
+                                    <a href="?q={{ q }}&page={{ results.previous_page_number }}">&laquo;</a>
                                 {% endif %}
 
-                                <a href="">{{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span></a>
+                                {{ results.number }} de {{ results.paginator.num_pages }}<span class="sr-only"></span>
 
                                 {% if results.has_next %}
-                                    <a href="?page={{ results.next_page_number }}">&raquo;</a>
+                                    <a href="?q={{ q }}&page={{ results.next_page_number }}">&raquo;</a>
                                 {% endif %}
                             </ul>
                         </div>

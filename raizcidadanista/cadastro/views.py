@@ -15,6 +15,9 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.utils.text import get_text_list
+from django.utils.encoding import force_unicode
 
 from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
 from municipios.models import UF
@@ -275,6 +278,42 @@ class AtualizarCadastroView(FormView):
         kwargs['instance'] = self.instance
         return kwargs
 
+    def construct_change_message(self, request, form):
+        """
+        Construct a change message from a changed object.
+        """
+        change_message = []
+        if form.changed_data:
+            changed_data_msg = []
+            for field in form.changed_data:
+                initial=form.initial.get(field)
+                try: value=getattr(form.instance, field)
+                except: value=form.initial.get(field)
+                #ForeignKey
+                try:
+                    if type(form.instance._meta.get_field(field)) == models.fields.related.ForeignKey:
+                        initial = getattr(form.instance, field).__class__.objects.get(pk=initial)
+                except: pass
+                #ManyToManyFields
+                try:
+                    if type(form.instance._meta.get_field(field)) == models.fields.related.ManyToManyField:
+                        value = value.all().values_list('pk', flat=True)
+                except: pass
+                #Choices
+                try:
+                    if type(form.instance._meta.get_field(field)) == models.fields.CharField and hasattr(form.instance._meta.get_field(field), 'choices'):
+                        try: initial = dict(type(form.instance)._meta.get_field(field).get_choices())[initial]
+                        except: pass
+                        try: value = dict(type(form.instance)._meta.get_field(field).get_choices())[value]
+                        except: pass
+                except: pass
+                if initial != value:
+                    changed_data_msg.append(u'%s de %s para %s' % (force_unicode(field), force_unicode(initial), force_unicode(value)))
+            if changed_data_msg:
+                change_message.append(u'Modificado %s.' % get_text_list(changed_data_msg, 'e'))
+        change_message = ' '.join(change_message)
+        return change_message or u'Nenhum campo alterado.'
+
     def form_valid(self, form):
         instance = form.save()
         LogEntry.objects.log_action(
@@ -283,7 +322,7 @@ class AtualizarCadastroView(FormView):
             object_id = instance.pk,
             object_repr = u'%s' % instance,
             action_flag = CHANGE,
-            change_message = u'Formulário de atualização de cadastro foi preenchido.'
+            change_message = self.construct_change_message(self.request, form)
         )
         messages.info(self.request, u"Cadastro atualizado com sucesso!")
         return self.response_class(

@@ -8403,7 +8403,7 @@ select.form-control {
   background: #f8fafa;
   border-color: #dde1e1;
   border-top-color: #dde1e1;
-  color: #afb8bb;
+  color: #000;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
@@ -8412,7 +8412,7 @@ select.form-control {
   background: #f8fafa;
   border-color: #dde1e1;
   border-top-color: #dde1e1;
-  color: #afb8bb;
+  color: #000;
   -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
   -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -8421,7 +8421,7 @@ select.form-control {
   background: #ffffff;
   border-color: #33bb7d;
   border-top-color: #33bb7d;
-  color: #939fa4;
+  color: #000;
   -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
   -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);

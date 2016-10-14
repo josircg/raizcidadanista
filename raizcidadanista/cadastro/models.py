@@ -68,8 +68,6 @@ class Pessoa(models.Model):
         if self.email is None:
             self.status_email = 'I'
         super(Pessoa, self).save(*args, **kwargs)
-
-
 @receiver(signals.post_save, sender=Pessoa)
 def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **kwargs):
     if created and (instance.status_email is None or instance.status_email == 'N'):
@@ -82,6 +80,7 @@ def validaremail_pessoa_signal(sender, instance, created, raw, using, *args, **k
                 'SITE_HOST': settings.SITE_HOST,
             },
         )
+
 
 class Membro(Pessoa):
     class Meta:
@@ -210,11 +209,23 @@ class Membro(Pessoa):
             self.usuario.is_staff = True
             self.usuario.first_name = self.nome.split(' ')[0]
             self.usuario.groups.add(grupo)
+
+            if self.status_email == 'O':
+                self.usuario.is_active = False
+
             self.usuario.save()
             super(Membro, self).save(*args, **kwargs)
         else:
             if self.usuario.email != self.email:
                 self.usuario.email = self.email
+                self.usuario.save()
+
+            # Se o status do email estiver como cancelado, alterar o status do auth.user para inativo
+            if self.status_email == 'O' and self.usuario.is_active == True:
+                self.usuario.is_active = False
+                self.usuario.save()
+            elif self.status_email != 'O' and self.usuario.is_active == False:
+                self.usuario.is_active = True
                 self.usuario.save()
 
 @receiver(signals.post_save, sender=Membro)

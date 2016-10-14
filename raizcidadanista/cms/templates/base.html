@@ -35,8 +35,8 @@
     <meta property="fb:app_id" content="958330187571692">
 
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/bootstrap/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.3"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/typo.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/global.css' %}?v=0.4"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/typo.css' %}?v=0.1"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/3dParty/colorbox/colorbox.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/portfolio.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'novosite/css/tooltips.css' %}"/>
@@ -116,6 +116,15 @@
                     <div class="pi-row-block pi-pull-right">
                         <ul class="pi-simple-menu pi-has-hover-border pi-full-height pi-hidden-sm">
                             {% show_menu 'Menu Topo' %}
+                            {% if user.is_authenticated %}
+                            <li class="pi-has-dropdown">
+                                <a href="#"><span>Bem vindo, {% firstof user.first_name user.username %}.</span></a>
+                                <ul class="pi-submenu pi-has-border pi-items-have-borders pi-has-shadow pi-submenu-dark">
+                                    <li class=""><a href="{% url 'meu_perfil' %}"><span>Meu Perfil</span></a></li>
+                                    <li class=""><a href="{% url 'cms_logout' %}"><span>Sair</span></a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
                         </ul>
                     </div>
                     <!-- End menu -->

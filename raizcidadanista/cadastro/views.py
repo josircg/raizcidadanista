@@ -330,7 +330,7 @@ class AtualizarCadastroView(FormView):
             template=self.template_success_name,
             context={
                 'title': u'Cadastro atualizado com sucesso!',
-                'msg': u'Obrigado por atualizar o seu cadastro.',
+                'msg': u'Obrigado por atualizar o seu cadastro.<br><a href="/meus-talentos/">Cadastre também os seus talentos e como você se voluntariar para ajudar na Raiz</a>',
             }
         )
 
@@ -369,7 +369,7 @@ class FiliadoView(FormView):
             template=self.template_success_name,
             context={
                 'title': u'Cadastro Efetuado.',
-                'msg': u'Você receberá um email para que possa confirmar seus dados.',
+                'msg': u'Você receberá um email para que possa confirmar seus dados.<br><a href="/meus-talentos/">Cadastre também os seus talentos e como você se voluntariar para ajudar na Raiz</a>',
             }
         )
 

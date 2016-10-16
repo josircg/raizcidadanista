@@ -181,7 +181,7 @@ class ArticleDetailView(DetailView):
             response = super(ArticleDetailView, self).get(*args, **kwargs)
             # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
             if not self.object.have_perm(self.request.user):
-                messages.error(self.request, u'Você não tem permissão para acessar esse artigo!')
+                messages.error(self.request, u'Você não tem permissão para acessar essa página')
                 return HttpResponseRedirect(reverse('home'))
             self.object.views += 1
             self.object.save()
@@ -235,7 +235,11 @@ class SectionDetailView(DetailView):
         response = super(SectionDetailView, self).get(*args, **kwargs)
         # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
         if not self.object.have_perm(self.request.user):
-            messages.error(self.request, u'Você não tem permissão para acessar essa sessão!')
+            if self.request.user:
+                messages.error(self.request, u'Você não tem permissão para acessar essa página.')
+            else:
+                messages.error(self.request, u'Você precisa estar logado para acessar essa página. <a href="/login?next=%s">Clique aqui para fazer o login</a>' % self.get_absolute_url())
+
             return HttpResponseRedirect(reverse('home'))
         self.object.views += 1
         self.object.save()
@@ -366,7 +370,7 @@ class LoginView(FormView):
     def form_invalid(self, form):
         error_message = u"Preencha corretamente todos os dados!"
         try:
-            IP_ADDR = self.request.META.get('REMOTE_ADDR', None)
+            IP_ADDR = self.request.META.get('REMOTE_ADDR', None).split(',')[0]
             failed = FailedAttempt.objects.filter(username=form.data.get('username'), IP=IP_ADDR).latest('timestamp')
             if failed.blocked():
                 error_message = u"Você está bloqueado porque errou sua senha mais de %s vezes. Aguarde %s minutos e tente novamente!" % (BB_MAX_FAILURES, BB_BLOCK_INTERVAL, )

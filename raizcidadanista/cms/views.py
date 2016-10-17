@@ -230,15 +230,16 @@ class SectionDetailView(DetailView):
             'articles': articles,
         }
 
+# http://127.0.0.1:8000/section/material-de-divulgacao/
 
     def get(self, *args, **kwargs):
         response = super(SectionDetailView, self).get(*args, **kwargs)
         # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
         if not self.object.have_perm(self.request.user):
-            if self.request.user:
+            if self.request.user.groups.count() > 0:
                 messages.error(self.request, u'Você não tem permissão para acessar essa página.')
             else:
-                messages.error(self.request, u'Você precisa estar logado para acessar essa página. <a href="/login?next=%s">Clique aqui para fazer o login</a>' % self.get_absolute_url())
+                messages.error(self.request, u'Você precisa estar logado para acessar essa página. <a href="/login?next=%s">Clique aqui para fazer o login</a>' % self.request.path)
 
             return HttpResponseRedirect(reverse('home'))
         self.object.views += 1
@@ -361,9 +362,13 @@ class LoginView(FormView):
         if not form.cleaned_data.get('remember'):
             self.request.session.set_expiry(0)
 
+        print settings.LOGIN_URL
+        print '***NEXT %s' % self.request.GET.get('next')
+
         if self.request.GET.get('next'):
             messages.info(self.request, u'Você foi autenticado com sucesso.')
             return HttpResponseRedirect(self.request.GET.get('next'))
+
         messages.info(self.request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
         return HttpResponseRedirect(reverse('forum'))
 

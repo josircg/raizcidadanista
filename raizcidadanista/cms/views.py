@@ -230,8 +230,6 @@ class SectionDetailView(DetailView):
             'articles': articles,
         }
 
-# http://127.0.0.1:8000/section/material-de-divulgacao/
-
     def get(self, *args, **kwargs):
         response = super(SectionDetailView, self).get(*args, **kwargs)
         # Redirecionar para a home se: A sessão tem permissão e o usuário não está nesse grupo
@@ -239,7 +237,7 @@ class SectionDetailView(DetailView):
             if self.request.user.groups.count() > 0:
                 messages.error(self.request, u'Você não tem permissão para acessar essa página.')
             else:
-                messages.error(self.request, u'Você precisa estar logado para acessar essa página. <a href="/login?next=%s">Clique aqui para fazer o login</a>' % self.request.path)
+                messages.error(self.request, u'Você precisa estar logado para acessar essa página. <a href="/login/?next=%s">Clique aqui para fazer o login</a>' % self.request.path)
 
             return HttpResponseRedirect(reverse('home'))
         self.object.views += 1
@@ -362,9 +360,6 @@ class LoginView(FormView):
         if not form.cleaned_data.get('remember'):
             self.request.session.set_expiry(0)
 
-        print settings.LOGIN_URL
-        print '***NEXT %s' % self.request.GET.get('next')
-
         if self.request.GET.get('next'):
             messages.info(self.request, u'Você foi autenticado com sucesso.')
             return HttpResponseRedirect(self.request.GET.get('next'))
@@ -383,6 +378,22 @@ class LoginView(FormView):
         messages.error(self.request, error_message)
         return super(LoginView, self).form_invalid(form)
 
+def login_next(request, membro):
+
+    if membro and membro.usuario:
+        # Realiza o login
+        membro.usuario.backend='django.contrib.auth.backends.ModelBackend'
+        login(request, membro.usuario)
+
+        if request.GET.get('next'):
+            messages.info(request, u'Você foi autenticado com sucesso.')
+            return HttpResponseRedirect(request.GET.get('next'))
+
+        messages.info(request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
+
+        return HttpResponseRedirect('/')
+    else:
+        messages.info(request, u'Colaborador/Filiado não encontrado. Provavelmente o seu email está diferente do que você utlizou para se registrar no site ou então você ainda não é nosso colaborador.')
 
 
 class LoginFacebookView(RedirectView):
@@ -427,16 +438,10 @@ class LoginFacebookView(RedirectView):
                     membro.facebook_access_token = access_token
                     membro.save()
 
-                if membro and membro.usuario:
-                    # Realiza o login
-                    membro.usuario.backend='django.contrib.auth.backends.ModelBackend'
-                    login(request, membro.usuario)
-                    messages.info(request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
-                    return HttpResponseRedirect('/')
-                else:
-                    messages.info(request, u'Colaborador/Filiado não encontrado. Provavelmente o seu email está diferente do que você utlizou para se registrar no site ou então você ainda não é nosso colaborador.')
+                login_next(request, membro)
+
             except:
-                messages.info(request, u'É preciso autorizar o Facebook.')
+                messages.info(request, u'Erro na conexão com o Facebook.')
             return HttpResponseRedirect(reverse('cms_login'))
 
 
@@ -478,16 +483,10 @@ class LoginTwitterView(RedirectView):
                     membro.twitter_oauth_token_secret = authorized_tokens.get('oauth_token_secret')
                     membro.save()
 
-                if membro and membro.usuario:
-                    # Realiza o login
-                    membro.usuario.backend='django.contrib.auth.backends.ModelBackend'
-                    login(request, membro.usuario)
-                    messages.info(request, u'Você foi autenticado com sucesso. Para acessar o ambiente administrativo, <a href="%s">clique aqui</a>.' % reverse('admin:index'))
-                    return HttpResponseRedirect('/')
-                else:
-                    messages.info(request, u'Colaborador/Filiado não encontrado. Provavelmente o seu nome está diferente do que você utlizou para se registrar no site ou então você ainda não é nosso colaborador.')
+                login_next(request, membro)
+
             except:
-                messages.info(request, u'É preciso autorizar o Twitter.')
+                messages.info(request, u'Erro na conexão com o Twitter.')
             return HttpResponseRedirect(reverse('cms_login'))
 
 

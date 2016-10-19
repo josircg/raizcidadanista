@@ -150,7 +150,7 @@ class VotoPropostaForm(forms.ModelForm):
         model = Voto
         fields = ('voto', )
 
-    justificativa = forms.CharField(label=u'Justificativa', widget=forms.Textarea)
+    justificativa = forms.CharField(label=u'Justificativa', widget=forms.Textarea, required=False)
 
     def save(self, proposta, eleitor, *args, **kwargs):
         self.instance.proposta = proposta

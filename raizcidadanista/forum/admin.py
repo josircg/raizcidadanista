@@ -80,6 +80,7 @@ admin.site.register(Conversa, ConversaAdmin)
 class VotoPropostaInline(admin.TabularInline):
     model = Voto
     extra = 1
+    fk_name = 'proposta'
 class PropostaAdmin(PowerModelAdmin):
     list_display = ('topico', 'autor', 'dt_criacao', 'dt_encerramento', 'status', 'conversa_pai', 'get_short_absolute_url', )
     list_filter = ('topico', 'autor', 'dt_criacao', 'dt_encerramento', 'status', 'conversa_pai', )

@@ -734,13 +734,30 @@ class PropostaTopicoView(FormView):
     model = Proposta
     template_name = 'forum/topico-proposta.html'
     form_class = VotoPropostaForm
+    form_conversa_class = ConversaForm
 
     def get_object(self):
         return get_object_or_404(Proposta, pk=self.kwargs.get('pk'))
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(PropostaTopicoView, self).post(request, *args, **kwargs)
+        if request.POST.get('form-conversa'):
+            # Form conversa
+            self.form_conversa = self.form_conversa_class(request.POST, request.FILES)
+            if request.POST.get('conversa'):
+                instance = get_object_or_404(Conversa, pk=request.POST.get('conversa'))
+                self.form_conversa = self.form_conversa_class(request.POST, request.FILES, instance=instance)
+            if self.form_conversa.is_valid():
+                return self.form_valid(self.form_conversa)
+            else:
+                return self.form_invalid(self.form_conversa)
+        else:
+            # Form Votação
+            self.form = self.form_class(request.POST, request.FILES)
+            if self.form.is_valid():
+                return self.form_valid(self.form)
+            else:
+                return self.form_invalid(self.form)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -753,16 +770,38 @@ class PropostaTopicoView(FormView):
             self.object.save()
             messages.info(request, u'Proposta Reaberta!')
             return HttpResponseRedirect(self.object.get_absolute_url())
+
+        # Excluir conversa
+        if request.GET.get('conversa') and request.GET.get('excluir'):
+            conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
+            if not conversa.has_delete(request.user):
+                raise Http404
+            conversa.delete()
+            messages.info(request, u'Comentário removido com sucesso!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        self.form_conversa = self.form_conversa_class()
         return super(PropostaTopicoView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        form.save(proposta=self.object, eleitor=self.request.user)
-        messages.info(self.request, u'Obrigado pela sua opinião!')
+        if self.request.POST.get('form-conversa'):
+            self.object = self.get_object()
+            instance = form.save(topico=self.object.topico, autor=self.request.user)
+        else:
+            form.save(proposta=self.object, eleitor=self.request.user)
+            messages.info(self.request, u'Obrigado pela sua opinião!')
         return HttpResponseRedirect(self.object.get_absolute_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(PropostaTopicoView, self).get_context_data(**kwargs)
         context['object'] = self.object
+        context['form_conversa'] = self.form_conversa
         try: context['respondido'] = self.object.voto_set.filter(eleitor=self.request.user).latest('pk')
         except: pass
         context['respondido_percent'] = (float(self.object.voto_set.count())/float((self.object.topico.topicoouvinte_set.count() or 1)))*100

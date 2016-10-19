@@ -379,7 +379,7 @@ class Voto(models.Model):
     proposta = models.ForeignKey(Proposta)
     eleitor = models.ForeignKey(User)
     voto = models.CharField(u'Posição', max_length=1, choices=TIPO_VOTO)
-    justificativa = models.TextField(u'Justificativa', blank=True, null=True)
+    conversa = models.ForeignKey(Conversa, blank=True, null=True, related_name='conversa_voto_set', on_delete=models.SET_NULL)
     opcao = models.ForeignKey(PropostaOpcao, blank=True, null=True)
 
     def __unicode__(self):

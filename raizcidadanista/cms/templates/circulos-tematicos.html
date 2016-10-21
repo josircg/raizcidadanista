@@ -39,12 +39,12 @@
                 <tr>
                 {% if circulo.site_externo %}
                     <td width="80%">
-                        <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}</a><br>
+                        <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
                         {{ circulo.descricao|safe }}
                     </td>
                 {% else %}
                     <td width="80%">
-                        <a>{{ circulo.titulo }}</a><br>
+                        <a>{{ circulo.titulo }}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
                         {{ circulo.descricao|safe }}
                     </td>
                 {% endif %}

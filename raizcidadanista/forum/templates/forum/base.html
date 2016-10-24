@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {% load url from future %}
-    {% load menu_tags cms_tags compress static thumbnail %}
+    {% load menu_tags cms_tags forum_tags compress static thumbnail %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                         <ul class="info">
-                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes{% if user|num_conversa_nao_lidas_all %} ({{ user|num_conversa_nao_lidas_all }}){% endif %}</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>

@@ -30,6 +30,13 @@ def num_conversa_nao_lidas(user, topico):
     return topico.num_conversa_nao_lidas(user)
 
 @register.filter
+def num_conversa_nao_lidas_all(user):
+    total = 0
+    for topico_ouvinte in TopicoOuvinte.objects.filter(ouvinte=user):
+        total += topico_ouvinte.topico.conversa_set.filter(dt_criacao__gt=topico_ouvinte.dtleitura).count()
+    return total
+
+@register.filter
 def has_delete_conversa(conversa, user):
     return conversa.has_delete(user)
 

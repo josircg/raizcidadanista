@@ -72,7 +72,7 @@
                                     {{ result.texto|safe }}
                                     <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% else %}
-                                    <a href="{{ result.get_absolute_url }}"><h4>{{ result }} ({{ user|num_conversa_nao_lidas:result }})</h4></a>
+                                    <a href="{{ result.get_absolute_url }}"><h4>{{ result }}{% if user|num_conversa_nao_lidas:result %} ({{ user|num_conversa_nao_lidas:result }}){% endif %}</h4></a>
                                     <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% endif %}
                                 </blockquote>

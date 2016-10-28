@@ -500,21 +500,23 @@ class TopicoView(DetailView):
 
         # Encerrar Tópico
         if request.GET.get('encerrar'):
-            if self.object.criador != request.user:
+            if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+                self.object.status = 'F'
+                self.object.save()
+                messages.info(request, u'Tópico encerrado!')
+                return HttpResponseRedirect(self.object.get_absolute_url())
+            else:
                 raise PermissionDenied
-            self.object.status = 'F'
-            self.object.save()
-            messages.info(request, u'Tópico encerrado!')
-            return HttpResponseRedirect(self.object.get_absolute_url())
 
         # Reabrir Tópico
         if request.GET.get('reabrir'):
-            if self.object.criador != request.user:
+            if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+                self.object.status = 'A'
+                self.object.save()
+                messages.info(request, u'Tópico reaberto!')
+                return HttpResponseRedirect(self.object.get_absolute_url())
+            else:
                 raise PermissionDenied
-            self.object.status = 'A'
-            self.object.save()
-            messages.info(request, u'Tópico reaberto!')
-            return HttpResponseRedirect(self.object.get_absolute_url())
 
         # Alterar o tipo de notificação
         if request.GET.get('notificacao'):

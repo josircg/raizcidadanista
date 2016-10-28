@@ -503,6 +503,11 @@ class TopicoView(DetailView):
             if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
                 self.object.status = 'F'
                 self.object.save()
+                Conversa(
+                    topico=self.object,
+                    autor=request.user,
+                    texto=u'Tópico encerrado.'
+                ).save()
                 messages.info(request, u'Tópico encerrado!')
                 return HttpResponseRedirect(self.object.get_absolute_url())
             else:
@@ -513,6 +518,11 @@ class TopicoView(DetailView):
             if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
                 self.object.status = 'A'
                 self.object.save()
+                Conversa(
+                    topico=self.object,
+                    autor=request.user,
+                    texto=u'Tópico reaberto.'
+                ).save()
                 messages.info(request, u'Tópico reaberto!')
                 return HttpResponseRedirect(self.object.get_absolute_url())
             else:

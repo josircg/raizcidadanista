@@ -500,7 +500,7 @@ class TopicoView(DetailView):
 
         # Encerrar Tópico
         if request.GET.get('encerrar'):
-            if self.object.criador = request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
                 self.object.status = 'F'
                 self.object.save()
                 messages.info(request, u'Tópico encerrado!')
@@ -510,7 +510,7 @@ class TopicoView(DetailView):
 
         # Reabrir Tópico
         if request.GET.get('reabrir'):
-            if self.object.criador = request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            if self.object.criador == request.user or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
                 self.object.status = 'A'
                 self.object.save()
                 messages.info(request, u'Tópico reaberto!')

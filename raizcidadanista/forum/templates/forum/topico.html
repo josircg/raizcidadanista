@@ -67,8 +67,8 @@
                                     {{ proposta.texto|safe }}
                                     <footer>
                                         Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
-                                        {% if not proposta.propostas.expirada %}
-                                        Votação até <b>{{ proposta.propostas.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                        {% if not proposta.proposta.expirada %}
+                                        Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                                         {% else %}
                                         Votação encerrada!
                                         {% endif %}

@@ -39,3 +39,7 @@ def num_conversa_nao_lidas_all(user):
 @register.filter
 def has_delete_conversa(conversa, user):
     return conversa.has_delete(user)
+
+@register.filter
+def percent(valor, total):
+    return (float(valor)/float(total))*100

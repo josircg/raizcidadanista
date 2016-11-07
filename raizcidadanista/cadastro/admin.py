@@ -1465,7 +1465,7 @@ class CirculoEventoAdmin(PowerModelAdmin):
     )
     fieldsets = (
         (None, {
-            'fields': ['circulo', 'nome', 'dt_evento', 'local', 'privado', ]
+            'fields': ['circulo', 'nome', 'dt_evento', 'local', 'privado', 'ata', ]
         }),
     )
 

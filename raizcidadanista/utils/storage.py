@@ -4,14 +4,25 @@ from django.utils.text import get_valid_filename
 from django.template.defaultfilters import slugify
 from django.conf import settings
 
+from storages.backends.s3boto import S3BotoStorage
+
 import os, uuid
+
+
+class SpecialCharFileSystemStorageS3(S3BotoStorage):
+    """
+    Remove Special Char filesystem storage S3
+    """
+    def get_valid_name(self, name):
+        nome, extensao = os.path.splitext(name)
+        return os.path.join(slugify(get_valid_filename(nome)) + extensao.lower())
+
 
 
 class SpecialCharFileSystemStorage(FileSystemStorage):
     """
     Remove Special Char filesystem storage
     """
-
     def get_valid_name(self, name):
         nome, extensao = os.path.splitext(name)
         return os.path.join(slugify(get_valid_filename(nome)) + extensao.lower())

@@ -66,7 +66,12 @@
                                     <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
                                     <footer>
                                         Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
-                                        Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                        {% if not proposta.expirada %}
+                                        Votação até <b>{{ proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                        {% else %}
+                                        Votação encerrada!
+                                        {% endif %}
+
                                     </footer>
                                 </blockquote>
                             </div>
@@ -82,11 +87,23 @@
                                         <div class="button-topic">
                                             <span class="fa fa-pie-chart star-button" aria-hidden="true"></span>
                                         </div>
-                                        <a href="{{ conversa.proposta.get_absolute_url }}">{{ conversa.texto|safe }}</a>
+                                        <a href="{{ conversa.proposta.get_absolute_url }}"><h4>{% if not conversa.proposta.expirada %}Votação em andamento. Clique aqui para votar ou ver o resultado da votação.{% else %}Votação encerrada. Clique aqui ver o resultado da votação.{% endif %}</h4></a><br>
+                                        {{ conversa.texto|safe }}
                                         <footer>
                                             Iniciado por <b>{{ conversa.autor.get_first_name }}</b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                            {% if not conversa.proposta.expirada %}
                                             Votação até <b>{{ conversa.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
+                                            {% else %}
+                                            Votação encerrada!
+                                            {% endif %}
                                         </footer>
+                                        <p>
+                                            <b>{{ conversa.proposta.voto_set.count|percent:conversa.proposta.topico.topicoouvinte_set.count|floatformat }}%</b> dos membros manifestaram suas posições ({{ conversa.proposta.voto_set.count }}/{{ conversa.proposta.topico.topicoouvinte_set.count }})<br>
+                                            {% for resposta, votos in conversa.proposta.respostas %}
+                                            <b>{{ votos|percent:conversa.proposta.voto_set.count|floatformat }}%</b> marcaram "{{ resposta }}"<br>
+                                            {% endfor %}
+                                        </p>
+
                                     {% else %}
                                         {{ conversa.texto|safe }}
                                         {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}

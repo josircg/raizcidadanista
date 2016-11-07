@@ -1,0 +1,43 @@
+{% extends "admin/change_list_multi_search.html" %}
+{% load i18n admin_modify adminmedia custom_admin_list %}
+{% load url from future %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    {% if cl.date_hierarchy %}
+        <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+        <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+        <!--[if lte IE 7]>
+        <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/ie.css" />
+        <![endif]-->
+        <style type="text/css">
+            #calendarlink0, #calendarlink1{ vertical-align: sub; }
+        </style>
+
+        <script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
+        <script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
+        <script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
+        <script type="text/javascript" src="{% admin_media_prefix %}js/calendar.js"></script>
+        <script type="text/javascript" src="{% admin_media_prefix %}js/admin/DateTimeShortcuts.js"></script>
+    {% endif %}
+{% endblock %}
+
+{% block date_hierarchy %}
+{% if cl.date_hierarchy %}
+    <div id="toolbar" class="power-toolbar">
+        <form id="date_hierarchy-form" action="" method="GET">
+            <label class="field-box">
+                <label for="id_dt_evento_inicial">Data inicial</label>:
+            <input id="id_dt_evento_inicial" type="text" class="vDateField" name="dt_evento__gte" size="10" {% if request.GET.dt_evento__gte %}value="{{ request.GET.dt_evento__gte }}"{% endif %} />
+            </label>
+            <label class="field-box">
+                <label for="id_dt_evento_final">Data final</label>:
+            <input id="id_dt_evento_final" type="text" class="vDateField" name="dt_evento__lte" size="10" {% if request.GET.dt_evento__lte %}value="{{ request.GET.dt_evento__lte }}"{% endif %} />
+            </label>
+            <input type="submit" value="Ok" />
+            <br class="clear" />
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,7 +1,7 @@
 # coding: utf-8
 from django import template
 
-from forum.models import TopicoOuvinte
+from forum.models import Topico, TopicoOuvinte
 
 register = template.Library()
 
@@ -26,15 +26,23 @@ def num_topicos_nao_lidos(user, grupo):
     return grupo.num_topicos_nao_lidos(user)
 
 @register.filter
+def num_topicos_nao_lidos_all(user):
+    total = 0
+    for grupousuario in user.grupousuario_set.all():
+        total += grupousuario.grupo.num_topicos_nao_lidos(user)
+    return total
+
+@register.filter
 def num_conversa_nao_lidas(user, topico):
     return topico.num_conversa_nao_lidas(user)
 
 @register.filter
 def num_conversa_nao_lidas_all(user):
     total = 0
-    for topico_ouvinte in TopicoOuvinte.objects.filter(ouvinte=user):
-        total += topico_ouvinte.topico.conversa_set.filter(dt_criacao__gt=topico_ouvinte.dtleitura).count()
+    for topico in Topico.objects.filter(topicoouvinte__ouvinte=user):
+        total += topico.num_conversa_nao_lidas(user)
     return total
+
 
 @register.filter
 def has_delete_conversa(conversa, user):

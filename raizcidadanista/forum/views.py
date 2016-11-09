@@ -350,6 +350,20 @@ class GrupoAddMembrosView(FormView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if request.GET.get('q'):
+            # List of users
+            json_response = []
+            queryset = User.objects.exclude(
+                pk__in=self.object.grupousuario_set.values_list('usuario', flat=True)
+            ).filter(
+                Q(first_name__icontains=request.GET.get('q')) | Q(username__icontains=request.GET.get('q'))
+            )
+            for user in queryset:
+                json_response.append({
+                  'id': user.pk,
+                  'name': u'%s' % user,
+                })
+            return HttpResponse(json.dumps(json_response), mimetype='application/json')
         return super(GrupoAddMembrosView, self).get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):

@@ -85,7 +85,7 @@ class NaoLidosView(TemplateView):
         context = super(NaoLidosView, self).get_context_data(**kwargs)
 
         grupos_list = []
-        for grupo in Grupo.objects.filter(grupousuario__usuario=self.request.user):
+        for grupo in self.request.user.grupousuario_set.all():
             if grupo.num_topicos_nao_lidos(self.request.user) > 0:
                 grupos_list.append(grupo)
         paginator = Paginator(grupos_list, 10)

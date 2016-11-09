@@ -74,9 +74,9 @@
                                     </div>
                                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                         <ul class="info">
-                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes{% if user|num_conversa_nao_lidas_all %} ({{ user|num_conversa_nao_lidas_all }}){% endif %}</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
-                                            <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos{% if user|num_topicos_nao_lidos_all %} ({{ user|num_topicos_nao_lidos_all }}){% endif %}</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>

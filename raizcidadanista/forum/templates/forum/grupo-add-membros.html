@@ -32,7 +32,8 @@
                             <div class="panel panel-default">
                                 <div class="panel-body">
                                     <h3>Adicionar Membros</h3>
-                                    <textarea class="usuarios" data-name="usuarios" placeholder="@Nome"></textarea>
+                                    <select multiple="multiple" class="form-control" name="usuarios" id="id_usuarios">
+                                    </select>
                                     <p class="help-block">Se o usuário não estiver aparecendo provavelmente ele está inativo ou já faz parte do grupo.</p>
                                     {% if form.usuarios.errors %}
                                     <ul class="list-unstyled">
@@ -54,23 +55,35 @@
 {% endblock %}
 
 {% block css %}
-<link href="{% static 'site/css/jquery.mentionsInput.css' %}" rel='stylesheet' type='text/css'>
+<link href="{% static 'select2/css/select2.css' %}" rel='stylesheet' type='text/css'>
 {% endblock %}
 
 {% block js %}
-<script src="{% static 'site/js/lib/jquery.events.input.js' %}" type='text/javascript'></script>
-<script src="{% static 'site/js/lib/jquery.elastic.js' %}" type='text/javascript'></script>
-<script src='https://cdn.rawgit.com/jashkenas/underscore/1.8.3/underscore-min.js' type='text/javascript'></script>
-<script type="text/javascript" src="{% static 'site/js/jquery.mentionsInput.js' %}?v=0.1"></script>
+<script src="{% static 'select2/js/select2.min.js' %}" type='text/javascript'></script>
+<script src="{% static 'select2/js/i18n/pt-BR.js' %}" type='text/javascript'></script>
 <script type="text/javascript">
-    /* Menção */
-    $('textarea.usuarios').mentionsInput({
-        onDataRequest:function (mode, query, callback) {
-            $.getJSON('{% url forum_grupo_add_membros object.pk %}', function(responseData) {
-                responseData = _.filter(responseData, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1 });
-                callback.call(this, responseData);
-            });
-        }
+    $("#id_usuarios").select2({
+        ajax: {
+            url: "{% url forum_grupo_add_membros object.pk %}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term,
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data,
+                }
+            },
+            cache: true
+        },
+        language: "pt-BR",
+        escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+        minimumInputLength: 2,
+        templateResult: function(user){ return user.name },
+        templateSelection: function(user){ return user.name }
     });
 </script>
 {% endblock %}

@@ -111,8 +111,10 @@ class RecentesView(TemplateView):
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()
 
-        topicos_prioritarios_list = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).filter(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao')
-        topicos_list = list(topicos_prioritarios_list)+list(Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).exclude(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao'))
+        topicos_queryset = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).distinct()
+
+        topicos_prioritarios_list = topicos_queryset.filter(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao')
+        topicos_list = list(topicos_prioritarios_list)+list(topicos_queryset.exclude(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao'))
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')

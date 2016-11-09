@@ -110,7 +110,7 @@ class AddMembrosForm(forms.Form):
     def __init__(self, grupo, *args, **kwargs):
         super(AddMembrosForm, self).__init__(*args, **kwargs)
         self.grupo = grupo
-        self.fields['usuarios'].queryset = User.objects.exclude(pk__in=grupo.grupousuario_set.values_list('usuario', flat=True))
+        self.fields['usuarios'].queryset = User.objects.exclude(pk__in=grupo.grupousuario_set.values_list('usuario', flat=True)).exclude(is_active=False).order_by('first_name', 'username')
 
     def save(self, *args, **kwargs):
         for usuario in self.cleaned_data.get('usuarios'):

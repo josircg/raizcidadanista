@@ -926,24 +926,6 @@ class CirculoMembroCirculoAddInline(admin.TabularInline):
     def queryset(self, request):
         return super(CirculoMembroCirculoAddInline, self).queryset(request).none()
 
-class CirculoEventoCirculoInline(admin.TabularInline):
-    model = CirculoEvento
-    extra = 0
-    verbose_name = u'Evento do Círculo'
-    verbose_name_plural = u'Eventos do Círculo'
-
-    def actions(self, model):
-        return u'<a href="%s">Enviar email</a>' % reverse('admin:cadastro_circulo_enviar_convite_evento', kwargs={'id_evento': model.pk})
-    actions.allow_tags = True
-    actions.short_description = u'Ações'
-
-    def get_readonly_fields(self, request, obj=None):
-        if request.user.is_superuser or CirculoMembro.objects.filter(circulo=obj, membro__usuario=request.user, administrador=True).exists() or request.user.groups.filter(name=u'Comissão').exists():
-            self.max_num = None
-            return ('actions', )
-        self.max_num = 0
-        return ('nome', 'dt_evento', 'local', 'actions')
-
 class CirculoAdmin(PowerModelAdmin):
     search_fields = ('titulo',)
     list_display = ('titulo', 'tipo', 'permitecadastro', 'uf', 'oficial', 'num_membros', 'status',)
@@ -959,9 +941,9 @@ class CirculoAdmin(PowerModelAdmin):
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser or request.user.groups.filter(name=u'Cadastro').exists():
-            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
+            self.inlines = [CirculoMembroCirculoInline, CirculoMembroCirculoAddInline, ]
         else:
-            self.inlines = [CirculoEventoCirculoInline, CirculoMembroCirculoInline, ]
+            self.inlines = [CirculoMembroCirculoInline, ]
         return [inline(self.model, self.admin_site) for inline in self.inlines]
 
     def get_actions(self, request):
@@ -1017,21 +999,6 @@ class CirculoAdmin(PowerModelAdmin):
         }
         defaults.update(kwargs)
         return modelform_factory(self.model, **defaults)
-
-    def enviar_convite_evento(self, request, id_evento):
-        evento = get_object_or_404(CirculoEvento, pk=id_evento)
-
-        dt_evento = evento.dt_evento
-        sendmail(
-            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
-            bcc=evento.circulo.circulomembro_set.exclude(membro__status_email__in=('S', 'O')).values_list('membro__email', flat=True),
-            template='emails/evento-convite.html',
-            params={
-                'evento': evento,
-            },
-        )
-        messages.info(request, u'Os emails estão sendo enviados!')
-        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(evento.circulo.pk, )))
 
     def incluir_membros_auto(self, request, id_circulo):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
@@ -1093,7 +1060,6 @@ class CirculoAdmin(PowerModelAdmin):
     def get_urls(self):
         urls_originais = super(CirculoAdmin, self).get_urls()
         urls_customizadas = patterns('',
-            url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circulo_enviar_convite_evento'),
             url(r'^(?P<id_circulo>\d+)/incluir-membros-auto/$', self.wrap(self.incluir_membros_auto), name='cadastro_circulo_incluir_membros_auto'),
             url(r'^(?P<id_circulo>\d+)/criar-pagina/$', self.wrap(self.criar_pagina), name='cadastro_circulo_criar_pagina'),
         )
@@ -1103,6 +1069,7 @@ class CirculoAdmin(PowerModelAdmin):
         buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
         obj = self.get_object(request, object_id)
         if obj:
+            buttons.append(PowerButton(url=u'%s?q1=%s' % (reverse('admin:cadastro_circuloevento_changelist'), obj.titulo, ), label=u'Eventos'))
             if obj.tipo == 'R' or (obj.tipo == 'S' and obj.uf):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Adicionar Membros'))
             if not obj.section:
@@ -1488,8 +1455,72 @@ class ArticleCadastroAdmin(PowerModelAdmin):
             qs = qs.filter(sectionitem__section__pk__in=section_ids)
         return qs
 
+
+class CirculoEventoAdmin(PowerModelAdmin):
+    list_display = ('circulo', 'nome', 'dt_evento', 'privado', )
+    date_hierarchy = 'dt_evento'
+    multi_search = (
+       ('q1', 'Círculo', ['circulo__titulo']),
+       ('q2', 'Nome', ['nome']),
+       ('q3', 'Local', ['local']),
+    )
+    fieldsets = (
+        (None, {
+            'fields': ['circulo', 'nome', 'dt_evento', 'local', 'privado', 'ata', ]
+        }),
+    )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser or not request.user.groups.filter(name=u'Comissão').exists():
+            if db_field.name == "circulo":
+                circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
+                kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids)
+        return super(CirculoEventoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ['local']:
+            kwargs['widget'] = CKEditorWidget()
+        return super(CirculoEventoAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
+    def enviar_convite_evento(self, request, id_evento):
+        evento = get_object_or_404(CirculoEvento, pk=id_evento)
+
+        dt_evento = evento.dt_evento
+        sendmail(
+            subject=u'Convite - %s - %s - %s às %s' % (evento.circulo.titulo, evento.nome, _date(dt_evento, 'd \d\e F \d\e Y'), _date(dt_evento, 'H:i'),),
+            bcc=evento.circulo.circulomembro_set.exclude(membro__status_email__in=('S', 'O')).values_list('membro__email', flat=True),
+            template='emails/evento-convite.html',
+            params={
+                'evento': evento,
+            },
+        )
+        messages.info(request, u'Os emails estão sendo enviados!')
+        return HttpResponseRedirect(reverse('admin:cadastro_circuloevento_change', args=(evento.pk, )))
+
+    def get_urls(self):
+        urls_originais = super(CirculoEventoAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<id_evento>\d+)/enviar-convite/$', self.wrap(self.enviar_convite_evento), name='cadastro_circuloevento_enviar_convite_evento'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(CirculoEventoAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_circuloevento_enviar_convite_evento', kwargs={'id_evento': object_id, }), label=u'Enviar email'))
+        return buttons
+
+    def queryset(self, request):
+        qs = super(CirculoEventoAdmin, self).queryset(request)
+        if not request.user.is_superuser or not request.user.groups.filter(name=u'Comissão').exists():
+            circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
+            qs = qs.filter(circulo__pk__in=circulo_ids)
+        return qs
+
+
 admin.site.register(ArticleCadastro, ArticleCadastroAdmin)
-admin.site.register(CirculoEvento)
+admin.site.register(CirculoEvento, CirculoEventoAdmin)
 admin.site.register(UF)
 admin.site.register(ColetaArticulacao, ColetaArticulacaoAdmin)
 admin.site.register(Coligacao, ColigacaoAdmin)

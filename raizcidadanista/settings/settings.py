@@ -180,6 +180,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
 
     'BruteBuster',
+    'storages',
 ]
 
 if os.path.exists(os.path.join(PROJECT_DIR, 'theme')):

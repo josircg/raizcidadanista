@@ -26,7 +26,7 @@ from time import sleep
 from municipios.models import UF, Municipio
 from forum.models import Grupo, GrupoUsuario
 from cms.models import Article, Section, SectionItem, URLMigrate
-from utils.storage import UuidFileSystemStorage
+from utils.storage import UuidFileSystemStorage, SpecialCharFileSystemStorageS3
 from cms.email import sendmail, send_email_thread
 from smart_selects.db_fields import ChainedForeignKey
 from utils.fields import BRDecimalField
@@ -415,8 +415,9 @@ class CirculoEvento(models.Model):
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Descrição e Local')
-    privado = models.BooleanField(u'Privado', default=True)
+    privado = models.BooleanField(u'Privado', default=False)
     artigo = models.ForeignKey(Article, editable=False, blank=True, null=True, on_delete=models.SET_NULL)
+    ata = models.FileField(u'Ata', blank=True, null=True, upload_to='atas', storage=SpecialCharFileSystemStorageS3())
 
     def __unicode__(self):
         return u'%s' % self.nome

@@ -33,3 +33,7 @@ requests
 beautifulsoup4
 
 telepot
+
+#S3
+boto==2.43.0
+django-storages==1.1.8

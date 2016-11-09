@@ -1069,6 +1069,7 @@ class CirculoAdmin(PowerModelAdmin):
         buttons = super(CirculoAdmin, self).get_buttons(request, object_id)
         obj = self.get_object(request, object_id)
         if obj:
+            buttons.append(PowerButton(url=u'%s?q1=%s' % (reverse('admin:cadastro_circuloevento_changelist'), obj.titulo, ), label=u'Eventos'))
             if obj.tipo == 'R' or (obj.tipo == 'S' and obj.uf):
                 buttons.append(PowerButton(url=reverse('admin:cadastro_circulo_incluir_membros_auto', kwargs={'id_circulo': obj.pk}), label=u'Adicionar Membros'))
             if not obj.section:
@@ -1475,6 +1476,11 @@ class CirculoEventoAdmin(PowerModelAdmin):
                 circulo_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo', flat=True)
                 kwargs["queryset"] = Circulo.objects.filter(pk__in=circulo_ids)
         return super(CirculoEventoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ['local']:
+            kwargs['widget'] = CKEditorWidget()
+        return super(CirculoEventoAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def enviar_convite_evento(self, request, id_evento):
         evento = get_object_or_404(CirculoEvento, pk=id_evento)

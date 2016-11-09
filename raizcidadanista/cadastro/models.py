@@ -415,9 +415,9 @@ class CirculoEvento(models.Model):
     nome = models.CharField(u'Título', max_length=100)
     dt_evento = models.DateTimeField(u'Dt.Evento')
     local = models.TextField(u'Descrição e Local')
-    privado = models.BooleanField(u'Privado', default=True)
+    privado = models.BooleanField(u'Privado', default=False)
     artigo = models.ForeignKey(Article, editable=False, blank=True, null=True, on_delete=models.SET_NULL)
-    ata = models.FileField(u'Ata', blank=True, null=True, upload_to='circuloevento', storage=SpecialCharFileSystemStorageS3())
+    ata = models.FileField(u'Ata', blank=True, null=True, upload_to='atas', storage=SpecialCharFileSystemStorageS3())
 
     def __unicode__(self):
         return u'%s' % self.nome

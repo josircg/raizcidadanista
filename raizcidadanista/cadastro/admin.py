@@ -281,7 +281,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 
 class MembroAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', )
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'status_email', )
+    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'confirmado', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -297,7 +297,7 @@ class MembroAdmin(PowerModelAdmin):
             'fields': ['nome', 'apelido', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]
         }),
         ('Situação Cadastral', {
-            'fields': [ ('status_email', 'usuario', 'aprovador'), ('filiado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
+            'fields': [ ('status_email', 'usuario', 'aprovador'), ('filiado', 'confirmado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
         }),
         (u'Dados eleitorais', {
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', ('titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral'), 'filiacao_partidaria', ]
@@ -470,7 +470,7 @@ class MembroAdmin(PowerModelAdmin):
                     to=[membro.email, ],
                     template=campanhas[0].template,
                     params={
-                        'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_update_url()),
+                        'link': u'%s%s' % (settings.SITE_HOST, membro.get_absolute_recadastramento_url()),
                     },
                 )
                 contador += 1
@@ -821,7 +821,7 @@ admin.site.register(Membro, MembroAdmin)
 
 class FiliadoAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
-    list_filter = ('uf', 'contrib_tipo', 'fundador', )
+    list_filter = ('uf', 'contrib_tipo', 'fundador', 'confirmado', )
     search_fields = ('nome', 'email',)
     inlines = (CirculoMembroMembroInline, )
 
@@ -830,7 +830,7 @@ class FiliadoAdmin(PowerModelAdmin):
             'fields': ['nome', 'apelido', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', 'uf_naturalidade', 'municipio_naturalidade', ]
         }),
         (None, {
-            'fields': ['dtcadastro', 'status_email', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
+            'fields': ['dtcadastro', 'status_email', 'confirmado', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
         }),
         (u'Dados eleitorais', {
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
@@ -847,7 +847,7 @@ class FiliadoAdmin(PowerModelAdmin):
         if request.user.is_superuser:
             return ()
         else:
-            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador','twitter_id')
+            return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
     def queryset(self, request):
         qs = super(FiliadoAdmin, self).queryset(request).filter(filiado=True)

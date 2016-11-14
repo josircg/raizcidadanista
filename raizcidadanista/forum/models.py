@@ -115,6 +115,9 @@ class Topico(models.Model):
     def get_absolute_url(self):
         return reverse('forum_topico', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
 
+    def get_absolute_edit_url(self):
+        return reverse('forum_topico_edit', kwargs={'grupo_pk': self.grupo.pk, 'pk': self.pk, })
+
     def num_comentarios(self):
         return self.conversa_set.count()-1
 

@@ -16,7 +16,7 @@ class GrupoForm(forms.ModelForm):
         }
 
 
-class AddTopicoForm(forms.ModelForm):
+class AddEditTopicoForm(forms.ModelForm):
     class Meta:
         model = Topico
         fields = ('titulo',)
@@ -27,28 +27,40 @@ class AddTopicoForm(forms.ModelForm):
     categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all(), required=False, help_text='Pode ficar em branco')
 
     def __init__(self, grupo, *args, **kwargs):
-        super(AddTopicoForm, self).__init__(*args, **kwargs)
+        super(AddEditTopicoForm, self).__init__(*args, **kwargs)
         if grupo.grupocategoria_set.count() > 0:
             self.fields['categoria'].queryset = grupo.grupocategoria_set.all()
+            if kwargs.get('instance') and kwargs.get('instance').categoria:
+                self.fields['categoria'].initial = kwargs.get('instance').categoria
         else:
             del self.fields['categoria']
+        if kwargs.get('instance'):
+            try:
+                conversa = Conversa.objects.get(topico=kwargs.get('instance'), autor=kwargs.get('instance').criador, conversa_pai=None)
+                self.fields['texto'].initial = conversa.texto
+            except Conversa.DoesNotExist: pass
 
 
     def save(self, grupo, criador, *args, **kwargs):
         self.instance.grupo = grupo
         self.instance.criador = criador
-        topico = super(AddTopicoForm, self).save(*args, **kwargs)
+        self.instance.categoria = self.cleaned_data.get('categoria')
+        topico = super(AddEditTopicoForm, self).save(*args, **kwargs)
 
         texto = self.cleaned_data.get('texto')
         if self.cleaned_data.get('imagem'):
             filename = save_file(self.cleaned_data.get('imagem'), 'forum')
             texto += u'<img src="%s" width="100%%" style="padding: 20px; margin: 0px !important;">' % filename
-        # Cria a Conversa com o texto informado pelo autor
-        conversa = Conversa(
-            topico=topico,
-            autor=criador,
-            texto=texto,
-        )
+        try:
+            conversa = Conversa.objects.get(topico=topico, autor=criador, conversa_pai=None)
+            conversa.texto = texto
+        except Conversa.DoesNotExist:
+            # Cria a Conversa com o texto informado pelo autor
+            conversa = Conversa(
+                topico=topico,
+                autor=criador,
+                texto=texto,
+            )
         conversa.save()
         if self.cleaned_data.get('arquivo'):
             conversa.arquivo.save(self.cleaned_data.get('arquivo').name, self.cleaned_data.get('arquivo'))

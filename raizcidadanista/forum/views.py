@@ -13,7 +13,7 @@ from django.conf import settings
 
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
-from forms import AddTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
+from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
     AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm
 
 from cms.email import sendmail
@@ -396,7 +396,7 @@ class GrupoAddMembrosView(FormView):
 
 class TopicoAddView(FormView):
     template_name = 'forum/topico-add.html'
-    form_class = AddTopicoForm
+    form_class = AddEditTopicoForm
 
     def get_grupo(self):
         return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
@@ -423,6 +423,50 @@ class TopicoAddView(FormView):
     def get_context_data(self, **kwargs):
         context = super(TopicoAddView, self).get_context_data(**kwargs)
         context['object'] = self.get_grupo()
+        return context
+
+
+class TopicoEditView(FormView):
+    template_name = 'forum/topico-edit.html'
+    form_class = AddEditTopicoForm
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get_instance(self):
+        return get_object_or_404(Topico, pk=self.kwargs['pk'])
+
+    def get(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+        if self.instance.criador != request.user:
+            messages.error(request, u'A edição de um tópico só pode ser feita pelo seu criador.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+        return super(TopicoEditView, self).get(request, *args, **kwargs)
+
+    def post(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+        if self.instance.criador != request.user:
+            messages.error(request, u'A edição de um tópico só pode ser feita pelo seu criador.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+        return super(TopicoEditView, self).post(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(TopicoEditView, self).get_form_kwargs()
+        kwargs['grupo'] = self.grupo
+        kwargs['instance'] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        instance = form.save(grupo=self.grupo, criador=self.request.user)
+        messages.info(self.request, u'Tópico criado com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicoEditView, self).get_context_data(**kwargs)
+        context['grupo'] = self.grupo
+        context['object'] = self.instance
         return context
 
 

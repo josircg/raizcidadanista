@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^grupo/(?P<pk>\d+)/editar-membros/$', login_required(views.GrupoEditMembrosView.as_view()), name='forum_grupo_edit_membros'),
     url(r'^grupo/(?P<pk>\d+)/adicionar-membros/$', login_required(views.GrupoAddMembrosView.as_view()), name='forum_grupo_add_membros'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/adicionar/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),
+    url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/editar/$', login_required(views.TopicoEditView.as_view()), name='forum_topico_edit'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/$', login_required(views.TopicoView.as_view()), name='forum_topico'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/notificar/$', login_required(views.NotificarTopicoView.as_view()), name='forum_topico_notificar'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/(?P<pk>\d+)/adicionar-proposta/$', login_required(views.NovaPropostaTopicoView.as_view()), name='forum_topico_novaproposta'),

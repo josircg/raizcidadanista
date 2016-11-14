@@ -16,60 +16,84 @@
                     <a href="" class="pi-link-dark">Meu Perfil</a>
                 </h4>
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="pi-col-md-12">
                         <div class="panel-body">
                             <h3>Dados pessoais</h3><br>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Nome Completo:</label> {{ membro.nome }}
-                            </div><div class="form-group col-md-5">
+                            </div>
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Apelido ou Alcunha:</label> {{ membro.apelido }}
                             </div>
-                            <div class="form-group col-md-5">
-                                <label class="control-label">Status:</label> {% if membro.filiado %}Filiado{% else %}Colaborador{% endif %}
+                            <div class="form-group pi-col-md-12">
+                                <label class="control-label">Status:</label> {% if membro.filiado %}Pré-filiado{% else %}Colaborador{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-12">
                                 <label class="control-label">Email:</label> {% if membro.email %}{{ membro.email }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">UF:</label> {% if membro.uf %}{{ membro.uf }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Município:</label> {% if membro.municipio %}{{ membro.municipio }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
-                                <label class="control-label">Sexo:</label> {% if membro.sexo %}{{ membro.get_sexo_display }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Tel.Celular:</label> {% if membro.celular %}{{ membro.celular }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Tel.Residencial:</label> {% if membro.residencial %}{{ membro.residencial }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-12">
                                 <label class="control-label">Dt.Nascimento:</label> {% if membro.dtnascimento %}{{ membro.dtnascimento }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-3">
                                 <label class="control-label">RG:</label> {% if membro.rg %}{{ membro.rg }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-3">
                                 <label class="control-label">CPF:</label> {% if membro.cpf %}{{ membro.cpf }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-3">
+                                <label class="control-label">Sexo:</label> {% if membro.sexo %}{{ membro.get_sexo_display }}{% else %}-{% endif %}
+                            </div>
+                            <div class="form-group pi-col-md-3">
                                 <label class="control-label">Estado civil:</label> {% if membro.estadocivil %}{{ membro.get_estadocivil_display }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">CEP:</label> {% if membro.endereco_cep %}{{ membro.endereco_cep }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Endereço:</label> {% if membro.endereco %}{{ membro.endereco }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Nº:</label> {% if membro.endereco_num %}{{ membro.endereco_num }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group pi-col-md-6">
                                 <label class="control-label">Complemento:</label> {% if membro.endereco_complemento %}{{ membro.endereco_complemento }}{% else %}-{% endif %}
                             </div>
-                            <div class="col-md-10">
+                            {% if membro.filiado %}
+                            <div class="form-group pi-col-md-12">
+                                <label class="control-label">Nome da mãe:</label> {{ membro.nome_da_mae }}
+                            </div>
+                            <div class="form-group pi-col-md-6">
+                                <label class="control-label">UF do Domicílio Eleitoral:</label> {{ membro.uf_eleitoral }}
+                            </div>
+                            <div class="form-group pi-col-md-6">
+                                <label class="control-label">Município Eleitoral:</label> {{ membro.municipio_eleitoral }}
+                            </div>
+                            <div class="form-group pi-col-md-4">
+                                <label class="control-label">Título:</label> {{ membro.titulo_eleitoral }}
+                            </div>
+                            <div class="form-group pi-col-md-4">
+                                <label class="control-label">Zona:</label> {{ membro.zona_eleitoral }}
+                            </div>
+                            <div class="form-group pi-col-md-4">
+                                <label class="control-label">Seção:</label> {{ membro.secao_eleitoral }}
+                            </div>
+                            <div class="form-group pi-col-md-12">
+                                <label class="control-label">Filiação Partidária:</label> {{ membro.filiacao_partidaria }}
+                            </div>
+                            {% endif %}
+                            <div class="pi-col-md-12">
                                 <a href="{{ membro.get_absolute_update_url }}"><button class="btn btn-success">Atualizar dados</button></a>
                                 <a href="{% url cms_password_change %}"><button class="btn btn-success">Alterar senha</button></a>
                             </div>

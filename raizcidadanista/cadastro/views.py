@@ -92,7 +92,7 @@ class MembroView(FormView):
         if request.GET.get('email'):
             json = {'msg': ''}
             if Membro.objects.filter(email=request.GET.get('email'), filiado=True).exists():
-                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
+                json['msg'] = u'Você já está registrado no site como Pré-filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             elif Membro.objects.filter(email=request.GET.get('email')).exists():
                 json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados ou <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
@@ -253,7 +253,7 @@ class RecadastramentoView(TemplateView):
                 # FIXBUG não estava salvando!
                 Membro.objects.filter(pk=self.instance.pk).update(confirmado=True)
                 self.instance = self.get_instance(request, uidb36, ts_b36, token)
-                messages.info(request, u'Cadastro como pre-filiado confirmado.')
+                messages.info(request, u'Cadastro como pré-filiado confirmado.')
                 LogEntry.objects.log_action(
                     user_id = User.objects.get_or_create(username="sys")[0].pk,
                     content_type_id = ContentType.objects.get_for_model(self.instance).pk,

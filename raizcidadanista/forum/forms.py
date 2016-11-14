@@ -36,9 +36,9 @@ class AddEditTopicoForm(forms.ModelForm):
             del self.fields['categoria']
         if kwargs.get('instance'):
             try:
-                conversa = Conversa.objects.get(topico=kwargs.get('instance'), autor=kwargs.get('instance').criador, conversa_pai=None)
+                conversa = Conversa.objects.filter(topico=kwargs.get('instance'), autor=kwargs.get('instance').criador, conversa_pai=None)[0]
                 self.fields['texto'].initial = conversa.texto
-            except Conversa.DoesNotExist: pass
+            except: pass
 
 
     def save(self, grupo, criador, *args, **kwargs):
@@ -52,9 +52,9 @@ class AddEditTopicoForm(forms.ModelForm):
             filename = save_file(self.cleaned_data.get('imagem'), 'forum')
             texto += u'<img src="%s" width="100%%" style="padding: 20px; margin: 0px !important;">' % filename
         try:
-            conversa = Conversa.objects.get(topico=topico, autor=criador, conversa_pai=None)
+            conversa = Conversa.objects.filter(topico=topico, autor=criador, conversa_pai=None)[0]
             conversa.texto = texto
-        except Conversa.DoesNotExist:
+        except:
             # Cria a Conversa com o texto informado pelo autor
             conversa = Conversa(
                 topico=topico,

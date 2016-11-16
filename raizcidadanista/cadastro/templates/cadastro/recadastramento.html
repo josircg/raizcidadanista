@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Meu Perfil - {% endblock %}
-{% block ogtitle %}Meu Perfil - {% endblock %}
+{% block title %}Recadastramento - {% endblock %}
+{% block ogtitle %}Recadastramento - {% endblock %}
 
-{% block description %}Meu Perfil - {% endblock %}
-{% block ogdescription %}Meu Perfil - {% endblock %}
+{% block description %}Recadastramento - {% endblock %}
+{% block ogdescription %}Recadastramento - {% endblock %}
 
 {% block main %}
 <div class="pi-section-w pi-section-white pi-border-top">
@@ -13,7 +13,7 @@
         <div class="pi-row">
             <div class="pi-col-sm-12">
                 <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
-                    <a href="" class="pi-link-dark">Meu Perfil</a>
+                    <a href="" class="pi-link-dark">Recadastramento</a>
                 </h4>
                 <div class="row">
                     <div class="pi-col-md-12">
@@ -30,12 +30,6 @@
                             </div>
                             <div class="form-group pi-col-md-12">
                                 <label class="control-label">Email:</label> {% if membro.email %}{{ membro.email }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">UF:</label> {% if membro.uf %}{{ membro.uf }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">Município:</label> {% if membro.municipio %}{{ membro.municipio }}{% else %}-{% endif %}
                             </div>
                             <div class="form-group pi-col-md-6">
                                 <label class="control-label">Tel.Celular:</label> {% if membro.celular %}{{ membro.celular }}{% else %}-{% endif %}
@@ -58,44 +52,37 @@
                             <div class="form-group pi-col-md-3">
                                 <label class="control-label">Estado civil:</label> {% if membro.estadocivil %}{{ membro.get_estadocivil_display }}{% else %}-{% endif %}
                             </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">CEP:</label> {% if membro.endereco_cep %}{{ membro.endereco_cep }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">Endereço:</label> {% if membro.endereco %}{{ membro.endereco }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">Nº:</label> {% if membro.endereco_num %}{{ membro.endereco_num }}{% else %}-{% endif %}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">Complemento:</label> {% if membro.endereco_complemento %}{{ membro.endereco_complemento }}{% else %}-{% endif %}
+                            <div class="form-group pi-col-md-12">
+                                <label class="control-label">Residência:</label> {% if membro.endereco %}{{ membro.endereco }}{% endif %}{% if membro.endereco_num %}, {{ membro.endereco_num }}{% endif %}{% if membro.endereco_complemento %} - {{ membro.endereco_complemento }}{% endif %}{% if membro.municipio %} - {{ membro.municipio }}{% endif %}{% if membro.uf %}-{{ membro.uf }}{% endif %} - {% if membro.endereco_cep %}{{ membro.endereco_cep }}{% endif %}
                             </div>
                             {% if membro.filiado %}
                             <div class="form-group pi-col-md-12">
-                                <label class="control-label">Nome da mãe:</label> {{ membro.nome_da_mae }}
+                                <div class="form-group"><label class="control-label">Nome da mãe:</label> {{ membro.nome_da_mae }}</div>
                             </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">UF do Domicílio Eleitoral:</label> {{ membro.uf_eleitoral }}
-                            </div>
-                            <div class="form-group pi-col-md-6">
-                                <label class="control-label">Município Eleitoral:</label> {{ membro.municipio_eleitoral }}
-                            </div>
-                            <div class="form-group pi-col-md-4">
-                                <label class="control-label">Título:</label> {{ membro.titulo_eleitoral }}
-                            </div>
-                            <div class="form-group pi-col-md-4">
-                                <label class="control-label">Zona:</label> {{ membro.zona_eleitoral }}
-                            </div>
-                            <div class="form-group pi-col-md-4">
-                                <label class="control-label">Seção:</label> {{ membro.secao_eleitoral }}
+                            <div class="form-group form-inline pi-col-md-12">
+                                <div><label class="control-label">UF do Domicílio Eleitoral:</label> {{ membro.uf_eleitoral }}</div>
+                                <div><label class="control-label">Município Eleitoral:</label> {{ membro.municipio_eleitoral }}</div>
+                                <div><label class="control-label">Título:</label> {{ membro.titulo_eleitoral }}</div>
+                                <div><label class="control-label">Zona:</label> {{ membro.zona_eleitoral }}</div>
+                                <div><label class="control-label">Seção:</label> {{ membro.secao_eleitoral }}</div>
                             </div>
                             <div class="form-group pi-col-md-12">
                                 <label class="control-label">Filiação Partidária:</label> {{ membro.filiacao_partidaria }}
                             </div>
                             {% endif %}
                             <div class="pi-col-md-12">
-                                <a href="{{ membro.get_absolute_update_url }}"><button class="btn btn-success">Atualizar dados</button></a>
-                                <a href="{% url cms_password_change %}"><button class="btn btn-success">Alterar senha</button></a>
+                                <form action="" method="POST">{% csrf_token %}
+                                    <a href="{{ membro.get_absolute_update_url }}"><button type="button" class="btn btn-success">Atualizar dados</button></a>
+                                    {% if not membro.confirmado %}
+                                    <button name="action" value="confirmar" class="btn btn-success">Confirmar a minha participação</button>
+                                    {% endif %}
+                                    {% if membro.filiado %}
+                                        <button name="action" value="colaborador" class="btn btn-success">Quero ser apenas colaborador(a)</button>
+                                    {% else %}
+                                        <button name="action" value="filiado" class="btn btn-success">Quero ser pré-filiado(a)</button>
+                                    {% endif %}
+                                    <button name="action" value="sair" class="btn btn-success" onclick="return confirm('Você realmente deseja pedir desligamento da RAiZ?');">Não quero mais fazer parte da RAiZ</button>
+                                </form>
                             </div>
                         </div>
 
@@ -174,4 +161,16 @@
         </div>
     </div>
 </div>
+
+<style type="text/css">
+    .btn-success {
+        background: #94C11E;
+        border: 1px #000 solid;
+    }
+
+    .form-inline div {
+        display: inline;
+        margin-right: 20px
+    }
+</style>
 {% endblock %}

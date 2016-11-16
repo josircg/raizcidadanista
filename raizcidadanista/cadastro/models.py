@@ -126,6 +126,7 @@ class Membro(Pessoa):
     telegram_id = models.CharField(u'Telegram ID', max_length=120, editable=False, blank=True, null=True)
     aprovador = models.ForeignKey(User, related_name='membro_aprovador', verbose_name=u'Aprovador', blank=True, null=True)
     filiado = models.BooleanField(u'Pretende ser filiado?', default=False)
+    confirmado = models.BooleanField(u'Recadastramento')
     dt_prefiliacao = models.DateField(u'Dt de pré-filiação', blank=True, null=True)
     contrib_tipo = models.CharField(u'Tipo de Contribuição', max_length=1, choices=TIPO_CONTRIBUICAO, default='N')
     contrib_valor = BRDecimalField(u'Valor da Contribuição', max_digits=7, decimal_places=2, default=0)
@@ -187,6 +188,18 @@ class Membro(Pessoa):
             return salted_hmac(key_salt, value).hexdigest()[::2]
 
         return reverse('atualizar_cadastro', kwargs={
+            'uidb36': int_to_base36(self.pk),
+            'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
+            'token': create_token(self),
+        })
+
+    def get_absolute_recadastramento_url(self):
+        def create_token(membro):
+            key_salt = "cadastro.forms.RecadastramentoView"
+            value = u'%s%s' % (membro.pk, membro.email)
+            return salted_hmac(key_salt, value).hexdigest()[::2]
+
+        return reverse('recadastramento', kwargs={
             'uidb36': int_to_base36(self.pk),
             'ts_b36': int_to_base36((date.today() - date(2001, 1, 1)).days),
             'token': create_token(self),

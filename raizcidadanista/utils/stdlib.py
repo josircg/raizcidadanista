@@ -26,3 +26,11 @@ def normalizar_data(data_string):
     if len(ano) == 2:
         ano = '20%s' % ano
     return date(day=int(dia), month=int(mes), year=int(ano))
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

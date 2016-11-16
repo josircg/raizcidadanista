@@ -24,6 +24,7 @@ from municipios.models import UF
 from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm, ConsultaForm
 from cadastro.telegram import bot
 from cms.email import sendmail
+from utils.stdlib import get_client_ip
 
 from datetime import date
 import cStringIO as StringIO
@@ -91,7 +92,7 @@ class MembroView(FormView):
         if request.GET.get('email'):
             json = {'msg': ''}
             if Membro.objects.filter(email=request.GET.get('email'), filiado=True).exists():
-                json['msg'] = u'Você já está registrado no site como filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
+                json['msg'] = u'Você já está registrado no site como Pré-filiado. Para editar os seus dados <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             elif Membro.objects.filter(email=request.GET.get('email')).exists():
                 json['msg'] = u'Já existe um cadastro com esse email. Faça login no site para que possa alterar seus dados ou <a href="%s?email=%s">clique aqui</a>.' % (reverse('atualizar_cadastro_link'), request.GET.get('email'))
             return HttpResponse(simplejson.dumps(json, ensure_ascii=False), mimetype='text/javascript; charset=utf-8')
@@ -208,6 +209,138 @@ class AtualizarCadastroLinkView(FormView):
         messages.error(self.request, u"Preencha corretamente todos os dados!")
         return super(AtualizarCadastroLinkView, self).form_invalid(form)
 
+
+class RecadastramentoView(TemplateView):
+    template_name = 'cadastro/recadastramento.html'
+    template_success_name = 'cadastro/bem-vindo.html'
+
+    def get_instance(self, request, uidb36, ts_b36, token):
+        def create_token(instance):
+            key_salt = "cadastro.forms.RecadastramentoView"
+            value = u'%s%s' % (instance.pk, instance.email,)
+            return salted_hmac(key_salt, value).hexdigest()[::2]
+
+        try:
+            uid_int = base36_to_int(uidb36)
+
+            # Link só funciona 3 dia
+            ts_int = base36_to_int(ts_b36)
+            if ts_int+3 < (date.today() - date(2001, 1, 1)).days:
+                return None
+
+            instance = Membro.objects.get(id=uid_int)
+        except (ValueError, Membro.DoesNotExist):
+            return None
+        if not constant_time_compare(create_token(instance), token):
+            return None
+
+        return instance
+
+    def post(self, request, uidb36, ts_b36, token, *args, **kwargs):
+        self.instance = self.get_instance(request, uidb36, ts_b36, token)
+        if not self.instance:
+            return self.response_class(
+                request=self.request,
+                template=self.template_success_name,
+                context={
+                    'title': u'Este link expirou!',
+                    'msg': u'Você demorou muito para realizar o recadastramento.',
+                }
+            )
+
+        if request.POST.get('action'):
+            if request.POST.get('action') == 'confirmar':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=self.instance.pk).update(confirmado=True)
+                self.instance = self.get_instance(request, uidb36, ts_b36, token)
+                messages.info(request, u'Cadastro como pré-filiado confirmado.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(self.instance).pk,
+                    object_id = self.instance.pk,
+                    object_repr = u"%s" % self.instance,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário confirmou o cadastro como pré-filiado com o IP %s.' % get_client_ip(request)
+                )
+            elif request.POST.get('action') == 'colaborador':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=self.instance.pk).update(filiado=False)
+                self.instance = self.get_instance(request, uidb36, ts_b36, token)
+                messages.info(request, u'Você foi marcado como Colaborador.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(self.instance).pk,
+                    object_id = self.instance.pk,
+                    object_repr = u"%s" % self.instance,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário passou a ser colaborador.'
+                )
+            elif request.POST.get('action') == 'filiado':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=self.instance.pk).update(filiado=True)
+                self.instance = self.get_instance(request, uidb36, ts_b36, token)
+                messages.info(request, u'Você foi marcado como pré-filiado.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(self.instance).pk,
+                    object_id = self.instance.pk,
+                    object_repr = u"%s" % self.instance,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário passou a ser pré-filiado.'
+                )
+            elif request.POST.get('action') == 'sair':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=self.instance.pk).update(status_email='O')
+                # Remover a pessoa de todos os círculos.
+                CirculoMembro.objects.filter(membro=self.instance).delete()
+                self.instance = self.get_instance(request, uidb36, ts_b36, token)
+                messages.info(request, u'Desligamento efetuado com sucesso.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(self.instance).pk,
+                    object_id = self.instance.pk,
+                    object_repr = u"%s" % self.instance,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário pediu desligamento.'
+                )
+                return HttpResponseRedirect('/')
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context=self.get_context_data(**kwargs)
+        )
+
+    def get(self, request, uidb36, ts_b36, token, *args, **kwargs):
+        self.instance = self.get_instance(request, uidb36, ts_b36, token)
+        if not self.instance:
+            return self.response_class(
+                request=self.request,
+                template=self.template_success_name,
+                context={
+                    'title': u'Este link expirou!',
+                    'msg': u'Você demorou muito para realizar o recadastramento.',
+                }
+            )
+
+        if self.instance.confirmado:
+            messages.info(request, u'Recadastramento já foi efetuado.')
+
+        LogEntry.objects.log_action(
+            user_id = User.objects.get_or_create(username="sys")[0].pk,
+            content_type_id = ContentType.objects.get_for_model(self.instance).pk,
+            object_id = self.instance.pk,
+            object_repr = u"%s" % self.instance,
+            action_flag = CHANGE,
+            change_message = u'[RECAD] Usuário respondeu ao recadastramento.'
+        )
+        return super(RecadastramentoView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RecadastramentoView, self).get_context_data(**kwargs)
+        context['membro'] = self.instance
+        return context
+
+
 class AtualizarCadastroView(FormView):
     template_name_filiado = 'cadastro/atualizar-cadastro-filiado.html'
     template_name_membro = 'cadastro/atualizar-cadastro-membro.html'
@@ -254,8 +387,8 @@ class AtualizarCadastroView(FormView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Link inválido, tente novamente.',
-                    'msg': u'Link inválido, tente novamente.',
+                    'title': u'Este link expirou!',
+                    'msg': u'Você demorou muito para realizar a atualização cadastral. <a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
                 }
             )
         return super(AtualizarCadastroView, self).get(request, *args, **kwargs)
@@ -267,8 +400,8 @@ class AtualizarCadastroView(FormView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Link inválido, tente novamente.',
-                    'msg': u'Link inválido, tente novamente.',
+                    'title': u'Este link expirou!',
+                    'msg': u'Você demorou muito para realizar a atualização cadastral. <a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
                 }
             )
         return super(AtualizarCadastroView, self).post(request, *args, **kwargs)

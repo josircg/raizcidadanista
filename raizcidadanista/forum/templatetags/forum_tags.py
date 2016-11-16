@@ -50,4 +50,5 @@ def has_delete_conversa(conversa, user):
 
 @register.filter
 def percent(valor, total):
-    return (float(valor)/float(total))*100
+    try: return (float(valor)/float(total))*100
+    except: return 0.0

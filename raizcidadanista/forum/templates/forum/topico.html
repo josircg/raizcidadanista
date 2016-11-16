@@ -127,7 +127,11 @@
                                                     <div class="mention-people"></div>
                                                 </span>
                                                 {% if object.editavel and request.user == conversa.autor %}
+                                                    {% if forloop.first %}
+                                                    | <a href="{{ object.get_absolute_edit_url }}">Editar</a>
+                                                    {% else %}
                                                     | <a class="edit-link" href="javascript://">Editar</a>
+                                                    {% endif %}
                                                 {% endif %}
                                                 {% if not forloop.first %}
                                                 | <a class="responder-link" href="javascript://">Responder</a>

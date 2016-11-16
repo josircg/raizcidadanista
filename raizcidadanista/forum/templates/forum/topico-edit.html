@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap static %}
 
-{% block title %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
-{% block ogtitle %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block title %}Tópicos: {{ grupo }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Tópicos: {{ grupo }} - Teia Digital - {% endblock %}
 
-{% block description %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
-{% block ogdescription %}Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block description %}Tópicos: {{ grupo }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Tópicos: {{ grupo }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-all">
@@ -14,8 +14,8 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="gallery_title">
-                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
-                        <h4>Adicionar novo tópico</h4>
+                        <h3><a href="{{ grupo.get_absolute_url }}">Tópicos: {{ grupo }}</a></h3>
+                        <h4>Editar tópico</h4>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                             {% endfor %}
                             <div class="panel panel-default">
                                 <div class="panel-body">
-                                    <h3>Novo tópico</h3>
+                                    <h3>Editar tópico</h3>
                                     {% for field in form %}
                                         {% if field.name != 'imagem' and field.name != 'arquivo' %}
                                         <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
@@ -54,7 +54,7 @@
                                     {% endfor %}
                                     <div class="form-group form-inline" style="margin-bottom: 10px">
                                         <div class="upload input-group" style="margin-right: 30px;">
-                                            <button type="submit" class="btn btn-success">Adicionar</button>
+                                            <button type="submit" class="btn btn-success">Salvar</button>
                                         </div>
                                         <div class="upload input-group">
                                             <button type="button" class="input-fake btn btn-default">

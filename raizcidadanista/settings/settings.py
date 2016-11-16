@@ -206,6 +206,14 @@ CKEDITOR_CONFIGS = {
         'forcePasteAsPlainText': True,
         'extraPlugins': 'smiley'
     },
+    'proposta': {
+        'height': 300,
+        'width': '100%',
+        'skin': 'moono',
+        'toolbar': [['Bold', 'Italic', 'Underline', 'TextColor', 'NumberedList', 'BulletedList', 'Link', 'Smiley', ], ],
+        'forcePasteAsPlainText': True,
+        'extraPlugins': 'smiley'
+    },
     'default': {
         'toolbar': [
             {

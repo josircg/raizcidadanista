@@ -134,7 +134,7 @@ class AddPropostaForm(forms.ModelForm):
         model = Proposta
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
-            'texto': CKEditorWidget(config_name='basic'),
+            'texto': CKEditorWidget(config_name='proposta'),
         }
 
     def save(self, topico, autor, *args, **kwargs):
@@ -148,7 +148,7 @@ class AddEnqueteForm(forms.ModelForm):
         model = Proposta
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
-            'texto': CKEditorWidget(config_name='basic'),
+            'texto': CKEditorWidget(config_name='proposta'),
         }
 
     def save(self, topico, autor, *args, **kwargs):

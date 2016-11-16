@@ -21,7 +21,7 @@ class AddEditTopicoForm(forms.ModelForm):
         model = Topico
         fields = ('titulo',)
 
-    texto = forms.CharField(label=u'Descrição', widget=CKEditorWidget(config_name='basic'))
+    texto = forms.CharField(label=u'Descrição', widget=CKEditorWidget(config_name='basicadd'))
     imagem = forms.ImageField(label=u'Imagem', required=False)
     arquivo = forms.FileField(label=u'Arquivo', required=False)
     categoria = forms.ModelChoiceField(label=u'Categoria', queryset=GrupoCategoria.objects.all(), required=False, help_text='Pode ficar em branco')
@@ -134,7 +134,7 @@ class AddPropostaForm(forms.ModelForm):
         model = Proposta
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
-            'texto': CKEditorWidget(config_name='proposta'),
+            'texto': CKEditorWidget(config_name='basicadd'),
         }
 
     def save(self, topico, autor, *args, **kwargs):
@@ -148,7 +148,7 @@ class AddEnqueteForm(forms.ModelForm):
         model = Proposta
         fields = ('texto', 'escopo', 'dt_encerramento' )
         widgets = {
-            'texto': CKEditorWidget(config_name='proposta'),
+            'texto': CKEditorWidget(config_name='basicadd'),
         }
 
     def save(self, topico, autor, *args, **kwargs):

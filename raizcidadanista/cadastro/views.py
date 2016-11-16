@@ -291,8 +291,10 @@ class RecadastramentoView(TemplateView):
             elif request.POST.get('action') == 'sair':
                 # FIXBUG não estava salvando!
                 Membro.objects.filter(pk=self.instance.pk).update(status_email='O')
+                # Remover a pessoa de todos os círculos.
+                CirculoMembro.objects.filter(membro=self.instance).delete()
                 self.instance = self.get_instance(request, uidb36, ts_b36, token)
-                messages.info(request, u'Você pediu desligamento da RAiZ.')
+                messages.info(request, u'Desligamento efetuado com sucesso.')
                 LogEntry.objects.log_action(
                     user_id = User.objects.get_or_create(username="sys")[0].pk,
                     content_type_id = ContentType.objects.get_for_model(self.instance).pk,
@@ -319,6 +321,9 @@ class RecadastramentoView(TemplateView):
                     'msg': u'Você demorou muito para realizar o recadastramento.',
                 }
             )
+
+        if self.instance.confirmado:
+            messages.info(request, u'Recadastramento já foi efetuado.')
 
         LogEntry.objects.log_action(
             user_id = User.objects.get_or_create(username="sys")[0].pk,

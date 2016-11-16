@@ -206,7 +206,7 @@ CKEDITOR_CONFIGS = {
         'forcePasteAsPlainText': True,
         'extraPlugins': 'smiley'
     },
-    'proposta': {
+    'basicadd': {
         'height': 300,
         'width': '100%',
         'skin': 'moono',

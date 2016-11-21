@@ -290,7 +290,7 @@ class MembroAdmin(PowerModelAdmin):
         ('q4', u'Município Eleitoral', ['municipio_eleitoral', ]),
     )
     inlines = (CirculoMembroMembroInline, )
-    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
+    actions = ('aprovacao', 'estimativa_de_recebimento', 'colaboradores_sem_pagamento_csv', 'lista_colaboradores_com_pagamento_em_atraso', 'lista_colaboradores_sem_pagamento', 'atualizacao_cadastral', 'requerimento', 'requerimento_html', 'listagem_telefonica', 'assinatura', )
 
     fieldsets = (
         (None, {
@@ -439,6 +439,19 @@ class MembroAdmin(PowerModelAdmin):
         response['Content-Disposition'] = 'filename=Colaboradores_sem_pagamento.csv'
         return response
     colaboradores_sem_pagamento_csv.short_description = u'Colaboradores sem pagamento - csv'
+
+    def lista_colaboradores_com_pagamento_em_atraso(self, request, queryset):
+        results = queryset.exclude(Q(contrib_prox_pgto=None) | Q(contrib_valor__lte=0)).filter(contrib_prox_pgto__lt=datetime.now()).distinct()
+
+        lista = Lista(nome=u'Colaboradores com pagamento em atraso', validade=datetime.now(), status='P')
+        lista.save()
+
+        for colaborador in results:
+            ListaCadastro(lista=lista, pessoa=colaborador).save()
+
+        messages.info(request, u'Lista criada com sucesso!')
+        return HttpResponseRedirect(reverse('admin:cadastro_lista_change', args=(lista.pk, )))
+    lista_colaboradores_com_pagamento_em_atraso.short_description = u'Lista Colaboradores com pagamento em atraso'
 
     def lista_colaboradores_sem_pagamento(self, request, queryset):
         colaboradores_com_pagamento_ids = Receita.objects.filter(colaborador__in=queryset).values_list('colaborador', flat=True)

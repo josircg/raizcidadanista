@@ -171,7 +171,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
                 valor=instance.valor,
                 fornecedor=instance.fornecedor,
                 despesa=instance,
-                tipo_despesa=tipo_despesa,
+                tipo_despesa=instance.tipo_despesa,
             ).save()
         else:
             pagamento = instance.pagamento_set.latest('pk')

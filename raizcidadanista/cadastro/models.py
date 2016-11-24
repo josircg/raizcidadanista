@@ -30,6 +30,7 @@ from utils.storage import UuidFileSystemStorage, SpecialCharFileSystemStorageS3
 from cms.email import sendmail, send_email_thread
 from smart_selects.db_fields import ChainedForeignKey
 from utils.fields import BRDecimalField
+from cms.fields import ListField
 
 
 GENDER = (
@@ -317,7 +318,7 @@ class Circulo(models.Model):
 
     titulo = models.CharField(u'Título', max_length=80)
     slug = models.SlugField(u'Url', max_length=80, blank=True)
-    descricao = models.TextField(u'Descricao') # HTML
+    descricao = models.TextField(u'Descrição') # HTML
     tipo = models.CharField(u'Tipo', max_length=1, choices=CIRCULO_TIPO)
     uf = models.ForeignKey(UF, blank=True, null=True)
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
@@ -364,6 +365,72 @@ def circulo_slug_pre_save(sender, instance, raw, using, *args, **kwargs):
             counter += 1
             new_slug = '%s-%d'%(slug, counter)
         instance.slug = new_slug
+
+
+
+CIRCULO_PENDENTE_TIPO = (
+    ('R', u'Territorial'),
+    ('T', u'Temático/Identitário'),
+    ('A', u'Ambos (atua em um tema em determinada região)'),
+)
+
+CIRCULO_PENDENTE_STATUS = (
+    ('A', u'Sim, o Círculo funciona com reuniões e/ou atividades efetivas e periódicas'), #Ativo
+    ('G', u'Sim, o Círculo funciona porém mais baseado em debates e/ou atividades virtuais periódicas'), #Grupo de Discussão
+    ('F', u'Não, apesar de já ter tido reuniões presenciais e/ou atividades, ainda não houve continuidade efetiva'), #Em formação
+    ('I', u'Não, o grupo virtual foi criado, porém ainda não houve reuniões presenciais, atividades práticas efetivas e o envolvimento virtual dos membros está baixo.'), #Inativo
+)
+
+class CirculoPendente(models.Model):
+    class Meta:
+        verbose_name = u'Círculo Pendente'
+        verbose_name_plural = u'Círculos Pendente'
+        ordering = ('tipo', 'titulo', )
+
+    titulo = models.CharField(u'Título', max_length=80)
+    slug = models.SlugField(u'Url', max_length=255, blank=True)
+    descricao = models.TextField(u'Descrição') # HTML
+    tipo = models.CharField(u'Tipo de Círculo', max_length=1, choices=CIRCULO_PENDENTE_TIPO)
+    uf = models.ForeignKey(UF, verbose_name=u'UF', blank=True, null=True)
+    municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
+    oficial = models.BooleanField(u'Oficial', default=False)
+    permitecadastro = models.BooleanField(u'Permite cadastro', default=True)
+    dtcadastro = models.DateField(u'Dt.Cadastro', default=datetime.now)
+    site_externo = models.URLField(u'Link do endereço virtual do Círculo', blank=True, null=True, help_text=u'( se houver )')
+    imagem = models.FileField(u'Imagem ou Logo do grupo', blank=True, null=True,
+        upload_to='circulo', storage=UuidFileSystemStorage())
+    status = models.CharField('Este Círculo está em atividade atualmente ?', max_length=1, choices=CIRCULO_PENDENTE_STATUS, default='A')
+    grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
+    section = models.ForeignKey(Section, verbose_name=u'Seção', blank=True, null=True)
+    autor = models.ForeignKey(User)
+
+    # Outros campos
+    dtcriacao = models.CharField(u'Data de criação', max_length=7, help_text=u'Modelo: xx/xxxx ( mês/ano - numérico )')
+    area_geografica = models.CharField(u'Área geográfica de abrangência e/ou Temática principal de atuação', max_length=120)
+    num_membros = models.PositiveIntegerField(u'Quantas pessoas em média participam do Círculo atualmente?')
+    num_membros_coleta = models.PositiveIntegerField(u'Quantas pessoas poderão participar efetivamente da Coleta de Assinaturas para a Legalização da Raiz?', blank=True, null=True)
+    jardineiro_1_nome = models.CharField(u'Jardineira(o) 1: Nome', max_length=120, blank=True, null=True)
+    jardineiro_1_email = models.EmailField(u'Email', blank=True, null=True)
+    jardineiro_1_telefone = models.CharField(u'Telefone(s)', max_length=255, blank=True, null=True, help_text=u'Modelo: xx - xxxxx xxxx')
+    jardineiro_2_nome = models.CharField(u'Jardineira(o) 2: Nome', max_length=120, blank=True, null=True)
+    jardineiro_2_email = models.EmailField(u'Email', blank=True, null=True)
+    jardineiro_2_telefone = models.CharField(u'Telefone(s)', max_length=255, blank=True, null=True, help_text=u'Modelo: xx - xxxxx xxxx')
+
+    ferramentas = models.CharField(u'Ferramentas de Comunicação estabelecidas pelo Círculo', max_length=255, help_text=u'Ex.: E-mail, Facebook, Telegram, WhatsApp, Loomio, Telefone, etc.')
+
+    def __unicode__(self):
+        return u'%s' % self.titulo
+@receiver(signals.pre_save, sender=CirculoPendente)
+def circulopendente_slug_pre_save(sender, instance, raw, using, *args, **kwargs):
+    if not instance.slug:
+        slug = slugify(instance.titulo)
+        new_slug = slug
+        counter = 0
+        while sender.objects.filter(slug=new_slug).exclude(id=instance.id).count() > 0:
+            counter += 1
+            new_slug = '%s-%d'%(slug, counter)
+        instance.slug = new_slug
+
 
 
 class CirculoMembro(models.Model):

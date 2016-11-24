@@ -14,7 +14,8 @@ from ckeditor.widgets import CKEditorWidget
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro
+from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro, \
+    CirculoPendente, CIRCULO_PENDENTE_TIPO, CIRCULO_PENDENTE_STATUS
 from cms.email import sendmail
 
 
@@ -427,3 +428,30 @@ class InclusaoEmLoteForm(forms.Form):
         if arquivo.name.split('.')[-1].lower() != 'csv':
             raise forms.ValidationError(u'Envie um arquivo .csv.')
         return arquivo
+
+
+class CirculoPendenteForm(forms.ModelForm):
+    class Meta:
+        model = CirculoPendente
+        fields = ('primeiravez', 'atualizar', 'titulo', 'descricao', 'dtcriacao', 'tipo', 'uf', 'municipio', 'area_geografica', 'status', 'num_membros', 'num_membros_coleta', 'jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', 'jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', 'site_externo', 'ferramentas', )
+
+    PRIMEIRAVEZ_CHOICES = (
+        ('T', u'Sim, pela primeira vez'),
+        ('F', u'Não, agora estou atualizando ou corrigindo'),
+    )
+    primeiravez = forms.ChoiceField(label=u'Preenchendo este Formulário pela 1ª vez?', choices=PRIMEIRAVEZ_CHOICES, initial='T', widget=forms.RadioSelect())
+    atualizar = forms.ModelChoiceField(label=u'Selecione o Círculo que deseja editar', queryset=CirculoPendente.objects.all(), required=False)
+
+    tipo = forms.ChoiceField(label=u'Tipo de Círculo', choices=CIRCULO_PENDENTE_TIPO, initial='R', widget=forms.RadioSelect())
+    status = forms.ChoiceField(label=u'Este Círculo está em atividade atualmente ?', choices=CIRCULO_PENDENTE_STATUS, widget=forms.RadioSelect())
+
+    def __init__(self, request, *args, **kwargs):
+        super(CirculoPendenteForm, self).__init__(*args, **kwargs)
+        self.instance.autor = request.user
+        self.fields['atualizar'].queryset = CirculoPendente.objects.filter(autor=request.user)
+
+    def clean_atualizar(self):
+        atualizar = self.cleaned_data.get('atualizar')
+        if not atualizar and self.cleaned_data.get('primeiravez') ==  'F':
+            raise forms.ValidationError(u'Este campo é obrigatório.')
+        return atualizar

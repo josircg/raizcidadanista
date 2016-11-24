@@ -38,7 +38,7 @@ from ckeditor.widgets import CKEditorWidget
 
 from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
-    ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao
+    ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao, CirculoPendente
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
@@ -1108,6 +1108,17 @@ class CirculoAdmin(PowerModelAdmin):
 #                return
 
 admin.site.register(Circulo, CirculoAdmin)
+
+
+class CirculoPendenteAdmin(PowerModelAdmin):
+    search_fields = ('titulo',)
+    list_display = ('titulo', 'tipo', 'uf', 'dtcriacao', 'status', 'autor', )
+    list_filter = ('tipo', 'uf', 'status', )
+    fieldsets = (
+        (None, {"fields" : ('titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'dtcriacao', 'area_geografica', 'num_membros', 'num_membros_coleta', ('jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', ), ('jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', ), 'ferramentas', ),},),
+    )
+
+admin.site.register(CirculoPendente, CirculoPendenteAdmin)
 
 
 class MunicipioAdmin(PowerModelAdmin):

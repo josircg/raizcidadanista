@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^recadastramento/(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<ts_b36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,20})/?$', views.RecadastramentoView.as_view(), name="recadastramento"),
     url(r'^validar-email/(?P<pessoa_id>\d+)/$', views.ValidarEmailView.as_view(), name="validar_email"),
     url(r'^campanha/(?P<pk>\d+)/$', views.CampanhaView.as_view(), name='campanha_views'),
+    url(r'^cadastro-circulo/$', login_required(views.CadastroCirculoView.as_view()), name='cadastro_circulo'),
 ]

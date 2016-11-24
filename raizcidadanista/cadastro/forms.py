@@ -455,3 +455,14 @@ class CirculoPendenteForm(forms.ModelForm):
         if not atualizar and self.cleaned_data.get('primeiravez') ==  'F':
             raise forms.ValidationError(u'Este campo é obrigatório.')
         return atualizar
+
+    def sendmail(self, template_email_name='emails/cadastro-circulo.html'):
+        sendmail(
+            subject=u'Criação/Atualização de Círculo',
+            to=['correio@raiz.org.br', ],
+            template=template_email_name,
+            params={
+                'circulo': self.instance,
+                'SITE_HOST': settings.SITE_HOST,
+            },
+        )

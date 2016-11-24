@@ -639,6 +639,7 @@ class CadastroCirculoView(FormView):
 
     def form_valid(self, form):
         form.save()
+        form.sendmail()
         messages.info(self.request, u"Cadastro realizado com sucesso!")
 
         form_class = self.get_form_class()

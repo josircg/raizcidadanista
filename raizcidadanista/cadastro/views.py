@@ -243,7 +243,7 @@ class RecadastramentoView(TemplateView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Este link expirou!',
+                    'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
                 }
             )
@@ -317,7 +317,7 @@ class RecadastramentoView(TemplateView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Este link expirou!',
+                    'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
                 }
             )
@@ -387,8 +387,8 @@ class AtualizarCadastroView(FormView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Este link expirou!',
-                    'msg': u'Você demorou muito para realizar a atualização cadastral. <a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
+                    'title': u'RECADASTRAMENTO RAIZ',
+                    'msg': u'Você demorou muito para realizar a atualização cadastral.<br><a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
                 }
             )
         return super(AtualizarCadastroView, self).get(request, *args, **kwargs)
@@ -400,8 +400,8 @@ class AtualizarCadastroView(FormView):
                 request=self.request,
                 template=self.template_success_name,
                 context={
-                    'title': u'Este link expirou!',
-                    'msg': u'Você demorou muito para realizar a atualização cadastral. <a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
+                    'title': u'RECADASTRAMENTO RAIZ',
+                    'msg': u'Você demorou muito para realizar a atualização cadastral.<br><a href="%s">Clique aqui</a> para solicitar uma nova atualização.' % reverse('atualizar_cadastro_link'),
                 }
             )
         return super(AtualizarCadastroView, self).post(request, *args, **kwargs)

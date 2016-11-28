@@ -430,6 +430,17 @@ class InclusaoEmLoteForm(forms.Form):
         return arquivo
 
 
+class ImportarPessoasListaForm(forms.Form):
+    lista = forms.ModelChoiceField(queryset=Lista.objects.all())
+    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha contém um email')
+
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data['arquivo']
+        if arquivo.name.split('.')[-1].lower() != 'csv':
+            raise forms.ValidationError(u'Envie um arquivo .csv.')
+        return arquivo
+
+
 class CirculoPendenteForm(forms.ModelForm):
     class Meta:
         model = CirculoPendente

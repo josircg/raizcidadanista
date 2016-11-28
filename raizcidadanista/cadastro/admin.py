@@ -36,7 +36,7 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao, CirculoPendente
 from financeiro.models import Receita
@@ -1229,10 +1229,45 @@ class ListaAdmin(PowerModelAdmin):
         messages.info(request, u'%s lista(s) inativada(s).' % count)
     inativar.short_description = u'Inativar'
 
+    def importar_pessoas(self, request, form_class=ImportarPessoasListaForm, template_name='admin/cadastro/lista/importar-pessoas.html'):
+        form = form_class()
+        if request.method == 'POST':
+            form = form_class(request.POST, request.FILES)
+            if form.is_valid():
+                lista = form.cleaned_data.get('lista')
+                num_cadastros = 0
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
+                    for email in record:
+                        email = force_unicode(email.strip())
+                        try:
+                            pessoa = Pessoa.objects.get(email=email)
+                        except Pessoa.DoesNotExist:
+                            messages.info(request, u'Pessoa não encontrada: %s' % email)
+                        cadastro, created = ListaCadastro.objects.get_or_create(lista=lista, pessoa=pessoa)
+                        if created:
+                            num_cadastros += 1
+
+                messages.info(request, u'%s Pessoa(s) cadastrada(s).' % num_cadastros)
+                return HttpResponseRedirect("%s?lista__id__exact=%s" % (reverse('admin:cadastro_listacadastro_changelist'), lista.pk))
+
+        return render_to_response(template_name, {
+            'title': u'Importar pessoas',
+            'form': form,
+        },context_instance=RequestContext(request))
+
+    def get_urls(self):
+        urls_originais = super(ListaAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^importar-pessoas/$', self.wrap(self.importar_pessoas), name='cadastro_lista_importar_pessoas'),
+        )
+        return urls_customizadas + urls_originais
+
     def get_buttons(self, request, object_id):
         buttons = super(ListaAdmin, self).get_buttons(request, object_id)
         if object_id:
             buttons.append(PowerButton(url="%s?lista__id__exact=%s" % (reverse('admin:cadastro_listacadastro_changelist'), object_id), label=u'Cadastros'))
+        else:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_lista_importar_pessoas'), label=u'Importar pessoas'))
         return buttons
 admin.site.register(Lista, ListaAdmin)
 

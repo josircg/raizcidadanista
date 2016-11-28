@@ -1,0 +1,22 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify adminmedia %}
+
+{% block extrastyle %}
+{{ block.super }}
+
+{% if change %}
+<div id="box-importar_lista" style="display:none">
+    <h3>Selecione uma lista:</h3><br>
+    <form action="{% url admin:forum_grupo_importar_lista original.pk %}" method="POST">{% csrf_token %}
+        <label>
+            <select name='lista_id'>
+                {% for lista in listas %}
+                <option value="{{ lista.pk }}">{{ lista }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <input type="submit" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;" />
+    </form>
+</div>
+{% endif %}
+{% endblock %}

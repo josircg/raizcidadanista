@@ -13,6 +13,7 @@ from django.db.models import Q
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import login
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -264,6 +265,12 @@ class RecadastramentoView(TemplateView):
                     action_flag = CHANGE,
                     change_message = u'[RECAD] Usuário confirmou o cadastro como pré-filiado com o IP %s.' % get_client_ip(request)
                 )
+                # Fazer o login e redirecionara para o Meu Perfil
+                if self.instance.usuario:
+                    self.instance.usuario.backend='django.contrib.auth.backends.ModelBackend'
+                    login(request, self.instance.usuario)
+                    return HttpResponseRedirect(reverse('meu_perfil'))
+
             elif request.POST.get('action') == 'colaborador':
                 # FIXBUG não estava salvando!
                 Membro.objects.filter(pk=self.instance.pk).update(filiado=False)
@@ -292,7 +299,7 @@ class RecadastramentoView(TemplateView):
                 )
             elif request.POST.get('action') == 'sair':
                 # FIXBUG não estava salvando!
-                Membro.objects.filter(pk=self.instance.pk).update(status_email='O')
+                Membro.objects.filter(pk=self.instance.pk).update(status_email='O', status='C', confirmado=True, filiado=False)
                 # Remover a pessoa de todos os círculos.
                 CirculoMembro.objects.filter(membro=self.instance).delete()
                 self.instance = self.get_instance(request, uidb36, ts_b36, token)
@@ -325,7 +332,8 @@ class RecadastramentoView(TemplateView):
             )
 
         if self.instance.confirmado:
-            messages.info(request, u'Recadastramento já foi efetuado.')
+            messages.info(request, u'O seu recadastramento já foi efetuado.')
+            return HttpResponseRedirect(reverse('meu_perfil'))
 
         LogEntry.objects.log_action(
             user_id = User.objects.get_or_create(username="sys")[0].pk,

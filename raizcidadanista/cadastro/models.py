@@ -98,7 +98,6 @@ class Membro(Pessoa):
         ('S', u'Suspensa'),
         ('N', u'Não definida'),
     )
-
     ESTADO_CIVIL = (
         ('S', u'Solteira(o)'),
         ('C', u'Casada(o)'),
@@ -106,7 +105,12 @@ class Membro(Pessoa):
         ('D', u'Divorciada(o)'),
         ('V', u'Viúva(o)'),
     )
+    STATUS = (
+        ('A', u'Ativo'),
+        ('C', u'Cancelado'),
+    )
 
+    status = models.CharField(u'Status', max_length=1, default='A', choices=STATUS)
     atividade_profissional = models.CharField(u'Atividade Profissional', max_length=150, blank=True, null=True)
     dtnascimento = models.DateField(u'Dt.Nascimento', blank=True, null=True)
     rg = models.CharField(u'RG', max_length=50, blank=True, null=True)
@@ -254,6 +258,10 @@ def validaremail_membro_signal(sender, instance, created, raw, using, *args, **k
                 'SITE_HOST': settings.SITE_HOST,
             },
         )
+@receiver(signals.pre_save, sender=Membro)
+def update_status_membro_signal(sender, instance, raw, using, *args, **kwargs):
+    if instance.status_email == 'O' and instance.status != 'C':
+        instance.status == 'C'
 @receiver(signals.pre_save, sender=Membro)
 def update_dt_prefiliacao_membro_signal(sender, instance, raw, using, *args, **kwargs):
     if not instance.dt_prefiliacao:

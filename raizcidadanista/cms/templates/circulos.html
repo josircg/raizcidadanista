@@ -30,6 +30,8 @@
             {% endfor %}
         {% endif %}
     {% endblock messages %}
+
+    <h3>Círculos Regionais</h3>
     <label>
         Selecione o seu estado:
         <select id="select-uf-circulo">
@@ -118,6 +120,38 @@
             </table>
         </div>
     </div>
+
+    <hr>
+    <h3>Círculos Temáticos e Identitários</h3>
+    <table class="table table-hover">
+        <tbody>
+        {% for circulo in circulos_tematicos %}
+            <tr>
+            {% if circulo.site_externo %}
+                <td width="90%">
+                    <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
+                    {{ circulo.descricao|safe }}
+                </td>
+            {% else %}
+                <td width="90%">
+                    <a>{{ circulo.titulo }}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
+                    {{ circulo.descricao|safe }}
+                </td>
+            {% endif %}
+            {% if user.is_authenticated %}
+                {% if circulo|is_membro:user %}
+                    <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                {% else %}
+                    {% if circulo.permitecadastro %}
+                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Se inscrever</a></td>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
     {% if not user.is_authenticated %}
     <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
     {% endif %}

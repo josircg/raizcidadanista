@@ -36,7 +36,7 @@ class CirculosView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CirculosView, self).get_context_data(**kwargs)
         context['estados'] = UF.objects.all().order_by('nome')
-        context['circulos_tematicos'] = Circulo.objects.filter(tipo__in=('T', 'I'), oficial=True).order_by('titulo')
+        context['circulos'] = Circulo.objects.filter(uf=None).order_by('titulo')
         return context
 
 

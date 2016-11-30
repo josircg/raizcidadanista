@@ -215,7 +215,8 @@ class AtualizarCadastroLinkView(FormView):
 
 class RecadastramentoView(TemplateView):
     template_name = 'cadastro/recadastramento.html'
-    template_success_name = 'cadastro/bem-vindo.html'
+    template_error_name = 'cadastro/bem-vindo.html'
+    template_success_name = 'cadastro/recadastramento-confirmado.html'
 
     def get_instance(self, request, uidb36, ts_b36, token):
         def create_token(instance):
@@ -244,7 +245,7 @@ class RecadastramentoView(TemplateView):
         if not self.instance:
             return self.response_class(
                 request=self.request,
-                template=self.template_success_name,
+                template=self.template_error_name,
                 context={
                     'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
@@ -265,11 +266,13 @@ class RecadastramentoView(TemplateView):
                     action_flag = CHANGE,
                     change_message = u'[RECAD] Usuário confirmou o cadastro como pré-filiado com o IP %s.' % get_client_ip(request)
                 )
-                # Fazer o login e redirecionara para o Meu Perfil
-                if self.instance.usuario:
-                    self.instance.usuario.backend='django.contrib.auth.backends.ModelBackend'
-                    login(request, self.instance.usuario)
-                    return HttpResponseRedirect(reverse('meu_perfil'))
+                return self.response_class(
+                    request=self.request,
+                    template=self.template_success_name,
+                    context={
+                        'membro': self.instance,
+                    }
+                )
 
             elif request.POST.get('action') == 'colaborador':
                 # FIXBUG não estava salvando!
@@ -324,16 +327,27 @@ class RecadastramentoView(TemplateView):
         if not self.instance:
             return self.response_class(
                 request=self.request,
-                template=self.template_success_name,
+                template=self.template_error_name,
                 context={
                     'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
                 }
             )
 
+        # Fazer o automático
+        if self.instance.usuario:
+            self.instance.usuario.backend='django.contrib.auth.backends.ModelBackend'
+            login(request, self.instance.usuario)
+
         if self.instance.confirmado:
             messages.info(request, u'O seu recadastramento já foi efetuado.')
-            return HttpResponseRedirect(reverse('meu_perfil'))
+            return self.response_class(
+                request=self.request,
+                template=self.template_success_name,
+                context={
+                    'membro': self.instance,
+                }
+            )
 
         LogEntry.objects.log_action(
             user_id = User.objects.get_or_create(username="sys")[0].pk,

@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap forum_tags %}
 
-{% block title %}Tópicos recentes- Teia Digital - {% endblock %}
-{% block ogtitle %}Tópicos recentes- Teia Digital - {% endblock %}
+{% block title %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block ogtitle %}{{ titulo }} - Teia Digital - {% endblock %}
 
-{% block description %}Tópicos recentes- Teia Digital - {% endblock %}
-{% block ogdescription %}Tópicos recentes- Teia Digital - {% endblock %}
+{% block description %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block ogdescription %}{{ titulo }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-all">
@@ -14,10 +14,24 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="gallery_title">
-                        <h3>Lista de tópicos recentes</h3>
+                        <h3>{{ titulo }}</h3>
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <form action="{% url forum %}" method="POST">{% csrf_token %}
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="N" class="btn btn-success button-filter"><h4>Nacional</h4></button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="E" class="btn btn-success button-filter"><h4>Estadual</h4></button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="M" class="btn btn-success button-filter"><h4>Municipal</h4></button>
+                    </div>
+                </form>
+            </div>
+
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -116,5 +130,6 @@
     .panel-conversa .fa {font-size: 25px;}
     .fa-star-o, .fa-pie-chart {color: #767676;}
     .fa-star, .fa-pie-chart.active {color: #F6A82B;}
+    .button-filter {width: 100%; margin-top: 10px}
 </style>
 {% endblock %}

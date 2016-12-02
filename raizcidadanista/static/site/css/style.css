@@ -70,7 +70,7 @@ body {
 
 /*http://stackoverflow.com/questions/16034397/css-calc-alternative*/
 .content-main {
-    padding-left: 340px;
+    padding-left: 290px;
     width: 100%;
     box-sizing: border-box;
     float: none;
@@ -80,7 +80,7 @@ body {
 
 .main-navigation {
     padding: 0px 0px;
-    width: 310px;
+    width: 260px;
     position: absolute;
     top: 0;
     left: 0;

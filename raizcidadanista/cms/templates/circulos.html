@@ -31,7 +31,7 @@
         {% endif %}
     {% endblock messages %}
 
-    <h3>Círculos</h3>
+    <h3>Círculos Regionais</h3>
     <label>
         Selecione o seu estado:
         <select id="select-uf-circulo">
@@ -43,7 +43,7 @@
     </label>
     <br>
     <label>
-        Ou então busque pelo nome do círculo ou da cidade:
+        Ou então busque pelo nome da cidade:
         <input id="input-cidade-circulo" type="text">
     </label>
 
@@ -60,7 +60,7 @@
                 {% for uf in estados %}
                     {% if uf.circulo_set.all %}
                     {% for circulo in uf.circulo_set.all %}
-                        <tr class="circulo-item" data-titulo="{{ circulo.titulo }}" data-cidade="{{ circulo.municipio }}" data-uf="{{ uf.pk }}">
+                        <tr class="circulo-item" data-cidade="{{ circulo.municipio }}" data-uf="{{ uf.pk }}">
                         {% if circulo.site_externo %}
                             <td width="40%">
                                 <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a>
@@ -113,55 +113,6 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
-
-                {% for circulo in circulos %}
-                    <tr class="circulo-item" data-titulo="{{ circulo.titulo }}" data-cidade="{{ circulo.municipio }}" data-uf="{{ circulo.uf.pk }}">
-                    {% if circulo.site_externo %}
-                        <td width="40%">
-                            <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }}</a>
-                            {% if circulo.status != 'A' %}
-                            <br><b style="color: #9C1C19">{{ circulo.get_status_display }}</b>
-                            {% endif %}
-                        </td>
-                    {% else %}
-                        <td width="40%">
-                            <a>{{ circulo.titulo }}</a>
-                            {% if circulo.status != 'A' %}
-                            <br><b style="color: #9C1C19">{{ circulo.get_status_display }}</b>
-                            {% endif %}
-                        </td>
-                    {% endif %}
-                    {% if circulo.administrador_publico %}
-                        <td width="40%">
-                            {% for adm in circulo.administrador_publico %}
-                                {{ adm.membro.nome }}
-                                {% if adm.membro.celular %}<br>Cel.: {{ adm.membro.celular }}{% endif %}
-                                <br><a href="{% url contato %}?adm={{ adm.pk }}" target="_parent">Envie um email para o Círculo</a><br>
-                            {% endfor %}
-                        </td>
-                    {% else %}
-                        <td width="40%"></td>
-                    {% endif %}
-
-                    {% if circulo.site_externo %}
-                        <td width="10%" style="min-width: 150px"><a href="{{ circulo.site_externo }}" class="button-membro-add" target="_parent">Visualizar Grupo</a></td>
-                    {% else %}
-                        <td width="10%"></td>
-                    {% endif %}
-
-                    {% if user.is_authenticated %}
-                        {% if user.membro.exists and circulo|is_membro:user %}
-                            <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
-                        {% else %}
-                        {% if user.membro.exists %}
-                            {% if circulo.permitecadastro %}
-                                <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add" target="_parent">Se inscrever</a></td>
-                            {% endif %}
-                        {% endif %}
-                        {% endif %}
-                    {% endif %}
-                    </tr>
-                {% endfor %}
                 <tr class="circulo-item busca-item-none">
                     <td colspan="4">Caso a sua cidade não esteja listada, busque o círculo estadual ou então crie o primeiro círculo na sua cidade!</td>
                 </tr>
@@ -169,6 +120,37 @@
             </table>
         </div>
     </div>
+
+    <hr>
+    <h3>Círculos Temáticos e Identitários</h3>
+    <table class="table table-hover">
+        <tbody>
+        {% for circulo in circulos_tematicos %}
+            <tr>
+            {% if circulo.site_externo %}
+                <td width="90%">
+                    <a href="{{ circulo.site_externo }}" target="_blank">{{ circulo.titulo }} {% firstof circulo.municipio '' %}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
+                    {{ circulo.descricao|safe }}
+                </td>
+            {% else %}
+                <td width="90%">
+                    <a>{{ circulo.titulo }}{% if circulo.status == 'F' or circulo.status == 'I' %} ({{ circulo.get_status_display }}){% endif %}</a><br>
+                    {{ circulo.descricao|safe }}
+                </td>
+            {% endif %}
+            {% if user.is_authenticated %}
+                {% if circulo|is_membro:user %}
+                    <td width="10%" style="min-width: 150px"><span class="button-membro">Membro do Grupo</span></td>
+                {% else %}
+                    {% if circulo.permitecadastro %}
+                    <td width="10%" style="min-width: 150px"><a href="{{ circulo.get_absolute_entrar_url }}" class="button-membro-add">Se inscrever</a></td>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
     {% if not user.is_authenticated %}
     <p>Caso você já seja colaborador ou filiado, faça o login no sistema e adicione o seu nome nos círculos de seu interesse.</p>
@@ -185,8 +167,7 @@
             $('#box-cidades .circulo').show();
             $('#box-cidades .circulo-item, #box-cidades .busca-item-none').hide();
             $('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').show();
-            $('#box-cidades .circulo-item[data-titulo*="'+$(this).val()+'"]').show();
-            if(($('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').length == 0) && ($('#box-cidades .circulo-item[data-titulo*="'+$(this).val()+'"]').length == 0)){
+            if($('#box-cidades .circulo-item[data-cidade*="'+$(this).val()+'"]').length == 0){
                 $('#box-cidades .busca-item-none').show();
             }
         });

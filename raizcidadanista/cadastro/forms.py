@@ -51,6 +51,8 @@ class MembroForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
+        for field in ('email', 'municipio', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
@@ -111,7 +113,7 @@ class FiliadoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)
         # Requireds
-        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+        for field in ('email', 'municipio', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
             self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), )
@@ -260,7 +262,7 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroFiliadoForm, self).__init__(*args, **kwargs)
         # Requireds
-        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+        for field in ('email', 'municipio', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
             self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), )
@@ -340,6 +342,8 @@ class AtualizarCadastroMembroForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroMembroForm, self).__init__(*args, **kwargs)
+        for field in ('email', 'municipio', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'

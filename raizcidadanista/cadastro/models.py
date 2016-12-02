@@ -559,7 +559,10 @@ class Campanha(models.Model):
         elif self.tipo == 'M':
             return self.circulo_membro.circulomembro_set.filter(membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
         elif self.tipo == 'V':
-            return CirculoMembro.objects.filter(circulo__uf=self.circulo_visitante.uf, membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
+            if self.circulo_visitante:
+                return CirculoMembro.objects.filter(circulo__uf=self.circulo_visitante.uf, membro__status_email__in=('A', 'N', )).values_list('membro__email', flat=True).order_by('membro__email')
+            else:
+                return Pessoa.objects.filter(status_email__in=('A', 'N', )).values_list('email', flat=True).order_by('email')
 
     def send_email_test(self, to):
         template_content = Template(self.template)

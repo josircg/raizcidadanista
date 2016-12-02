@@ -70,7 +70,7 @@ body {
 
 /*http://stackoverflow.com/questions/16034397/css-calc-alternative*/
 .content-main {
-    padding-left: 340px;
+    padding-left: 215px;
     width: 100%;
     box-sizing: border-box;
     float: none;
@@ -80,7 +80,7 @@ body {
 
 .main-navigation {
     padding: 0px 0px;
-    width: 310px;
+    width: 200px;
     position: absolute;
     top: 0;
     left: 0;
@@ -967,9 +967,7 @@ blockquote footer:before, blockquote small:before {
     #content .box { width: 33%; box-shadow: none;}
 }
 
-@media (min-width: 1230px) {
-    .container { width: 95%;    }
-}
+.container { width: 95%;    }
 
 @media (max-width:991px) {
 

@@ -1,0 +1,52 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap forum_tags static %}
+
+{% block title %}Teia Digital - {% endblock %}
+{% block ogtitle %}Teia Digital - {% endblock %}
+
+{% block description %}Teia Digital - {% endblock %}
+{% block ogdescription %}Teia Digital - {% endblock %}
+
+{% block colleft %}
+<div class="content-main">
+    <div class="row margin-b-30">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="banner-main-home" style="padding: 0px 25px 0 25px; height: 150px;">
+                <a href="/"><img src="{% static 'novosite/img/logo-base.png' %}" style="height: 120px" alt=""></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block main %}
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <form action="" method="POST">{% csrf_token %}
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="N" class="btn btn-success button-filter"><h1>Nacional</h1></button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="E" class="btn btn-success button-filter"><h1>Estadual</h1></button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="submit" name="localizacao" value="M" class="btn btn-success button-filter"><h1>Municipal</h1></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block css %}
+    <style type="text/css">
+        #content-left{padding: 0;}
+        .content-main{padding-left: 0;}
+        .button-filter {width: 100%; height: 200px; margin-top: 10px}
+        .bottom-main{float: none;}
+    </style>
+{% endblock %}

@@ -343,7 +343,7 @@ class Pagamento(Operacao):
 
     fornecedor = models.ForeignKey(Fornecedor)
     projeto = models.ForeignKey(Projeto, blank=True, null=True)
-    despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True)
+    despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True, help_text=u'Preencha caso seja um pagamento de uma despesa já agendada')
     tipo_despesa = ChainedForeignKey(TipoDespesa, chained_fields={'despesa': 'despesa', }, show_all=True, auto_choose=False, verbose_name=u'Tipo de Despesa', blank=True, null=True)
     comprovante = models.FileField(u'Comprovante', upload_to="pagamentos", blank=True, null=True)
     adiantamento = models.BooleanField(default=False)

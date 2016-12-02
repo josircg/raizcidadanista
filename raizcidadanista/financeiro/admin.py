@@ -195,6 +195,21 @@ class PagamentoAdmin(PowerModelAdmin):
     formfield_overrides = {
         models.DecimalField: {'localize': True},
     }
+
+    def get_buttons(self, request, object_id):
+        buttons = super(PagamentoAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj:
+            buttons.append(PowerButton(
+                url=u'%s?action=search&dt_inicial=%s&dt_final=%s&conta=%s' % (
+                    reverse('financeiro_caixa'),
+                    obj.dt.strftime('%d/%m/%Y'),
+                    obj.dt.strftime('%d/%m/%Y'),
+                    obj.conta.pk
+                ),
+                label=u'Visualizar no Extrato')
+            )
+        return buttons
 admin.site.register(Pagamento, PagamentoAdmin)
 
 

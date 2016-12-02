@@ -37,7 +37,7 @@
     <link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,400italic'>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'site/font-awesome/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.11">
+    <link rel="stylesheet" type="text/css" href="{% static 'site/css/style.css' %}?v1.12">
     <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
     {% block css %}{% endblock %}
 
@@ -94,8 +94,8 @@
                                     <li><h3 class="current">EVENTOS</h3></li>
                                     {% for article in articles_eventos %}
                                     <li class="paris-title">
-                                        <h3 class="text-uppercase">{{ article.title }}</h3>
-                                        <h4>{{ article.created_at|date:"d \d\e F \d\e Y" }}</h4>
+                                        <a href="{{ article.get_absolute_url }}" class="text-uppercase">{{ article.title }}</a>
+                                        <p>{{ article.created_at|date:"d \d\e F \d\e Y" }}</p>
                                         <a href="{{ article.get_absolute_url }}">Saiba mais...</a>
                                     </li>
                                     {% endfor %}

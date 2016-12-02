@@ -13,26 +13,26 @@ pyPdf==1.13
 
 #CMS
 django-mptt==0.6.0
-django-treeadmin
-easy_thumbnails
-django-uuidfield
-django-polymorphic
+django-treeadmin==0.4.1
+easy_thumbnails==2.3
+django-uuidfield==0.5.0
+django-polymorphic==1.0.2
 
 django-compressor==1.3
 django-appconf==0.6
-django-recaptcha
+django-recaptcha==1.1.0
 
 
 # apt-get install jpegoptim optipng
 # pip install pil --allow-external pil --allow-unverified pil
 
-facebook-sdk
-twython
-unicodecsv
-requests
-beautifulsoup4
+facebook-sdk==2.0.0
+twython==3.4.0
+unicodecsv==0.14.1
+requests==2.11.1
+beautifulsoup4==4.5.1
 
-telepot
+telepot==10.1
 
 #S3
 boto==2.43.0

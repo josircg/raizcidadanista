@@ -280,10 +280,10 @@ class Operacao(models.Model):
     conta = models.ForeignKey(Conta, verbose_name=u'Conta')
     tipo = models.CharField(u'Tipo', max_length=1, choices=TIPO_OPER)
     dt = models.DateField(u'Em')
-    referencia = models.CharField(u'Referência', max_length=20)
+    referencia = models.CharField(u'Referência', max_length=30, blank=True, null=True)
     valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
     conferido = models.BooleanField(u'Conferido', default=False)
-    obs = models.TextField(u'Obs', blank=True, null=True)
+    obs = models.TextField(u'Observação Interna', blank=True, null=True)
 
     def is_deposito(self):
         return self.tipo == 'D'
@@ -354,9 +354,15 @@ class Pagamento(Operacao):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
-        if self.tipo_despesa:
-            return u"%s (%s)" % (self.tipo_despesa, self.fornecedor, )
-        return u"%s" % (self.fornecedor, )
+        if self.referencia:
+            if self.projeto:
+                return u"%s (%s)" % (self.referencia, self.projeto )
+            elif self.tipo_despesa:
+                return u"%s (%s)" % (self.referencia, self.tipo_despesa )
+            else:
+                return u"%s" % (self.referencia )
+
+        return u"%s" % (self.fornecedor)
 
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):

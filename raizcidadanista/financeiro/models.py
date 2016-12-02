@@ -167,7 +167,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
                 conta=conta,
                 tipo='P',
                 dt=instance.dtvencimento or datetime.today(),
-                referencia=instance.documento[:20],
+                referencia=instance.documento,
                 valor=instance.valor,
                 fornecedor=instance.fornecedor,
                 despesa=instance,
@@ -176,7 +176,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
         else:
             pagamento = instance.pagamento_set.latest('pk')
             pagamento.dt = instance.dtvencimento or datetime.today()
-            pagamento.referencia = instance.documento[:20]
+            pagamento.referencia = instance.documento
             pagamento.valor = instance.valor
             pagamento.tipo_despesa = instance.tipo_despesa
             pagamento.save()
@@ -209,14 +209,12 @@ class Receita(models.Model):
                     conta=self.conta,
                     tipo='D',
                     dt=self.dtpgto,
-                    referencia='',
                     valor=self.valor,
                 ).save()
             else:
                 Deposito.objects.filter(receita=self).update(
                     conta=self.conta,
                     dt=self.dtpgto,
-                    referencia='',
                     valor=self.valor,
                 )
 
@@ -280,10 +278,10 @@ class Operacao(models.Model):
     conta = models.ForeignKey(Conta, verbose_name=u'Conta')
     tipo = models.CharField(u'Tipo', max_length=1, choices=TIPO_OPER)
     dt = models.DateField(u'Em')
-    referencia = models.CharField(u'Referência', max_length=20)
+    referencia = models.CharField(u'Referência', max_length=50, blank=True, null=True)
     valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
     conferido = models.BooleanField(u'Conferido', default=False)
-    obs = models.TextField(u'Obs', blank=True, null=True)
+    obs = models.TextField(u'Observação Interna', blank=True, null=True)
 
     def is_deposito(self):
         return self.tipo == 'D'
@@ -345,7 +343,7 @@ class Pagamento(Operacao):
 
     fornecedor = models.ForeignKey(Fornecedor)
     projeto = models.ForeignKey(Projeto, blank=True, null=True)
-    despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True)
+    despesa = ChainedForeignKey(Despesa, chained_fields={'fornecedor': 'fornecedor', }, show_all=False, auto_choose=False, blank=True, null=True, help_text=u'Preencha caso seja um pagamento de uma despesa já agendada')
     tipo_despesa = ChainedForeignKey(TipoDespesa, chained_fields={'despesa': 'despesa', }, show_all=True, auto_choose=False, verbose_name=u'Tipo de Despesa', blank=True, null=True)
     comprovante = models.FileField(u'Comprovante', upload_to="pagamentos", blank=True, null=True)
     adiantamento = models.BooleanField(default=False)
@@ -354,9 +352,15 @@ class Pagamento(Operacao):
         return abs(self.valor or Decimal(0))
 
     def __unicode__(self):
-        if self.tipo_despesa:
-            return u"%s (%s)" % (self.tipo_despesa, self.fornecedor, )
-        return u"%s" % (self.fornecedor, )
+        if self.referencia:
+            if self.projeto:
+                return u"%s (%s)" % (self.referencia, self.projeto )
+            elif self.tipo_despesa:
+                return u"%s (%s)" % (self.referencia, self.tipo_despesa )
+            else:
+                return u"%s" % (self.referencia )
+
+        return u"%s" % (self.fornecedor)
 
 @receiver(signals.pre_save, sender=Pagamento)
 def pagamento_update_valor_signal(sender, instance, *args, **kwargs):
@@ -378,7 +382,7 @@ class Transferencia(Operacao):
 
     def transf_associada_display(self):
         if self.transf_associada:
-            return u'<a href="%s">%s</a>' % (reverse('admin:convenio_transferencia_change', args=(self.transf_associada.pk, )), self.transf_associada)
+            return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_transferencia_change', args=(self.transf_associada.pk, )), self.transf_associada)
         return '-'
     transf_associada_display.short_description = u'Trasf. associada'
     transf_associada_display.allow_tags = True

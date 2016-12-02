@@ -281,7 +281,7 @@ class Operacao(models.Model):
     tipo = models.CharField(u'Tipo', max_length=1, choices=TIPO_OPER)
     dt = models.DateField(u'Em')
     referencia = models.CharField(u'Referência', max_length=30, blank=True, null=True)
-    valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
+    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Observação Interna', blank=True, null=True)
 

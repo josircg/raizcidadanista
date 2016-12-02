@@ -382,7 +382,7 @@ class Transferencia(Operacao):
 
     def transf_associada_display(self):
         if self.transf_associada:
-            return u'<a href="%s">%s</a>' % (reverse('admin:convenio_transferencia_change', args=(self.transf_associada.pk, )), self.transf_associada)
+            return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_transferencia_change', args=(self.transf_associada.pk, )), self.transf_associada)
         return '-'
     transf_associada_display.short_description = u'Trasf. associada'
     transf_associada_display.allow_tags = True

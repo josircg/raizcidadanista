@@ -65,8 +65,6 @@
                             </div>
                         </div>
                         {% endfor %}
-                    {% endif %}
-
                         <nav>
                           <ul class="pager">
                             {% if topicos.has_previous %}
@@ -78,6 +76,31 @@
                             {% endif %}
                           </ul>
                         </nav>
+                    {% endif %}
+                    {% if grupos %}
+                    <h4>Verifique se a teia do seu estado já foi criada</h4>
+                    {% for grupo in grupos %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    {% if user|has_grupo_perm:grupo %}
+                                        <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                    {% else %}
+                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                    <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }}{% if user|num_topicos_nao_lidos:grupo %} ({{ user|num_topicos_nao_lidos:grupo }}){% endif %}</h4></a>
+                                    <footer>
+                                        {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
+                                        <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
+                                        <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                        <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
+                                        {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
+                                    </footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% endif %}
                     </div>
                 </div>
             </div>

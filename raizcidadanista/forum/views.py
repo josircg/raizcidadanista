@@ -22,6 +22,16 @@ from datetime import datetime
 import json
 
 
+class ForumFilterView(TemplateView):
+    template_name = 'forum/forum-filter.html'
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('localizacao'):
+            request.session['localizacao'] = request.POST.get('localizacao')
+            return HttpResponseRedirect(reverse('forum_recentes'))
+        return super(ForumFilterView, self).post(request, *args, **kwargs)
+
+
 class ForumView(TemplateView):
     template_name = 'forum/forum.html'
 
@@ -29,6 +39,10 @@ class ForumView(TemplateView):
         context = super(ForumView, self).get_context_data(**kwargs)
 
         grupos_list = Grupo.objects.filter(grupousuario__usuario=self.request.user)
+        # Filtro
+        if self.request.session.get('localizacao'):
+            grupos_list = grupos_list.filter(localizacao=self.request.session.get('localizacao'))
+
         paginator = Paginator(grupos_list, 10)
 
         page = self.request.GET.get('page')
@@ -56,12 +70,17 @@ class DiretorioView(TemplateView):
             context['grupo'] = self.request.GET.get('grupo')
 
         if self.request.GET.get('localizacao'):
+            self.request.session['localizacao'] = self.request.GET.get('localizacao')
             grupos_list = grupos_list.filter(localizacao=self.request.GET.get('localizacao'))
             context['localizacao'] = self.request.GET.get('localizacao')
 
         if self.request.GET.get('tematico'):
             grupos_list = grupos_list.filter(tematico=True if self.request.GET.get('tematico') == 'true' else False)
             context['tematico'] = self.request.GET.get('tematico')
+
+        # Filtro
+        if self.request.session.get('localizacao'):
+            grupos_list = grupos_list.filter(localizacao=self.request.session.get('localizacao'))
 
         paginator = Paginator(grupos_list, 10)
 
@@ -83,9 +102,13 @@ class NaoLidosView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(NaoLidosView, self).get_context_data(**kwargs)
+        grupos_queryset = Grupo.objects.filter(grupousuario__usuario=self.request.user)
+        # Filtro
+        if self.request.session.get('localizacao'):
+            grupos_queryset = grupos_queryset.filter(localizacao=self.request.session.get('localizacao'))
 
         grupos_list = []
-        for grupo in Grupo.objects.filter(grupousuario__usuario=self.request.user):
+        for grupo in grupos_queryset:
             if grupo.num_topicos_nao_lidos(self.request.user) > 0:
                 grupos_list.append(grupo)
         paginator = Paginator(grupos_list, 10)
@@ -110,8 +133,14 @@ class RecentesView(TemplateView):
 
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()
+        # Filtro
+        if self.request.session.get('localizacao'):
+            context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=self.request.session.get('localizacao'))
 
         topicos_queryset = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).distinct()
+        # Filtro
+        if self.request.session.get('localizacao'):
+            topicos_queryset = topicos_queryset.filter(grupo__localizacao=self.request.session.get('localizacao'))
 
         topicos_prioritarios_list = topicos_queryset.filter(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao')
         topicos_list = list(topicos_prioritarios_list)+list(topicos_queryset.exclude(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao'))
@@ -126,6 +155,11 @@ class RecentesView(TemplateView):
             topicos = paginator.page(paginator.num_pages)
 
         context['topicos'] = topicos
+
+        # Filtro Estadual/Municial
+        if self.request.session.get('localizacao') in ('E', 'M') and not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
+            context['grupos'] = Grupo.objects.filter(localizacao=self.request.session.get('localizacao'))
+
         return context
 
 
@@ -173,6 +207,10 @@ class PesquisaView(FormView):
 
         if listar_conversas:
             results_list = Conversa.objects.all()
+            # Filtro
+            if self.request.session.get('localizacao'):
+                results_list = results_list.filter(topico__grupo__localizacao=self.request.session.get('localizacao'))
+
             if autor:
                 results_list = results_list.filter(autor__first_name__icontains=autor)
             if grupo:
@@ -181,6 +219,10 @@ class PesquisaView(FormView):
                 results_list = results_list.filter(Q(topico__titulo__icontains=texto) | Q(texto__icontains=texto))
         else:
             results_list = Topico.objects.all()
+            # Filtro
+            if self.request.session.get('localizacao'):
+                results_list = results_list.filter(grupo__localizacao=self.request.session.get('localizacao'))
+
             if autor:
                 results_list = results_list.filter(conversa__autor__first_name__icontains=autor)
             if grupo:

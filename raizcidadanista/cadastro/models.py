@@ -395,9 +395,9 @@ class CirculoPendente(models.Model):
         verbose_name_plural = u'Círculos Pendente'
         ordering = ('tipo', 'titulo', )
 
-    titulo = models.CharField(u'Título', max_length=80)
+    titulo = models.CharField(u'Nome do Círculo', max_length=80)
     slug = models.SlugField(u'Url', max_length=255, blank=True)
-    descricao = models.TextField(u'Descrição') # HTML
+    descricao = models.TextField(u'Mais informações que julgar importantes para caracterização do Círculo', help_text=u'Deliberações, caracterização sintética de atividade, complemento de alguma questão, etc.') # HTML
     tipo = models.CharField(u'Tipo de Círculo', max_length=1, choices=CIRCULO_PENDENTE_TIPO)
     uf = models.ForeignKey(UF, verbose_name=u'UF', blank=True, null=True)
     municipio = models.CharField(u'Município', max_length=150, blank=True, null=True)
@@ -410,6 +410,7 @@ class CirculoPendente(models.Model):
     status = models.CharField('Este Círculo está em atividade atualmente ?', max_length=1, choices=CIRCULO_PENDENTE_STATUS, default='A')
     grupo = models.ForeignKey(Grupo, editable=False, blank=True, null=True)
     section = models.ForeignKey(Section, verbose_name=u'Seção', blank=True, null=True)
+    circulo = models.ForeignKey(Circulo, verbose_name=u'Associar a círculo existente', blank=True, null=True)
     autor = models.ForeignKey(User)
 
     # Outros campos
@@ -425,6 +426,9 @@ class CirculoPendente(models.Model):
     jardineiro_2_telefone = models.CharField(u'Telefone(s)', max_length=255, blank=True, null=True, help_text=u'Modelo: xx - xxxxx xxxx')
 
     ferramentas = models.CharField(u'Ferramentas de Comunicação estabelecidas pelo Círculo', max_length=255, help_text=u'Ex.: E-mail, Facebook, Telegram, WhatsApp, Loomio, Telefone, etc.')
+
+    reunioes = models.TextField(u'Data das reuniões do Círculo (todas ou as últimas)', help_text=u'Modelo: data xx/xx/xx - presencial ou virtual - número aprox. de participantes', blank=True, null=True)
+    atividades = models.TextField(u'Data das últimas atividades do Círculo (presenciais ou virtuais)', help_text=u'Modelo: data xx/xx/xx - atividade - número aprox. de participantes', blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.titulo

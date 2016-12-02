@@ -448,7 +448,7 @@ class ImportarPessoasListaForm(forms.Form):
 class CirculoPendenteForm(forms.ModelForm):
     class Meta:
         model = CirculoPendente
-        fields = ('primeiravez', 'atualizar', 'titulo', 'descricao', 'dtcriacao', 'tipo', 'uf', 'municipio', 'area_geografica', 'status', 'num_membros', 'num_membros_coleta', 'jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', 'jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', 'site_externo', 'ferramentas', )
+        fields = ('primeiravez', 'circulo', 'atualizar', 'titulo', 'dtcriacao', 'tipo', 'uf', 'municipio', 'area_geografica', 'status', 'num_membros', 'num_membros_coleta', 'jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', 'jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', 'site_externo', 'ferramentas', 'reunioes', 'atividades', 'descricao', )
 
     PRIMEIRAVEZ_CHOICES = (
         ('T', u'Sim, pela primeira vez'),
@@ -464,6 +464,7 @@ class CirculoPendenteForm(forms.ModelForm):
         super(CirculoPendenteForm, self).__init__(*args, **kwargs)
         self.instance.autor = request.user
         self.fields['atualizar'].queryset = CirculoPendente.objects.filter(autor=request.user)
+        self.fields['circulo'].queryset = Circulo.objects.filter(circulomembro__administrador=True, circulomembro__membro__usuario=request.user)
 
     def clean_atualizar(self):
         atualizar = self.cleaned_data.get('atualizar')

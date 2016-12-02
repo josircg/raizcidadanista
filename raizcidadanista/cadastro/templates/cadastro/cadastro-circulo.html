@@ -98,6 +98,10 @@
     $(document).ready(function(){
         $('#id_dtcriacao').mask('00/0000');
 
+        if($('#id_circulo option').length == 1) {
+            $('.group-circulo').hide();
+        }
+
         if($('.group-primeiravez input[name=primeiravez]:checked').val() == 'T') {
             $('.group-atualizar').hide();
         }else{

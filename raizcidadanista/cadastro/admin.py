@@ -1154,7 +1154,7 @@ class CirculoPendenteAdmin(PowerModelAdmin):
     list_display = ('titulo', 'tipo', 'uf', 'dtcriacao', 'status', 'autor', )
     list_filter = ('tipo', 'uf', 'status', )
     fieldsets = (
-        (None, {"fields" : ('titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'dtcriacao', 'area_geografica', 'num_membros', 'num_membros_coleta', ('jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', ), ('jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', ), 'ferramentas', ),},),
+        (None, {"fields" : ('circulo', 'titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'dtcriacao', 'area_geografica', 'num_membros', 'num_membros_coleta', ('jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', ), ('jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', ), 'ferramentas', 'reunioes', 'atividades', ),},),
     )
 
 admin.site.register(CirculoPendente, CirculoPendenteAdmin)

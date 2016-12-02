@@ -167,7 +167,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
                 conta=conta,
                 tipo='P',
                 dt=instance.dtvencimento or datetime.today(),
-                referencia=instance.documento[:20],
+                referencia=instance.documento,
                 valor=instance.valor,
                 fornecedor=instance.fornecedor,
                 despesa=instance,
@@ -176,7 +176,7 @@ def despesa_update_pagamento_integral_signal(sender, instance, created, *args, *
         else:
             pagamento = instance.pagamento_set.latest('pk')
             pagamento.dt = instance.dtvencimento or datetime.today()
-            pagamento.referencia = instance.documento[:20]
+            pagamento.referencia = instance.documento
             pagamento.valor = instance.valor
             pagamento.tipo_despesa = instance.tipo_despesa
             pagamento.save()
@@ -209,14 +209,12 @@ class Receita(models.Model):
                     conta=self.conta,
                     tipo='D',
                     dt=self.dtpgto,
-                    referencia='',
                     valor=self.valor,
                 ).save()
             else:
                 Deposito.objects.filter(receita=self).update(
                     conta=self.conta,
                     dt=self.dtpgto,
-                    referencia='',
                     valor=self.valor,
                 )
 
@@ -280,8 +278,8 @@ class Operacao(models.Model):
     conta = models.ForeignKey(Conta, verbose_name=u'Conta')
     tipo = models.CharField(u'Tipo', max_length=1, choices=TIPO_OPER)
     dt = models.DateField(u'Em')
-    referencia = models.CharField(u'Referência', max_length=30, blank=True, null=True)
-    valor = BRDecimalField(u'Valor', max_digits=14, decimal_places=2)
+    referencia = models.CharField(u'Referência', max_length=50, blank=True, null=True)
+    valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Observação Interna', blank=True, null=True)
 

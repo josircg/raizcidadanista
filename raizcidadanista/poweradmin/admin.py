@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from poweradmin import filters
 from django import forms
+from django.db import models
 
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _
@@ -82,6 +83,14 @@ class PowerModelAdmin(admin.ModelAdmin):
         from poweradmin.actions import delete_selected
         actions['delete_selected'] = (delete_selected, 'delete_selected', delete_selected.short_description)
         return actions
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if type(db_field) == models.DecimalField:
+            field = super(PowerModelAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+            field.localize = True
+            field.widget.is_localized = True
+            return field
+        return super(PowerModelAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         #Verifica se a tela é readonly

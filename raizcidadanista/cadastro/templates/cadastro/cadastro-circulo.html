@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load bootstrap static %}
+
+{% block title %}1º Recenseamento dos Círculos Cidadanistas - {% endblock %}
+{% block ogtitle %}1º Recenseamento dos Círculos Cidadanistas - {% endblock %}
+
+{% block description %}1º Recenseamento dos Círculos Cidadanistas {% endblock %}
+{% block ogdescription %}1º Recenseamento dos Círculos Cidadanistas {% endblock %}
+
+{% block main %}
+<div class="pi-section-w pi-section-white pi-border-top">
+    <div class="pi-section pi-padding-bottom-20">
+        <div class="pi-row">
+            <div class="pi-col-sm-12">
+                <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
+                    <a href="" class="pi-link-dark">1º Recenseamento dos Círculos Cidadanistas</a>
+                </h4>
+                <p>Olá Cidadanista !</p>
+                <p>Nosso Partido-Movimento está crescendo, nosso Registro no TSE está quase saindo, e vamos começar então a Campanha de Coleta de Assinaturas de apoiamento para nos legalizarmos e oferecermos ao Brasil uma nova alternativa no cenário político, mais necessária do que nunca !</p>
+                <p>Nesta nova fase é fundamental consolidarmos nossos Cadastros. Aqui solicitamos os dados básicos para oficializarmos os Círculos Cidadanistas, que constarão em nosso site. Este Cadastro é baseado no nosso "Manual dos Círculos Cidadanistas", por favor conheça aqui - http://www.raiz.org.br/manual-dos-circulos-cidadanistas</p>
+                <p>Este formulário deve ser respondido preferencialmente pela(o) Jardineira(o) / Articulador(a) do Círculo. </p>
+                <p>Solicitamos a gentileza de responder até o dia 31/05. Faremos este levantamento a cada 6 meses, mas você sempre poderá atualizar estes dados, a qualquer tempo !</p>
+                <p>Para eventuais esclarecimentos utilize o email  correio@raiz.org.br</p>
+                <p>AVANTE RAiZ !!</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="POST" role="form">{% csrf_token %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger">{{ error|safe }}</div>
+                            {% endfor %}
+                            <div class="panel-body">
+                                {% for field in form %}
+                                    <div class="form-group{% if field.errors %} has-error has-feedback{% endif %} group-{{ field.name }}">
+                                        {% if field|btischeckbox %}
+                                            {{ field|btform }}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                        {% else %}
+                                            <label class="control-label label-{{ field.name }}" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                                            {{ field|btform }}
+                                        {% endif %}
+                                        {% if field.errors or field.help_text %}
+                                        <ul class="list-unstyled">
+                                        {% if field.help_text %}<li><small>{{ field.help_text }}</small></li>{% endif %}
+                                        {% for error in field.errors %}
+                                          <li class="text-error"><small>{{ error }}</small></li>
+                                        {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-success">Cadastrar</button>
+                        </form>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-body">
+                                ...
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block css %}
+<style type="text/css">
+    .has-error .form-control-feedback {
+        margin-top: -6px;
+    }
+    .form-group ul li { list-style-type: none }
+    .group-dtcriacao, .group-num_membros, .group-num_membros_coleta, .group-uf, .group-municipio, .group-jardineiro_1_nome, .group-jardineiro_1_email, .group-jardineiro_1_telefone, .group-jardineiro_2_nome, .group-jardineiro_2_email, .group-jardineiro_2_telefone {width: 33%}
+    .group-uf, .group-municipio, .group-jardineiro_1_nome, .group-jardineiro_1_email, .group-jardineiro_1_telefone, .group-jardineiro_2_nome, .group-jardineiro_2_email, .group-jardineiro_2_telefone {
+        display: inline-block;
+        vertical-align: top;
+    }
+    @media (max-width: 800px){
+        .group-dtcriacao, .group-num_membros, .group-num_membros_coleta, .group-uf, .group-municipio, .group-jardineiro_1_nome, .group-jardineiro_1_email, .group-jardineiro_1_telefone, .group-jardineiro_2_nome, .group-jardineiro_2_email, .group-jardineiro_2_telefone {width: 100%}
+    }
+
+    #myModal {margin-top: 300px;}
+    #myModal .modal-body {font-size: 18px;}
+    #myModal .modal-body a {font-weight: bold; font-size: 22px;}
+</style>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'site/js/jquery.mask.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_dtcriacao').mask('00/0000');
+
+        if($('#id_circulo option').length == 1) {
+            $('.group-circulo').hide();
+        }
+
+        if($('.group-primeiravez input[name=primeiravez]:checked').val() == 'T') {
+            $('.group-atualizar').hide();
+        }else{
+            $('.group-atualizar').show();
+        }
+        $('.group-primeiravez input[name=primeiravez]').change(function() {
+            if (this.value == 'T') {
+                $('.group-atualizar').hide();
+            }else{
+                $('.group-atualizar').show();
+            }
+        });
+
+        if($('.group-tipo input[name=tipo]:checked').val() == 'T') {
+            $('.group-uf, .group-municipio').hide();
+        }else{
+            $('.group-uf, .group-municipio').show();
+        }
+        $('.group-tipo input[name=tipo]').change(function() {
+            if (this.value == 'T') {
+                $('.group-uf, .group-municipio').hide();
+            }else{
+                $('.group-uf, .group-municipio').show();
+            }
+        });
+
+        $("#id_atualizar").change(function(){
+            $.ajax({
+              dataType: "json",
+              url: '{% url cadastro_circulo %}?atualizar='+$(this).val(),
+              success: function(data){
+                $.each(data, function(index, val) {
+                    if(index == 'status' || index == 'tipo'){
+                        $('input[name='+index+']').attr('checked', '');
+                        $('input[name='+index+'][value='+val+']').attr('checked', 'checked');
+                    }else{
+                        $('#id_'+index).val(val);
+                    }
+                });
+              }
+            });
+        })
+
+        $("#id_titulo").change(function(){
+            $.ajax({
+              dataType: "json",
+              url: '{% url cadastro_circulo %}?titulo='+$(this).val(),
+              success: function(data){
+                if(data.existe == true){
+                    alert('Já existe um Círculo com esse Título. Clique em ok para continuar.');
+                }
+              }
+            });
+        })
+        $("#id_municipio").change(function(){
+            $.ajax({
+              dataType: "json",
+              url: '{% url cadastro_circulo %}?uf='+$('#id_uf').val()+'&municipio='+$(this).val(),
+              success: function(data){
+                if(data.existe == true){
+                    alert('Já existe um Círculo neste Município. Clique em ok para continuar.');
+                }
+              }
+            });
+        })
+    });
+</script>
+{% endblock %}

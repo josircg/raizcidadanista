@@ -1,7 +1,17 @@
 # -*- coding:utf-8 -*-
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.conf.urls.defaults import patterns, url
+from django.core.urlresolvers import reverse
+
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+
 from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, \
     Proposta, Voto, ConversaMencao, GrupoCategoria
+from cadastro.models import Lista
 
 from ckeditor.widgets import CKEditorWidget
 from cms.email import sendmail

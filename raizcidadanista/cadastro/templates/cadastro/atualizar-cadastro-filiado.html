@@ -17,7 +17,7 @@
                 </h4>
                 <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="pi-col-md-12">
                         <div id="content-left" class="col-md-12 box-login">
                             <div id="texto-content">
                                 <form action="" method="POST" role="form">{% csrf_token %}
@@ -42,6 +42,9 @@
 
 {% block css %}
 <style type="text/css">
+    label {
+        display: block;
+    }
     .has-error .form-control-feedback {
         margin-top: -6px;
     }

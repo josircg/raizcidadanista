@@ -36,9 +36,9 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
-    ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao
+    ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao, CirculoPendente
 from financeiro.models import Receita
 
 from forum.models import Grupo, GrupoUsuario
@@ -217,8 +217,8 @@ class PessoaAdmin(PowerModelAdmin):
                                             content_type_id = ContentType.objects.get_for_model(pessoa).pk,
                                             object_id = pessoa.pk,
                                             object_repr = u'%s' % pessoa,
-                                            action_flag = ADDITION,
-                                            change_message = u'Via Importação em Lote')
+                                            action_flag = CHANGE,
+                                            change_message = u'Pessoa atualizada via rotina "Importação em Lote".')
 
                                         atualizados += 1
                             # Cria a pessoa
@@ -237,6 +237,14 @@ class PessoaAdmin(PowerModelAdmin):
                                         pessoa.save()
                                         visitantes.append(pessoa)
                                         importados += 1
+                                        LogEntry.objects.log_action(
+                                            user_id = request.user.pk,
+                                            content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                            object_id = pessoa.pk,
+                                            object_repr = u"%s" % pessoa,
+                                            action_flag = ADDITION,
+                                            change_message = u'Pessoa criada via rotina "Inclusão em lote".'
+                                        )
 
                 messages.info(request, u'Registros Lidos: %s | Importados: %s | Atualizados: %s | Emails inválidos: %s | Novos membros no círculo: %s' % (num_lidos, importados, atualizados, sem_email, num_circulo))
         return render_to_response(template_name, {
@@ -280,8 +288,8 @@ class CirculoMembroMembroInline(admin.TabularInline):
 
 
 class MembroAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', )
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'confirmado', 'status_email', )
+    list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', 'status', 'status_email')
+    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'confirmado', 'status', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -297,7 +305,7 @@ class MembroAdmin(PowerModelAdmin):
             'fields': ['nome', 'apelido', 'email', ('sexo', 'estadocivil', 'dtnascimento'), 'atividade_profissional',  'rg', 'cpf', ('celular', 'residencial'), ('uf_naturalidade', 'municipio_naturalidade'), ]
         }),
         ('Situação Cadastral', {
-            'fields': [ ('status_email', 'usuario', 'aprovador'), ('filiado', 'confirmado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
+            'fields': [ ('status', 'status_email', 'usuario', 'aprovador'), ('filiado', 'confirmado', 'fundador', 'assinado'), ('dt_prefiliacao', 'dtcadastro'), ]
         }),
         (u'Dados eleitorais', {
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', ('titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral'), 'filiacao_partidaria', ]
@@ -588,179 +596,210 @@ class MembroAdmin(PowerModelAdmin):
                 aprovador = Membro.objects.get(pk=1).usuario
 
                 for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n')[1:], delimiter=',', quotechar='"'):
-                    if len(record) >= 14:
-                        lidos += 1
+                    email = _get_data(record, 'email')
+                    try:
+                        validate_email(email)
+                    except ValidationError as e:
+                        messages.info(request, u'Email inválido: %s' % (email))
+                        erros += 1
 
-                        try:
-                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
-                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
-
-                        except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
-                            municipio = None
-                            uf = None
-
-                        except Municipio.DoesNotExist:
-                            municipio = None
-
-                        try:
-                            uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
-                            municipio_eleitoral = _get_data(record, 'municipio_eleitoral')
-                            reg = Municipio.objects.get(uf=uf_eleitoral, nome=municipio_eleitoral)
-                            municipio_eleitoral = reg.nome
-
-                        except UF.DoesNotExist:
-                            messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
-                            uf_eleitoral = None
-                            municipio_eleitoral = None
-
-                        except Municipio.DoesNotExist:
-                            print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
-                            municipio_eleitoral = None
-
-                        if not uf:
-                            uf = UF.objects.get(uf='SP')
-
-                        try:
-                            # Atualiza o Membro
-                            membro = Membro.objects.get(email=_get_data(record, 'email'))
-                            if not membro.nome:
-                                membro.nome = _get_data(record, 'nome')
-                            atualizados += 1
-                        except Membro.DoesNotExist:
-                            # atualiza data
-                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
-                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
-                            # Importa o Membro
-                            membro = Membro(
-                                email=_get_data(record, 'email'),
-                                nome=_get_data(record, 'nome'),
-                                uf=uf,
-                                municipio=municipio,
-                                dtcadastro=dtcadastro,
-                                status_email = 'N')
-                            importados += 1
-
-                        if not membro.uf:
-                            membro.uf = uf
-
-                        if municipio:
-                            if not membro.municipio or membro.municipio.isdigit():
-                                membro.municipio = municipio
-
-                        if not membro.celular:
-                            membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
-
-                        if not membro.residencial:
-                            membro.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
-
-                        if not membro.atividade_profissional:
-                            membro.atividade_profissional = _get_data(record, 'atividade_profissional')
-
-                        if not membro.rg:
-                            membro.rg = _get_data(record, 'rg')
-
-                        if not membro.uf_eleitoral:
-                            membro.uf_eleitoral = uf_eleitoral
-                            membro.municipio_eleitoral = municipio_eleitoral
-                            membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
-                            if len(membro.titulo_eleitoral.split('/')) > 1:
-                                try:
-                                    membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1].strip()[0:3]
-                                    membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2].strip()[0:4]
-                                    membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0].strip()
-                                except:
-                                    print u'erro título %s' % membro.titulo_eleitoral
-
-                            membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
-
-                        if municipio_eleitoral and not membro.municipio_eleitoral:
-                            membro.municipio_eleitoral = municipio_eleitoral
-
-                        if membro.titulo_eleitoral:
-                            membro.filiado = True
-
-                        dtnascimento = _get_data(record, 'dtnascimento')
-                        if dtnascimento:
-                            if len(dtnascimento.split('/')[2]) == 2:
-                                ano = '19%s' % dtnascimento.split('/')[2]
-                                dtnascimento = '%s/%s/%s' % ( dtnascimento.split('/')[0],
-                                    dtnascimento.split('/')[1], ano )
-
-                            membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
-
-                        if not membro.aprovador:
-                            membro.aprovador = aprovador
-
-                        membro.save()
-
-                    # Visitantes
-                    if len(record) == 7:
-                        lidos += 1
-                        try:
-                            uf = UF.objects.get(uf=_get_data(record, 'uf'))
-                            municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
-
-                        except UF.DoesNotExist:
-                            messages.error(request, u'Estado(%s) de %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
-                            uf = None
-                            municipio = None
-
-                        except Municipio.DoesNotExist:
-                            municipio = None
-
-                        if not uf:
-                            uf = UF.objects.get(uf='SP')
-
-                        # obtem data de cadastro
-                        try:
-                            dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
-                            dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
-                        except:
+                    # Se tem email
+                    if email:
+                        if len(record) >= 14:
+                            lidos += 1
                             try:
-                                dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%y')
+                                uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                                municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
+
+                            except UF.DoesNotExist:
+                                messages.error(request, u'Estado(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                                municipio = None
+                                uf = None
+
+                            except Municipio.DoesNotExist:
+                                municipio = None
+
+                            try:
+                                uf_eleitoral = UF.objects.get(uf=_get_data(record, 'uf_eleitoral'))
+                                municipio_eleitoral = _get_data(record, 'municipio_eleitoral')
+                                reg = Municipio.objects.get(uf=uf_eleitoral, nome=municipio_eleitoral)
+                                municipio_eleitoral = reg.nome
+
+                            except UF.DoesNotExist:
+                                messages.error(request, u'Estado eleitoral(%s) do colaborador %s não encontrado.' % (_get_data(record, 'uf_eleitoral'), _get_data(record, 'email')))
+                                uf_eleitoral = None
+                                municipio_eleitoral = None
+
+                            except Municipio.DoesNotExist:
+                                print u'municipio Eleitoral não encontrado %s:%s:' % (uf_eleitoral,municipio_eleitoral)
+                                municipio_eleitoral = None
+
+                            if not uf:
+                                uf = UF.objects.get(uf='SP')
+
+                            try:
+                                # Atualiza o Membro
+                                membro = Membro.objects.get(email=_get_data(record, 'email'))
+                                if not membro.nome:
+                                    membro.nome = _get_data(record, 'nome')
+                                atualizados += 1
+                                LogEntry.objects.log_action(
+                                    user_id = request.user.pk,
+                                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                                    object_id = membro.pk,
+                                    object_repr = u"%s" % membro,
+                                    action_flag = CHANGE,
+                                    change_message = u'Membro atualizado via rotina "Importar visitantes e colaboradores".'
+                                )
+                            except Membro.DoesNotExist:
+                                # atualiza data
+                                dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
+                                dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
+                                # Importa o Membro
+                                membro = Membro(
+                                    email=_get_data(record, 'email'),
+                                    nome=_get_data(record, 'nome'),
+                                    uf=uf,
+                                    municipio=municipio,
+                                    dtcadastro=dtcadastro,
+                                    status_email = 'N')
+                                importados += 1
+                                LogEntry.objects.log_action(
+                                    user_id = request.user.pk,
+                                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                                    object_id = membro.pk,
+                                    object_repr = u"%s" % membro,
+                                    action_flag = ADDITION,
+                                    change_message = u'Membro criado via rotina "Importar visitantes e colaboradores".'
+                                )
+
+                            if not membro.uf:
+                                membro.uf = uf
+
+                            if municipio:
+                                if not membro.municipio or membro.municipio.isdigit():
+                                    membro.municipio = municipio
+
+                            if not membro.celular:
+                                membro.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                            if not membro.residencial:
+                                membro.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
+                            if not membro.atividade_profissional:
+                                membro.atividade_profissional = _get_data(record, 'atividade_profissional')
+
+                            if not membro.rg:
+                                membro.rg = _get_data(record, 'rg')
+
+                            if not membro.uf_eleitoral:
+                                membro.uf_eleitoral = uf_eleitoral
+                                membro.municipio_eleitoral = municipio_eleitoral
+                                membro.titulo_eleitoral = _get_data(record, 'titulo_zona_secao_eleitoral')
+                                if len(membro.titulo_eleitoral.split('/')) > 1:
+                                    try:
+                                        membro.zona_eleitoral = membro.titulo_eleitoral.split('/')[1].strip()[0:3]
+                                        membro.secao_eleitoral = membro.titulo_eleitoral.split('/')[2].strip()[0:4]
+                                        membro.titulo_eleitoral = membro.titulo_eleitoral.split('/')[0].strip()
+                                    except:
+                                        print u'erro título %s' % membro.titulo_eleitoral
+
+                                membro.filiacao_partidaria = _get_data(record, 'filiacao_partidaria')
+
+                            if municipio_eleitoral and not membro.municipio_eleitoral:
+                                membro.municipio_eleitoral = municipio_eleitoral
+
+                            if membro.titulo_eleitoral:
+                                membro.filiado = True
+
+                            dtnascimento = _get_data(record, 'dtnascimento')
+                            if dtnascimento:
+                                if len(dtnascimento.split('/')[2]) == 2:
+                                    ano = '19%s' % dtnascimento.split('/')[2]
+                                    dtnascimento = '%s/%s/%s' % ( dtnascimento.split('/')[0],
+                                        dtnascimento.split('/')[1], ano )
+
+                                membro.dtnascimento = datetime.strptime(dtnascimento, '%d/%m/%Y')
+
+                            if not membro.aprovador:
+                                membro.aprovador = aprovador
+
+                            membro.save()
+
+                        # Visitantes
+                        if len(record) == 7:
+                            lidos += 1
+                            try:
+                                uf = UF.objects.get(uf=_get_data(record, 'uf'))
+                                municipio = Municipio.objects.get(uf=uf, nome=_get_data(record, 'municipio')).nome
+
+                            except UF.DoesNotExist:
+                                messages.error(request, u'Estado(%s) de %s não encontrado.' % (_get_data(record, 'uf'), _get_data(record, 'email')))
+                                uf = None
+                                municipio = None
+
+                            except Municipio.DoesNotExist:
+                                municipio = None
+
+                            if not uf:
+                                uf = UF.objects.get(uf='SP')
+
+                            # obtem data de cadastro
+                            try:
+                                dtcadastro = _get_data(record, 'dtcadastro').split(' ')[0]
+                                dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%Y')
                             except:
-                                dtcadastro = None
+                                try:
+                                    dtcadastro = datetime.strptime(dtcadastro, '%m/%d/%y')
+                                except:
+                                    dtcadastro = None
 
-                        try:
-                            # Verifica se o visitante existe
-                            pessoa = Pessoa.objects.get(email=_get_data(record, 'email'))
-                            atualizados += 1
-                        except Pessoa.DoesNotExist:
-                            # Importa o Visitante
-                            pessoa = Pessoa(
-                                email=_get_data(record, 'email'),
-                                nome=_get_data(record, 'nome'),
-                                uf=uf,
-                                municipio=municipio,
-                                dtcadastro=dtcadastro,
-                                status_email = 'N')
+                            try:
+                                # Verifica se o visitante existe
+                                pessoa = Pessoa.objects.get(email=_get_data(record, 'email'))
+                                atualizados += 1
+                                LogEntry.objects.log_action(
+                                    user_id = request.user.pk,
+                                    content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                    object_id = pessoa.pk,
+                                    object_repr = u"%s" % pessoa,
+                                    action_flag = CHANGE,
+                                    change_message = u'Pessa atualizada via rotina "Importar visitantes e colaboradores".'
+                                )
+                            except Pessoa.DoesNotExist:
+                                # Importa o Visitante
+                                pessoa = Pessoa(
+                                    email=_get_data(record, 'email'),
+                                    nome=_get_data(record, 'nome'),
+                                    uf=uf,
+                                    municipio=municipio,
+                                    dtcadastro=dtcadastro,
+                                    status_email = 'N')
+                                pessoa.save()
+                                LogEntry.objects.log_action(
+                                    user_id = request.user.pk,
+                                    content_type_id = ContentType.objects.get_for_model(pessoa).pk,
+                                    object_id = pessoa.pk,
+                                    object_repr = u"%s" % pessoa,
+                                    action_flag = ADDITION,
+                                    change_message = u'Pessoa criada via rotina "Importar visitantes e colaboradores".'
+                                )
+                                importados += 1
+
+                            if not pessoa.uf:
+                                pessoa.uf = uf
+
+                            if municipio:
+                                if not pessoa.municipio:
+                                    pessoa.municipio = municipio
+
+                            if not pessoa.celular:
+                                pessoa.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
+
+                            if not pessoa.residencial:
+                                pessoa.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
+
                             pessoa.save()
-
-                            LogEntry.objects.log_action(
-                                user_id = aprovador.pk,
-                                content_type_id = ContentType.objects.get_for_model(pessoa).pk,
-                                object_id = pessoa.pk,
-                                object_repr = u'%s' % pessoa,
-                                action_flag = ADDITION,
-                                change_message = u'Importado do Google Drive')
-
-                            importados += 1
-
-                        if not pessoa.uf:
-                            pessoa.uf = uf
-
-                        if municipio:
-                            if not pessoa.municipio:
-                                pessoa.municipio = municipio
-
-                        if not pessoa.celular:
-                            pessoa.celular = _get_data(record, 'celular').split('/')[0].strip()[:14]
-
-                        if not pessoa.residencial:
-                            pessoa.residencial = _get_data(record, 'residencial').split('/')[0].strip()[:14]
-
-                        pessoa.save()
 
 
                 messages.info(request, u'Lidos: %s; Importados: %s; Atualizados: %s; Erros: %s.' % (lidos, importados, atualizados, erros))
@@ -833,7 +872,7 @@ admin.site.register(Membro, MembroAdmin)
 
 
 class FiliadoAdmin(PowerModelAdmin):
-    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor')
+    list_display = ('nome', 'email', 'municipio', 'dtcadastro', 'dt_prefiliacao', 'contrib_tipo', 'contrib_valor', 'status', 'status_email', )
     list_filter = ('uf', 'contrib_tipo', 'fundador', 'confirmado', )
     search_fields = ('nome', 'email',)
     inlines = (CirculoMembroMembroInline, )
@@ -843,7 +882,7 @@ class FiliadoAdmin(PowerModelAdmin):
             'fields': ['nome', 'apelido', 'email', 'sexo', 'estadocivil',  'atividade_profissional', 'dtnascimento', 'rg', 'cpf', 'celular', 'residencial', 'uf_naturalidade', 'municipio_naturalidade', ]
         }),
         (None, {
-            'fields': ['dtcadastro', 'status_email', 'confirmado', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
+            'fields': ['dtcadastro', 'status', 'status_email', 'confirmado', 'usuario', 'aprovador', 'filiado', 'dt_prefiliacao', 'fundador', ]
         }),
         (u'Dados eleitorais', {
             'fields': ['nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', 'filiacao_partidaria', ]
@@ -1110,6 +1149,17 @@ class CirculoAdmin(PowerModelAdmin):
 admin.site.register(Circulo, CirculoAdmin)
 
 
+class CirculoPendenteAdmin(PowerModelAdmin):
+    search_fields = ('titulo',)
+    list_display = ('titulo', 'tipo', 'uf', 'dtcriacao', 'status', 'autor', )
+    list_filter = ('tipo', 'uf', 'status', )
+    fieldsets = (
+        (None, {"fields" : ('circulo', 'titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'dtcriacao', 'area_geografica', 'num_membros', 'num_membros_coleta', ('jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', ), ('jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', ), 'ferramentas', 'reunioes', 'atividades', ),},),
+    )
+
+admin.site.register(CirculoPendente, CirculoPendenteAdmin)
+
+
 class MunicipioAdmin(PowerModelAdmin):
     search_fields = ('nome',)
     list_display = ('uf', 'nome', )
@@ -1179,10 +1229,45 @@ class ListaAdmin(PowerModelAdmin):
         messages.info(request, u'%s lista(s) inativada(s).' % count)
     inativar.short_description = u'Inativar'
 
+    def importar_pessoas(self, request, form_class=ImportarPessoasListaForm, template_name='admin/cadastro/lista/importar-pessoas.html'):
+        form = form_class()
+        if request.method == 'POST':
+            form = form_class(request.POST, request.FILES)
+            if form.is_valid():
+                lista = form.cleaned_data.get('lista')
+                num_cadastros = 0
+                for record in csv.reader(form.cleaned_data['arquivo'].read().split('\n'), delimiter=',', quotechar='"'):
+                    for email in record:
+                        email = force_unicode(email.strip())
+                        try:
+                            pessoa = Pessoa.objects.get(email=email)
+                        except Pessoa.DoesNotExist:
+                            messages.info(request, u'Pessoa não encontrada: %s' % email)
+                        cadastro, created = ListaCadastro.objects.get_or_create(lista=lista, pessoa=pessoa)
+                        if created:
+                            num_cadastros += 1
+
+                messages.info(request, u'%s Pessoa(s) cadastrada(s).' % num_cadastros)
+                return HttpResponseRedirect("%s?lista__id__exact=%s" % (reverse('admin:cadastro_listacadastro_changelist'), lista.pk))
+
+        return render_to_response(template_name, {
+            'title': u'Importar pessoas',
+            'form': form,
+        },context_instance=RequestContext(request))
+
+    def get_urls(self):
+        urls_originais = super(ListaAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^importar-pessoas/$', self.wrap(self.importar_pessoas), name='cadastro_lista_importar_pessoas'),
+        )
+        return urls_customizadas + urls_originais
+
     def get_buttons(self, request, object_id):
         buttons = super(ListaAdmin, self).get_buttons(request, object_id)
         if object_id:
             buttons.append(PowerButton(url="%s?lista__id__exact=%s" % (reverse('admin:cadastro_listacadastro_changelist'), object_id), label=u'Cadastros'))
+        else:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_lista_importar_pessoas'), label=u'Importar pessoas'))
         return buttons
 admin.site.register(Lista, ListaAdmin)
 

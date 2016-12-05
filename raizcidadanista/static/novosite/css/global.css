@@ -10206,3 +10206,8 @@ img {
   /* W3C */
 
 }
+
+.btn-success {
+  background: #94C11E;
+  border: 1px #000 solid;
+}

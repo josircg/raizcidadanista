@@ -21,6 +21,7 @@ from django.utils.encoding import force_unicode
 
 import django.utils.simplejson as simplejson
 from django.core.exceptions import ValidationError
+from utils.forms import BRDecimalFormField
 
 '''
  Features:

@@ -30,6 +30,46 @@ class GrupoAdmin(PowerModelAdmin):
         if db_field.name ==  'descricao':
             kwargs['widget'] = CKEditorWidget()
         return super(GrupoAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if not extra_context:
+            extra_context = {}
+        extra_context['listas'] = Lista.objects.filter(status='A')
+        return super(GrupoAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    def importar_lista(self, request, grupo_id):
+        grupo = get_object_or_404(Grupo, pk=grupo_id)
+        lista = get_object_or_404(Lista, pk=request.POST.get('lista_id'))
+        num_usuarios = 0
+        for listacadastro in lista.listacadastro_set.all():
+            if listacadastro.pessoa.membro.usuario:
+                gu, created = GrupoUsuario.objects.get_or_create(grupo=grupo, usuario=listacadastro.pessoa.membro.usuario)
+                if created:
+                    num_usuarios += 1
+                    LogEntry.objects.log_action(
+                        user_id = request.user.id,
+                        content_type_id = ContentType.objects.get_for_model(grupo).pk,
+                        object_id = grupo.pk,
+                        object_repr = u'%s' % grupo,
+                        action_flag = CHANGE,
+                        change_message = u'%s adicionado via rotina "Importar listas".' % listacadastro.pessoa.membro.usuario
+                    )
+
+        messages.info(request, u'%s Usuário(s) importada(s) com sucesso da lista %s.' % (num_usuarios, lista, ))
+        return HttpResponseRedirect(reverse('admin:forum_grupo_change', args=(grupo_id, )))
+
+    def get_urls(self):
+        urls_originais = super(GrupoAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<grupo_id>\d+)/importar-listas/$', self.wrap(self.importar_lista), name='forum_grupo_importar_lista'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(GrupoAdmin, self).get_buttons(request, object_id)
+        if object_id:
+            buttons.append(PowerButton(url='?lightbox[width]=280&lightbox[height]=90#box-importar_lista', attrs={'class': 'historylink lightbox', }, label=u'Importar listas'))
+        return buttons
 admin.site.register(Grupo, GrupoAdmin)
 
 

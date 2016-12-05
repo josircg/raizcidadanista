@@ -72,7 +72,6 @@
                             {% endif %}
                             <div class="pi-col-md-12">
                                 <form action="" method="POST">{% csrf_token %}
-                                    <a href="{{ membro.get_absolute_update_url }}"><button type="button" class="btn btn-success">Atualizar dados</button></a>
                                     {% if not membro.confirmado %}
                                     <button name="action" value="confirmar" class="btn btn-success">Confirmar a minha participação</button>
                                     {% endif %}
@@ -84,76 +83,6 @@
                                     <button name="action" value="sair" class="btn btn-success" onclick="return confirm('Você realmente deseja pedir desligamento da RAiZ?');">Não quero mais fazer parte da RAiZ</button>
                                 </form>
                             </div>
-                        </div>
-
-                        <div class="panel-body">
-                            <h3>Meus círculos</h3>
-                            {% if membro.circulomembro_set.exists %}
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Círculos</th>
-                                        <th colspan="2">Jardineiro</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {% for cm in membro.circulomembro_set.all %}
-                                    <tr>
-                                    {% if cm.circulo.site_externo %}
-                                        <td width="40%"><a href="{{ cm.circulo.site_externo }}" target="_blank">{{ cm.circulo.titulo }}</a></td>
-                                    {% else %}
-                                        <td width="40%"><a>{{ cm.circulo.titulo }}</a></td>
-                                    {% endif %}
-                                    {% if cm.circulo.administrador_publico %}
-                                        <td width="40%">
-                                            {% for adm in cm.circulo.administrador_publico %}
-                                                {{ adm.membro.nome }}
-                                                {% if adm.membro.celular %}<br>Cel.: {{ adm.membro.celular }}{% endif %}
-                                                <br><a href="{% url contato %}?adm={{ adm.pk }}">Envie um email para o Círculo</a>
-                                            {% endfor %}
-                                        </td>
-                                    {% else %}
-                                        <td width="40%"></td>
-                                    {% endif %}
-
-                                    {% if cm.circulo.site_externo %}
-                                        <td width="10%" style="min-width: 150px"><a href="{{ cm.circulo.site_externo }}" class="button-membro-add" target="_blank">Visualizar Grupo</a></td>
-                                    {% else %}
-                                        <td width="10%"></td>
-                                    {% endif %}
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                            {% else %}
-                            Você não participa de nenhum círculo.
-                            {% endif %}
-
-                            <p>Caso queira se cadastrar em algum outro círculo da Raiz para receber os informes, <a href="/circulos-ident/">clique aqui</a>.</p>
-                        </div>
-
-                        <div class="panel-body">
-                            <h3>Minhas contribuições</h3>
-                            {% if membro.receita_set.exists %}
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Valor</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for receita in membro.receita_set.all %}
-                                    <tr>
-                                        <td>{{ receita.dtaviso }}</td>
-                                        <td>R$ {{ receita.valor }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            {% else %}
-                            Nenhuma contribuição encontrada!
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -167,7 +96,6 @@
         background: #94C11E;
         border: 1px #000 solid;
     }
-
     .form-inline div {
         display: inline;
         margin-right: 20px

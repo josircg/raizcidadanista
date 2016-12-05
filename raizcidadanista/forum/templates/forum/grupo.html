@@ -56,11 +56,11 @@
                                         <span class="fa fa-pie-chart button-topic{% if proposta.status == 'A' and not proposta.expirada %} active{% endif %}" aria-hidden="true"></span>
                                     </div>
                                     <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
-                                    <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
                                     <footer>
                                         Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                                         Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                                     </footer>
+                                    <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
                                 </blockquote>
                             </div>
                         </div>

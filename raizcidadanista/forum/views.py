@@ -468,18 +468,21 @@ class TopicoEditView(FormView):
     def get(self, request, pk, *args, **kwargs):
         self.grupo = self.get_grupo()
         self.instance = self.get_instance()
-        if self.instance.criador != request.user:
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoEditView, self).get(request, *args, **kwargs)
+        else:
             messages.error(request, u'A edição de um tópico só pode ser feita pelo seu criador.')
             return HttpResponseRedirect(self.instance.get_absolute_url())
-        return super(TopicoEditView, self).get(request, *args, **kwargs)
 
     def post(self, request, pk, *args, **kwargs):
         self.grupo = self.get_grupo()
         self.instance = self.get_instance()
-        if self.instance.criador != request.user:
+
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoEditView, self).post(request, *args, **kwargs)
+        else:
             messages.error(request, u'A edição de um tópico só pode ser feita pelo seu criador.')
             return HttpResponseRedirect(self.instance.get_absolute_url())
-        return super(TopicoEditView, self).post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(TopicoEditView, self).get_form_kwargs()

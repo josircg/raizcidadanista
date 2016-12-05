@@ -73,8 +73,8 @@
                                         {% endif %}
                                     </div>
                                     <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }}{% if user|num_conversa_nao_lidas:topico %} ({{ user|num_conversa_nao_lidas:topico }}){% endif %}</h4></a>
-                                    <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
                                     <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+                                    <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
                                 </blockquote>
                             </div>
                         </div>

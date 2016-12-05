@@ -88,7 +88,6 @@
                                             <span class="fa fa-pie-chart star-button" aria-hidden="true"></span>
                                         </div>
                                         <a href="{{ conversa.proposta.get_absolute_url }}"><h4>{% if not conversa.proposta.expirada %}Votação em andamento. Clique aqui para votar ou ver o resultado da votação.{% else %}Votação encerrada. Clique aqui ver o resultado da votação.{% endif %}</h4></a><br>
-                                        {{ conversa.texto|safe }}
                                         <footer>
                                             Iniciado por <b>{{ conversa.autor.get_first_name }}</b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                                             {% if not conversa.proposta.expirada %}
@@ -97,6 +96,7 @@
                                             Votação encerrada!
                                             {% endif %}
                                         </footer>
+                                        {{ conversa.texto|safe }}
                                         <p>
                                             <b>{{ conversa.proposta.voto_set.count|percent:conversa.proposta.topico.topicoouvinte_set.count|floatformat }}%</b> dos membros manifestaram suas posições ({{ conversa.proposta.voto_set.count }}/{{ conversa.proposta.topico.topicoouvinte_set.count }})<br>
                                             {% for resposta, votos in conversa.proposta.respostas %}
@@ -105,9 +105,9 @@
                                         </p>
 
                                     {% else %}
+                                        <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                         {{ conversa.texto|safe }}
                                         {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
-                                        <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% endif %}
 
                                     {% if not conversa.proposta %}
@@ -126,7 +126,7 @@
                                                     (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
                                                     <div class="mention-people"></div>
                                                 </span>
-                                                {% if object.editavel and request.user == conversa.autor %}
+                                                {% if object.editavel and request.user == conversa.autor or user|has_admin_grupo_perm:object.grupo %}
                                                     {% if forloop.first %}
                                                     | <a href="{{ object.get_absolute_edit_url }}">Editar</a>
                                                     {% else %}

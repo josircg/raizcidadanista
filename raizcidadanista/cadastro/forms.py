@@ -14,7 +14,8 @@ from ckeditor.widgets import CKEditorWidget
 from captcha.fields import ReCaptchaField
 
 from datetime import date
-from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro
+from models import Pessoa, Membro, CirculoMembro, Circulo, Campanha, Lista, ArticleCadastro, \
+    CirculoPendente, CIRCULO_PENDENTE_TIPO, CIRCULO_PENDENTE_STATUS
 from cms.email import sendmail
 
 
@@ -50,6 +51,8 @@ class MembroForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MembroForm, self).__init__(*args, **kwargs)
+        for field in ('email', 'municipio', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
@@ -110,7 +113,7 @@ class FiliadoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FiliadoForm, self).__init__(*args, **kwargs)
         # Requireds
-        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+        for field in ('email', 'municipio', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
             self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), )
@@ -259,7 +262,7 @@ class AtualizarCadastroFiliadoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroFiliadoForm, self).__init__(*args, **kwargs)
         # Requireds
-        for field in ('nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
+        for field in ('email', 'municipio', 'nome_da_mae', 'uf_eleitoral', 'municipio_eleitoral', 'titulo_eleitoral', 'zona_eleitoral', 'secao_eleitoral', ):
             self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), )
@@ -339,6 +342,8 @@ class AtualizarCadastroMembroForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AtualizarCadastroMembroForm, self).__init__(*args, **kwargs)
+        for field in ('email', 'municipio', ):
+            self.fields[field].required = True
         self.fields['filiacao_partidaria'].label = 'Filiação Partidária (Exemplo PT 1989-2004, PSOL 2005-2012, PSB 2001-2003)'
         self.fields['contrib_tipo'].choices = (('1', u'Mensal'), ('3', u'Trimestral'), ('6', u'Semestral'), ('A', u'Anual'), ('O', u'Não pretende fazer'), )
         self.fields['contrib_tipo'].help_text = u'Tanto o tipo de contribuição como o valor podem ser alterados a qualquer momento aqui no site. Basta solicitar a alteração no cadastro'
@@ -427,3 +432,53 @@ class InclusaoEmLoteForm(forms.Form):
         if arquivo.name.split('.')[-1].lower() != 'csv':
             raise forms.ValidationError(u'Envie um arquivo .csv.')
         return arquivo
+
+
+class ImportarPessoasListaForm(forms.Form):
+    lista = forms.ModelChoiceField(queryset=Lista.objects.all())
+    arquivo = forms.FileField(help_text=u'Arquivo .csv onde cada linha contém um email')
+
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data['arquivo']
+        if arquivo.name.split('.')[-1].lower() != 'csv':
+            raise forms.ValidationError(u'Envie um arquivo .csv.')
+        return arquivo
+
+
+class CirculoPendenteForm(forms.ModelForm):
+    class Meta:
+        model = CirculoPendente
+        fields = ('primeiravez', 'circulo', 'atualizar', 'titulo', 'dtcriacao', 'tipo', 'uf', 'municipio', 'area_geografica', 'status', 'num_membros', 'num_membros_coleta', 'jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', 'jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', 'site_externo', 'ferramentas', 'reunioes', 'atividades', 'descricao', )
+
+    PRIMEIRAVEZ_CHOICES = (
+        ('T', u'Sim, pela primeira vez'),
+        ('F', u'Não, agora estou atualizando ou corrigindo'),
+    )
+    primeiravez = forms.ChoiceField(label=u'Preenchendo este Formulário pela 1ª vez?', choices=PRIMEIRAVEZ_CHOICES, initial='T', widget=forms.RadioSelect())
+    atualizar = forms.ModelChoiceField(label=u'Selecione o Círculo que deseja editar', queryset=CirculoPendente.objects.all(), required=False)
+
+    tipo = forms.ChoiceField(label=u'Tipo de Círculo', choices=CIRCULO_PENDENTE_TIPO, initial='R', widget=forms.RadioSelect())
+    status = forms.ChoiceField(label=u'Este Círculo está em atividade atualmente ?', choices=CIRCULO_PENDENTE_STATUS, widget=forms.RadioSelect())
+
+    def __init__(self, request, *args, **kwargs):
+        super(CirculoPendenteForm, self).__init__(*args, **kwargs)
+        self.instance.autor = request.user
+        self.fields['atualizar'].queryset = CirculoPendente.objects.filter(autor=request.user)
+        self.fields['circulo'].queryset = Circulo.objects.filter(circulomembro__administrador=True, circulomembro__membro__usuario=request.user)
+
+    def clean_atualizar(self):
+        atualizar = self.cleaned_data.get('atualizar')
+        if not atualizar and self.cleaned_data.get('primeiravez') ==  'F':
+            raise forms.ValidationError(u'Este campo é obrigatório.')
+        return atualizar
+
+    def sendmail(self, template_email_name='emails/cadastro-circulo.html'):
+        sendmail(
+            subject=u'Criação/Atualização de Círculo',
+            to=['correio@raiz.org.br', ],
+            template=template_email_name,
+            params={
+                'circulo': self.instance,
+                'SITE_HOST': settings.SITE_HOST,
+            },
+        )

@@ -13,15 +13,17 @@ from django.db.models import Q
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import login
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.text import get_text_list
 from django.utils.encoding import force_unicode
 
-from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro
+from models import Circulo, Membro, CirculoMembro, Pessoa, Campanha, Lista, ListaCadastro, CirculoPendente
 from municipios.models import UF
-from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, AtualizarCadastroMembroForm, ConsultaForm
+from forms import NewsletterForm, MembroForm, FiliadoForm, AtualizarCadastroLinkForm, AtualizarCadastroFiliadoForm, \
+    AtualizarCadastroMembroForm, ConsultaForm, CirculoPendenteForm
 from cadastro.telegram import bot
 from cms.email import sendmail
 from utils.stdlib import get_client_ip
@@ -30,6 +32,7 @@ from datetime import date
 import cStringIO as StringIO
 from PIL import Image
 import operator
+import json
 
 
 
@@ -212,7 +215,8 @@ class AtualizarCadastroLinkView(FormView):
 
 class RecadastramentoView(TemplateView):
     template_name = 'cadastro/recadastramento.html'
-    template_success_name = 'cadastro/bem-vindo.html'
+    template_error_name = 'cadastro/bem-vindo.html'
+    template_success_name = 'cadastro/recadastramento-confirmado.html'
 
     def get_instance(self, request, uidb36, ts_b36, token):
         def create_token(instance):
@@ -241,7 +245,7 @@ class RecadastramentoView(TemplateView):
         if not self.instance:
             return self.response_class(
                 request=self.request,
-                template=self.template_success_name,
+                template=self.template_error_name,
                 context={
                     'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
@@ -262,6 +266,14 @@ class RecadastramentoView(TemplateView):
                     action_flag = CHANGE,
                     change_message = u'[RECAD] Usuário confirmou o cadastro como pré-filiado com o IP %s.' % get_client_ip(request)
                 )
+                return self.response_class(
+                    request=self.request,
+                    template=self.template_success_name,
+                    context={
+                        'membro': self.instance,
+                    }
+                )
+
             elif request.POST.get('action') == 'colaborador':
                 # FIXBUG não estava salvando!
                 Membro.objects.filter(pk=self.instance.pk).update(filiado=False)
@@ -290,7 +302,7 @@ class RecadastramentoView(TemplateView):
                 )
             elif request.POST.get('action') == 'sair':
                 # FIXBUG não estava salvando!
-                Membro.objects.filter(pk=self.instance.pk).update(status_email='O')
+                Membro.objects.filter(pk=self.instance.pk).update(status_email='O', status='C', confirmado=True, filiado=False)
                 # Remover a pessoa de todos os círculos.
                 CirculoMembro.objects.filter(membro=self.instance).delete()
                 self.instance = self.get_instance(request, uidb36, ts_b36, token)
@@ -315,15 +327,27 @@ class RecadastramentoView(TemplateView):
         if not self.instance:
             return self.response_class(
                 request=self.request,
-                template=self.template_success_name,
+                template=self.template_error_name,
                 context={
                     'title': u'RECADASTRAMENTO RAIZ',
                     'msg': u'Você demorou muito para realizar o recadastramento.',
                 }
             )
 
+        # Fazer o automático
+        if self.instance.usuario:
+            self.instance.usuario.backend='django.contrib.auth.backends.ModelBackend'
+            login(request, self.instance.usuario)
+
         if self.instance.confirmado:
-            messages.info(request, u'Recadastramento já foi efetuado.')
+            messages.info(request, u'O seu recadastramento já foi efetuado.')
+            return self.response_class(
+                request=self.request,
+                template=self.template_success_name,
+                context={
+                    'membro': self.instance,
+                }
+            )
 
         LogEntry.objects.log_action(
             user_id = User.objects.get_or_create(username="sys")[0].pk,
@@ -586,3 +610,60 @@ class CampanhaView(DetailView):
         img_temp.seek(0)
         response.write(img_temp.getvalue())
         return response
+
+
+class CadastroCirculoView(FormView):
+    form_class = CirculoPendenteForm
+    template_name = 'cadastro/cadastro-circulo.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax() and request.GET.get('atualizar'):
+            obj = get_object_or_404(CirculoPendente, pk=request.GET.get('atualizar'), autor=request.user)
+            json_response = {
+                'titulo': obj.titulo,
+                'descricao': obj.descricao,
+                'dtcriacao': obj.dtcriacao,
+                'tipo': obj.tipo,
+                'uf': obj.uf.pk,
+                'municipio': obj.municipio,
+                'area_geografica': obj.area_geografica,
+                'status': obj.status,
+                'num_membros': obj.num_membros,
+                'num_membros_coleta': obj.num_membros_coleta,
+                'jardineiro_1_nome': obj.jardineiro_1_nome,
+                'jardineiro_1_email': obj.jardineiro_1_email,
+                'jardineiro_1_telefone': obj.jardineiro_1_telefone,
+                'jardineiro_2_nome': obj.jardineiro_2_nome,
+                'jardineiro_2_email': obj.jardineiro_2_email,
+                'jardineiro_2_telefone': obj.jardineiro_2_telefone,
+                'site_externo': obj.site_externo,
+                'ferramentas': obj.ferramentas,
+            }
+            return HttpResponse(json.dumps(json_response), mimetype='application/json')
+        if request.is_ajax() and request.GET.get('titulo'):
+            json_response = {
+                'existe': Circulo.objects.filter(titulo=request.GET.get('titulo')).exists(),
+            }
+            return HttpResponse(json.dumps(json_response), mimetype='application/json')
+        if request.is_ajax() and request.GET.get('uf'):
+            json_response = {
+                'existe': Circulo.objects.filter(uf=request.GET.get('uf'), municipio=request.GET.get('municipio')).exists(),
+            }
+            return HttpResponse(json.dumps(json_response), mimetype='application/json')
+        return super(CadastroCirculoView, self).get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(CadastroCirculoView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        if self.request.POST.get('atualizar'):
+            kwargs['instance'] = get_object_or_404(CirculoPendente, pk=self.request.POST.get('atualizar'), autor=self.request.user)
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        form.sendmail()
+        messages.info(self.request, u"Cadastro realizado com sucesso!")
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return HttpResponseRedirect(reverse('cadastro_circulo'))

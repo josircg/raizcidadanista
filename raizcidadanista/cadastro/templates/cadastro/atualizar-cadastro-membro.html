@@ -18,7 +18,7 @@
                 <p>Atualização de Cadastro da Raiz</a>
                 <p>Olá {{ form.instance.nome }}, atualize os seus dados abaixo.</p>
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="pi-col-md-12">
                         <form action="" method="POST" role="form">{% csrf_token %}
                             {% for error in form.non_field_errors %}
                                 <div class="alert alert-danger">
@@ -60,6 +60,9 @@
 
 {% block css %}
 <style type="text/css">
+    label {
+        display: block;
+    }
     .has-error .form-control-feedback {
         margin-top: -6px;
     }

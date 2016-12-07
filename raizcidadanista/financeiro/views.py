@@ -118,32 +118,43 @@ class CaixaPeriodoView(DetailView):
         saldo_inicial += operacoes_root.filter(dt__gte=ultimo_saldo, dt__lt=dt_inicial).exclude(tipo='S').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Calcula o total de receitas
-        total_receitas = Operacao.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo='D').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+        total_receitas = Receita.objects.filter(dtpgto__gte=dt_inicial, dtpgto__lt=dt_final).exclude(colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+
+        # Calcula os Rendimentos Financeiros
+        rendimentos_financeiros = Operacao.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo='F').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+
+        # Calcula as Outras Receitas
+        outras_receitas = Receita.objects.filter(dtpgto__gte=dt_inicial, dtpgto__lt=dt_final, colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Agrupa os Pagamentos por Tipo de Despesa
         total_pagamentos = Decimal(0)
         pagamentos = []
         for tipo in TipoDespesa.objects.all():
             total = abs(Pagamento.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo_despesa=tipo).aggregate(Sum('valor'))['valor__sum'] or Decimal(0))
-            total_pagamentos += total
-            pagamentos.append({
-                'tipo': tipo,
-                'total': total
-            })
+            if total:
+                total_pagamentos += total
+                pagamentos.append({
+                    'tipo': tipo,
+                    'total': total
+                })
         # Pagamento sem tipo_despesa
         total = abs(Pagamento.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo_despesa=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0))
-        total_pagamentos += total
-        pagamentos.append({
-            'tipo': u'Outras',
-            'total': total
-        })
+        if total:
+            total_pagamentos += total
+            pagamentos.append({
+                'tipo': u'Outras',
+                'total': total
+            })
 
         #Calcula o Saldo Final
-        saldo_final = saldo_inicial+total_receitas-total_pagamentos
+        saldo_final = saldo_inicial+total_receitas+rendimentos_financeiros+outras_receitas-total_pagamentos
 
         context['saldo_inicial'] = saldo_inicial
         context['total_receitas'] = total_receitas
+        context['rendimentos_financeiros'] = rendimentos_financeiros
+        context['outras_receitas'] = outras_receitas
         context['pagamentos'] = pagamentos
+        context['total_pagamentos'] = total_pagamentos
         context['saldo_final'] = saldo_final
         return context
 

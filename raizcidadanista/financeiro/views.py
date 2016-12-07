@@ -12,7 +12,7 @@ from datetime import datetime, date
 from decimal import Decimal
 
 from utils.stdlib import normalizar_data
-from models import Operacao, PeriodoContabil, Receita, TipoDespesa, Pagamento, Orcamento
+from models import Operacao, PeriodoContabil, Receita, TipoDespesa, Pagamento, Orcamento, Deposito
 from forms import CaixaForm
 
 
@@ -118,13 +118,13 @@ class CaixaPeriodoView(DetailView):
         saldo_inicial += operacoes_root.filter(dt__gte=ultimo_saldo, dt__lt=dt_inicial).exclude(tipo='S').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Calcula o total de receitas
-        total_receitas = Receita.objects.filter(dtpgto__gte=dt_inicial, dtpgto__lt=dt_final).exclude(colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+        total_receitas = Deposito.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final).exclude(receita__colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Calcula os Rendimentos Financeiros
         rendimentos_financeiros = Operacao.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, tipo='F').aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Calcula as Outras Receitas
-        outras_receitas = Receita.objects.filter(dtpgto__gte=dt_inicial, dtpgto__lt=dt_final, colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
+        outras_receitas = Deposito.objects.filter(dt__gte=dt_inicial, dt__lt=dt_final, receita__colaborador=None).aggregate(Sum('valor'))['valor__sum'] or Decimal(0)
 
         # Agrupa os Pagamentos por Tipo de Despesa
         total_pagamentos = Decimal(0)

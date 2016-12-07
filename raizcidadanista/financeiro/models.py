@@ -210,12 +210,14 @@ class Receita(models.Model):
                     tipo='D',
                     dt=self.dtpgto,
                     valor=self.valor,
+                    referencia=self.nota[:50],
                 ).save()
             else:
                 Deposito.objects.filter(receita=self).update(
                     conta=self.conta,
                     dt=self.dtpgto,
                     valor=self.valor,
+                    referencia=self.nota[:50],
                 )
 
             if nvl(self.notificado,False) == False:
@@ -302,6 +304,8 @@ class Operacao(models.Model):
         if self.is_pagamento():
             return url_display(self.pagamento)
         elif self.is_deposito():
+            if self.deposito.receita:
+                return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_receita_change', args=(self.deposito.receita.pk, )), self.deposito )
             return url_display(self.deposito)
         elif self.is_transferencia():
             return url_display(self.transferencia)
@@ -432,7 +436,7 @@ class Deposito(Operacao):
         if self.receita and self.receita.colaborador:
             return u'Depósito %s | R$ %s' % (self.receita.colaborador, self.valor)
         else:
-            return u'Depósito | R$ %s' % self.valor
+            return u'Depósito %s | R$ %s' % (self.referencia or '', self.valor)
 
 '''
 class Lancamento(models.Model):

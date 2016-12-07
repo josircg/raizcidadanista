@@ -15,22 +15,20 @@
                 <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
                     <a href="" class="pi-link-dark">Recadastramento</a>
                 </h4>
-                <div class="row">
-                    <div class="pi-col-md-12">
-                        <div class="panel-body">
-                            <h3>Segue a relação dos círculos aos quais você faz parte:</h3>
-                            <div class="form-group pi-col-md-12">
-                                {% for cm in membro.circulomembro_set.all %}
-                                    <label class="control-label">{{ cm.circulo }}</label><br>
-                                {% endfor %}
-                                <iframe src="{% url circulos %}" width="100%" height="400px" style="border: 0"></iframe>
-                            </div>
-                            <br>
-                            <h4>Caso você faça parte de algum círculo que não esteja listado aqui, <a href="{% url cadastro_circulo %}">peça o registro do seu círculo clicando aqui.</a></h4>
-                            <br>
-                            <h4>Caso você queira alterar os seus dados pessoais, <a href="{{ membro.get_absolute_update_url }}"> clique aqui para ir para a tela de edição.</a></h4>
+                <div class="panel-body">
+                    <div class="form-group pi-col-md-12">
+                        <h3>Segue a relação dos círculos aos quais você faz parte:</h3>
+                    </div>
+                    <div class="form-group pi-col-md-12">
+                        {% for cm in membro.circulomembro_set.all %}
+                            <label class="control-label">{{ cm.circulo }}</label><br>
+                        {% endfor %}
+                        <iframe src="{% url circulos %}" width="100%" height="400px" style="border: 0"></iframe>
 
-                        </div>
+                        <br>
+                        <h4>Caso você faça parte de algum círculo que não esteja listado aqui, <a href="{% url cadastro_circulo %}">peça o registro do seu círculo clicando aqui.</a></h4>
+                        <br>
+                        <h4>Caso você queira alterar os seus dados pessoais, <a href="{{ membro.get_absolute_update_url }}"> clique aqui para ir para a tela de edição.</a></h4>
                     </div>
                 </div>
             </div>

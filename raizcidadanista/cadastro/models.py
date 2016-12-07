@@ -30,7 +30,6 @@ from utils.storage import UuidFileSystemStorage, SpecialCharFileSystemStorageS3
 from cms.email import sendmail, send_email_thread
 from smart_selects.db_fields import ChainedForeignKey
 from utils.fields import BRDecimalField
-from cms.fields import ListField
 
 
 GENDER = (
@@ -98,6 +97,7 @@ class Membro(Pessoa):
         ('S', u'Suspensa'),
         ('N', u'Não definida'),
     )
+
     ESTADO_CIVIL = (
         ('S', u'Solteira(o)'),
         ('C', u'Casada(o)'),

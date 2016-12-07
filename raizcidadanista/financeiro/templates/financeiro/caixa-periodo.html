@@ -45,25 +45,25 @@
                             <th class="text-right">R$ {{ saldo_inicial }}</th>
                         </tr>
                         <tr>
-                            <th>Total de Receitas:</th>
+                            <th>Contribuições :</th>
                             <th class="text-right">R$ {{ total_receitas }}</th>
+                        </tr>
+                        <tr>
+                            <th>Receita Círculos/Não identificadas:</th>
+                            <th class="text-right">R$ {{ outras_receitas }}</th>
                         </tr>
                         <tr>
                             <th>Rendimentos Financeiros:</th>
                             <th class="text-right">R$ {{ rendimentos_financeiros }}</th>
                         </tr>
-                        <tr>
-                            <th>Outras Receitas:</th>
-                            <th class="text-right">R$ {{ outras_receitas }}</th>
-                        </tr>
                         {% for pagamento in pagamentos %}
                         <tr>
-                            <th>Depesas ({{ pagamento.tipo }}):</th>
+                            <th>Despesa de {{ pagamento.tipo }}:</th>
                             <th class="text-right">R$ {{ pagamento.total }}</th>
                         </tr>
                         {% endfor %}
                         <tr>
-                            <th>Total das Despesas:</th>
+                            <th>Total de Despesas:</th>
                             <th class="text-right">R$ {{ total_pagamentos }}</th>
                         </tr>
                         <tr>

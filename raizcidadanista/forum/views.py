@@ -465,6 +465,12 @@ class TopicoAddView(FormView):
     def form_valid(self, form):
         instance = form.save(grupo=self.get_grupo(), criador=self.request.user)
         messages.info(self.request, u'Tópico criado com sucesso!')
+
+        # Adicionar o membro no grupo
+        self.grupo = self.get_grupo()
+        if not GrupoUsuario.objects.filter(grupo=self.grupo, usuario=self.request.user).exists():
+            GrupoUsuario(grupo=self.grupo, usuario=self.request.user).save()
+
         return HttpResponseRedirect(instance.get_absolute_url())
 
     def get_context_data(self, **kwargs):
@@ -714,6 +720,23 @@ class TopicoView(DetailView):
     def form_valid(self, form):
         self.object = self.get_object()
         instance = form.save(topico=self.object, autor=self.request.user)
+
+        # Adicionar o membro no grupo
+        if not GrupoUsuario.objects.filter(grupo=self.object.grupo, usuario=self.request.user).exists():
+            if self.object.grupo.privado:
+                sendmail(
+                    subject=u'Solicitação de ingresso no grupo %s' % self.object,
+                    to=list(self.object.grupo.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
+                    template='forum/emails/solicitacao-ingresso.html',
+                    params={
+                        'grupo': self.object.grupo,
+                        'usuario': self.request.user,
+                        'host': settings.SITE_HOST,
+                    },
+                )
+                messages.info(self.request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+            else:
+                GrupoUsuario(grupo=self.object.grupo, usuario=self.request.user).save()
         return HttpResponseRedirect(instance.get_absolute_url())
 
     def form_invalid(self, form):

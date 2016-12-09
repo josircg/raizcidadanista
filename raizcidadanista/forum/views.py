@@ -146,7 +146,7 @@ class RecentesView(TemplateView):
         if self.request.session.get('localizacao'):
             context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=self.request.session.get('localizacao'))
 
-        topicos_queryset = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).distinct()
+        topicos_queryset = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user, status='A').distinct()
         # Filtro
         if self.request.session.get('localizacao'):
             topicos_queryset = topicos_queryset.filter(grupo__localizacao=self.request.session.get('localizacao'))

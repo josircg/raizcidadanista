@@ -66,12 +66,26 @@ class DiretorioView(TemplateView):
             context['grupo'] = self.request.GET.get('grupo')
 
         if self.request.GET.get('localizacao'):
-            grupos_list = grupos_list.filter(localizacao=self.request.GET.get('localizacao'))
-            context['localizacao'] = self.request.GET.get('localizacao')
+            self.request.session['localizacao'] = self.request.GET.get('localizacao')
+
+        if self.request.session.get('localizacao'):
+            grupos_list = grupos_list.filter(localizacao=self.request.session.get('localizacao'))
+            context['localizacao'] = self.request.session.get('localizacao')
 
         if self.request.GET.get('tematico'):
             grupos_list = grupos_list.filter(tematico=True if self.request.GET.get('tematico') == 'true' else False)
             context['tematico'] = self.request.GET.get('tematico')
+
+        context['titulo'] = u'Lista de todos os grupos '
+        # Filtro
+        if self.request.session.get('localizacao'):
+            if self.request.session.get('localizacao') == 'N':
+                context['titulo'] += u' da Teia Nacional'
+            elif self.request.session.get('localizacao') == 'E':
+                context['titulo'] += u' da Teia Estadual'
+            elif self.request.session.get('localizacao') == 'M':
+                context['titulo'] += u' da Teia Municipal'
+        context['titulo'] += u' existentes'
 
         paginator = Paginator(grupos_list, 10)
         page = self.request.GET.get('page')
@@ -151,8 +165,7 @@ class RecentesView(TemplateView):
 
         context['topicos'] = topicos
 
-        # Filtro Estadual/Municial
-        if self.request.session.get('localizacao') in ('E', 'M') and not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
+        if not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
             context['grupos'] = Grupo.objects.filter(localizacao=self.request.session.get('localizacao'))
 
         return context
@@ -312,6 +325,11 @@ class GrupoEditView(UpdateView):
         formset.save()
         formset = self.formset_class(instance=self.object)
         return HttpResponseRedirect(reverse('forum_grupo_edit', kwargs={'pk': self.object.pk, }))
+
+
+class GrupoMembrosView(DetailView):
+    template_name = 'forum/grupo-membros.html'
+    model = Grupo
 
 
 class GrupoEditMembrosView(DetailView):

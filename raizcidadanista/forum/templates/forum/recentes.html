@@ -12,13 +12,6 @@
     <div class="content-main contact-content margin-b-30">
         <div class="contact-content-upper">
             <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <div class="gallery_title">
-                        <h3>{{ titulo }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
                 <form action="{% url forum %}" method="POST">{% csrf_token %}
                     <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
                         <button type="submit" name="localizacao" value="N" class="btn btn-success button-filter"><h4>Nacional</h4></button>
@@ -31,11 +24,19 @@
                     </div>
                 </form>
             </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>{{ titulo }}</h3>
+                    </div>
+                </div>
+            </div>
 
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="col-article">
+                    {% if not grupos %}
                     {% if propostas %}
                         <h4>Propostas</h4>
                         {% for proposta in propostas %}
@@ -91,8 +92,9 @@
                           </ul>
                         </nav>
                     {% endif %}
+                    {% endif %}
                     {% if grupos %}
-                    <h4>Verifique se a teia do seu estado já foi criada</h4>
+                    <h4>Faça parte de alguma teia</h4>
                     {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -106,7 +108,7 @@
                                     <footer>
                                         {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
                                         <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
-                                        <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                        <a href="{% url forum_grupo_membros grupo.pk %}" data-toggle="tooltip" data-placement="top" title="Clique para ver quem são os usuários"><b>Nº de usuários:</a> </b>{{ grupo.grupousuario_set.count }} |
                                         <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
                                         {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
                                     </footer>

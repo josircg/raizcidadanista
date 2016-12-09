@@ -57,6 +57,7 @@ class GrupoUsuario(models.Model):
         verbose_name = "Usuário do Grupo"
         verbose_name_plural = "Usuários do Grupo"
         unique_together = (('grupo', 'usuario', ), )
+        ordering = ('usuario__first_name', 'usuario__username', )
 
     grupo = models.ForeignKey(Grupo)
     usuario = models.ForeignKey(User)

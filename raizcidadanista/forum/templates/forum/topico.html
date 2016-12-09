@@ -82,7 +82,7 @@
                         <div id="conversa-{{ conversa.pk }}" class="panel panel-default panel-conversa" {% if forloop.first %}style="border: 1px #333 solid"{% endif %}>
                             <div class="panel-body">
                                 <blockquote>
-                                    {% if forloop.first %}<h2>{{ object }}</h2>{% endif %}
+                                    {% if forloop.first %}<h2 style="margin-top: 0px;">{{ object }}</h2>{% endif %}
                                     {% if conversa.proposta %}
                                         <div class="button-topic">
                                             <span class="fa fa-pie-chart star-button" aria-hidden="true"></span>
@@ -105,7 +105,7 @@
                                         </p>
 
                                     {% else %}
-                                        <footer>Por: {{ conversa.autor.get_first_name }} - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                        <footer>Por: <b>{{ conversa.autor.get_first_name }}</b> - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                         {{ conversa.texto|safe }}
                                         {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
                                     {% endif %}
@@ -248,9 +248,9 @@
                                     <div id="conversa-{{ conversa_filho.pk }}" class="panel panel-default panel-conversa">
                                         <div class="panel-body">
                                             <blockquote>
+                                                <footer>Por: <b>{{ conversa_filho.autor.get_first_name }}</b> - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                 {{ conversa_filho.texto|safe }}
                                                 {% if conversa_filho.arquivo %}<small><a href="{{ conversa_filho.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
-                                                <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                 <small>
                                                 {% if object.editavel %}
                                                     {% for tipocurtida in conversa_filho.curtidas %}

@@ -1,0 +1,48 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogtitle %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+
+{% block description %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+{% block ogdescription %}Editar membros - Tópicos: {{ object }} - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3><a href="{{ object.get_absolute_url }}">Tópicos: {{ object }}</a></h3>
+                        <h4>Membros</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+                        <table class="table table-striped results">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Administrador</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for gu in object.grupousuario_set.all %}
+                                <tr>
+                                    <td><p>{{ gu.usuario }}</p></td>
+                                    <td><p>{% if gu.admin %}Sim{% else %}Não{% endif %}</p></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

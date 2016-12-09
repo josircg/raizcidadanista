@@ -22,10 +22,11 @@
                                 <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
                         </h3>
-                        <div class="buttons-top">
+                        {{ object.descricao|safe }}
+                        <div>
                             {% if object.grupocategoria_set.exists %}
-                            <form style="display: inline; float: right;">
-                                <select name="categoria" class="categoria-option btn btn-success button-topic">
+                            <form style="float: left; margin: 0 3px 3px 0;">
+                                <select name="categoria" class="categoria-option btn btn-success" style="height: 32px">
                                     <option value="" hidden>Categoria</option>
                                     {% for grupocategoria in object.grupocategoria_set.all %}
                                     <option value="{{ grupocategoria.pk }}"{% if grupocategoria == categoria %} selected{% endif %}>{{ grupocategoria }}</option>
@@ -33,13 +34,11 @@
                                 </select>
                             </form>
                             {% endif %}
-                            <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success button-topic">Adicionar novo tópico</button></a>
+                            <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success">Adicionar novo tópico</button></a>
                             {% if user|has_admin_grupo_perm:object %}
-                            <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success button-topic">Editar grupo</button></a>
+                            <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success">Editar grupo</button></a>
                             {% endif %}
                         </div>
-
-                        {{ object.descricao|safe }}
                     </div>
                 </div>
             </div>

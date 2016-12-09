@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^grupo/(?P<pk>\d+)/sair/$', login_required(views.SaidaGrupoView.as_view()), name='forum_grupo_sair'),
     url(r'^grupo/(?P<pk>\d+)/solicitar-ingresso/(?P<user_pk>\d+)/$', login_required(views.SolicitarIngressoAprovarView.as_view()), name='forum_grupo_solicitar_ingresso_aprovar'),
     url(r'^grupo/(?P<pk>\d+)/editar/$', login_required(views.GrupoEditView.as_view()), name='forum_grupo_edit'),
+    url(r'^grupo/(?P<pk>\d+)/membros/$', login_required(views.GrupoMembrosView.as_view()), name='forum_grupo_membros'),
     url(r'^grupo/(?P<pk>\d+)/editar-membros/$', login_required(views.GrupoEditMembrosView.as_view()), name='forum_grupo_edit_membros'),
     url(r'^grupo/(?P<pk>\d+)/adicionar-membros/$', login_required(views.GrupoAddMembrosView.as_view()), name='forum_grupo_add_membros'),
     url(r'^grupo/(?P<grupo_pk>\d+)/topico/adicionar/$', login_required(views.TopicoAddView.as_view()), name='forum_topico_add'),

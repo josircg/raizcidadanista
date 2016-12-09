@@ -35,7 +35,7 @@
                                         <footer>
                                             {% if grupo.tematico %}<b>Grupo Temático</b> | {% endif %}
                                             <b>Localização: </b>{% if grupo.localizacao %}{{ grupo.get_localizacao_display }}{% else %}-{% endif %} |
-                                            <b>Nº de usuários: </b>{{ grupo.grupousuario_set.count }} |
+                                            <b>Nº de usuários: </b><a href="{% url forum_grupo_membros grupo.pk %}">{{ grupo.grupousuario_set.count }}</a> |
                                             <b>Atualizado em: </b>{% if grupo.dt_ultima_atualizacao %}{{ grupo.dt_ultima_atualizacao|date:"d \d\e b, Y \à\s H:i" }}{% else %}Nenhum tópico criado.{% endif %}<br>
                                             {{ grupo.descricao|striptags|truncatewords:"35"|safe }}
                                         </footer>

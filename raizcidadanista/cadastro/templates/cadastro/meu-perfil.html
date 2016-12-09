@@ -12,6 +12,16 @@
     <div class="pi-section pi-padding-bottom-20">
         <div class="pi-row">
             <div class="pi-col-sm-12">
+                {% if not membro.confirmado %}
+                    <div class="alert alert-info ">
+                        <form action="" method="POST">{% csrf_token %}
+                            <h4>Estamos realizando o recadastramento da Raiz! Pedimos que responda:</h4>
+                            <button name="action" value="confirmar" class="btn btn-success">Confirmar a minha participação</button>
+                            <button name="action" value="sair" class="btn btn-success" onclick="return confirm('Você realmente deseja pedir desligamento da RAiZ?');">Não quero mais fazer parte da RAiZ</button>
+                        </form>
+                    </div>
+                {% endif %}
+
                 <h4 class="pi-weight-700 pi-uppercase pi-letter-spacing pi-has-bg pi-margin-bottom-30">
                     <a href="" class="pi-link-dark">Meu Perfil</a>
                 </h4>

@@ -17,6 +17,7 @@ from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, Menc
     AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm
 
 from cms.email import sendmail
+from cadastro.models import CirculoMembro
 
 from datetime import datetime
 import json
@@ -130,15 +131,22 @@ class RecentesView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
+        context['localizacao'] = self.request.session.get('localizacao')
+
+        try:
+            uf_ids = self.request.user.membro.values_list('uf', flat=True)
+            context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__uf__pk__in=uf_ids, administrador=True).values_list('membro__email', flat=True)))
+        except: pass
+
         context['titulo'] = u'Tópicos recentes'
         # Filtro
         if self.request.session.get('localizacao'):
             if self.request.session.get('localizacao') == 'N':
-                context['titulo'] += u' da Teia Nacional'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Nacional</font>'
             elif self.request.session.get('localizacao') == 'E':
-                context['titulo'] += u' da Teia Estadual'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Estadual</font>'
             elif self.request.session.get('localizacao') == 'M':
-                context['titulo'] += u' da Teia Municipal'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Municipal</font>'
 
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()

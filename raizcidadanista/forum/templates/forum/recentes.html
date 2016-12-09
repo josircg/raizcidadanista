@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap forum_tags %}
 
-{% block title %}{{ titulo }} - Teia Digital - {% endblock %}
-{% block ogtitle %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block title %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
+{% block ogtitle %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
 
-{% block description %}{{ titulo }} - Teia Digital - {% endblock %}
-{% block ogdescription %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block description %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
+{% block ogdescription %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-all">
@@ -27,7 +27,7 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="gallery_title">
-                        <h3>{{ titulo }}</h3>
+                        <h3>{{ titulo|safe }}</h3>
                     </div>
                 </div>
             </div>
@@ -118,7 +118,12 @@
                     {% endif %}
                     {% endif %}
                     {% if grupos %}
+                    {% if localizacao == 'E' %}
+                    <h4>Você ainda não faz parte de nenhuma teia estadual. Selecione as existentes para participar da Teia do seu Estado!</h4>
+                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para o jardineiro do seu Estado: {{ emails_estado }}</p>{% endif %}
+                    {% else %}
                     <h4>Faça parte de alguma teia</h4>
+                    {% endif %}
                     {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">

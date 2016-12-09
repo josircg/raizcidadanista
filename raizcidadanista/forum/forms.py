@@ -67,6 +67,13 @@ class AddEditTopicoForm(forms.ModelForm):
         return topico
 
 
+
+class MoverTopicoForm(forms.ModelForm):
+    class Meta:
+        model = Topico
+        fields = ('grupo',)
+
+
 class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa
@@ -160,15 +167,43 @@ class AddEnqueteForm(forms.ModelForm):
 class VotoPropostaForm(forms.ModelForm):
     class Meta:
         model = Voto
-        fields = ('voto', 'justificativa', )
+        fields = ('voto', )
+
+    justificativa = forms.CharField(label=u'Justificativa', widget=forms.Textarea, required=False)
 
     def save(self, proposta, eleitor, *args, **kwargs):
         self.instance.proposta = proposta
         self.instance.eleitor = eleitor
 
         if proposta.voto_set.filter(eleitor=eleitor).exists():
-            proposta.voto_set.filter(eleitor=eleitor).update(voto=self.cleaned_data.get('voto'), justificativa=self.cleaned_data.get('justificativa'))
+            for voto in proposta.voto_set.filter(eleitor=eleitor):
+                voto.voto = self.cleaned_data.get('voto')
+
+                if self.cleaned_data.get('justificativa'):
+                    if voto.conversa:
+                        voto.conversa.texto = self.cleaned_data.get('justificativa')
+                        voto.conversa.save()
+                    else:
+                        conversa = Conversa(
+                            topico=proposta.topico,
+                            autor=eleitor,
+                            texto=self.cleaned_data.get('justificativa'),
+                            conversa_pai=proposta,
+                        )
+                        conversa.save()
+                        voto.conversa = conversa
+                voto.save()
             return
+        else:
+            if self.cleaned_data.get('justificativa'):
+                conversa = Conversa(
+                    topico=proposta.topico,
+                    autor=eleitor,
+                    texto=self.cleaned_data.get('justificativa'),
+                    conversa_pai=proposta,
+                )
+                conversa.save()
+                self.instance.conversa = conversa
         return super(VotoPropostaForm, self).save(*args, **kwargs)
 
 

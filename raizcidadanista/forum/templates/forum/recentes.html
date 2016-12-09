@@ -1,11 +1,11 @@
 {% extends 'forum/base.html' %}
 {% load bootstrap forum_tags %}
 
-{% block title %}{{ titulo }} - Teia Digital - {% endblock %}
-{% block ogtitle %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block title %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
+{% block ogtitle %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
 
-{% block description %}{{ titulo }} - Teia Digital - {% endblock %}
-{% block ogdescription %}{{ titulo }} - Teia Digital - {% endblock %}
+{% block description %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
+{% block ogdescription %}{{ titulo|striptags|safe }} - Teia Digital - {% endblock %}
 
 {% block main %}
 <div class="content-all">
@@ -27,7 +27,7 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="gallery_title">
-                        <h3>{{ titulo }}</h3>
+                        <h3>{{ titulo|safe }}</h3>
                     </div>
                 </div>
             </div>
@@ -57,8 +57,32 @@
                         </div>
                         {% endfor %}
                     {% endif %}
+                    {% if topicos_prioritarios %}
+                        <h4>Topicos prioritários</h4>
+                        {% for topico in topicos_prioritarios %}
+                        <div class="panel panel-default panel-conversa">
+                            <div class="panel-body">
+                                <blockquote>
+                                    <div class="new-topic">
+                                        {% if user|get_notificacao_topico:topico == 'P' %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=N" class="star-button" data-toggle="tooltip" data-placement="top" title="Desmarcar como Prioritário"><span class="fa fa-star" aria-hidden="true"></span></a>
+                                        {% else %}
+                                            <a href="{{ topico.get_absolute_url }}?notificacao=P" class="star-button" data-toggle="tooltip" data-placement="top" title="Marcar como Prioritário"><span class="fa fa-star-o" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                        {% if topico.has_proposta %}
+                                            <span class="fa fa-pie-chart star-button{% if topico.has_proposta_ativa %} active{% endif %}" aria-hidden="true"></span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }}{% if user|num_conversa_nao_lidas:topico %} ({{ user|num_conversa_nao_lidas:topico }}){% endif %}</h4></a>
+                                    <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+                                    <footer><b>Grupo: </b><a href="{{ topico.grupo.get_absolute_url }}">{{ topico.grupo }}</a></footer>
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                     {% if topicos %}
-                        <h4>Topico recentes</h4>
+                        <h4>Topicos recentes</h4>
                         {% for topico in topicos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
@@ -94,7 +118,12 @@
                     {% endif %}
                     {% endif %}
                     {% if grupos %}
+                    {% if localizacao == 'E' %}
+                    <h4>Você ainda não faz parte de nenhuma teia estadual. Selecione as existentes para participar da Teia do seu Estado!</h4>
+                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para o jardineiro do seu Estado: {{ emails_estado }}</p>{% endif %}
+                    {% else %}
                     <h4>Faça parte de alguma teia</h4>
+                    {% endif %}
                     {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">

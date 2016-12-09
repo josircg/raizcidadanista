@@ -74,11 +74,11 @@
                                     </div>
                                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                         <ul class="info">
-                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}">Recentes</a></li>
-                                            <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}">Meus grupos</a></li>
-                                            <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}">Não Lidos{% if user|num_topicos_nao_lidos_all %} ({{ user|num_topicos_nao_lidos_all }}){% endif %}</a></li>
-                                            <li><a class="about_proin" href="{% url 'forum_diretorio' %}">Diretório</a></li>
-                                            <li><a class="about_proin" href="{% url 'forum_pesquisa' %}">Pesquisa</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_recentes' %}" data-toggle="tooltip" data-placement="top" title="Mostra todas as conversas ativas mais recentes da Teia">Recentes</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_meus_grupos' %}" data-toggle="tooltip" data-placement="top" title="Lista dos grupos do qual você participa">Meus grupos</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}" data-toggle="tooltip" data-placement="top" title="Tópicos não lidos desde a sua última visita a Teia">Não Lidos{% if user|num_topicos_nao_lidos_all %} ({{ user|num_topicos_nao_lidos_all }}){% endif %}</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_diretorio' %}" data-toggle="tooltip" data-placement="top" title="Lista todos os grupos existentes">Diretório</a></li>
+                                            <li><a class="about_proin" href="{% url 'forum_pesquisa' %}" data-toggle="tooltip" data-placement="top" title="Permite pesquisar um tópico por assunto">Pesquisa</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
                                             <li><a class="about_proin" href="{% url 'cms_logout' %}">Sair</a></li>
                                         </ul>

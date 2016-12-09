@@ -14,9 +14,10 @@ from django.conf import settings
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
 from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
-    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm
+    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm
 
 from cms.email import sendmail
+from cadastro.models import CirculoMembro
 
 from datetime import datetime
 import json
@@ -130,15 +131,22 @@ class RecentesView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
+        context['localizacao'] = self.request.session.get('localizacao')
+
+        try:
+            uf_ids = self.request.user.membro.values_list('uf', flat=True)
+            context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__uf__pk__in=uf_ids, administrador=True).values_list('membro__email', flat=True)))
+        except: pass
+
         context['titulo'] = u'Tópicos recentes'
         # Filtro
         if self.request.session.get('localizacao'):
             if self.request.session.get('localizacao') == 'N':
-                context['titulo'] += u' da Teia Nacional'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Nacional</font>'
             elif self.request.session.get('localizacao') == 'E':
-                context['titulo'] += u' da Teia Estadual'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Estadual</font>'
             elif self.request.session.get('localizacao') == 'M':
-                context['titulo'] += u' da Teia Municipal'
+                context['titulo'] += u' da <font color="#2f7a35">Teia Municipal</font>'
 
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()
@@ -146,13 +154,13 @@ class RecentesView(TemplateView):
         if self.request.session.get('localizacao'):
             context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=self.request.session.get('localizacao'))
 
-        topicos_queryset = Topico.objects.filter(topicoouvinte__ouvinte=self.request.user).distinct()
+        topicos_queryset = Topico.objects.filter(status='A')
         # Filtro
         if self.request.session.get('localizacao'):
             topicos_queryset = topicos_queryset.filter(grupo__localizacao=self.request.session.get('localizacao'))
 
-        topicos_prioritarios_list = topicos_queryset.filter(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao')
-        topicos_list = list(topicos_prioritarios_list)+list(topicos_queryset.exclude(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao'))
+        context['topicos_prioritarios'] = topicos_queryset.filter(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
+        topicos_list = topicos_queryset.exclude(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')
@@ -465,6 +473,12 @@ class TopicoAddView(FormView):
     def form_valid(self, form):
         instance = form.save(grupo=self.get_grupo(), criador=self.request.user)
         messages.info(self.request, u'Tópico criado com sucesso!')
+
+        # Adicionar o membro no grupo
+        self.grupo = self.get_grupo()
+        if not GrupoUsuario.objects.filter(grupo=self.grupo, usuario=self.request.user).exists():
+            GrupoUsuario(grupo=self.grupo, usuario=self.request.user).save()
+
         return HttpResponseRedirect(instance.get_absolute_url())
 
     def get_context_data(self, **kwargs):
@@ -517,6 +531,58 @@ class TopicoEditView(FormView):
         context = super(TopicoEditView, self).get_context_data(**kwargs)
         context['grupo'] = self.grupo
         context['object'] = self.instance
+        return context
+
+
+class TopicoMoverView(FormView):
+    template_name = 'forum/topico-mover.html'
+    form_class = MoverTopicoForm
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get_instance(self):
+        return get_object_or_404(Topico, pk=self.kwargs['pk'])
+
+    def get(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoMoverView, self).get(request, *args, **kwargs)
+        else:
+            messages.error(request, u'Só o criador de um tópico pode movê-lo.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+
+    def post(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoMoverView, self).post(request, *args, **kwargs)
+        else:
+            messages.error(request, u'Só o criador de um tópico pode movê-lo.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+
+    def get_form_kwargs(self):
+        kwargs = super(TopicoMoverView, self).get_form_kwargs()
+        kwargs['instance'] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        instance = form.save()
+        messages.info(self.request, u'Tópico movido com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicoMoverView, self).get_context_data(**kwargs)
+        context['grupo'] = self.grupo
+        context['object'] = self.instance
+
+        context['localizacao_grupos'] = {
+            u'Nacional': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='N'),
+            u'Estadual': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='E'),
+            u'Municipal': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='M'),
+        }
         return context
 
 
@@ -714,6 +780,23 @@ class TopicoView(DetailView):
     def form_valid(self, form):
         self.object = self.get_object()
         instance = form.save(topico=self.object, autor=self.request.user)
+
+        # Adicionar o membro no grupo
+        if not GrupoUsuario.objects.filter(grupo=self.object.grupo, usuario=self.request.user).exists():
+            if self.object.grupo.privado:
+                sendmail(
+                    subject=u'Solicitação de ingresso no grupo %s' % self.object,
+                    to=list(self.object.grupo.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
+                    template='forum/emails/solicitacao-ingresso.html',
+                    params={
+                        'grupo': self.object.grupo,
+                        'usuario': self.request.user,
+                        'host': settings.SITE_HOST,
+                    },
+                )
+                messages.info(self.request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+            else:
+                GrupoUsuario(grupo=self.object.grupo, usuario=self.request.user).save()
         return HttpResponseRedirect(instance.get_absolute_url())
 
     def form_invalid(self, form):
@@ -844,13 +927,30 @@ class PropostaTopicoView(FormView):
     model = Proposta
     template_name = 'forum/topico-proposta.html'
     form_class = VotoPropostaForm
+    form_conversa_class = ConversaForm
 
     def get_object(self):
         return get_object_or_404(Proposta, pk=self.kwargs.get('pk'))
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(PropostaTopicoView, self).post(request, *args, **kwargs)
+        if request.POST.get('form-conversa'):
+            # Form conversa
+            self.form_conversa = self.form_conversa_class(request.POST, request.FILES)
+            if request.POST.get('conversa'):
+                instance = get_object_or_404(Conversa, pk=request.POST.get('conversa'))
+                self.form_conversa = self.form_conversa_class(request.POST, request.FILES, instance=instance)
+            if self.form_conversa.is_valid():
+                return self.form_valid(self.form_conversa)
+            else:
+                return self.form_invalid(self.form_conversa)
+        else:
+            # Form Votação
+            self.form = self.form_class(request.POST, request.FILES)
+            if self.form.is_valid():
+                return self.form_valid(self.form)
+            else:
+                return self.form_invalid(self.form)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -863,16 +963,38 @@ class PropostaTopicoView(FormView):
             self.object.save()
             messages.info(request, u'Proposta Reaberta!')
             return HttpResponseRedirect(self.object.get_absolute_url())
+
+        # Excluir conversa
+        if request.GET.get('conversa') and request.GET.get('excluir'):
+            conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
+            if not conversa.has_delete(request.user):
+                raise Http404
+            conversa.delete()
+            messages.info(request, u'Comentário removido com sucesso!')
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        self.form_conversa = self.form_conversa_class()
         return super(PropostaTopicoView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        form.save(proposta=self.object, eleitor=self.request.user)
-        messages.info(self.request, u'Obrigado pela sua opinião!')
+        if self.request.POST.get('form-conversa'):
+            self.object = self.get_object()
+            instance = form.save(topico=self.object.topico, autor=self.request.user)
+        else:
+            form.save(proposta=self.object, eleitor=self.request.user)
+            messages.info(self.request, u'Obrigado pela sua opinião!')
         return HttpResponseRedirect(self.object.get_absolute_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, u"Preencha corretamente todos os campos!")
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(PropostaTopicoView, self).get_context_data(**kwargs)
         context['object'] = self.object
+        context['form_conversa'] = self.form_conversa
         try: context['respondido'] = self.object.voto_set.filter(eleitor=self.request.user).latest('pk')
         except: pass
         context['respondido_percent'] = (float(self.object.voto_set.count())/float((self.object.topico.topicoouvinte_set.count() or 1)))*100

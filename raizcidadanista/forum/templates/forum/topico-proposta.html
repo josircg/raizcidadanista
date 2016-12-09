@@ -57,8 +57,226 @@
                                 <blockquote>
                                     {{ object.texto|safe }}
                                 </blockquote>
+
                             </div>
                         </div>
+                    </div>
+                    <br>
+                    <div class="col-article">
+                        <h3>Histórico de votação</h3>
+                        {% for voto in object.voto_set.all %}
+                            <div id="conversa-{{ voto.pk }}" class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <blockquote>
+                                        <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
+                                            {% if voto.voto == 'C' %}<img class="lmo-print-only" src="{% static 'site/img/agree.svg' %}">{% endif %}
+                                            {% if voto.voto == 'A' %}<img class="lmo-print-only" src="{% static 'site/img/abstain.svg' %}">{% endif %}
+                                            {% if voto.voto == 'D' %}<img class="lmo-print-only" src="{% static 'site/img/disagree.svg' %}">{% endif %}
+                                            {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
+                                        </div>
+                                        <div class="thread-item__vote-content">
+                                            <b>{{ voto.eleitor }}</b>
+                                        </div>
+                                        <br>
+                                        {% if voto.conversa %}
+                                            {{ voto.conversa.texto|safe }}
+                                            <footer>Em: {{ voto.conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+
+                                            {% if not object.expirada and object.status == 'A' %}
+                                            <small>
+                                                <a class="responder-link" href="javascript://">Responder</a>
+                                                {% if request.user == voto.conversa.autor %}
+                                                    | <a class="edit-link" href="javascript://">Editar</a>
+                                                {% endif %}
+                                                {% if voto.conversa|has_delete_conversa:request.user %}
+                                                    | <a class="remove-link" href="?conversa={{ voto.conversa.pk }}&excluir=true">Excluir</a>
+                                                {% endif %}
+                                            </small>
+
+                                            {% if request.user == voto.conversa.autor %}
+                                                <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
+                                                    <div class="panel-body">
+                                                        <input type="hidden" class="form-control" name="form-conversa" value="true" />
+                                                        <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ voto.conversa.conversa_pai.pk }}" />
+                                                        <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ voto.conversa.pk }}" />
+                                                        <textarea id="id_texto-edit-conversa-{{ voto.conversa.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ voto.conversa.texto }}</textarea>
+                                                        <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                            {% if voto.conversa.arquivo %}
+                                                                <small>
+                                                                    Atualmente: <a href="{{ voto.conversa.arquivo.url }}" target="_blank">{{ voto.conversa.arquivo.url }}</a>
+                                                                    <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
+                                                                </small>
+                                                            {% endif %}
+                                                            <div class="upload input-group">
+                                                                <button type="button" class="input-fake btn btn-default">
+                                                                    <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                    Arquivo
+                                                                </button>
+                                                                <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                <ul class="list-unstyled">
+                                                                    {% for error in form_conversa.arquivo.errors %}
+                                                                    <li class="text-error"><small>{{ error }}</small></li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success">Editar</button>
+                                                    </div>
+                                                </form>
+                                                <script type="text/javascript">
+                                                    CKEDITOR.replace("id_texto-edit-conversa-{{ voto.conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                                </script>
+                                            {% endif %}
+
+                                            <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
+                                                <div class="panel panel-conversa">
+                                                    <div class="panel-body">
+                                                        <input type="hidden" class="form-control" name="form-conversa" value="true" />
+                                                        <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ voto.conversa.pk }}" />
+                                                        <textarea id="id_texto-{{ voto.conversa.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                        <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                            <div class="upload input-group">
+                                                                <button type="submit" class="btn btn-success">Responder</button>
+                                                            </div>
+                                                            <div class="upload input-group">
+                                                                <button type="button" class="input-fake btn btn-default">
+                                                                    <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                                    Imagem
+                                                                </button>
+                                                                <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                                                <ul class="list-unstyled">
+                                                                {% for error in form_conversa.imagem.errors %}
+                                                                    <li class="text-error"><small>{{ error }}</small></li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                            <div class="upload input-group">
+                                                                <button type="button" class="input-fake btn btn-default">
+                                                                    <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                    Arquivo
+                                                                </button>
+                                                                <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                <ul class="list-unstyled">
+                                                                    {% for error in form_conversa.arquivo.errors %}
+                                                                    <li class="text-error"><small>{{ error }}</small></li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <script type="text/javascript">
+                                                CKEDITOR.replace("id_texto-{{ voto.conversa.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                            </script>
+                                            {% endif %}
+
+                                            {% for conversa_filho in voto.conversa.conversa_set.all %}
+                                            <div id="conversa-{{ conversa_filho.pk }}" class="panel panel-default panel-conversa">
+                                                <div class="panel-body">
+                                                    <blockquote>
+                                                        {{ conversa_filho.texto|safe }}
+                                                        {% if conversa_filho.arquivo %}<small><a href="{{ conversa_filho.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
+                                                        <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                                        <small>
+                                                        {% if not object.expirada and object.status == 'A' %}
+                                                            <a class="responder-link" href="javascript://">Responder</a>
+                                                            {% if request.user == conversa_filho.autor %}
+                                                                | <a class="edit-link" href="javascript://">Editar</a>
+                                                            {% endif %}
+                                                            {% if conversa_filho|has_delete_conversa:request.user %}
+                                                                | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        </small>
+
+                                                        {% if not object.expirada and object.status == 'A' %}
+                                                        <form action="" method="POST" role="form" class="responder-form" enctype="multipart/form-data">{% csrf_token %}
+                                                            <div class="panel panel-conversa">
+                                                                <div class="panel-body">
+                                                                    <input type="hidden" class="form-control" name="form-conversa" value="true" />
+                                                                    <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ voto.conversa.pk }}" />
+                                                                    <textarea id="id_texto-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto"></textarea>
+                                                                    <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                                        <div class="upload input-group">
+                                                                            <button type="submit" class="btn btn-success">Responder</button>
+                                                                        </div>
+                                                                        <div class="upload input-group">
+                                                                            <button type="button" class="input-fake btn btn-default">
+                                                                                <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                                                Imagem
+                                                                            </button>
+                                                                            <input class="input-file-real" type="file" name="imagem" placeholder="Imagem">
+                                                                            <ul class="list-unstyled">
+                                                                            {% for error in form_conversa.imagem.errors %}
+                                                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        </div>
+                                                                        <div class="upload input-group">
+                                                                            <button type="button" class="input-fake btn btn-default">
+                                                                                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                                Arquivo
+                                                                            </button>
+                                                                            <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                            <ul class="list-unstyled">
+                                                                                {% for error in form_conversa.arquivo.errors %}
+                                                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                        <script type="text/javascript">
+                                                            CKEDITOR.replace("id_texto-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                                        </script>
+                                                        {% endif %}
+
+                                                        {% if not object.expirada and object.status == 'A' and request.user == conversa_filho.autor %}
+                                                        <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
+                                                                <div class="panel-body">
+                                                                    <input type="hidden" class="form-control" name="form-conversa" value="true" />
+                                                                    <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ voto.conversa.pk }}" />
+                                                                    <input type="hidden" class="form-control" name="conversa" id="id_conversa" value="{{ conversa_filho.pk }}" />
+                                                                    <textarea id="id_texto-edit-conversa-{{ conversa_filho.pk }}" rows="10" cols="40" class="form-control" name="texto">{{ conversa_filho.texto }}</textarea>
+                                                                    <div class="form-group form-inline" style="margin: 10px 0px;">
+                                                                        {% if conversa_filho.arquivo %}
+                                                                            <small>
+                                                                                Atualmente: <a href="{{ conversa_filho.arquivo.url }}" target="_blank">{{ conversa_filho.arquivo.url }}</a>
+                                                                                <span class="clearable-file-input"><input type="checkbox" name="arquivo-clear" id="arquivo-clear_id" /> <label for="arquivo-clear_id">Limpar</label></span>
+                                                                            </small>
+                                                                        {% endif %}
+                                                                        <div class="upload input-group">
+                                                                            <button type="button" class="input-fake btn btn-default">
+                                                                                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                                                                Arquivo
+                                                                            </button>
+                                                                            <input class="input-file-real" type="file" name="arquivo" placeholder="Arquivo">
+                                                                            <ul class="list-unstyled">
+                                                                                {% for error in form_conversa.arquivo.errors %}
+                                                                                <li class="text-error"><small>{{ error }}</small></li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button type="submit" class="btn btn-success">Editar</button>
+                                                                </div>
+                                                        </form>
+                                                        <script type="text/javascript">
+                                                            CKEDITOR.replace("id_texto-edit-conversa-{{ conversa_filho.pk }}", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "forcePasteAsPlainText": true, "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "extraPlugins": "smiley", "height": 100, "width": "100%", "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "toolbar": [["Bold", "Italic", "Underline", "TextColor", "NumberedList", "BulletedList", "Link", "Smiley"]]});
+                                                        </script>
+                                                        {% endif %}
+                                                    </blockquote>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
@@ -83,7 +301,16 @@
                     <b>POSIÇÕES</b>
                     <div id="piechart" style="height: 300px;"></div>
 
-                    <small>{{ respondido_percent|floatformat }}% dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                    <div class="panel panel-default panel-conversa">
+                        <div class="panel-body">
+                            <small><b>{{ respondido_percent|floatformat }}%</b> dos membros manifestaram suas posições ({{ object.voto_set.count }}/{{ object.topico.topicoouvinte_set.count }})</small><br>
+                            {% for resposta, votos in respostas %}
+                            <small><b>{{ votos|percent:object.voto_set.count|floatformat }}%</b> marcaram "{{ resposta }}"</small><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <br><br>
                     {% for voto in object.voto_set.all %}
                         <div>
                             <div class="thread-item__vote-icon thread-item__vote-icon--{% if voto.voto == 'C' %}yes{% endif %}{% if voto.voto == 'A' %}abstain{% endif %}{% if voto.voto == 'D' %}no{% endif %}{% if voto.voto == 'V' %}block{% endif %}">
@@ -93,7 +320,7 @@
                                 {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
                             </div>
                             <div class="thread-item__vote-content">
-                                <b>{{ voto.eleitor }}</b>{% if voto.justificativa %}: {{ voto.justificativa }}{% endif %}
+                                <b>{{ voto.eleitor }}</b>
                             </div>
                         </div>
                     {% endfor %}
@@ -174,14 +401,53 @@
         };
         var chart = new google.visualization.PieChart(document.getElementById('piechart'));
         chart.draw(data, options);
-      }
+    }
+
+
+    /* show/hide response ckeditor */
+    $('.responder-link').click(function(event) {
+        $(this).parent().parent().find('.responder-form:first').slideToggle();
+    });
+    /* show/hide edit ckeditor */
+    $('.edit-link').click(function(event) {
+        $(this).parent().parent().find('.edit-form:first').slideToggle();
+    });
+    /* remove conversa confirm */
+    $('.remove-link').click(function(event) {
+        return confirm("Você deseja realmente remover o seu comentário?");
+    });
+
+    //simulação do input file
+    $(".input-file-real").on("change",function(){
+        var txt = $(this).val();
+        $(this).parent().find(".input-fake").append('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
+    });
+    $(".input-file-real").mouseenter(function() {
+        $(this).parent().find(".input-fake").addClass('btn-default-hover');
+        console.log('enter');
+    }).mouseleave(function() {
+        $(this).parent().find(".input-fake").removeClass('btn-default-hover');
+        console.log('leave');
+    });
 </script>
 {% endblock %}
 
 {% block css %}
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
     <style type="text/css">
         #content-left{padding: 0;}
         .content-main{padding-left: 0;}
         .button-topic {float: right; margin-left: 5px;}
+        .position-box-results {padding: 10px; border: 1px #000 solid;}
+
+        .cke_bottom {display: none !important; }
+        .cke_contents {min-height: 100px !important; width: 100% !important;}
+        .responder-form, .edit-form, .mention-form {display: none; }
+        .button-topic {float: right; margin-left: 5px;}
+
+        .upload {vertical-align: top !important;}
+        .input-fake{padding-right:50px;}
+        .input-file-real{opacity:0;position: absolute !important;top:0px;left:0px;cursor:pointer;height: 34px;width: 100%;}
+        .btn-default-hover {color: #333; background-color: #e6e6e6; border-color: #adadad;}
     </style>
 {% endblock %}

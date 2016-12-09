@@ -151,8 +151,8 @@ class RecentesView(TemplateView):
         if self.request.session.get('localizacao'):
             topicos_queryset = topicos_queryset.filter(grupo__localizacao=self.request.session.get('localizacao'))
 
-        topicos_prioritarios_list = topicos_queryset.filter(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao')
-        topicos_list = list(topicos_prioritarios_list)+list(topicos_queryset.exclude(topicoouvinte__notificacao='P').order_by('-dt_ultima_atualizacao'))
+        context['topicos_prioritarios'] = topicos_queryset.filter(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
+        topicos_list = topicos_queryset.exclude(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
         paginator = Paginator(topicos_list, 10)
 
         page = self.request.GET.get('page')

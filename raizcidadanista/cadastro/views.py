@@ -67,6 +67,47 @@ class MeuPerfilView(TemplateView):
             return HttpResponseRedirect(reverse('home'))
         return super(MeuPerfilView, self).get(request, *args, **kwargs)
 
+    def get_membro(self, request):
+        try:
+            return Membro.objects.get(usuario=request.user)
+        except: return None
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('action'):
+            membro = self.get_membro(request)
+            if request.POST.get('action') == 'confirmar':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=membro.pk).update(confirmado=True)
+                messages.info(request, u'Cadastro como pré-filiado confirmado.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                    object_id = membro.pk,
+                    object_repr = u"%s" % membro,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário confirmou o cadastro como pré-filiado com o IP %s.' % get_client_ip(request)
+                )
+            elif request.POST.get('action') == 'sair':
+                # FIXBUG não estava salvando!
+                Membro.objects.filter(pk=membro.pk).update(status_email='O', status='C', confirmado=True, filiado=False)
+                # Remover a pessoa de todos os círculos.
+                CirculoMembro.objects.filter(membro=membro).delete()
+                messages.info(request, u'Desligamento efetuado com sucesso.')
+                LogEntry.objects.log_action(
+                    user_id = User.objects.get_or_create(username="sys")[0].pk,
+                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                    object_id = membro.pk,
+                    object_repr = u"%s" % membro,
+                    action_flag = CHANGE,
+                    change_message = u'[RECAD] Usuário pediu desligamento.'
+                )
+                return HttpResponseRedirect('/')
+        return self.response_class(
+            request=self.request,
+            template=self.template_name,
+            context=self.get_context_data(**kwargs)
+        )
+
     def get_context_data(self, **kwargs):
         context = super(MeuPerfilView, self).get_context_data(**kwargs)
         context['membro'] = self.request.user.membro.all()[0]

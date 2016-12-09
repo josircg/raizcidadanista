@@ -35,14 +35,17 @@
                                     </form>
                                 </div>
                             </span>
+                        </div>
+                        <div>
                             {% if user|has_admin_grupo_perm:object.grupo %}
-                                <a href="{% url forum_topico_notificar object.grupo.pk object.pk %}"><button type="submit" class="btn btn-success button-topic">Notificar a todos</button></a>
+                                <a href="{% url forum_topico_notificar object.grupo.pk object.pk %}"><button type="submit" class="btn btn-success">Notificar a todos</button></a>
                             {% endif %}
                             {% if object.criador == user or user|has_admin_grupo_perm:object.grupo %}
+                                <a href="{% url forum_topico_mover object.grupo.pk object.pk %}"><button type="submit" class="btn btn-success">Mover Tópico</button></a>
                                 {% if object.editavel %}
-                                <a href="?encerrar=true"><button type="submit" class="btn btn-success button-topic">Encerrar Tópico</button></a>
+                                <a href="?encerrar=true"><button type="submit" class="btn btn-success">Encerrar Tópico</button></a>
                                 {% else %}
-                                <a href="?reabrir=true"><button type="submit" class="btn btn-success button-topic">Reabrir Tópico</button></a>
+                                <a href="?reabrir=true"><button type="submit" class="btn btn-success">Reabrir Tópico</button></a>
                                 {% endif %}
                             {% endif %}
                         </div>

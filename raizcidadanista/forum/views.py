@@ -14,7 +14,7 @@ from django.conf import settings
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
 from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
-    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm
+    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm
 
 from cms.email import sendmail
 from cadastro.models import CirculoMembro
@@ -531,6 +531,58 @@ class TopicoEditView(FormView):
         context = super(TopicoEditView, self).get_context_data(**kwargs)
         context['grupo'] = self.grupo
         context['object'] = self.instance
+        return context
+
+
+class TopicoMoverView(FormView):
+    template_name = 'forum/topico-mover.html'
+    form_class = MoverTopicoForm
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get_instance(self):
+        return get_object_or_404(Topico, pk=self.kwargs['pk'])
+
+    def get(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoMoverView, self).get(request, *args, **kwargs)
+        else:
+            messages.error(request, u'Só o criador de um tópico pode movê-lo.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+
+    def post(self, request, pk, *args, **kwargs):
+        self.grupo = self.get_grupo()
+        self.instance = self.get_instance()
+
+        if self.instance.criador == request.user or request.user.is_superuser or self.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
+            return super(TopicoMoverView, self).post(request, *args, **kwargs)
+        else:
+            messages.error(request, u'Só o criador de um tópico pode movê-lo.')
+            return HttpResponseRedirect(self.instance.get_absolute_url())
+
+    def get_form_kwargs(self):
+        kwargs = super(TopicoMoverView, self).get_form_kwargs()
+        kwargs['instance'] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        instance = form.save()
+        messages.info(self.request, u'Tópico movido com sucesso!')
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicoMoverView, self).get_context_data(**kwargs)
+        context['grupo'] = self.grupo
+        context['object'] = self.instance
+
+        context['localizacao_grupos'] = {
+            u'Nacional': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='N'),
+            u'Estadual': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='E'),
+            u'Municipal': Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao='M'),
+        }
         return context
 
 

@@ -67,6 +67,13 @@ class AddEditTopicoForm(forms.ModelForm):
         return topico
 
 
+
+class MoverTopicoForm(forms.ModelForm):
+    class Meta:
+        model = Topico
+        fields = ('grupo',)
+
+
 class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa

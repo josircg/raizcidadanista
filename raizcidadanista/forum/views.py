@@ -77,15 +77,15 @@ class DiretorioView(TemplateView):
             grupos_list = grupos_list.filter(tematico=True if self.request.GET.get('tematico') == 'true' else False)
             context['tematico'] = self.request.GET.get('tematico')
 
-        context['titulo'] = u'Lista de todos os grupos '
+        context['titulo'] = u'Relação de todos os grupos '
         # Filtro
         if self.request.session.get('localizacao'):
             if self.request.session.get('localizacao') == 'N':
-                context['titulo'] += u' da Teia Nacional'
+                context['titulo'] += u' nacionais'
             elif self.request.session.get('localizacao') == 'E':
-                context['titulo'] += u' da Teia Estadual'
+                context['titulo'] += u' estaduais'
             elif self.request.session.get('localizacao') == 'M':
-                context['titulo'] += u' da Teia Municipal'
+                context['titulo'] += u' municipais'
         context['titulo'] += u' existentes'
 
         paginator = Paginator(grupos_list, 10)
@@ -173,24 +173,10 @@ class RecentesView(TemplateView):
 
         context['topicos'] = topicos
 
-        if not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
-            context['grupos'] = Grupo.objects.filter(localizacao=self.request.session.get('localizacao'))
+        if self.request.session.get('localizacao') != 'N':
+            if not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
+                context['grupos'] = Grupo.objects.filter(localizacao=self.request.session.get('localizacao'))
 
-        return context
-
-
-class MeuPerfilView(TemplateView):
-    template_name = 'forum/meu-perfil.html'
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.membro.exists():
-            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
-            return HttpResponseRedirect(reverse('forum'))
-        return super(MeuPerfilView, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(MeuPerfilView, self).get_context_data(**kwargs)
-        context['membro'] = self.request.user.membro.all()[0]
         return context
 
 
@@ -259,6 +245,20 @@ class PesquisaView(FormView):
                 'listar_conversas': listar_conversas,
             }
         )
+
+class MeuPerfilView(TemplateView):
+    template_name = 'forum/meu-perfil.html'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('forum'))
+        return super(MeuPerfilView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MeuPerfilView, self).get_context_data(**kwargs)
+        context['membro'] = self.request.user.membro.all()[0]
+        return context
 
 class GrupoView(DetailView):
     model = Grupo

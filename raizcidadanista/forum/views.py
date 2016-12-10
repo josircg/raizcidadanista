@@ -133,10 +133,9 @@ class RecentesView(TemplateView):
         context = super(RecentesView, self).get_context_data(**kwargs)
         context['localizacao'] = self.request.session.get('localizacao')
 
-        try:
-            uf_ids = self.request.user.membro.values_list('uf', flat=True)
-            context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__uf__pk__in=uf_ids, administrador=True).values_list('membro__email', flat=True)))
-        except: pass
+        uf = self.request.user.membro.uf
+        circulos_ids = Circulo.objects.filter(uf=uf, tipo='S').values_list('pk', flat=True)
+        context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
 
         context['titulo'] = u'Tópicos recentes'
         # Filtro

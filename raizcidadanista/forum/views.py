@@ -17,7 +17,7 @@ from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, Menc
     AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm
 
 from cms.email import sendmail
-from cadastro.models import CirculoMembro
+from cadastro.models import Circulo, CirculoMembro
 
 from datetime import datetime
 import json
@@ -135,7 +135,7 @@ class RecentesView(TemplateView):
 
         uf = self.request.user.membro.uf
         circulos_ids = Circulo.objects.filter(uf=uf, tipo='S').values_list('pk', flat=True)
-        context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
+#        context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
 
         context['titulo'] = u'Tópicos recentes'
         # Filtro

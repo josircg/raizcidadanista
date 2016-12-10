@@ -119,12 +119,9 @@
                     {% endif %}
                     {% if grupos %}
                     {% if localizacao == 'E' %}
-                    <h4>Você ainda não faz parte de nenhuma teia estadual. Selecione as existentes para participar da Teia do seu Estado!</h4>
+                    <h4>Você ainda não faz parte de nenhuma Teia ou Comissão estadual. Escolha a Teia da qual quer participar.</h4>
                     {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para o jardineiro do seu Estado: {{ emails_estado }}</p>{% endif %}
-                    {% else %}
-                    <h4>Faça parte de alguma teia</h4>
-                    {% endif %}
-                    {% for grupo in grupos %}
+                        {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
@@ -144,7 +141,8 @@
                                 </blockquote>
                             </div>
                         </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
                     {% endif %}
                     </div>
                 </div>

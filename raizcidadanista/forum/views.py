@@ -132,20 +132,23 @@ class RecentesView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
         context['localizacao'] = self.request.session.get('localizacao')
-
-        uf = self.request.user.membro.uf
-        circulos_ids = Circulo.objects.filter(uf=uf, tipo='S').values_list('pk', flat=True)
-#        context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
+        escopo = self.request.session.get('localizacao')
 
         context['titulo'] = u'Tópicos recentes'
         # Filtro
-        if self.request.session.get('localizacao'):
-            if self.request.session.get('localizacao') == 'N':
+        if escopo:
+            if escopo == 'N':
                 context['titulo'] += u' da <font color="#2f7a35">Teia Nacional</font>'
-            elif self.request.session.get('localizacao') == 'E':
+            elif escopo == 'E':
                 context['titulo'] += u' da <font color="#2f7a35">Teia Estadual</font>'
-            elif self.request.session.get('localizacao') == 'M':
+            elif escopo == 'M':
                 context['titulo'] += u' da <font color="#2f7a35">Teia Municipal</font>'
+
+        if escopo == 'E':
+            ufs = self.request.user.membro.values_list('uf', flat=True)
+            circulos_ids = Circulo.objects.filter(uf__in=ufs, tipo='S').values_list('pk', flat=True)
+#            context['emails_estado'] = u'TESTE'
+            context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
 
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()

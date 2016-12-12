@@ -408,8 +408,12 @@
 
                         {% if object.editavel %}
                         {% if object.grupo.privado and not user|has_grupo_perm:object.grupo %}
-                            <div>Para emitir qualquer comentário, você deve estar inscrito.
-                            <a href="{% url forum_grupo_solicitar_ingresso object.grupo.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.grupo.nome }}.
+                                    <a href="{% url forum_grupo_solicitar_ingresso object.grupo.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
+                                    </div>
+                                </div>
                             </div>
                         {% else %}
                         <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}

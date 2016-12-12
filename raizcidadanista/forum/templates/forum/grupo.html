@@ -18,8 +18,6 @@
                             {{ object }}
                             {% if user|has_grupo_perm:object %}
                                 <a href="{% url forum_grupo_sair object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
-                            {% else %}
-                                <a href="{% url forum_grupo_solicitar_ingresso object.pk %}" class="button-topic link-star" style="margin: -3px 5px;" data-toggle="tooltip" data-placement="top" title="Participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                             {% endif %}
                         </h3>
                         {{ object.descricao|safe }}
@@ -40,10 +38,6 @@
                                     {% if user|has_admin_grupo_perm:object %}
                                     <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success">Editar grupo</button></a>
                                     {% endif %}
-                                {% else %}
-                                    <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.nome }}.
-                                    <a href="{% url forum_grupo_solicitar_ingresso object.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
-                                    </div>
                                 {% endif %}
                             {% else %}
                                 <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success">Adicionar novo tópico</button></a>
@@ -56,6 +50,17 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="col-article">
+                        {% if object.privado and not user|has_grupo_perm:object %}
+                            <br>
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.nome }}.
+                                    <a href="{% url forum_grupo_solicitar_ingresso object.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <br><br>
+                        {% endif %}
 
                         {% for proposta in propostas %}
                          <div class="panel panel-default panel-conversa">

@@ -127,8 +127,6 @@
                                 <blockquote>
                                     {% if user|has_grupo_perm:grupo %}
                                         <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                    {% else %}
-                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                                     {% endif %}
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }}{% if user|num_topicos_nao_lidos:grupo %} ({{ user|num_topicos_nao_lidos:grupo }}){% endif %}</h4></a>
                                     <footer>

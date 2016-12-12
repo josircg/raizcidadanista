@@ -120,15 +120,13 @@
                     {% if grupos %}
                     {% if localizacao == 'E' %}
                     <h4>Você ainda não faz parte de nenhuma Teia ou Comissão estadual. Escolha a Teia da qual quer participar.</h4>
-                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para o jardineiro do seu Estado: {{ emails_estado }}</p>{% endif %}
+                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para um dos jardineiros do seu Estado: {{ emails_estado }}</p>{% endif %}
                         {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">
                                 <blockquote>
                                     {% if user|has_grupo_perm:grupo %}
                                         <a href="{% url forum_grupo_sair grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="Sair do Grupo"><span class="fa fa-star" aria-hidden="true"></span></a>
-                                    {% else %}
-                                        <a href="{% url forum_grupo_solicitar_ingresso grupo.pk %}" class="star-button" data-toggle="tooltip" data-placement="top" title="participar do Grupo"><span class="fa fa-star-o" aria-hidden="true"></span></a>
                                     {% endif %}
                                     <a href="{{ grupo.get_absolute_url }}"><h4>{{ grupo.nome }}{% if user|num_topicos_nao_lidos:grupo %} ({{ user|num_topicos_nao_lidos:grupo }}){% endif %}</h4></a>
                                     <footer>

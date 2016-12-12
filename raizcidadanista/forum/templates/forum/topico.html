@@ -137,7 +137,9 @@
                                                     {% endif %}
                                                 {% endif %}
                                                 {% if not forloop.first %}
-                                                | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
+                                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% else %}
                                                 {% for tipocurtida in conversa.curtidas %}
@@ -272,7 +274,11 @@
                                                     {% if request.user == conversa_filho.autor %}
                                                         | <a class="edit-link" href="javascript://">Editar</a>
                                                     {% endif %}
-                                                    | <a class="responder-link" href="javascript://">Responder</a>
+
+                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
+                                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% endif %}
+
                                                     {% if conversa_filho|has_delete_conversa:request.user %}
                                                         | <a class="remove-link" href="?conversa={{ conversa_filho.pk }}&excluir=true">Excluir</a>
                                                     {% endif %}
@@ -401,6 +407,15 @@
                         </nav>
 
                         {% if object.editavel %}
+                        {% if object.grupo.privado and not user|has_grupo_perm:object.grupo %}
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.grupo.nome }}.
+                                    <a href="{% url forum_grupo_solicitar_ingresso object.grupo.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
                         <form action="" method="POST" role="form" enctype="multipart/form-data">{% csrf_token %}
                             <div class="panel panel-default panel-conversa">
                                 <div class="panel-body">
@@ -451,6 +466,7 @@
                                 </div>
                             </div>
                         </form>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>

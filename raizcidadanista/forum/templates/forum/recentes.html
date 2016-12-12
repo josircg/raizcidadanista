@@ -120,7 +120,7 @@
                     {% if grupos %}
                     {% if localizacao == 'E' %}
                     <h4>Você ainda não faz parte de nenhuma Teia ou Comissão estadual. Escolha a Teia da qual quer participar.</h4>
-                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para o jardineiro do seu Estado: {{ emails_estado }}</p>{% endif %}
+                    {% if emails_estado %}<p>Caso ainda não exista Teia para o seu Estado, envie email para um dos jardineiros do seu Estado: {{ emails_estado }}</p>{% endif %}
                         {% for grupo in grupos %}
                         <div class="panel panel-default panel-conversa">
                             <div class="panel-body">

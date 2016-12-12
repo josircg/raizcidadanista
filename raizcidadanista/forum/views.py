@@ -147,19 +147,18 @@ class RecentesView(TemplateView):
         if escopo == 'E':
             ufs = self.request.user.membro.values_list('uf', flat=True)
             circulos_ids = Circulo.objects.filter(uf__in=ufs, tipo='S').values_list('pk', flat=True)
-#            context['emails_estado'] = u'TESTE'
             context['emails_estado'] = u', '.join(list(CirculoMembro.objects.filter(circulo__in=circulos_ids, administrador=True).values_list('membro__email', flat=True)))
 
         # As Propostas em aberto que forem de escopo global ou se forem locais mas o usuário estiver inscrito no grupo, devem aparecer em destaque antes mesmo dos tópicos prioritários.
         context['propostas'] = Proposta.objects.filter(status='A', dt_encerramento__gte=datetime.now()).filter(Q(escopo='L') | Q(topico__grupo__grupousuario__usuario=self.request.user)).distinct()
         # Filtro
-        if self.request.session.get('localizacao'):
-            context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=self.request.session.get('localizacao'))
+        if escopo:
+            context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=escopo)
 
         topicos_queryset = Topico.objects.filter(status='A')
         # Filtro
         if self.request.session.get('localizacao'):
-            topicos_queryset = topicos_queryset.filter(grupo__localizacao=self.request.session.get('localizacao'))
+            topicos_queryset = topicos_queryset.filter(grupo__localizacao=escopo)
 
         context['topicos_prioritarios'] = topicos_queryset.filter(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
         topicos_list = topicos_queryset.exclude(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
@@ -175,9 +174,9 @@ class RecentesView(TemplateView):
 
         context['topicos'] = topicos
 
-        if self.request.session.get('localizacao') != 'N':
-            if not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=self.request.session.get('localizacao')).exists():
-                context['grupos'] = Grupo.objects.filter(localizacao=self.request.session.get('localizacao'))
+        if escopo != 'N':
+            if not Grupo.objects.filter(grupousuario__usuario=self.request.user, localizacao=escopo).exists():
+                context['grupos'] = Grupo.objects.filter(localizacao=escopo)
 
         return context
 

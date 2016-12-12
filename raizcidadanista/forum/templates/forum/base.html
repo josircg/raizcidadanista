@@ -79,6 +79,11 @@
                                             <li><a class="about_proin" href="{% url 'forum_nao_lidos' %}" data-toggle="tooltip" data-placement="top" title="Tópicos não lidos desde a sua última visita a Teia">Não Lidos{% if user|num_topicos_nao_lidos_all %} ({{ user|num_topicos_nao_lidos_all }}){% endif %}</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_diretorio' %}" data-toggle="tooltip" data-placement="top" title="Lista todos os grupos existentes">Diretório</a></li>
                                             <li><a class="about_proin" href="{% url 'forum_pesquisa' %}" data-toggle="tooltip" data-placement="top" title="Permite pesquisar um tópico por assunto">Pesquisa</a></li>
+
+                                            {% for grupou in user.grupousuario_set.all %}
+                                            <li><a class="about_proin" href="{{ grupou.grupo.get_absolute_url }}" class="text-uppercase">{{ grupou.grupo }}</a></li>
+                                            {% endfor %}
+
                                             <li><a class="about_proin" href="{% url 'forum_meu_perfil' %}">Meu Perfil</a></li>
                                             <li><a class="about_proin" href="{% url 'cms_logout' %}">Sair</a></li>
                                         </ul>

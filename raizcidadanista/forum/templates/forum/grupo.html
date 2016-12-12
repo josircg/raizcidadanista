@@ -34,15 +34,19 @@
                                 </select>
                             </form>
                             {% endif %}
-                            {% if user|has_grupo_perm:object %}
-                            <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success">Adicionar novo tópico</button></a>
-                                {% if user|has_admin_grupo_perm:object %}
-                                <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success">Editar grupo</button></a>
+                            {% if object.privado %}
+                                {% if user|has_grupo_perm:object %}
+                                <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success">Adicionar novo tópico</button></a>
+                                    {% if user|has_admin_grupo_perm:object %}
+                                    <a href="{% url forum_grupo_edit object.pk %}"><button type="submit" class="btn btn-success">Editar grupo</button></a>
+                                    {% endif %}
+                                {% else %}
+                                    <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.nome }}.
+                                    <a href="{% url forum_grupo_solicitar_ingresso object.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
+                                    </div>
                                 {% endif %}
                             {% else %}
-                                <div>Para emitir qualquer comentário, você deve estar inscrito no(a) {{ object.nome }}.
-                                <a href="{% url forum_grupo_solicitar_ingresso object.pk %}"><button type="submit" class="btn btn-success">Clique aqui para se inscrever</button></a>
-                                </div>
+                                <a href="{% url forum_topico_add object.pk %}"><button type="submit" class="btn btn-success">Adicionar novo tópico</button></a>
                             {% endif %}
                         </div>
                     </div>

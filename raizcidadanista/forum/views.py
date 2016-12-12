@@ -605,24 +605,25 @@ class SolicitarIngressoView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.privado:
-            sendmail(
-                subject=u'Solicitação de ingresso no grupo %s' % self.object,
-                to=list(self.object.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
-                template='forum/emails/solicitacao-ingresso.html',
-                params={
-                    'grupo': self.object,
-                    'usuario': request.user,
-                    'host': settings.SITE_HOST,
-                },
-            )
-            messages.info(request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
-        else:
-            GrupoUsuario(
-                grupo=self.object,
-                usuario=request.user,
-            ).save()
-            messages.info(request, u'Seja bem vindo ao grupo %s!' % self.object)
+        # TODO: #121#issuecomment-266413795
+        # if self.object.privado:
+        #     sendmail(
+        #         subject=u'Solicitação de ingresso no grupo %s' % self.object,
+        #         to=list(self.object.grupousuario_set.filter(admin=True).values_list(u'usuario__email', flat=True)),
+        #         template='forum/emails/solicitacao-ingresso.html',
+        #         params={
+        #             'grupo': self.object,
+        #             'usuario': request.user,
+        #             'host': settings.SITE_HOST,
+        #         },
+        #     )
+        #     messages.info(request, u'O seu ingresso neste grupo foi solicitado. Assim que aprovado, você será incluído como membro deste. Obrigado!')
+        # else:
+        GrupoUsuario(
+            grupo=self.object,
+            usuario=request.user,
+        ).save()
+        messages.info(request, u'Seja bem vindo ao grupo %s!' % self.object)
         return HttpResponseRedirect(self.object.get_absolute_url())
 
 

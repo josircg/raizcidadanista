@@ -361,6 +361,39 @@ class Circulo(models.Model):
         return self.circulomembro_set.count()
     num_membros.short_description = u'Nº de membros'
 
+
+    def incluir_membros_auto(self):
+        if self.tipo == 'R' or (self.tipo == 'S' and self.uf):
+            membros_ja_cadastrados_pks = self.circulomembro_set.all().values_list('membro', flat=True)
+            membros = Membro.objects.filter(uf=self.uf).exclude(pk__in=membros_ja_cadastrados_pks)
+            if self.municipio:
+                membros = membros.filter(municipio=self.municipio)
+            for membro in membros:
+                CirculoMembro(circulo=self, membro=membro).save()
+
+                # Log
+                user = User.objects.get_or_create(username="sys")[0]
+                # Log do membro
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(membro).pk,
+                    object_id = membro.pk,
+                    object_repr = u"%s" % membro,
+                    action_flag = CHANGE,
+                    change_message = u'Membro se inscreveu no Círculo %s.' % self
+                )
+                # Log do círculo
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(self).pk,
+                    object_id = self.pk,
+                    object_repr = u"%s" % self,
+                    action_flag = CHANGE,
+                    change_message = u'Membro %s se inscreveu.' % membro
+                )
+            return membros
+        return None
+
     def __unicode__(self):
         return u'%s %s' % (self.get_tipo_display(), self.titulo)
 @receiver(signals.pre_save, sender=Circulo)

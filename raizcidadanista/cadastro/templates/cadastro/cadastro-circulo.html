@@ -155,17 +155,55 @@
               }
             });
         })
-        $("#id_municipio").change(function(){
-            $.ajax({
-              dataType: "json",
-              url: '{% url cadastro_circulo %}?uf='+$('#id_uf').val()+'&municipio='+$(this).val(),
-              success: function(data){
-                if(data.existe == true){
-                    alert('Já existe um Círculo neste Município. Clique em ok para continuar.');
-                }
-              }
-            });
-        })
+
+        function get_municipios(id_uf, id_municipios, def_municipio){
+            $(id_municipios).html('');
+            uf = parseInt($(id_uf).val());
+            if(uf){
+                url = "/chaining/filter/municipios/Municipio/?uf="+uf;
+                $.getJSON(url, function(data){
+                    $(id_municipios).append('<option value="">--------</option>');
+                    $.each(data, function(key, val) {
+                        if(def_municipio == val.display){
+                            $(id_municipios).append('<option value="'+val.display+'" selected="selected">'+val.display+'</option>');
+                        }else{
+                            $(id_municipios).append('<option value="'+val.display+'">'+val.display+'</option>');
+                        }
+                    });
+                });
+            }
+        }
+
+        var default_municipio = $('#id_municipio').val();
+        $('#id_municipio').remove();
+        $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+        get_municipios('#id_uf', '#id_municipio', default_municipio);
+        $("#id_uf").change(function(){
+            /* Trocar label do UF: Fora do Brasil */
+            if($(this).val() == '0'){
+                $('.label-municipio').html('País/Cidade');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<input type="text" name="municipio" class="form-control" id="id_municipio">');
+            }else{
+                get_municipios('#id_uf', '#id_municipio');
+                $('.label-municipio').html('Município');
+                $('#id_municipio').remove();
+                $('.group-municipio').append('<select name="municipio" class="form-control" id="id_municipio"></select>');
+            }
+
+            $(".group-municipio select").on('change', function(){
+                $.ajax({
+                  dataType: "json",
+                  url: '{% url cadastro_circulo %}?uf='+$('#id_uf').val()+'&municipio='+$(this).val(),
+                  success: function(data){
+                    if(data.existe == true){
+                        alert('Já existe um Círculo neste Município. Clique em ok para continuar.');
+                    }
+                  }
+                });
+            })
+        });
+
     });
 </script>
 {% endblock %}

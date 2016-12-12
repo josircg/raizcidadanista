@@ -268,9 +268,9 @@ class RecadastramentoView(TemplateView):
         try:
             uid_int = base36_to_int(uidb36)
 
-            # Link só funciona 3 dia
+            # Link só funciona 5 dia
             ts_int = base36_to_int(ts_b36)
-            if ts_int+3 < (date.today() - date(2001, 1, 1)).days:
+            if ts_int+5 < (date.today() - date(2001, 1, 1)).days:
                 return None
 
             instance = Membro.objects.get(id=uid_int)

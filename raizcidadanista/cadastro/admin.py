@@ -1054,35 +1054,9 @@ class CirculoAdmin(PowerModelAdmin):
 
     def incluir_membros_auto(self, request, id_circulo):
         circulo = get_object_or_404(Circulo, pk=id_circulo)
-        if circulo.tipo == 'R' or (circulo.tipo == 'S' and circulo.uf):
-            membros_ja_cadastrados_pks = circulo.circulomembro_set.all().values_list('membro', flat=True)
-            membros = Membro.objects.filter(uf=circulo.uf).exclude(pk__in=membros_ja_cadastrados_pks)
-            if circulo.municipio:
-                membros = membros.filter(municipio=circulo.municipio)
-            for membro in membros:
-                CirculoMembro(circulo=circulo, membro=membro).save()
-
-                # Log
-                user = User.objects.get_or_create(username="sys")[0]
-                # Log do membro
-                LogEntry.objects.log_action(
-                    user_id = user.pk,
-                    content_type_id = ContentType.objects.get_for_model(membro).pk,
-                    object_id = membro.pk,
-                    object_repr = u"%s" % membro,
-                    action_flag = CHANGE,
-                    change_message = u'Membro se inscreveu no Círculo %s.' % circulo
-                )
-                # Log do círculo
-                LogEntry.objects.log_action(
-                    user_id = user.pk,
-                    content_type_id = ContentType.objects.get_for_model(circulo).pk,
-                    object_id = circulo.pk,
-                    object_repr = u"%s" % circulo,
-                    action_flag = CHANGE,
-                    change_message = u'Membro %s se inscreveu.' % membro
-                )
-            messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros.count())
+        membros_adicionados = circulo.incluir_membros_auto()
+        if membros_adicionados:
+            messages.info(request, u'%s Membros foram adicionados a este Círculo!' % membros_adicionados.count())
             return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
 
         messages.error(request, u'Esta ação não é permitida para Círculos que não são Regional ou Esfera!')
@@ -1156,6 +1130,74 @@ class CirculoPendenteAdmin(PowerModelAdmin):
     fieldsets = (
         (None, {"fields" : ('circulo', 'titulo', 'slug', 'descricao', ('tipo', 'oficial',), ('uf', 'municipio', ), 'permitecadastro', 'dtcadastro', 'site_externo', 'imagem', 'status', 'dtcriacao', 'area_geografica', 'num_membros', 'num_membros_coleta', ('jardineiro_1_nome', 'jardineiro_1_email', 'jardineiro_1_telefone', ), ('jardineiro_2_nome', 'jardineiro_2_email', 'jardineiro_2_telefone', ), 'ferramentas', 'reunioes', 'atividades', ),},),
     )
+
+    def criar_circulo(self, request, id_circulo):
+        circulopendente = get_object_or_404(CirculoPendente, pk=id_circulo)
+        if circulopendente.circulo:
+            raise PermissionDenied(u'Este Círculo Pendente já possue Círculo associado.')
+
+        tipo = circulopendente.tipo
+        if tipo == 'A':
+            tipo = 'R'
+        circulo = Circulo(
+            titulo=circulopendente.titulo,
+            descricao=circulopendente.descricao,
+            tipo=tipo,
+            uf=circulopendente.uf,
+            municipio=circulopendente.municipio,
+            oficial=circulopendente.oficial,
+            permitecadastro=circulopendente.permitecadastro,
+            dtcadastro=circulopendente.dtcadastro,
+            site_externo=circulopendente.site_externo,
+            status='F',
+        )
+        circulo.save()
+        circulopendente.circulo = circulo
+        circulopendente.save()
+        LogEntry.objects.log_action(
+            user_id = request.user.pk,
+            content_type_id = ContentType.objects.get_for_model(circulo).pk,
+            object_id = circulo.pk,
+            object_repr = u"%s" % circulo,
+            action_flag = CHANGE,
+            change_message = u'Criado pela rotina "Criar Círculo" do Círculo Pendente.'
+        )
+        messages.info(request, u'Círculo criado com sucesso!')
+        try:
+            membro = Membro.objects.get(usuario=circulopendente.autor)
+            CirculoMembro(circulo=circulo, membro=membro, administrador=True).save()
+        except Membro.DoesNotExist: pass
+
+        membros_adicionados = circulo.incluir_membros_auto()
+        if membros_adicionados:
+            messages.info(request, u'%s Membros foram adicionados ao Círculo criado!' % membros_adicionados.count())
+            if membros_adicionados.count() >= 3:
+                circulo.status = 'A'
+                circulo.save()
+
+        sendmail(
+            subject=u'Parabéns! Seu círculo já está listado no diretório de círculos do site.',
+            to=[circulopendente.autor.email, ],
+            template='emails/criar-circulo.html',
+            params={
+                'circulo': circulo,
+            },
+        )
+        return HttpResponseRedirect(reverse('admin:cadastro_circulo_change', args=(circulo.pk, )))
+
+    def get_urls(self):
+        urls_originais = super(CirculoPendenteAdmin, self).get_urls()
+        urls_customizadas = patterns('',
+            url(r'^(?P<id_circulo>\d+)/criar/$', self.wrap(self.criar_circulo), name='cadastro_circulopendente_criar_circulo'),
+        )
+        return urls_customizadas + urls_originais
+
+    def get_buttons(self, request, object_id):
+        buttons = super(CirculoPendenteAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj and not obj.circulo:
+            buttons.append(PowerButton(url=reverse('admin:cadastro_circulopendente_criar_circulo', kwargs={'id_circulo': object_id, }), label=u'Criar Círculo'))
+        return buttons
 
 admin.site.register(CirculoPendente, CirculoPendenteAdmin)
 

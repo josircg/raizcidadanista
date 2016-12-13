@@ -180,6 +180,7 @@ class Conversa(models.Model):
     dt_criacao = models.DateTimeField(u'Data de criação', auto_now_add=True)
     arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
+    editada = models.DateTimeField(u'Editada', blank=True, null=True)
 
     def has_delete(self, user):
         if user != self.autor or Conversa.objects.filter(conversa_pai=self).exists():
@@ -201,10 +202,12 @@ class Conversa(models.Model):
 
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
+
 @receiver(signals.post_save, sender=Conversa)
 def update_topico(sender, instance, created, raw, using, *args, **kwargs):
     instance.topico.dt_ultima_atualizacao = datetime.now()
     instance.topico.save()
+
 @receiver(signals.post_save, sender=Conversa)
 def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
     for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', ), dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
@@ -220,6 +223,7 @@ def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *arg
         )
         ouvinte.dtnotificacao = datetime.now()
         ouvinte.save()
+
 @receiver(signals.post_save, sender=Conversa)
 def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **kwargs):
     for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', )):
@@ -233,6 +237,16 @@ def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **
                     instance.get_absolute_url()
                 )
                 bot.sendMessage(membro.telegram_id, mensagem)
+
+class ConversaHistorico(models.Model):
+    class Meta:
+        ordering = ('dt_criacao', )
+
+    conversa_original = models.ForeignKey(Conversa)
+    texto = models.TextField()
+    dt_criacao = models.DateTimeField(u'Data de criação')
+    arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
+
 
 STATUS_CURTIDA = (
     ('I', u'Ciente'),

@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from models import Grupo, GrupoUsuario, Topico, TopicoOuvinte, Conversa, ConversaCurtida, \
-    Proposta, Voto, ConversaMencao, GrupoCategoria
+    Proposta, Voto, ConversaMencao, ConversaHistorico, GrupoCategoria
 from cadastro.models import Lista
 
 from ckeditor.widgets import CKEditorWidget
@@ -25,6 +25,7 @@ class GrupoUsuarioInline(admin.TabularInline):
     model = GrupoUsuario
     extra = max_num = 0
     fields = readonly_fields = ('usuario', 'admin', )
+
 class GrupoAdmin(PowerModelAdmin):
     list_display = ('nome', 'localizacao', 'tematico', 'privado', )
     list_filter = ('localizacao', 'tematico', )
@@ -113,18 +114,22 @@ admin.site.register(Topico, TopicoAdmin)
 class ConversaCurtidaConversaInline(admin.TabularInline):
     model = ConversaCurtida
     extra = 1
+
 class ConversaAdmin(PowerModelAdmin):
-    list_display = ('topico', 'autor', 'dt_criacao', 'conversa_pai', )
-    list_filter = ('topico', 'autor', 'dt_criacao', 'conversa_pai', )
+    list_display = ('topico', 'autor', 'dt_criacao', 'conversa_pai', 'editada' )
+    list_filter = ('dt_criacao', )
     multi_search = (
        ('q1', 'Tópico', ['topico__titulo']),
        ('q2', 'Autor', ['autor__nome']),
     )
     inlines = (ConversaCurtidaConversaInline, )
     fieldsets = (
-        (None, {"fields" : ('topico', 'autor', 'texto', 'arquivo', 'conversa_pai', ),}, ),
+        (None, {"fields" : ('topico', 'autor', 'texto', 'arquivo', 'conversa_pai', 'editada', 'editor'),}, ),
     )
+    readonly_fields = ('topico', 'autor', 'conversa_pai', )
+
 admin.site.register(Conversa, ConversaAdmin)
+admin.site.register(ConversaHistorico)
 
 
 class VotoPropostaInline(admin.TabularInline):

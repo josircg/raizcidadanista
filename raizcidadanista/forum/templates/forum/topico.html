@@ -136,6 +136,9 @@
                                                     | <a class="edit-link" href="javascript://">Editar</a>
                                                     {% endif %}
                                                 {% endif %}
+                                                {% if conversa.editado %}
+                                                    | <a href="{{ object.get_absolute_edit_url }}">Conversa editada</a>
+                                                {% endif %}
                                                 {% if not forloop.first %}
                                                     {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
                                                         | <a class="responder-link" href="javascript://">Responder</a>

@@ -13,6 +13,7 @@ from cadastro.telegram import bot
 from cms.email import sendmail
 
 from datetime import datetime, timedelta
+from utils.stdlib import nvl
 
 
 LOCALIZACAO = (
@@ -181,6 +182,7 @@ class Conversa(models.Model):
     arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
     editada = models.DateTimeField(u'Editada', blank=True, null=True)
+    editor = models.ForeignKey(User, blank=True, null=True, related_name='editor')
 
     def has_delete(self, user):
         if user != self.autor or Conversa.objects.filter(conversa_pai=self).exists():
@@ -199,6 +201,12 @@ class Conversa(models.Model):
 
     def get_absolute_url(self):
         return u'%s#conversa-%s' % (reverse('forum_topico', kwargs={'grupo_pk': self.topico.grupo.pk, 'pk': self.topico.pk, }), self.pk)
+
+    def save(self):
+        if self.pk:
+            ultima_edicao = nvl(self.editada,self.dt_criacao)
+            ConversaHistorico.objects.create(conversa_original=self,dt_criacao=ultima_edicao,texto=self.texto, autor=self.editor)
+            self.editada = datetime.now()
 
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
@@ -238,14 +246,15 @@ def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **
                 )
                 bot.sendMessage(membro.telegram_id, mensagem)
 
-class ConversaHistorico(models.Model):
+
+class ConversaHistorico(models.Model): # Histórico de uma conversa
     class Meta:
         ordering = ('dt_criacao', )
 
     conversa_original = models.ForeignKey(Conversa)
     texto = models.TextField()
     dt_criacao = models.DateTimeField(u'Data de criação')
-    arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
+    autor = models.ForeignKey(User)
 
 
 STATUS_CURTIDA = (
@@ -288,7 +297,7 @@ def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwar
         if instance.mencao.membro.exists():
             membro = instance.mencao.membro.all()[0]
             if membro.telegram_id:
-                mensagem = u'%s pediu sua atenção na Teia Digital. Clique para ler o tópico: %s%s' % (
+                mensagem = u'%s pediu sua atenção na Teia Digital. Para ler o tópico, clique em %s%s' % (
                     instance.colaborador,
                     settings.SITE_HOST,
                     instance.conversa.get_absolute_url()

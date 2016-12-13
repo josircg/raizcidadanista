@@ -36,14 +36,15 @@ class AddEditTopicoForm(forms.ModelForm):
             del self.fields['categoria']
         if kwargs.get('instance'):
             try:
-                conversa = Conversa.objects.filter(topico=kwargs.get('instance'), autor=kwargs.get('instance').criador, conversa_pai=None)[0]
+                conversa = Conversa.objects.filter(topico=kwargs.get('instance'), conversa_pai=None)[0]
                 self.fields['texto'].initial = conversa.texto
             except: pass
 
 
-    def save(self, grupo, criador, *args, **kwargs):
+    def save(self, grupo, editor, *args, **kwargs):
         self.instance.grupo = grupo
-        self.instance.criador = criador
+        if not self.instance.criador:
+            self.instance.criador = editor
         self.instance.categoria = self.cleaned_data.get('categoria')
         topico = super(AddEditTopicoForm, self).save(*args, **kwargs)
 
@@ -52,20 +53,20 @@ class AddEditTopicoForm(forms.ModelForm):
             filename = save_file(self.cleaned_data.get('imagem'), 'forum')
             texto += u'<img src="%s" width="100%%" style="padding: 20px; margin: 0px !important;">' % filename
         try:
-            conversa = Conversa.objects.filter(topico=topico, autor=criador, conversa_pai=None)[0]
+            conversa = Conversa.objects.filter(topico=topico, conversa_pai=None)[0]
+            conversa.editor = editor
             conversa.texto = texto
         except:
-            # Cria a Conversa com o texto informado pelo autor
+            # Cria a Conversa com o texto informado
             conversa = Conversa(
                 topico=topico,
-                autor=criador,
+                autor=editor,
                 texto=texto,
             )
         conversa.save()
         if self.cleaned_data.get('arquivo'):
             conversa.arquivo.save(self.cleaned_data.get('arquivo').name, self.cleaned_data.get('arquivo'))
         return topico
-
 
 
 class MoverTopicoForm(forms.ModelForm):
@@ -85,9 +86,14 @@ class ConversaForm(forms.ModelForm):
 
     imagem = forms.ImageField(label=u'Imagem', required=False)
 
-    def save(self, topico, autor, *args, **kwargs):
-        self.instance.topico = topico
-        self.instance.autor = autor
+    def save(self, topico, editor, *args, **kwargs):
+
+        # se for a edição de uma conversa, não se pode atualizar o autor, apenas o editor
+        if self.instance.id:
+            self.instance.editor = editor
+        else:
+            self.instance.autor = editor
+            self.instance.topico = topico
 
         texto = self.cleaned_data.get('texto')
         if self.cleaned_data.get('imagem'):

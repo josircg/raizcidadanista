@@ -472,7 +472,7 @@ class TopicoAddView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        instance = form.save(grupo=self.get_grupo(), criador=self.request.user)
+        instance = form.save(grupo=self.get_grupo(), editor=self.request.user)
         messages.info(self.request, u'Tópico criado com sucesso!')
 
         # Adicionar o membro no grupo
@@ -524,7 +524,7 @@ class TopicoEditView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        instance = form.save(grupo=self.grupo, criador=self.request.user)
+        instance = form.save(grupo=self.grupo, editor=self.request.user)
         messages.info(self.request, u'Tópico criado com sucesso!')
         return HttpResponseRedirect(instance.get_absolute_url())
 
@@ -659,7 +659,7 @@ class TopicoView(DetailView):
         if request.GET.get('conversa') and request.GET.get('excluir'):
             conversa = get_object_or_404(Conversa, pk=request.GET.get('conversa'), autor=request.user)
             if not conversa.has_delete(request.user):
-                raise Http404
+                raise PermissionDenied
             conversa.delete()
             messages.info(request, u'Comentário removido com sucesso!')
             return HttpResponseRedirect(self.object.get_absolute_url())
@@ -781,9 +781,9 @@ class TopicoView(DetailView):
 
     def form_valid(self, form):
         self.object = self.get_object()
-        instance = form.save(topico=self.object, autor=self.request.user)
+        instance = form.save(topico=self.object, editor=self.request.user)
 
-        # Adicionar o membro no grupo
+        # Adicionar o membro no grupo - desabilitado já que o form não é habilitado
         if not GrupoUsuario.objects.filter(grupo=self.object.grupo, usuario=self.request.user).exists():
             if self.object.grupo.privado:
                 sendmail(
@@ -832,6 +832,23 @@ class TopicoView(DetailView):
             context['ouvinte'] = TopicoOuvinte.objects.filter(topico=self.object, ouvinte=self.request.user).latest('pk')
         except TopicoOuvinte.DoesNotExist:
             context['ouvinte'] = TopicoOuvinte.objects.create(topico=self.object, ouvinte=self.request.user)
+        return context
+
+
+class ConversaHistoricoView(DetailView):
+    model = Conversa
+    template_name = 'forum/conversa-historico.html'
+
+    def get_topico(self):
+        return get_object_or_404(Topico, pk=self.kwargs['topico_pk'])
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(ConversaHistoricoView, self).get_context_data(**kwargs)
+        context['topico'] = self.get_topico()
+        context['grupo'] = self.get_grupo()
         return context
 
 
@@ -1027,7 +1044,7 @@ class NovaEnqueteTopicoView(FormView):
     def get(self, request, *args, **kwargs):
         self.grupo = self.get_grupo()
         if not self.grupo.grupousuario_set.filter(usuario=request.user).exists() and self.grupo.privado:
-            messages.error(request, u'Este grupo é privado e só permite a inclusão de novas enquetes pelos membros previamente aprovados. <a href="%s">Clique aqui</a> para solicitar o seu ingresso nesse grupo.' % (
+            messages.error(request, u'Este grupo só permite a inclusão de novas enquetes pelos membros previamente inscritos. <a href="%s">Clique aqui</a> para solicitar o seu ingresso nesse grupo.' % (
                 reverse('forum_grupo_solicitar_ingresso', kwargs={'pk': self.grupo.pk, })
             ))
             return HttpResponseRedirect(self.grupo.get_absolute_url())

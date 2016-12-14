@@ -13,6 +13,7 @@ from cadastro.telegram import bot
 from cms.email import sendmail
 
 from datetime import datetime, timedelta
+from utils.stdlib import nvl
 
 
 LOCALIZACAO = (
@@ -180,6 +181,8 @@ class Conversa(models.Model):
     dt_criacao = models.DateTimeField(u'Data de criação', auto_now_add=True)
     arquivo = models.FileField('Arquivo opcional com descrição ', upload_to='forum', blank=True, null=True, storage=UuidFileSystemStorage())
     conversa_pai = models.ForeignKey('self', blank=True, null=True)
+    editada = models.DateTimeField(u'Editada', blank=True, null=True)
+    editor = models.ForeignKey(User, blank=True, null=True, related_name='editor')
 
     def has_delete(self, user):
         if user != self.autor or Conversa.objects.filter(conversa_pai=self).exists():
@@ -199,12 +202,17 @@ class Conversa(models.Model):
     def get_absolute_url(self):
         return u'%s#conversa-%s' % (reverse('forum_topico', kwargs={'grupo_pk': self.topico.grupo.pk, 'pk': self.topico.pk, }), self.pk)
 
+    def get_absolute_history_url(self):
+        return reverse('forum_topico_conversa_historico', kwargs={'grupo_pk': self.topico.grupo.pk, 'topico_pk': self.topico.pk, 'pk': self.pk })
+
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
+
 @receiver(signals.post_save, sender=Conversa)
 def update_topico(sender, instance, created, raw, using, *args, **kwargs):
     instance.topico.dt_ultima_atualizacao = datetime.now()
     instance.topico.save()
+
 @receiver(signals.post_save, sender=Conversa)
 def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
     for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', ), dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
@@ -220,6 +228,7 @@ def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *arg
         )
         ouvinte.dtnotificacao = datetime.now()
         ouvinte.save()
+
 @receiver(signals.post_save, sender=Conversa)
 def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **kwargs):
     for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', )):
@@ -233,6 +242,30 @@ def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **
                     instance.get_absolute_url()
                 )
                 bot.sendMessage(membro.telegram_id, mensagem)
+
+@receiver(signals.post_save, sender=Conversa)
+def create_historico_conversa(sender, instance, created, raw, using, *args, **kwargs):
+    ultima_edicao = nvl(instance.editada, instance.dt_criacao)
+    ConversaHistorico(
+        conversa_original=instance,
+        dt_criacao=ultima_edicao,
+        texto=instance.texto,
+        autor=instance.editor or instance.autor
+    ).save()
+
+
+class ConversaHistorico(models.Model): # Histórico de uma conversa
+    class Meta:
+        ordering = ('-dt_criacao', )
+
+    conversa_original = models.ForeignKey(Conversa)
+    texto = models.TextField()
+    dt_criacao = models.DateTimeField(u'Data de criação')
+    autor = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.texto
+
 
 STATUS_CURTIDA = (
     ('I', u'Ciente'),
@@ -274,7 +307,7 @@ def telegram_mention_mencao(sender, instance, created, raw, using, *args, **kwar
         if instance.mencao.membro.exists():
             membro = instance.mencao.membro.all()[0]
             if membro.telegram_id:
-                mensagem = u'%s pediu sua atenção na Teia Digital. Clique para ler o tópico: %s%s' % (
+                mensagem = u'%s pediu sua atenção na Teia Digital. Para ler o tópico, clique em %s%s' % (
                     instance.colaborador,
                     settings.SITE_HOST,
                     instance.conversa.get_absolute_url()

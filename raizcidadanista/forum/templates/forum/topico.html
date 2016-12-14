@@ -129,6 +129,11 @@
                                                     (<span class="mention-count">{{ conversa.conversamencao_set.count }}</span>)
                                                     <div class="mention-people"></div>
                                                 </span>
+                                                {% if not forloop.first %}
+                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
+                                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% endif %}
+                                                {% endif %}
                                                 {% if object.editavel and request.user == conversa.autor or user|has_admin_grupo_perm:object.grupo %}
                                                     {% if forloop.first %}
                                                     | <a href="{{ object.get_absolute_edit_url }}">Editar</a>
@@ -136,10 +141,8 @@
                                                     | <a class="edit-link" href="javascript://">Editar</a>
                                                     {% endif %}
                                                 {% endif %}
-                                                {% if not forloop.first %}
-                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
-                                                        | <a class="responder-link" href="javascript://">Responder</a>
-                                                    {% endif %}
+                                                {% if conversa.editada %}
+                                                    | <a href="{{ conversa.get_absolute_history_url }}">Conversa editada</a>
                                                 {% endif %}
                                             {% else %}
                                                 {% for tipocurtida in conversa.curtidas %}
@@ -171,7 +174,7 @@
                                             </div>
                                         </form>
 
-                                        {% if object.editavel and request.user == conversa.autor %}
+                                        {% if object.editavel and request.user == conversa.autor or user|has_admin_grupo_perm:object.grupo %}
                                         <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
                                             <div class="panel-body">
                                                 <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
@@ -271,12 +274,16 @@
                                                         (<span class="mention-count">{{ conversa_filho.conversamencao_set.count }}</span>)
                                                         <div class="mention-people"></div>
                                                     </span>
+                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
+                                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% endif %}
+
                                                     {% if request.user == conversa_filho.autor %}
                                                         | <a class="edit-link" href="javascript://">Editar</a>
                                                     {% endif %}
 
-                                                    {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
-                                                        | <a class="responder-link" href="javascript://">Responder</a>
+                                                    {% if conversa_filho.editada %}
+                                                        | <a href="{{ conversa_filho.get_absolute_history_url }}">Conversa editada</a>
                                                     {% endif %}
 
                                                     {% if conversa_filho|has_delete_conversa:request.user %}

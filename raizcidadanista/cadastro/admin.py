@@ -359,6 +359,7 @@ class MembroAdmin(PowerModelAdmin):
         contador = 0
         if not Campanha.objects.filter(assunto__icontains="[Boas Vindas]"):
             self.message_user(request, 'Template [Boas Vindas] não encontrado')
+            return
 
         for rec in queryset:
             if rec.aprovador is None:
@@ -373,6 +374,7 @@ class MembroAdmin(PowerModelAdmin):
                     )
                     contador += 1
                     rec.aprovador = request.user
+                    rec.confirmado = True
                     rec.save()
 
                 if Lista.objects.filter(nome=u'Colaboradores').exists():

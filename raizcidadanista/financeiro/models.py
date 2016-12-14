@@ -284,6 +284,7 @@ class Operacao(models.Model):
     valor = models.DecimalField(u'Valor', max_digits=14, decimal_places=2)
     conferido = models.BooleanField(u'Conferido', default=False)
     obs = models.TextField(u'Observação Interna', blank=True, null=True)
+    dt_criacao = models.DateTimeField(u"Criação", auto_now_add=True, blank=True, null=True)
 
     def is_deposito(self):
         return self.tipo == 'D'

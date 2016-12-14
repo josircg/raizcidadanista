@@ -81,6 +81,17 @@ class MoverTopicoForm(forms.ModelForm):
         fields = ('grupo',)
 
 
+    def save(self, autor, grupoantigo, *args, **kwargs):
+        topico = super(MoverTopicoForm, self).save(*args, **kwargs)
+        # Cria a Conversa
+        Conversa(
+            topico=topico,
+            autor=autor,
+            texto=u'Tópico transferido do grupo "%s"' % grupoantigo,
+        ).save()
+        return topico
+
+
 class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa

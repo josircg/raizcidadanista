@@ -570,7 +570,7 @@ class TopicoMoverView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        instance = form.save()
+        instance = form.save(autor=self.request.user, grupoantigo=self.grupo)
         messages.info(self.request, u'Tópico movido com sucesso!')
         return HttpResponseRedirect(instance.get_absolute_url())
 

@@ -156,7 +156,7 @@ admin.site.register(Despesa, DespesaAdmin)
 
 class OperacaoAdmin(PowerModelAdmin):
     list_display = ('conta', 'tipo', 'dt', 'referencia', 'valor', 'conferido',)
-    list_filter = ('conta', 'tipo', 'conferido', )
+    list_filter = ('conta', 'tipo', 'conferido', 'dt_criacao', )
     date_hierarchy = 'dt'
     multi_search = (
         ('q1', u'Conta', ['conta__conta', ]),

@@ -202,11 +202,8 @@ class Conversa(models.Model):
     def get_absolute_url(self):
         return u'%s#conversa-%s' % (reverse('forum_topico', kwargs={'grupo_pk': self.topico.grupo.pk, 'pk': self.topico.pk, }), self.pk)
 
-    def save(self):
-        if self.pk:
-            ultima_edicao = nvl(self.editada,self.dt_criacao)
-            ConversaHistorico.objects.create(conversa_original=self,dt_criacao=ultima_edicao,texto=self.texto, autor=self.editor)
-            self.editada = datetime.now()
+    def get_absolute_history_url(self):
+        return reverse('forum_topico_conversa_historico', kwargs={'grupo_pk': self.topico.grupo.pk, 'topico_pk': self.topico.pk, 'pk': self.pk })
 
     def __unicode__(self):
         return u'%s (%s)' % (self.topico, self.autor)
@@ -246,15 +243,28 @@ def telegram_notificacao_topico(sender, instance, created, raw, using, *args, **
                 )
                 bot.sendMessage(membro.telegram_id, mensagem)
 
+@receiver(signals.post_save, sender=Conversa)
+def create_historico_conversa(sender, instance, created, raw, using, *args, **kwargs):
+    ultima_edicao = nvl(instance.editada, instance.dt_criacao)
+    ConversaHistorico(
+        conversa_original=instance,
+        dt_criacao=ultima_edicao,
+        texto=instance.texto,
+        autor=instance.editor or instance.autor
+    ).save()
+
 
 class ConversaHistorico(models.Model): # Histórico de uma conversa
     class Meta:
-        ordering = ('dt_criacao', )
+        ordering = ('-dt_criacao', )
 
     conversa_original = models.ForeignKey(Conversa)
     texto = models.TextField()
     dt_criacao = models.DateTimeField(u'Data de criação')
     autor = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.texto
 
 
 STATUS_CURTIDA = (

@@ -136,8 +136,8 @@
                                                     | <a class="edit-link" href="javascript://">Editar</a>
                                                     {% endif %}
                                                 {% endif %}
-                                                {% if conversa.editado %}
-                                                    | <a href="{{ object.get_absolute_edit_url }}">Conversa editada</a>
+                                                {% if conversa.editada %}
+                                                    | <a href="{{ conversa.get_absolute_history_url }}">Conversa editada</a>
                                                 {% endif %}
                                                 {% if not forloop.first %}
                                                     {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}
@@ -174,7 +174,7 @@
                                             </div>
                                         </form>
 
-                                        {% if object.editavel and request.user == conversa.autor %}
+                                        {% if object.editavel and request.user == conversa.autor or user|has_admin_grupo_perm:object.grupo %}
                                         <form action="" method="POST" role="form" class="edit-form" enctype="multipart/form-data">{% csrf_token %}
                                             <div class="panel-body">
                                                 <input type="hidden" class="form-control" name="conversa_pai" id="id_conversa_pai" value="{{ conversa.conversa_pai.pk }}" />
@@ -276,6 +276,10 @@
                                                     </span>
                                                     {% if request.user == conversa_filho.autor %}
                                                         | <a class="edit-link" href="javascript://">Editar</a>
+                                                    {% endif %}
+
+                                                    {% if conversa_filho.editada %}
+                                                        | <a href="{{ conversa_filho.get_absolute_history_url }}">Conversa editada</a>
                                                     {% endif %}
 
                                                     {% if not object.grupo.privado or user|has_grupo_perm:object.grupo %}

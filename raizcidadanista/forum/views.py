@@ -835,6 +835,23 @@ class TopicoView(DetailView):
         return context
 
 
+class ConversaHistoricoView(DetailView):
+    model = Conversa
+    template_name = 'forum/conversa-historico.html'
+
+    def get_topico(self):
+        return get_object_or_404(Topico, pk=self.kwargs['topico_pk'])
+
+    def get_grupo(self):
+        return get_object_or_404(Grupo, pk=self.kwargs['grupo_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(ConversaHistoricoView, self).get_context_data(**kwargs)
+        context['topico'] = self.get_topico()
+        context['grupo'] = self.get_grupo()
+        return context
+
+
 class NotificarTopicoView(DetailView):
     model = Topico
 

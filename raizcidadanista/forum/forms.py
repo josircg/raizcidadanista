@@ -60,6 +60,7 @@ class AddEditTopicoForm(forms.ModelForm):
         try:
             conversa = Conversa.objects.filter(topico=topico, conversa_pai=None)[0]
             conversa.editor = editor
+            conversa.editada = datetime.now()
             conversa.texto = texto
         except:
             # Cria a Conversa com o texto informado

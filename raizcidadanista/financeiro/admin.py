@@ -262,19 +262,21 @@ admin.site.register(Deposito, DepositoAdmin)
 
 
 class ReceitaAdmin(PowerModelAdmin):
-    list_display = ('conta', 'colaborador', 'dtaviso', 'valor', 'dtpgto',  )
-    list_filter = ('conta', 'colaborador__uf', 'dtaviso', 'dtpgto', )
+    list_display = ('conta', 'colaborador', 'dtaviso', 'valor', 'dtpgto', 'deposito_display', )
+    list_filter = ('conta', 'colaborador__uf', 'dtaviso', )
     search_fields = ['conta', 'descricao', ]
     raw_id_fields = ('colaborador', )
+    date_hierarchy = 'dtpgto'
     multi_search = (
         ('q1', u'Conta', ['conta__conta', ]),
         ('q2', u'Colaborador', ['colaborador__nome', ]),
     )
     fieldsets = [
         (None, {'fields': ('conta', 'colaborador', )}),
-        (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', )}),
+        (u'Datas e Valor', {'fields': ('dtaviso', 'valor', 'dtpgto', 'deposito_display', )}),
         (u'Detalhes', {'fields': ('nota', )}),
     ]
+    readonly_fields = ('deposito_display', )
     actions = ('listagem_doadores', 'totalizacao_por_uf_cidade')
 
     def change_view(self, request, object_id, form_url='', extra_context=None):

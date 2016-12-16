@@ -2,7 +2,7 @@
 from django.db import models
 from django.db.models import Sum
 
-from django.contrib.admin.models import LogEntry,  CHANGE
+from django.contrib.admin.models import LogEntry, CHANGE, ADDITION
 from django.contrib.contenttypes.models import ContentType
 from utils.fields import BRDecimalField
 from datetime import datetime, timedelta, date
@@ -198,20 +198,38 @@ class Receita(models.Model):
     def __unicode__(self):
         return u'%s/%s' % (self.conta, self.colaborador)
 
+    def deposito_display(self):
+        if self.deposito_set.exists():
+            deposito = self.deposito_set.all()[0]
+            return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_deposito_change', args=(deposito.pk, )), deposito, )
+        return '-'
+    deposito_display.allow_tags = True
+    deposito_display.short_description = u'Depósito'
+
     def save(self, *args, **kwargs):
 
         super(Receita, self).save(*args, **kwargs)
         if self.dtpgto:
             #Se houver dtpgto, gravar o depósito na conta indicada
             if not Deposito.objects.filter(receita=self):
-                Deposito(
+                deposito = Deposito(
                     receita=self,
                     conta=self.conta,
                     tipo='D',
                     dt=self.dtpgto,
                     valor=self.valor,
                     referencia=self.nota[:50],
-                ).save()
+                )
+                deposito.save()
+                user = User.objects.get_or_create(username="sys")[0]
+                LogEntry.objects.log_action(
+                    user_id = user.pk,
+                    content_type_id = ContentType.objects.get_for_model(deposito).pk,
+                    object_id = deposito.pk,
+                    object_repr = u"%s" % deposito,
+                    action_flag = ADDITION,
+                    change_message = u'Depósito criado pela Receita.'
+                )
             else:
                 Deposito.objects.filter(receita=self).update(
                     conta=self.conta,

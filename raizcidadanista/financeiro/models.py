@@ -198,6 +198,14 @@ class Receita(models.Model):
     def __unicode__(self):
         return u'%s/%s' % (self.conta, self.colaborador)
 
+    def deposito_display(self):
+        if self.deposito_set.exists():
+            deposito = self.deposito_set.all()[0]
+            return u'<a href="%s">%s</a>' % (reverse('admin:financeiro_deposito_change', args=(deposito.pk, )), deposito, )
+        return '-'
+    deposito_display.allow_tags = True
+    deposito_display.short_description = u'Depósito'
+
     def save(self, *args, **kwargs):
 
         super(Receita, self).save(*args, **kwargs)

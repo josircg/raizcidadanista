@@ -122,6 +122,14 @@ class TelegramView(RedirectView):
         membro = request.user.membro.all()[0]
         membro.telegram_id = request.GET.get('telegram_id')
         membro.save()
+        LogEntry.objects.log_action(
+            user_id = request.user.pk,
+            content_type_id = ContentType.objects.get_for_model(membro).pk,
+            object_id = membro.pk,
+            object_repr = u"%s" % membro,
+            action_flag = CHANGE,
+            change_message = u'Telegram associado ao usuário Raiz.'
+        )
         messages.info(request, u'Telegram associado com sucesso!')
         bot.sendMessage(membro.telegram_id, u'Telegram associado com sucesso ao usuário Raiz!')
         return HttpResponseRedirect(reverse('meu_perfil'))

@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load i18n admin_tools_menu_tags cms_tags %}
+{% load i18n admin_tools_menu_tags cms_tags cadastro_tags %}
 
 {% block title %}{% site_name %} | {{ title }}{% endblock %}
 
@@ -41,4 +41,4 @@
 {% endblock %}
 
 
-{% block footer %}<div id="footer" style="text-align: center" >&copy; {% now "Y" %} - {% version %}</div>{% endblock %}
+{% block footer %}<div id="footer" style="text-align: center" >&copy; {% now "Y" %} - {% version %} - Telegram: {% telegram_status %}</div>{% endblock %}

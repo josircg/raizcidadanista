@@ -263,6 +263,7 @@ CKEDITOR_CONFIGS = {
 
 SOUTH_MIGRATION_MODULES = {
     'easy_thumbnails': 'easy_thumbnails.south_migrations',
+    'captcha': 'captcha.south_migrations',
 }
 
 LOGIN_REDIRECT_URL = '/admin/'

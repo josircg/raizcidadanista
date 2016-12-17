@@ -1,0 +1,48 @@
+{% extends 'forum/base.html' %}
+{% load bootstrap static %}
+
+{% block title %}Histórico de revisões de edições de comentários - Teia Digital - {% endblock %}
+{% block ogtitle %}Histórico de revisões de edições de comentários - Teia Digital - {% endblock %}
+
+{% block description %}Histórico de revisões de edições de comentários - Teia Digital - {% endblock %}
+{% block ogdescription %}Histórico de revisões de edições de comentários - Teia Digital - {% endblock %}
+
+{% block main %}
+<div class="content-all">
+    <div class="content-main contact-content margin-b-30">
+        <div class="contact-content-upper">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="gallery_title">
+                        <h3>Histórico de revisões de edições de comentários</h3>
+                        <h4>Tópico: {{ topico }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-article">
+
+                        {% for hist in object.conversahistorico_set.all %}
+                            <div class="panel panel-default panel-conversa">
+                                <div class="panel-body">
+                                    <blockquote>
+                                        <footer>
+                                            <b>Em: </b>{{ hist.dt_criacao }}{% if forloop.first %} <b>(atual)</b>{% endif %}<br>
+                                            <b>Por:</b>{{ hist.autor }}<br>
+                                            {{ hist.texto|safe }}
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <a href="{{ object.get_absolute_url }}"><button type="button" class="btn btn-success button-topic">Retornar</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

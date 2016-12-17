@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
 from ckeditor.widgets import CKEditorWidget
 from forum.models import Grupo, Topico, Conversa, GrupoUsuario, ConversaMencao, GrupoCategoria, \
     Proposta, Voto
 from utils.storage import save_file
+
+from datetime import datetime
 
 class GrupoForm(forms.ModelForm):
     class Meta:
@@ -43,8 +46,10 @@ class AddEditTopicoForm(forms.ModelForm):
 
     def save(self, grupo, editor, *args, **kwargs):
         self.instance.grupo = grupo
-        if not self.instance.criador:
-            self.instance.criador = editor
+        try:
+            if not self.instance.criador:
+                self.instance.criador = editor
+        except ObjectDoesNotExist: self.instance.criador = editor
         self.instance.categoria = self.cleaned_data.get('categoria')
         topico = super(AddEditTopicoForm, self).save(*args, **kwargs)
 
@@ -55,6 +60,7 @@ class AddEditTopicoForm(forms.ModelForm):
         try:
             conversa = Conversa.objects.filter(topico=topico, conversa_pai=None)[0]
             conversa.editor = editor
+            conversa.editada = datetime.now()
             conversa.texto = texto
         except:
             # Cria a Conversa com o texto informado
@@ -75,6 +81,17 @@ class MoverTopicoForm(forms.ModelForm):
         fields = ('grupo',)
 
 
+    def save(self, autor, grupoantigo, *args, **kwargs):
+        topico = super(MoverTopicoForm, self).save(*args, **kwargs)
+        # Cria a Conversa
+        Conversa(
+            topico=topico,
+            autor=autor,
+            texto=u'Tópico transferido do grupo "%s"' % grupoantigo,
+        ).save()
+        return topico
+
+
 class ConversaForm(forms.ModelForm):
     class Meta:
         model = Conversa
@@ -89,8 +106,9 @@ class ConversaForm(forms.ModelForm):
     def save(self, topico, editor, *args, **kwargs):
 
         # se for a edição de uma conversa, não se pode atualizar o autor, apenas o editor
-        if self.instance.id:
+        if self.instance.pk:
             self.instance.editor = editor
+            self.instance.editada = datetime.now()
         else:
             self.instance.autor = editor
             self.instance.topico = topico

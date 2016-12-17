@@ -899,7 +899,7 @@ textarea.form-control { height:135px; }
 blockquote {margin: 0px; border-left: 0; padding: 0; }
 blockquote p {font-size: 16.5px;}
 blockquote footer {
-    font-size: 60%;
+    font-size: 75%;
 }
 blockquote footer:before, blockquote small:before {
     content: initial;

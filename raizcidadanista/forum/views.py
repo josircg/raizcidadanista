@@ -822,7 +822,7 @@ class TopicoView(DetailView):
         try:
             conversas = paginator.page(page)
         except PageNotAnInteger:
-            conversas = paginator.page(1)
+            conversas = paginator.page(paginator.num_pages)
         except EmptyPage:
             conversas = paginator.page(paginator.num_pages)
 

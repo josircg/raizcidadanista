@@ -853,7 +853,7 @@ class TopicoView(DetailView):
             conversas = paginator.page(paginator.num_pages)
 
         # Adicionar a primeira conversa nas demais páginas da paginação
-        if conversas.index != 1 and first_conversa:
+        if conversas.number != 1 and first_conversa:
             conversas.object_list = list(conversas.object_list)
             conversas.object_list.insert(0, first_conversa)
 

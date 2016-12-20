@@ -811,6 +811,7 @@ class TopicoView(DetailView):
         context = super(TopicoView, self).get_context_data(**kwargs)
 
         conversas_list = self.object.conversa_set.filter(conversa_pai=None)
+        first_conversa = conversas_list[0]
         # A proposta tem que aparecer sempre no timeline do tópico: se já tiver concluída, mostrar pela ordenação da data.
         conversas_list = conversas_list.filter(Q(proposta=None) | Q(proposta__status='F') | Q(proposta__dt_encerramento__lt=datetime.now())).distinct()
         # Se estiver em aberto, mostrar no topo do tópico.
@@ -825,6 +826,11 @@ class TopicoView(DetailView):
             conversas = paginator.page(paginator.num_pages)
         except EmptyPage:
             conversas = paginator.page(paginator.num_pages)
+
+        # Adicionar a primeira conversa nas demais páginas da paginação
+        if conversas.index != 1:
+            conversas.object_list = list(conversas.object_list)
+            conversas.object_list.insert(0, first_conversa)
 
         context['form'] = self.form
         context['conversas'] = conversas

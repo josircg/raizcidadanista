@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^nao-lidos/$', login_required(views.NaoLidosView.as_view()), name='forum_nao_lidos'),
     url(r'^recentes/$', login_required(views.RecentesView.as_view()), name="forum_recentes"),
     url(r'^meu-perfil/$', login_required(views.MeuPerfilView.as_view()), name="forum_meu_perfil"),
+    url(r'^perfil-publico/(?P<pk>\d+)/$', views.PerfilPublicoView.as_view(), name='forum_perfil_publico'),
     url(r'^pesquisa/$', login_required(views.PesquisaView.as_view()), name="forum_pesquisa"),
     url(r'^grupo/(?P<pk>\d+)/$', login_required(views.GrupoView.as_view()), name='forum_grupo'),
     url(r'^grupo/(?P<pk>\d+)/solicitar-ingresso/$', login_required(views.SolicitarIngressoView.as_view()), name='forum_grupo_solicitar_ingresso'),

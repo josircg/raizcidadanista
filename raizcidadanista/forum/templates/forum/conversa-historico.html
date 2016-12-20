@@ -30,7 +30,7 @@
                                     <blockquote>
                                         <footer>
                                             <b>Em: </b>{{ hist.dt_criacao }}{% if forloop.first %} <b>(atual)</b>{% endif %}<br>
-                                            <b>Por:</b>{{ hist.autor }}<br>
+                                            <b>Por:</b><a href="{{ hist.autor.get_absolute_url }}">{{ hist.autor }}</a><br>
                                             {{ hist.texto|safe }}
                                         </footer>
                                     </blockquote>

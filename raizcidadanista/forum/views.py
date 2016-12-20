@@ -265,6 +265,25 @@ class MeuPerfilView(TemplateView):
         context['membro'] = self.request.user.membro.all()[0]
         return context
 
+
+class PerfilPublicoView(DetailView):
+    model = User
+    template_name = 'forum/perfil-publico.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('forum'))
+        return super(PerfilPublicoView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PerfilPublicoView, self).get_context_data(**kwargs)
+        context['membro'] = self.object.membro.all()[0]
+        context['is_coordenador'] = self.request.user.groups.filter(name=u'Coordenador Local')
+        return context
+
+
 class GrupoView(DetailView):
     model = Grupo
     template_name = 'forum/grupo.html'

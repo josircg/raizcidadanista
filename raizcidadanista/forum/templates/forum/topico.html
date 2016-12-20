@@ -400,13 +400,20 @@
                                 </blockquote>
                             </div>
                         </div>
+
+                            {% if forloop.first %}
+                            <nav>
+                                <ul class="pager">
+                                    {% if conversas.has_previous %}
+                                    <li class="previous"><a class="btn btn-success" href="?page={{ conversas.previous_page_number }}"><span aria-hidden="true">&larr;</span> Conversas anteriores</a></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
                         {% endfor %}
 
                         <nav>
                             <ul class="pager">
-                                {% if conversas.has_previous %}
-                                <li class="previous"><a class="btn btn-success" href="?page={{ conversas.previous_page_number }}"><span aria-hidden="true">&larr;</span> Anterior</a></li>
-                                {% endif %}
                                 {% if conversas.has_next %}
                                 <li class="next"><a class="btn btn-success" href="?page={{ conversas.next_page_number }}">Próximo <span aria-hidden="true">&rarr;</span></a></li>
                                 {% endif %}

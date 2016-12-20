@@ -131,8 +131,8 @@ class RecentesView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(RecentesView, self).get_context_data(**kwargs)
-        context['localizacao'] = self.request.session.get('localizacao')
         escopo = self.request.session.get('localizacao')
+        context['localizacao'] = escopo
 
         context['titulo'] = u'Tópicos recentes'
         # Filtro
@@ -155,10 +155,14 @@ class RecentesView(TemplateView):
         if escopo:
             context['propostas'] = context['propostas'].filter(topico__grupo__localizacao=escopo)
 
+
         topicos_queryset = Topico.objects.filter(status='A')
         # Filtro
-        if self.request.session.get('localizacao'):
+        if escopo:
             topicos_queryset = topicos_queryset.filter(grupo__localizacao=escopo)
+            # Estadual e Municipal, só se deve mostrar os tópicos dos grupos em que o usuário está associado.
+            if escopo in ('E', 'M'):
+                topicos_queryset = topicos_queryset.filter(grupo__grupousuario__usuario=self.request.user)
 
         context['topicos_prioritarios'] = topicos_queryset.filter(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')
         topicos_list = topicos_queryset.exclude(topicoouvinte__notificacao='P', topicoouvinte__ouvinte=self.request.user).order_by('-dt_ultima_atualizacao')

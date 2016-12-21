@@ -155,7 +155,7 @@ class Despesa(models.Model):
         return u"%s - %s" % (self.fornecedor, self.dtemissao.strftime('%d/%m/%Y'), )
 
 @receiver(signals.post_save, sender=Despesa)
-def despesa_update_convenio_signal(sender, instance, created, *args, **kwargs):
+def despesa_update_pagamento_signal(sender, instance, created, *args, **kwargs):
     instance.pagamento_set.update(fornecedor=instance.fornecedor, tipo='P')
 
 @receiver(signals.post_save, sender=Despesa)
@@ -319,6 +319,17 @@ class Operacao(models.Model):
     is_transferencia.boolean = True
     is_transferencia.short_description = u'Transferência?'
 
+    def lancamento_original_url(self):
+        if self.is_pagamento():
+            return reverse('admin:financeiro_pagamento_change', args=(self.pagamento.pk, ))
+        elif self.is_deposito():
+            if self.deposito.receita:
+                return reverse('admin:financeiro_receita_change', args=(self.deposito.receita.pk, ))
+            return reverse('admin:financeiro_deposito_change', args=(self.deposito.pk, ))
+        elif self.is_transferencia():
+            return reverse('admin:financeiro_transferencia_change', args=(self.transferencia.pk, ))
+        return reverse('admin:financeiro_operacao_change', args=(self.pk, ))
+
     def descricao_caixa(self):
         if self.is_pagamento():
             return url_display(self.pagamento)
@@ -328,7 +339,7 @@ class Operacao(models.Model):
             return url_display(self.deposito)
         elif self.is_transferencia():
             return url_display(self.transferencia)
-        return u'<a href="%s">%s (%s)</a>' % (reverse('admin:convenio_operacao_change', args=(self.pk, )), self.get_tipo_display(), self.conta )
+        return u'<a href="%s">%s (%s)</a>' % (reverse('admin:financeiro_operacao_change', args=(self.pk, )), self.get_tipo_display(), self.conta )
     descricao_caixa.short_description = u"Descrição"
     descricao_caixa.allow_tags = True
 

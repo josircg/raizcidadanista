@@ -4,17 +4,24 @@
 <script type="text/javascript">
     (function($) {
         $(document).ready(function($) {
-            if($('#id_link').attr('checked') == true){
-                $('.field-title, .field-header, .field-upload').slideToggle();
+            $('.field-title, .field-header, .field-content, .field-is_active, .field-upload, #sectionitem_set-group').hide();
+
+            if($('.field-link input:checked').val() == 'True'){
+                $('.field-content, #sectionitem_set-group').show();
                 CKEDITOR.instances.id_content.destroy();
+            }else if($('.field-link input:checked').val() == 'False'){
+                $('.field-title, .field-header, .field-content, .field-is_active, .field-upload, #sectionitem_set-group').show();
+
             }
             $('#id_link').click(function(event) {
-                $('.field-title, .field-header, .field-upload').slideToggle();
-
-                if($(this).attr('checked') == false){
-                    CKEDITOR.replace("id_content", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "contentsCss": ["/static/ckeditor_config/content.css"], "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 291, "width": 835, "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "stylesSet": "my_styles:/static/ckeditor_config/styles.js", "toolbar": [{"items": ["Source", "-", "Preview"], "name": "document"}, {"items": ["Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "-", "RemoveFormat"], "name": "basicstyles", "groups": ["basicstyles", "cleanup"]}, {"items": ["NumberedList", "BulletedList", "-", "Outdent", "Indent", "-", "Blockquote", "CreateDiv", "-", "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock"], "name": "paragraph", "groups": ["list", "indent", "blocks", "align"]}, "/", {"items": ["Styles", "Format"], "name": "styles"}, {"items": ["TextColor", "BGColor"], "name": "colors"}, {"items": ["Maximize", "ShowBlocks"], "name": "tools"}, {"items": ["Link", "Unlink", "Anchor"], "name": "links"}, {"items": ["Image", "Table", "HorizontalRule"], "name": "insert"}]});
-                }else{
+                $('.field-title, .field-header, .field-content, .field-is_active, .field-upload, #sectionitem_set-group').hide();
+                if($('.field-link input:checked').val() == 'True'){
+                    $('.field-content, #sectionitem_set-group').show();
                     CKEDITOR.instances.id_content.destroy();
+                }else if($('.field-link input:checked').val() == 'False'){
+                    $('.field-title, .field-header, .field-content, .field-is_active, .field-upload, #sectionitem_set-group').show();
+                    CKEDITOR.replace("id_content", {"filebrowserWindowWidth": 940, "toolbar_Basic": [["Source", "-", "Bold", "Italic"]], "contentsCss": ["/static/ckeditor_config/content.css"], "toolbar_Full": [["Styles", "Format", "Bold", "Italic", "Underline", "Strike", "SpellChecker", "Undo", "Redo"], ["Image", "Flash", "Table", "HorizontalRule"], ["TextColor", "BGColor"], ["Smiley", "SpecialChar"], ["Source"]], "filebrowserUploadUrl": "/ckeditor/upload/", "height": 291, "width": 835, "filebrowserBrowseUrl": "/ckeditor/browse/", "skin": "moono", "filebrowserWindowHeight": 725, "stylesSet": "my_styles:/static/ckeditor_config/styles.js", "toolbar": [{"items": ["Source", "-", "Preview"], "name": "document"}, {"items": ["Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "-", "RemoveFormat"], "name": "basicstyles", "groups": ["basicstyles", "cleanup"]}, {"items": ["NumberedList", "BulletedList", "-", "Outdent", "Indent", "-", "Blockquote", "CreateDiv", "-", "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock"], "name": "paragraph", "groups": ["list", "indent", "blocks", "align"]}, "/", {"items": ["Styles", "Format"], "name": "styles"}, {"items": ["TextColor", "BGColor"], "name": "colors"}, {"items": ["Maximize", "ShowBlocks"], "name": "tools"}, {"items": ["Link", "Unlink", "Anchor"], "name": "links"}, {"items": ["Image", "Table", "HorizontalRule"], "name": "insert"}]});
+
                 }
             });
         });

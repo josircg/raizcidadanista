@@ -108,6 +108,7 @@ class Membro(Pessoa):
     STATUS = (
         ('A', u'Ativo'),
         ('C', u'Cancelado'),
+        ('I', u'Inativo'),
     )
 
     status = models.CharField(u'Status', max_length=1, default='A', choices=STATUS)

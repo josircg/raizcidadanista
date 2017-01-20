@@ -1596,7 +1596,7 @@ class ArticleCadastroAdmin(PowerModelAdmin):
         qs = qs.exclude(sectionitem__section__circulo=None)
         section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
         if not request.user.is_superuser:
-            qs = qs.filter(sectionitem__section__pk__in=section_ids).distinct()
+            qs = qs.filter(sectionitem__section__pk__in=section_ids)
         return qs
 
 

@@ -14,7 +14,7 @@ from django.conf import settings
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
 from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
-    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm
+    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm, PropostaOpcaoAddEnqueteFormSet
 
 from cms.email import sendmail
 from cadastro.models import Circulo, CirculoMembro
@@ -1064,7 +1064,7 @@ class PropostaTopicoView(FormView):
 class NovaEnqueteTopicoView(FormView):
     template_name = 'forum/topico-add-enquete.html'
     form_class = AddEnqueteForm
-    formset_class = inlineformset_factory(Proposta, PropostaOpcao, fields=('opcao', ), extra=5, can_delete=False)
+    formset_class = inlineformset_factory(Proposta, PropostaOpcao, formset=PropostaOpcaoAddEnqueteFormSet, fields=('opcao', ), extra=5, can_delete=False)
 
     def get_topico(self):
         return get_object_or_404(Topico, pk=self.kwargs['pk'])

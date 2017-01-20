@@ -435,8 +435,8 @@
                                 <div class="panel-body">
                                     <h3>
                                         Novo comentário
-                                        <a href="{% url forum_topico_novaenquete object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic">Nova Enquete</button></a>
-                                        <a href="{% url forum_topico_novaproposta object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic">Nova Proposta</button></a>
+                                        <a href="{% url forum_topico_novaenquete object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic" data-toggle="tooltip" data-placement="top" title="Use essa opção caso existem mais de 3 ou mais opções para serem escolhidas">Nova Enquete</button></a>
+                                        <a href="{% url forum_topico_novaproposta object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic" data-toggle="tooltip" data-placement="top" title="Uses essa opção para confirmar o consenso de uma proposta debatida">Nova Proposta</button></a>
                                     </h3>
                                     <div class="form-group{% if form.texto.errors %} has-error has-feedback{% endif %} group-{{ form.texto.name }}">
                                         {{ form.texto|btform }}

@@ -867,5 +867,5 @@ class Candidatura(models.Model):
 class ArticleCadastro(Article):
     class Meta:
         proxy = True
-        verbose_name = u'Artigo dos Grupos'
-        verbose_name_plural = u'Artigos dos Grupos'
+        verbose_name = u'Artigo do Círculo'
+        verbose_name_plural = u'Artigos do Círculo'

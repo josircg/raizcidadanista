@@ -169,6 +169,11 @@ class OperacaoAdmin(PowerModelAdmin):
         models.DecimalField: {'localize': True},
     }
 
+    def get_readonly_fields(self, request, obj=None):
+        if not obj:
+            return super(OperacaoAdmin, self).get_readonly_fields(request, obj)
+        return ('tipo', )
+
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "tipo":
             kwargs['choices'] = (
@@ -178,6 +183,13 @@ class OperacaoAdmin(PowerModelAdmin):
                 ('S', u'Saldo'),
             )
         return super(OperacaoAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
+
+    def get_buttons(self, request, object_id):
+        buttons = super(OperacaoAdmin, self).get_buttons(request, object_id)
+        obj = self.get_object(request, object_id)
+        if obj:
+            buttons.append(PowerButton(url=obj.lancamento_original_url(), label=u'Lançamento Original'))
+        return buttons
 admin.site.register(Operacao, OperacaoAdmin)
 
 

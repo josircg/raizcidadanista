@@ -36,7 +36,8 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm, \
+    SectionItemInlineFormSet
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao, CirculoPendente
 from financeiro.models import Receita
@@ -1528,6 +1529,7 @@ class ColigacaoAdmin(PowerModelAdmin):
 
 class SectionItemInline(admin.TabularInline):
     model = SectionItem
+    formset = SectionItemInlineFormSet
     extra = 1
     verbose_name_plural = u'Seções'
 
@@ -1575,7 +1577,7 @@ class ArticleCadastroAdmin(PowerModelAdmin):
         super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
 
         # Se for link colocar o slug == pk, e captura o titulo, chamada e imagem do artigo
-        if form.cleaned_data.get('link'):
+        if form.cleaned_data.get('link') == True:
             #try:
             html = requests.get(form.cleaned_data.get('content')).text
             soup = BeautifulSoup(html)

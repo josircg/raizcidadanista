@@ -36,7 +36,8 @@ import cgi
 from xhtml2pdf.pisa import pisaDocument
 from ckeditor.widgets import CKEditorWidget
 
-from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm
+from forms import MembroImport, MalaDiretaForm, ArticleCadastroForm, InclusaoEmLoteForm, ImportarPessoasListaForm, \
+    SectionItemInlineFormSet
 from models import Membro, Filiado, Circulo, CirculoMembro, CirculoEvento, Pessoa, Lista, ListaCadastro, Campanha, \
     ColetaArticulacao, ArticleCadastro, Candidatura, Coligacao, CirculoPendente
 from financeiro.models import Receita
@@ -1528,6 +1529,7 @@ class ColigacaoAdmin(PowerModelAdmin):
 
 class SectionItemInline(admin.TabularInline):
     model = SectionItem
+    formset = SectionItemInlineFormSet
     extra = 1
     verbose_name_plural = u'Seções'
 
@@ -1575,7 +1577,7 @@ class ArticleCadastroAdmin(PowerModelAdmin):
         super(ArticleCadastroAdmin, self).save_model(request, obj, form, change)
 
         # Se for link colocar o slug == pk, e captura o titulo, chamada e imagem do artigo
-        if form.cleaned_data.get('link'):
+        if form.cleaned_data.get('link') == True:
             #try:
             html = requests.get(form.cleaned_data.get('content')).text
             soup = BeautifulSoup(html)
@@ -1594,7 +1596,7 @@ class ArticleCadastroAdmin(PowerModelAdmin):
         qs = qs.exclude(sectionitem__section__circulo=None)
         section_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__section', flat=True)
         if not request.user.is_superuser:
-            qs = qs.filter(sectionitem__section__pk__in=section_ids)
+            qs = qs.filter(sectionitem__section__pk__in=section_ids).distinct()
         return qs
 
 

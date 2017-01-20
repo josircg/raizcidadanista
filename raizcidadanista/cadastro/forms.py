@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.contrib.localflavor.br.forms import BRCPFField, BRZipCodeField
 from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.admin.widgets import AdminRadioSelect
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
@@ -399,20 +401,23 @@ class ArticleCadastroForm(forms.ModelForm):
             'header': CKEditorWidget(),
             'content': CKEditorWidget(),
         }
-    link = forms.BooleanField(label=u'Cadastro de link?', required=False)
+    link = forms.ChoiceField(label=u'Cadastro de link?', required=False, choices=((True, u'Sim'), (False, u'Não')), widget=AdminRadioSelect(attrs={'class': 'radiolist inline'}))
     upload = forms.ImageField(label=u"Imagem", required=False)
+
+    def clean_link(self):
+        return bool(self.cleaned_data.get('link'))
 
     def clean_title(self):
         title = self.cleaned_data.get('title')
         link = self.cleaned_data.get('link')
-        if not link and not title:
+        if link == False and not title:
             raise forms.ValidationError(u'Este campo é obrigatório.')
         return title
 
     def clean_content(self):
         content = self.cleaned_data.get('content')
         link = self.cleaned_data.get('link')
-        if link:
+        if link == True:
             URLValidator()(content)
         return content
 
@@ -420,8 +425,19 @@ class ArticleCadastroForm(forms.ModelForm):
         super(ArticleCadastroForm, self).__init__(*args, **kwargs)
         self.fields['title'].required = False
 
-        if self.instance and str(self.instance.pk) == self.instance.slug:
-            self.fields['link'].initial = True
+        if self.instance.pk:
+            self.fields['link'].initial = False
+            if self.instance and str(self.instance.pk) == self.instance.slug:
+                self.fields['link'].initial = True
+
+
+class SectionItemInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        super(SectionItemInlineFormSet, self).clean()
+        initial_num = len(filter(lambda f: not self._should_delete_form(f), self.initial_forms))
+        extra_num = len(filter(lambda f: f.has_changed() and not self._should_delete_form(f), self.extra_forms))
+        if initial_num + extra_num < 1:
+            raise forms.ValidationError(u"Informe pelo menos uma seção.")
 
 
 class InclusaoEmLoteForm(forms.Form):

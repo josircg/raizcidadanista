@@ -371,31 +371,28 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
     elif instance.escopo == 'L':
         ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor)
 
-    for ouvinte in ouvintes:
-        if instance.propostaopcao_set.exists():
-            sendmail(
-                subject=u'Nova Proposta iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
-                to=[ouvinte.ouvinte.email, ],
-                template='forum/emails/notificacao-proposta.html',
-                params={
-                    'conversa': instance,
-                    'ouvinte': ouvinte,
-                    'host': settings.SITE_HOST,
-                },
-            )
-        else:
-            sendmail(
-                subject=u'Nova Enquete iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
-                to=[ouvinte.ouvinte.email, ],
-                template='forum/emails/notificacao-enquete.html',
-                params={
-                    'conversa': instance,
-                    'ouvinte': ouvinte,
-                    'host': settings.SITE_HOST,
-                },
-            )
-        ouvinte.dtnotificacao = datetime.now()
-        ouvinte.save()
+    emails = set(ouvintes.values_list('ouvinte__email', flat=True).distinct())
+    if instance.propostaopcao_set.exists():
+        sendmail(
+            subject=u'Nova Enquete iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+            bcc=emails,
+            template='forum/emails/notificacao-enquete.html',
+            params={
+                'conversa': instance,
+                'host': settings.SITE_HOST,
+            },
+        )
+    else:
+        sendmail(
+            subject=u'Nova Proposta iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+            bcc=emails,
+            template='forum/emails/notificacao-proposta.html',
+            params={
+                'conversa': instance,
+                'host': settings.SITE_HOST,
+            },
+        )
+    ouvintes.update(dtnotificacao = datetime.now())
 
 class PropostaOpcao(models.Model):
     proposta = models.ForeignKey(Proposta)

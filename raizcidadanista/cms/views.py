@@ -361,6 +361,13 @@ class LoginView(FormView):
         if not form.cleaned_data.get('remember'):
             self.request.session.set_expiry(0)
 
+        try:
+            membro = self.request.user.membro.latest('pk')
+            if membro.status == 'I':
+                messages.error(self.request, u'Seu cadastro está desativado pois você não respondeu ao recadastramento. Você quer voltar a fazer parte da Raiz?')
+                return HttpResponseRedirect(membro.get_absolute_recadastramento_url())
+        except Membro.DoesNotExist: pass
+
         if self.request.GET.get('next'):
             messages.info(self.request, u'Você foi autenticado com sucesso.')
             return HttpResponseRedirect(self.request.GET.get('next'))

@@ -304,7 +304,7 @@ class RecadastramentoView(TemplateView):
         if request.POST.get('action'):
             if request.POST.get('action') == 'confirmar':
                 # FIXBUG não estava salvando!
-                Membro.objects.filter(pk=self.instance.pk).update(confirmado=True, status='A')
+                Membro.objects.filter(pk=self.instance.pk).update(confirmado=True, status='A', status_email='A')
                 self.instance = self.get_instance(request, uidb36, ts_b36, token)
                 messages.info(request, u'Cadastro como pré-filiado confirmado.')
                 LogEntry.objects.log_action(

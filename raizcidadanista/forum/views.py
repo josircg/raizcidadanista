@@ -878,7 +878,7 @@ class NotificarTopicoView(DetailView):
 
         self.object = self.get_object()
         if request.user.is_superuser or self.object.grupo.grupousuario_set.filter(usuario=request.user, admin=True).exists():
-            emails_list = TopicoOuvinte.objects.filter(topico__grupo=self.object.grupo).values_list('ouvinte__email', flat=True).distinct()
+            emails_list = TopicoOuvinte.objects.filter(ouvinte__membro__status_email='A').filter(topico__grupo=self.object.grupo).values_list('ouvinte__email', flat=True).distinct()
             for emails in splip_emails(emails_list):
                 sendmail(
                     subject=self.object.titulo,

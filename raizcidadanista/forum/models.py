@@ -215,7 +215,7 @@ def update_topico(sender, instance, created, raw, using, *args, **kwargs):
 
 @receiver(signals.post_save, sender=Conversa)
 def enviar_notificacao_emails_topico(sender, instance, created, raw, using, *args, **kwargs):
-    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', ), dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
+    for ouvinte in instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(ouvinte__membro__status_email='A').filter(notificacao__in=('P', 'I', ), dtnotificacao__lte=datetime.now()+timedelta(hours=1)):
         sendmail(
             subject=u'Tópico %s atualizado no grupo %s' % (instance.topico, instance.topico.grupo),
             to=[ouvinte.ouvinte.email, ],
@@ -291,7 +291,7 @@ class ConversaMencao(models.Model):
 
 @receiver(signals.post_save, sender=ConversaMencao)
 def enviar_notificacao_emails_mencao(sender, instance, created, raw, using, *args, **kwargs):
-    if created and not TopicoOuvinte.objects.filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
+    if created and not TopicoOuvinte.objects.filter(ouvinte__membro__status_email='A').filter(topico=instance.conversa.topico, ouvinte=instance.mencao, notificacao='N').exists():
         sendmail(
             subject=u'%s pediu sua atenção na Teia Digital!' % instance.colaborador,
             to=[instance.mencao.email, ],
@@ -366,32 +366,41 @@ class Proposta(Conversa):
 
 @receiver(signals.post_save, sender=Proposta)
 def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, using, *args, **kwargs):
+    def splip_emails(emails, ite=50):
+        ini = 0
+        for i in range(ite, len(emails), ite):
+            yield emails[ini:i]
+            ini = i
+        if len(emails) > ini:
+            yield emails[ini:len(emails)]
+
     if instance.escopo == 'N':
         ouvintes = TopicoOuvinte.objects.all().exclude(ouvinte=instance.autor)
     elif instance.escopo == 'L':
         ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor)
 
-    emails = set(ouvintes.values_list('ouvinte__email', flat=True).distinct())
-    if instance.propostaopcao_set.exists():
-        sendmail(
-            subject=u'Nova Enquete iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
-            bcc=emails,
-            template='forum/emails/notificacao-enquete.html',
-            params={
-                'conversa': instance,
-                'host': settings.SITE_HOST,
-            },
-        )
-    else:
-        sendmail(
-            subject=u'Nova Proposta iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
-            bcc=emails,
-            template='forum/emails/notificacao-proposta.html',
-            params={
-                'conversa': instance,
-                'host': settings.SITE_HOST,
-            },
-        )
+    emails_list = list(set(ouvintes.filter(ouvinte__membro__status_email='A').values_list('ouvinte__email', flat=True).distinct()))
+    for emails in splip_emails(emails_list):
+        if instance.propostaopcao_set.exists():
+            sendmail(
+                subject=u'Nova Enquete iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                bcc=emails,
+                template='forum/emails/notificacao-enquete.html',
+                params={
+                    'conversa': instance,
+                    'host': settings.SITE_HOST,
+                },
+            )
+        else:
+            sendmail(
+                subject=u'Nova Proposta iniciada no tópico %s do grupo %s' % (instance.topico, instance.topico.grupo),
+                bcc=emails,
+                template='forum/emails/notificacao-proposta.html',
+                params={
+                    'conversa': instance,
+                    'host': settings.SITE_HOST,
+                },
+            )
     ouvintes.update(dtnotificacao = datetime.now())
 
 class PropostaOpcao(models.Model):

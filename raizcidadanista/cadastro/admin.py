@@ -355,6 +355,9 @@ class MembroAdmin(PowerModelAdmin):
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
+    def queryset(self, request):
+        if not request.user.is_superuser:
+            qs = super(MembroAdmin, self).queryset(request).filter(confirmado=True)
 
     def aprovacao(self, request, queryset):
         contador = 0
@@ -905,7 +908,7 @@ class FiliadoAdmin(PowerModelAdmin):
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
 
     def queryset(self, request):
-        qs = super(FiliadoAdmin, self).queryset(request).filter(filiado=True)
+        qs = super(FiliadoAdmin, self).queryset(request).filter(filiado=True,confirmado=True)
         if request.user.groups.filter(name=u'Articulador').exists():
             uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
             qs = qs.filter(uf__pk__in=uf_ids)

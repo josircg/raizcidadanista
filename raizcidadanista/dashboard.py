@@ -37,16 +37,19 @@ class CustomIndexDashboard(Dashboard):
             ),
             modules.ModelList(
                 u'Cadastro',
-                models=('cadastro.models.*', ),
-                exclude=('cadastro.models.ListaCadastro', ),
+                models=(
+                    'cadastro.models.Membro', 'cadastro.models.Filiado','cadastro.models.Pessoa',
+                    'cadastro.models.ColetaArticulacao', 'cadastro.models.Coligacao',
+                    'cadastro.models.Campanha', 'cadastro.models.Lista',),
             ),
             modules.ModelList(
-                u'Municípios', [
-                    'municipios.models.*',
-                ]
+                u'Círculos',
+                models=(
+                    'cadastro.models.Circulo', 'cadastro.models.CirculoPendente', 'cadastro.models.CirculoEvento', 'cadastro.models.ArticleCadastro',
+                    'municipios.models.*',),
             ),
             modules.ModelList(
-                u'Fórum', [
+                u'Teia Digital', [
                     'forum.models.*',
                 ]
             ),

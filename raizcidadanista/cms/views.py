@@ -65,7 +65,7 @@ class MapaView(TemplateView):
         context = super(MapaView, self).get_context_data(**kwargs)
         colaboradores = {}
         for estado in UF.objects.all().order_by('nome'):
-            colaboradores[estado.nome] = Membro.objects.filter(uf=estado).count()
+            colaboradores[estado.nome] = Membro.objects.filter(uf=estado,status='A').count()
         context['colaboradores'] = colaboradores
         context['estados'] = UF.objects.all().order_by('nome')
         return context

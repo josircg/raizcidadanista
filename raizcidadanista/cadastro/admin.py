@@ -290,7 +290,7 @@ class CirculoMembroMembroInline(admin.TabularInline):
 
 class MembroAdmin(PowerModelAdmin):
     list_display = ('nome', 'email', 'uf', 'municipio', 'dtcadastro', 'aprovador', 'status', 'status_email')
-    list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'confirmado', 'status', 'status_email', )
+    list_filter = ('uf', 'uf_eleitoral', 'status', 'status_email', )
     search_fields = ('nome', 'email',)
     multi_search = (
         ('q1', u'Nome', ['nome', ]),
@@ -339,6 +339,20 @@ class MembroAdmin(PowerModelAdmin):
                     actions[action] = allactions[action]
         return actions
 
+    def queryset(self, request):
+        if request.user.is_superuser:
+            return super(MembroAdmin, self).queryset(request)
+        else:
+            return super(MembroAdmin, self).queryset(request).filter(status__in=['A','C'],filiado=False)
+
+    # TODO: só vai funcionar no 1.5
+    def get_list_filter(self, request):
+        if request.user.is_superuser:
+            list_filter = ('uf', 'uf_eleitoral', 'fundador', 'assinado', 'filiado', 'confirmado', 'status', 'status_email', )
+        else:
+            list_filter = ('uf', 'uf_eleitoral', 'filiado', 'status_email', )
+        return super(MembroAdmin, self).get_list_filter(request, list_filter)
+
     def get_list_display_links(self, request, list_display):
         if not request.user.groups.filter(name=u'Comissao').exists() and not request.user.is_superuser:
             return []
@@ -354,10 +368,6 @@ class MembroAdmin(PowerModelAdmin):
             return ('usuario', 'aprovador',)
         else:
             return ('dtcadastro', 'usuario', 'facebook_id', 'aprovador', 'twitter_id')
-
-    def queryset(self, request):
-        if not request.user.is_superuser:
-            qs = super(MembroAdmin, self).queryset(request).filter(confirmado=True)
 
     def aprovacao(self, request, queryset):
         contador = 0

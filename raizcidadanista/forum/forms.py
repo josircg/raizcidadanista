@@ -192,8 +192,8 @@ class AddEnqueteForm(forms.ModelForm):
 class PropostaOpcaoAddEnqueteFormSet(BaseInlineFormSet):
     def clean(self):
         super(PropostaOpcaoAddEnqueteFormSet, self).clean()
-        initial_num = len(filter(lambda f: not self._should_delete_form(f), self.initial_forms))
-        extra_num = len(filter(lambda f: f.has_changed() and not self._should_delete_form(f), self.extra_forms))
+        initial_num = len(self.initial_forms)
+        extra_num = len(filter(lambda f: f.has_changed(), self.extra_forms))
         if initial_num + extra_num < 3:
             raise forms.ValidationError(u"Informe pelo menos 3 opções.")
 

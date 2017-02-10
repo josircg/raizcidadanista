@@ -142,6 +142,11 @@
             $('.group-escopo').hide();
 
         {% endif %}
+
+        $('.input-group button[type="submit"]').click(function(){
+            $(this).hide();
+            $('.input-group').append('Processando...');
+        });
     });
 </script>
 {% endblock %}

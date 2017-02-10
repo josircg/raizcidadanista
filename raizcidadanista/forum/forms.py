@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -186,6 +187,15 @@ class AddEnqueteForm(forms.ModelForm):
         self.instance.topico = topico
         self.instance.autor = autor
         return super(AddEnqueteForm, self).save(*args, **kwargs)
+
+
+class PropostaOpcaoAddEnqueteFormSet(BaseInlineFormSet):
+    def clean(self):
+        super(PropostaOpcaoAddEnqueteFormSet, self).clean()
+        initial_num = len(self.initial_forms)
+        extra_num = len(filter(lambda f: f.has_changed(), self.extra_forms))
+        if initial_num + extra_num < 3:
+            raise forms.ValidationError(u"Informe pelo menos 3 opções.")
 
 
 class VotoPropostaForm(forms.ModelForm):

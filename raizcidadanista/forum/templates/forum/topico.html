@@ -68,7 +68,7 @@
                                     </div>
                                     <a href="{{ proposta.proposta.get_absolute_url }}"><h4>{% if not proposta.propostas.expirada %}Votação em andamento. Clique aqui para votar ou ver o resultado da votação.{% else %}Votação encerrada. Clique aqui ver o resultado da votação.{% endif %}</h4></a>
                                     <footer>
-                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                        Iniciado por <b><a href="{{ proposta.autor.get_absolute_url }}">{{ proposta.autor.get_first_name }}</a></b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                                         {% if not proposta.proposta.expirada %}
                                         Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                                         {% else %}
@@ -92,7 +92,7 @@
                                         </div>
                                         <a href="{{ conversa.proposta.get_absolute_url }}"><h4>{% if not conversa.proposta.expirada %}Votação em andamento. Clique aqui para votar ou ver o resultado da votação.{% else %}Votação encerrada. Clique aqui ver o resultado da votação.{% endif %}</h4></a><br>
                                         <footer>
-                                            Iniciado por <b>{{ conversa.autor.get_first_name }}</b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                            Iniciado por <b><a href="{{ conversa.autor.get_absolute_url }}">{{ conversa.autor.get_first_name }}</a></b> em <b>{{ conversa.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                                             {% if not conversa.proposta.expirada %}
                                             Votação até <b>{{ conversa.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                                             {% else %}
@@ -108,7 +108,7 @@
                                         </p>
 
                                     {% else %}
-                                        <footer>Por: <b>{{ conversa.autor.get_first_name }}</b> - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                        <footer>Por: <b><a href="{{ conversa.autor.get_absolute_url }}">{{ conversa.autor.get_first_name }}</a></b> - {{ conversa.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                         {{ conversa.texto|safe }}
                                         {% if conversa.arquivo %}<small><a href="{{ conversa.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
                                     {% endif %}
@@ -256,7 +256,7 @@
                                     <div id="conversa-{{ conversa_filho.pk }}" class="panel panel-default panel-conversa">
                                         <div class="panel-body">
                                             <blockquote>
-                                                <footer>Por: <b>{{ conversa_filho.autor.get_first_name }}</b> - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                                <footer>Por: <b><a href="{{ conversa_filho.autor.get_absolute_url }}">{{ conversa_filho.autor.get_first_name }}</a></b> - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                 {{ conversa_filho.texto|safe }}
                                                 {% if conversa_filho.arquivo %}<small><a href="{{ conversa_filho.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
                                                 <small>
@@ -435,8 +435,8 @@
                                 <div class="panel-body">
                                     <h3>
                                         Novo comentário
-                                        <a href="{% url forum_topico_novaenquete object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic">Nova Enquete</button></a>
-                                        <a href="{% url forum_topico_novaproposta object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic">Nova Proposta</button></a>
+                                        <a href="{% url forum_topico_novaenquete object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic" data-toggle="tooltip" data-placement="top" title="Use essa opção caso existem mais de 3 ou mais opções para serem escolhidas">Nova Enquete</button></a>
+                                        <a href="{% url forum_topico_novaproposta object.grupo.pk object.pk %}"><button type="button" class="btn btn-success button-topic" data-toggle="tooltip" data-placement="top" title="Uses essa opção para confirmar o consenso de uma proposta debatida">Nova Proposta</button></a>
                                     </h3>
                                     <div class="form-group{% if form.texto.errors %} has-error has-feedback{% endif %} group-{{ form.texto.name }}">
                                         {{ form.texto|btform }}

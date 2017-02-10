@@ -70,10 +70,10 @@
                                     {% if listar_conversas %}
                                     <a href="{{ result.get_absolute_url }}"><h4>Tópico: {{ result.topico }}</h4></a>
                                     {{ result.texto|safe }}
-                                    <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                    <footer>Por: <a href="{{ result.criador.get_absolute_url }}">{{ result.criador.get_first_name }}</a> - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% else %}
                                     <a href="{{ result.get_absolute_url }}"><h4>{{ result }}{% if user|num_conversa_nao_lidas:result %} ({{ user|num_conversa_nao_lidas:result }}){% endif %}</h4></a>
-                                    <footer>Por: {{ result.criador.get_first_name }} - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                    <footer>Por: <a href="{{ result.criador.get_absolute_url }}">{{ result.criador.get_first_name }}</a> - {{ result.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                     {% endif %}
                                 </blockquote>
                             </div>

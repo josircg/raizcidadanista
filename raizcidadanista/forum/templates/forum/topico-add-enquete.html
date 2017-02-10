@@ -73,6 +73,11 @@
                                     </div>
 
                                     {{ formset.management_form }}
+                                    {% for dict in formset.errors %}
+                                        {% for error in dict.items %}
+                                            <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endfor %}
                                     {% for error in formset.non_form_errors %}
                                         <div class="alert alert-danger" role="alert">{{ error }}</div>
                                     {% endfor %}
@@ -85,6 +90,11 @@
                                         </thead>
                                         <tbody>
                                         {% for form in formset %}
+                                            {% for error in form.non_field_errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ error|safe }}
+                                                </div>
+                                            {% endfor %}
                                             <tr>
                                                 {% for field in form %}
                                                     {% if field.is_hidden %}
@@ -126,6 +136,17 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $('#id_dt_encerramento').mask('00/00/0000 00:00');
+
+        {% if object.grupo.localizacao != 'N' %}
+            $('.group-escopo option[value="L"]').attr('selected', 'selected');
+            $('.group-escopo').hide();
+
+        {% endif %}
+
+        $('.input-group button[type="submit"]').click(function(){
+            $(this).hide();
+            $('.input-group').append('Processando...');
+        });
     });
 </script>
 {% endblock %}

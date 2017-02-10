@@ -88,7 +88,7 @@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
                     <small>
-                        Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                        Iniciado por <b><a href="{{ object.autor.get_absolute_url }}">{{ object.autor.get_first_name }}</a></b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                         Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                     </small>
                     <br><br>
@@ -99,7 +99,7 @@
                     {% for voto in object.voto_set.all %}
                         <div>
                             <div class="thread-item__vote-content">
-                                <b>{{ voto.eleitor }}</b>: {{ voto.opcao }}
+                                <b><a href="{{ voto.eleitor.get_absolute_url }}">{{ voto.eleitor }}</a></b>: {{ voto.opcao }}
                             </div>
                         </div>
                     {% endfor %}

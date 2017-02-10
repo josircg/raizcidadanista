@@ -75,7 +75,7 @@
                                             {% if voto.voto == 'V' %}<img class="lmo-print-only" src="{% static 'site/img/block.svg' %}">{% endif %}
                                         </div>
                                         <div class="thread-item__vote-content">
-                                            <b>{{ voto.eleitor }}</b>
+                                            <b><a href="{{ voto.eleitor.get_absolute_url }}">{{ voto.eleitor }}</a></b>
                                         </div>
                                         <br>
                                         {% if voto.conversa %}
@@ -177,7 +177,7 @@
                                                     <blockquote>
                                                         {{ conversa_filho.texto|safe }}
                                                         {% if conversa_filho.arquivo %}<small><a href="{{ conversa_filho.arquivo.url }}" target="_blank"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Arquivo</a></small><br>{% endif %}
-                                                        <footer>Por: {{ conversa_filho.autor.get_first_name }} - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
+                                                        <footer>Por: <a href="{{ conversa_filho.autor.get_absolute_url }}">{{ conversa_filho.autor.get_first_name }}</a> - {{ conversa_filho.dt_criacao|date:"d/m/Y H:i" }}</footer>
                                                         <small>
                                                         {% if not object.expirada and object.status == 'A' %}
                                                             <a class="responder-link" href="javascript://">Responder</a>
@@ -281,7 +281,7 @@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
                     <small>
-                        Iniciado por <b>{{ object.autor.get_first_name }}</b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                        Iniciado por <b><a href="{{ object.autor.get_absolute_url }}">{{ object.autor.get_first_name }}</a></b> em <b>{{ object.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                         Votação até <b>{{ object.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                     </small>
                     <br><br>

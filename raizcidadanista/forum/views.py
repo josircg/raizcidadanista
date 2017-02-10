@@ -14,7 +14,7 @@ from django.conf import settings
 from models import Grupo, GrupoUsuario, Topico, Conversa, ConversaCurtida, STATUS_CURTIDA, LOCALIZACAO, \
     TopicoOuvinte, ConversaMencao, GrupoCategoria, Proposta, PropostaOpcao
 from forms import AddEditTopicoForm, ConversaForm, PesquisaForm, GrupoForm, MencaoForm, AddMembrosForm, \
-    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm
+    AddPropostaForm, AddEnqueteForm, VotoPropostaForm, VotoEnqueteForm, MoverTopicoForm, PropostaOpcaoAddEnqueteFormSet
 
 from cms.email import sendmail
 from cadastro.models import Circulo, CirculoMembro
@@ -264,6 +264,25 @@ class MeuPerfilView(TemplateView):
         context = super(MeuPerfilView, self).get_context_data(**kwargs)
         context['membro'] = self.request.user.membro.all()[0]
         return context
+
+
+class PerfilPublicoView(DetailView):
+    model = User
+    template_name = 'forum/perfil-publico.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.membro.exists():
+            messages.error(request, u'Não há nenhum Membro associado a esse usuário!')
+            return HttpResponseRedirect(reverse('forum'))
+        return super(PerfilPublicoView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PerfilPublicoView, self).get_context_data(**kwargs)
+        context['membro'] = self.object.membro.all()[0]
+        context['is_coordenador'] = self.request.user.groups.filter(name=u'Coordenador Local')
+        return context
+
 
 class GrupoView(DetailView):
     model = Grupo
@@ -1045,7 +1064,7 @@ class PropostaTopicoView(FormView):
 class NovaEnqueteTopicoView(FormView):
     template_name = 'forum/topico-add-enquete.html'
     form_class = AddEnqueteForm
-    formset_class = inlineformset_factory(Proposta, PropostaOpcao, fields=('opcao', ), extra=5, can_delete=False)
+    formset_class = inlineformset_factory(Proposta, PropostaOpcao, formset=PropostaOpcaoAddEnqueteFormSet, fields=('opcao', ), extra=5, can_delete=False)
 
     def get_topico(self):
         return get_object_or_404(Topico, pk=self.kwargs['pk'])

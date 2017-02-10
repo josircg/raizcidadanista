@@ -117,5 +117,10 @@
         $(this).parent().find(".input-fake").removeClass('btn-default-hover');
         console.log('leave');
     });
+
+    $('.input-group button[type="submit"]').click(function(){
+        $(this).hide();
+        $('.input-group').append('Processando...');
+    });
 </script>
 {% endblock %}

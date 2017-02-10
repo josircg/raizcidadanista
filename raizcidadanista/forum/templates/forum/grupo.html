@@ -71,7 +71,7 @@
                                     </div>
                                     <a href="{{ proposta.proposta.get_absolute_url }}">{{ proposta.texto|safe }}</a>
                                     <footer>
-                                        Iniciado por <b>{{ proposta.autor.get_first_name }}</b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
+                                        Iniciado por <b><a href="{{ proposta.autor.get_absolute_url }}">{{ proposta.autor.get_first_name }}</a></b> em <b>{{ proposta.dt_criacao|date:"d/m/Y H:i" }}</b><br>
                                         Votação até <b>{{ proposta.proposta.dt_encerramento|date:"d/m/Y \à\s H:i" }}</b>
                                     </footer>
                                     <footer><b>Tópico: </b><a href="{{ proposta.topico.get_absolute_url }}">{{ proposta.topico }}</a></footer>
@@ -95,7 +95,7 @@
                                         {% endif %}
                                     </div>
                                     <a href="{{ topico.get_absolute_url }}"><h4>{{ topico }}{% if user|num_conversa_nao_lidas:topico %} ({{ user|num_conversa_nao_lidas:topico }}){% endif %}</h4></a>
-                                    <footer><b>Por: </b>{{ topico.criador.get_first_name }} | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
+                                    <footer><b>Por: </b><a href="{{ topico.criador.get_absolute_url }}">{{ topico.criador.get_first_name }}</a> | <b>Iniciada em: </b> {{ topico.dt_criacao|date:"d/m/Y H:i" }} | <b>Nº de comentários: </b> {{ topico.num_comentarios }} | <b>Nº pessoas envolvidas: </b> {{ topico.num_participantes }}</footer>
 
                                 </blockquote>
                             </div>

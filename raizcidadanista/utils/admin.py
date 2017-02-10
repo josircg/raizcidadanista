@@ -48,6 +48,9 @@ def user_first_name(obj):
         return obj.first_name
     return obj.username
 User.get_first_name = user_first_name
+def user_get_absolute_url(obj):
+    return reverse('forum_perfil_publico', kwargs={'pk': obj.pk, })
+User.get_absolute_url = user_get_absolute_url
 admin.site.unregister(User)
 class CustomUserAdmin(UserAdmin, PowerModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff' )

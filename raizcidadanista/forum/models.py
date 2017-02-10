@@ -375,9 +375,9 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
             yield emails[ini:len(emails)]
 
     if instance.escopo == 'N':
-        ouvintes = TopicoOuvinte.objects.all().exclude(ouvinte=instance.autor)
+        ouvintes = TopicoOuvinte.objects.all().exclude(ouvinte=instance.autor).exclude(notificacao='N')
     elif instance.escopo == 'L':
-        ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor)
+        ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', 'V'))
 
     emails_list = list(set(ouvintes.filter(ouvinte__membro__status_email='A').values_list('ouvinte__email', flat=True).distinct()))
     for emails in splip_emails(emails_list):

@@ -99,6 +99,11 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $('#id_dt_encerramento').mask('00/00/0000 00:00');
+
+        $('.input-group button[type="submit"]').click(function(){
+            $(this).hide();
+            $('.input-group').append('Processando...');
+        });
     });
 </script>
 {% endblock %}

@@ -343,7 +343,23 @@ class MembroAdmin(PowerModelAdmin):
         if request.user.is_superuser:
             return super(MembroAdmin, self).queryset(request)
         else:
-            return super(MembroAdmin, self).queryset(request).filter(status__in=['A','C'],filiado=False)
+            return
+
+    def queryset(self, request):
+        qs = super(MembroAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs
+        else:
+            if request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists() or request.GET.get('pop'):
+                return qs.filter(status__in=['A','C'],filiado=False)
+        if request.user.groups.filter(name=u'Coordenador Local').exists():
+            uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
+            qs = qs.filter(uf__pk__in=uf_administrador_ids)
+        if request.user.groups.filter(name=u'Articulador').exists():
+            uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
+            qs = qs.filter(uf__pk__in=uf_ids)
+        return qs
+
 
     # TODO: só vai funcionar no 1.5
     def get_list_filter(self, request):
@@ -872,18 +888,6 @@ class MembroAdmin(PowerModelAdmin):
             buttons.append(PowerButton(url=reverse('admin:cadastro_membros_import_membros'), label=u'Importar colaboradores'))
         return buttons
 
-    def queryset(self, request):
-        qs = super(MembroAdmin, self).queryset(request)
-        if request.user.is_superuser or request.user.groups.filter(name__in=('Comissão', 'Cadastro')).exists() or request.GET.get('pop'):
-            return qs
-        else:
-            if request.user.groups.filter(name=u'Coordenador Local').exists():
-                uf_administrador_ids = CirculoMembro.objects.filter(membro__usuario=request.user, administrador=True).values_list('circulo__uf', flat=True)
-                qs = qs.filter(uf__pk__in=uf_administrador_ids)
-            if request.user.groups.filter(name=u'Articulador').exists():
-                uf_ids = ColetaArticulacao.objects.filter(articulador__usuario=request.user).values_list('UF', flat=True)
-                qs = qs.filter(uf__pk__in=uf_ids)
-            return qs
 admin.site.register(Membro, MembroAdmin)
 
 

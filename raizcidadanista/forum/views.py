@@ -437,10 +437,19 @@ class GrupoAddMembrosView(FormView):
             ).filter(
                 Q(first_name__icontains=request.GET.get('q')) | Q(username__icontains=request.GET.get('q'))
             )
-            for user in queryset:
+            for user in queryset.values('id', 'first_name', 'last_name', 'username', 'membro__nome'):
+                if user.get('membro__nome'):
+                    name = user.get('membro__nome')
+                else:
+                    name = u''
+                    if user.get('first_name'):
+                        name += user.get('first_name')
+                        if user.get('last_name'):
+                            name += u' %s' % user.get('last_name')
+                    name += u' (%s)' % user.get('username')
                 json_response.append({
-                  'id': user.pk,
-                  'name': u'%s' % user,
+                  'id': user.get('id'),
+                  'name': name,
                 })
             return HttpResponse(json.dumps(json_response), mimetype='application/json')
         return super(GrupoAddMembrosView, self).get(request, *args, **kwargs)
@@ -919,10 +928,20 @@ class MencaoView(FormView):
     def get(self, request, *args, **kwargs):
         # List of users
         json_response = []
-        for user in User.objects.all():
+        for user in User.objects.values('id', 'first_name', 'last_name', 'username', 'membro__nome'):
+            if user.get('membro__nome'):
+                name = user.get('membro__nome')
+            else:
+                name = u''
+                if user.get('first_name'):
+                    name += user.get('first_name')
+                    if user.get('last_name'):
+                        name += u' %s' % user.get('last_name')
+                name += u' (%s)' % user.get('username')
+
             json_response.append({
-              'id': user.pk,
-              'name': u'%s' % user,
+              'id': user.get('id'),
+              'name': name,
               'avatar': '',
               'icon': 'icon-16 icon-person',
               'type': 'contact'

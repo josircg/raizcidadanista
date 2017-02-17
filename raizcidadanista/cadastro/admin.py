@@ -98,6 +98,8 @@ class PessoaAdmin(PowerModelAdmin):
                     pessoas = pessoas.filter(membro__usuario__groups=form.cleaned_data.get('grupo'))
                 if form.cleaned_data.get('uf'):
                     pessoas = pessoas.filter(uf=form.cleaned_data.get('uf'))
+                if form.cleaned_data.get('status'):
+                    pessoas = pessoas.filter(membro__isnull=False, membro__status=form.cleaned_data.get('status'))
                 if form.cleaned_data.get('tipo'):
                     if form.cleaned_data.get('tipo') == 'C':
                         pessoas = pessoas.filter(membro__isnull=False, membro__filiado=False)

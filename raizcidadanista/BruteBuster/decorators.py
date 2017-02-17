@@ -29,7 +29,7 @@ def protect_and_serve(auth_func):
         request = get_request()
         if request:
             # try to get the remote address from thread locals
-            IP_ADDR = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', None))
+            IP_ADDR = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(', ')[0]
         else:
             IP_ADDR = None
 

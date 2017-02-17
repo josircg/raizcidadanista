@@ -26,20 +26,20 @@
                         <div class="form-group col-md-12">
                             <label class="control-label">Nome Completo:</label> {{ membro.nome }}
                         </div>
-                        <div class="form-group col-md-6">
-                            <label class="control-label">UF:</label> {% if membro.uf %}{{ membro.uf }}{% else %}-{% endif %}
+                        <div class="form-group col-md-12">
+                            <label class="control-label">Usuário:</label> {{ membro.usuario.username }}
                         </div>
-                        <div class="form-group col-md-6">
-                            <label class="control-label">Município:</label> {% if membro.municipio %}{{ membro.municipio }}{% else %}-{% endif %}
+                        <div class="form-group col-md-12">
+                            <label class="control-label">Município/UF:</label> {% if membro.municipio %}{{ membro.municipio }}{% else %}-{% endif %}/{% if membro.uf %}{{ membro.uf.uf }}{% else %}-{% endif %}
                         </div>
                         {% if is_coordenador %}
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-12">
                             <label class="control-label">Email:</label> {% if membro.email %}{{ membro.email }}{% else %}-{% endif %}
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-6">
                             <label class="control-label">Tel.Celular:</label> {% if membro.celular %}{{ membro.celular }}{% else %}-{% endif %}
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-6">
                             <label class="control-label">Tel.Residencial:</label> {% if membro.residencial %}{{ membro.residencial }}{% else %}-{% endif %}
                         </div>
                         {% endif %}

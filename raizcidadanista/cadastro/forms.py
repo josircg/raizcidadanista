@@ -387,8 +387,15 @@ class MalaDiretaForm(forms.Form):
         ('C', u'Colaborador'),
         ('F', u'Filiado'),
     )
+    STATUS_CHOICES = (
+        ('', u'--------'),
+        ('A', u'Ativo'),
+        ('C', u'Cancelado'),
+        ('I', u'Inativo'),
+    )
     grupo = forms.ModelChoiceField(label=u'Grupo', required=False, queryset=Group.objects.all())
     tipo = forms.ChoiceField(label=u'Tipo de pessoa', required=False, choices=TIPO_CHOICES)
+    status = forms.ChoiceField(label=u'Status', required=False, choices=STATUS_CHOICES)
     uf = forms.ModelChoiceField(label=u'UF', required=False, queryset=UF.objects.all())
     circulo = forms.ModelChoiceField(label=u'Círculo', required=False, queryset=Circulo.objects.all())
 

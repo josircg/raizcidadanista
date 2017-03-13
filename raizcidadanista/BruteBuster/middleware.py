@@ -28,7 +28,7 @@ class RequestMiddleware(object):
 class Response404Middleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, Http404):
-            IP_ADDR = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', None))
+            IP_ADDR = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(', ')[0]
             try:
                 fa = FailedURLAttempt.objects.filter(IP=IP_ADDR).latest('timestamp')
                 if fa.recent_failure():

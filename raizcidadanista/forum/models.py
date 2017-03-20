@@ -48,6 +48,12 @@ class Grupo(models.Model):
                 num += 1
         return num
 
+    def participantes(self):
+        if localizacao == 'N' and privado == False:
+            return Membros.objects.filter(ativo=True)
+        else:
+            usuarios = self.grupousuario_set.all()
+            return Membros.objects.filter(user__in=usuarios)
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -374,10 +380,11 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
         if len(emails) > ini:
             yield emails[ini:len(emails)]
 
+    ouvintes = instance.topico.grupo.participantes()
     if instance.escopo == 'N':
-        ouvintes = TopicoOuvinte.objects.all().exclude(ouvinte=instance.autor).exclude(notificacao='N')
-    elif instance.escopo == 'L':
-        ouvintes = instance.topico.topicoouvinte_set.exclude(ouvinte=instance.autor).filter(notificacao__in=('P', 'I', 'V'))
+        surdos = instance.topico.filter(notificacao='N')
+    else:
+        surdos = instance.topico.topicoouvinte_set.filter(notificacao__in=('P', 'I', 'V'))
 
     emails_list = list(set(ouvintes.filter(ouvinte__membro__status_email='A').values_list('ouvinte__email', flat=True).distinct()))
     for emails in splip_emails(emails_list):

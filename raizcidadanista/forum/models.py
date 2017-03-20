@@ -342,12 +342,20 @@ class Proposta(Conversa):
         return self.dt_encerramento < datetime.now()
 
     def respostas(self):
-        return [
-            ['Concordar', self.voto_set.filter(voto='C').count()],
-            ['Abster', self.voto_set.filter(voto='A').count()],
-            ['Discordar', self.voto_set.filter(voto='D').count()],
-            ['Vetar', self.voto_set.filter(voto='V').count()],
-        ]
+        if self.propostaopcao_set.exists():
+            opcoes = []
+            for opcao in self.propostaopcao_set.all():
+                opcoes.append(
+                    [opcao.opcao, self.voto_set.filter(opcao=opcao).count()]
+                )
+            return opcoes
+        else:
+            return [
+                ['Concordar', self.voto_set.filter(voto='C').count()],
+                ['Abster', self.voto_set.filter(voto='A').count()],
+                ['Discordar', self.voto_set.filter(voto='D').count()],
+                ['Vetar', self.voto_set.filter(voto='V').count()],
+            ]
 
     def get_short_absolute_url(self):
         idb36 = int_to_base36(self.pk)

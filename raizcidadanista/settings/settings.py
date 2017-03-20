@@ -16,6 +16,7 @@ SITE_HOST = 'http://127.0.0.1:8000'
 
 ADMINS = (
     (u'Josir', 'josircg@gmail.com'),
+    (u'Leonardo', 'leonardocsantoss@gmail.com'),
 )
 
 MANAGERS = ADMINS

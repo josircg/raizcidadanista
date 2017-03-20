@@ -66,6 +66,7 @@ raizcidadanista/settings/production.py
 raizcidadanista/settings/local.py
 raizcidadanista/settings/dev.py
 raizcidadanista/settings/test.py
+raizcidadanista/settings/teste.py
 manage.py
 fabfile.py
 backup.sh

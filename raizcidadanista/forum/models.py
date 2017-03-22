@@ -15,7 +15,6 @@ from cms.email import sendmail
 from datetime import datetime, timedelta
 from utils.stdlib import nvl
 
-
 LOCALIZACAO = (
     ('N', u'Nacional'),
     ('E', u'Estadual'),
@@ -49,11 +48,10 @@ class Grupo(models.Model):
         return num
 
     def participantes(self):
-        if localizacao == 'N' and privado == False:
-            return Membros.objects.filter(ativo=True)
-        else:
-            usuarios = self.grupousuario_set.all()
-            return Membros.objects.filter(user__in=usuarios)
+        return self.grupousuario_set.all()
+
+    def num_participantes(self):
+        return self.grupousuario_set.count()
 
     def __unicode__(self):
         return u'%s' % self.nome
@@ -393,6 +391,8 @@ def enviar_notificacao_emails_topico_proposta(sender, instance, created, raw, us
         surdos = instance.topico.filter(notificacao='N')
     else:
         surdos = instance.topico.topicoouvinte_set.filter(notificacao__in=('P', 'I', 'V'))
+
+    # remover os surdos da lista
 
     emails_list = list(set(ouvintes.filter(ouvinte__membro__status_email='A').values_list('ouvinte__email', flat=True).distinct()))
     for emails in splip_emails(emails_list):

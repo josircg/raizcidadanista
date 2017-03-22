@@ -27,7 +27,7 @@ class GrupoUsuarioInline(admin.TabularInline):
     fields = readonly_fields = ('usuario', 'admin', )
 
 class GrupoAdmin(PowerModelAdmin):
-    list_display = ('nome', 'localizacao', 'tematico', 'privado', )
+    list_display = ('nome', 'localizacao', 'tematico', 'privado', 'num_participantes' )
     list_filter = ('localizacao', 'tematico', )
     multi_search = (
        ('q1', 'Nome', ['nome',]),

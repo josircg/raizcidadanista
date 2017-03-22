@@ -228,10 +228,6 @@ class Membro(Pessoa):
             self.usuario.is_staff = True
             self.usuario.first_name = self.nome.split(' ')[0]
             self.usuario.groups.add(grupo)
-
-            if self.status_email == 'O':
-                self.usuario.is_active = False
-
             self.usuario.save()
             super(Membro, self).save(*args, **kwargs)
         else:
@@ -239,13 +235,19 @@ class Membro(Pessoa):
                 self.usuario.email = self.email
                 self.usuario.save()
 
-            # Se o status do email estiver como cancelado, alterar o status do auth.user para inativo
-            if self.status_email == 'O' and self.usuario.is_active == True:
-                self.usuario.is_active = False
-                self.usuario.save()
-            elif self.status_email != 'O' and self.usuario.is_active == False:
-                self.usuario.is_active = True
-                self.usuario.save()
+        # Se o status do email estiver como cancelado, alterar o status do auth.user para inativo
+        if self.status != 'A' and self.usuario.is_active:
+            self.usuario.is_active = False
+            self.usuario.save()
+            GrupoUsuario.objects.filter(usuario=self.usuario).delete()
+
+        elif self.status == 'A' and not self.usuario.is_active:
+            self.usuario.is_active = True
+            self.usuario.save()
+
+        if self.usuario.is_active:
+            for grupo in Grupo.objects.filter(localizacao='N', privado=False):
+                GrupoUsuario.objects.get_or_create(grupo=grupo, usuario=self.usuario)
 
 @receiver(signals.post_save, sender=Membro)
 def validaremail_membro_signal(sender, instance, created, raw, using, *args, **kwargs):

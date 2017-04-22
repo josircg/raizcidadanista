@@ -124,7 +124,8 @@ class ContatoView(FormView):
     def form_valid(self, form):
         if self.request.GET.get('adm'):
             try:
-                adm = CirculoMembro.objects.get(pk=self.request.GET.get('adm'))
+                circulo_id = ''.join(c for c in self.request.GET.get('adm') if c.isdigit())
+                adm = CirculoMembro.objects.get(pk=circulo_id)
                 form.sendemail(to=[adm.membro.email, ], bcc=['correio@raiz.org.br', ])
             except CirculoMembro.DoesNotExist:
                 form.sendemail()

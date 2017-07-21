@@ -26,6 +26,7 @@ from forms import ArticleCommentForm, ContatoForm, LoginForm
 
 from twython import Twython
 import mimetypes, os, cgi, urllib, facebook
+import json as simplejson
 
 from datetime import datetime, date
 
@@ -419,10 +420,10 @@ class LoginFacebookView(RedirectView):
                 faceargs["client_secret"] = settings.FACEBOOK_APP_SECRET_KEY
                 faceargs["code"] = request.GET.get("code")
 
-                response = cgi.parse_qs(urllib.urlopen(
+                response = simplejson.loads(urllib.urlopen(
                     "https://graph.facebook.com/oauth/access_token?" +
                     urllib.urlencode(faceargs)).read())
-                access_token = response["access_token"][-1]
+                access_token = response.get('access_token')
 
                 graph = facebook.GraphAPI(access_token)
                 user_data = graph.get_object("me", fields="id,name,email")

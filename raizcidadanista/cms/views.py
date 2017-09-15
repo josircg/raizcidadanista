@@ -421,11 +421,16 @@ class LoginFacebookView(RedirectView):
                 faceargs["code"] = request.GET.get("code")
 
                 response = simplejson.loads(urllib.urlopen(
-                    "https://graph.facebook.com/oauth/access_token?" +
+                    "https://graph.facebook.com/v2.7/oauth/access_token?" +
                     urllib.urlencode(faceargs)).read())
+                try:
+                    access_token = response.get('cms_login')
+                except KeyError:
+                    messages.info(request, u'Para entrar com o Facebook é preciso aprovar nossa Aplicação do Facebook.')
+                    return HttpResponseRedirect(reverse('loja_login'))
                 access_token = response.get('access_token')
 
-                graph = facebook.GraphAPI(access_token)
+                graph = facebook.GraphAPI(access_token, version='2.7')
                 user_data = graph.get_object("me", fields="id,name,email")
 
                 membro = None

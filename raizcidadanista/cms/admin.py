@@ -30,7 +30,7 @@ from poweradmin.admin import PowerModelAdmin, PowerButton
 
 from models import Menu, Section, Article, SectionItem, URLMigrate, \
     FileDownload, ArticleArchive, ArticleComment, EmailAgendado, Recurso, \
-    Permissao, GroupType, GroupItem, ArticleAttribute
+    Permissao, GroupType, GroupItem, ArticleAttribute, URLNotFound
 
 from forms import CustomGroupForm, PowerArticleForm
 
@@ -490,3 +490,16 @@ admin.site.unregister(Group)
 class GroupAdminCustom(PowerModelAdmin, GroupAdmin):
     form = CustomGroupForm
 admin.site.register(Group, GroupAdminCustom)
+
+
+class URLNotFoundAdmin(PowerModelAdmin):
+    list_display = ('url', 'count', 'created_at', 'update_at', )
+    multi_search = (
+        ('q1', u'URL', ['url']),
+    )
+    fieldsets_add = (
+        (None, { 'fields': ['url', 'count', 'created_at', 'update_at', ] }),
+    )
+    readonly_fields = ('url', 'count', 'created_at', 'update_at', )
+
+admin.site.register(URLNotFound, URLNotFoundAdmin)

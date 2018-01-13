@@ -11,7 +11,7 @@ pisa==3.0.33
 xhtml2pdf==0.0.6
 pyPdf==1.13
 
-#CMS
+# CMS
 django-mptt==0.6.0
 django-treeadmin==0.4.1
 easy_thumbnails==2.3
@@ -34,6 +34,9 @@ beautifulsoup4==4.5.1
 
 telepot==10.1
 
-#S3
+# S3
 boto==2.43.0
 django-storages==1.1.8
+
+# Monitor
+appenlight-client

@@ -12,6 +12,7 @@ from django.template.context import RequestContext
 from django.contrib import messages
 from django.conf import settings
 from django.db.models import Q
+from django.views.defaults import page_not_found
 
 from BruteBuster.models import FailedAttempt, BB_MAX_FAILURES, BB_BLOCK_INTERVAL
 
@@ -21,7 +22,7 @@ from financeiro.models import MetaArrecadacao
 from forum.models import Proposta
 
 from models import Article, Section, URLMigrate, FileDownload, Recurso, Permissao, \
-    GroupType
+    GroupType, URLNotFound
 from forms import ArticleCommentForm, ContatoForm, LoginForm
 
 from twython import Twython
@@ -512,3 +513,12 @@ class PropostaShortView(RedirectView):
         id_int = base36_to_int(idb36)
         proposta = get_object_or_404(Proposta, pk=id_int)
         return HttpResponseRedirect(proposta.get_absolute_url())
+
+
+def page_not_found_view(request):
+    url = request.build_absolute_uri()
+    if not url.endswith('.php'):
+        notfound = URLNotFound.objects.get_or_create(url=url)[0]
+        notfound.count += 1
+        notfound.save()
+    return page_not_found(request)

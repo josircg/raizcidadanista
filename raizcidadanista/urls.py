@@ -43,3 +43,6 @@ if settings.LOCAL:
 urlpatterns += patterns('',
     url(r'^(.*)$', URLMigrateView.as_view(), name='cms_url_migrate'),
 )
+
+
+handler404 = 'cms.views.page_not_found_view'

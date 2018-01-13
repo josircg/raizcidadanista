@@ -466,3 +466,17 @@ class Recurso(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.get_recurso_display()
+
+
+class URLNotFound(models.Model):
+    class Meta:
+        ordering = ('-update_at', )
+
+    url = models.URLField()
+    count = models.BigIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.url

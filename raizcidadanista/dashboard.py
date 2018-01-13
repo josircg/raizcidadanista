@@ -62,7 +62,7 @@ class CustomIndexDashboard(Dashboard):
             ),
             modules.ModelList(
                 u'Configurações',
-                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', 'raizcidadanista.cms.models.URLNotFound', ),
                 extra=[
                     {'title': u'Visualizador de Arquivos', 'add_url': reverse('filebrowser:fb_upload'), 'change_url': reverse('filebrowser:fb_browse')},
                 ]

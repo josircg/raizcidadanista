@@ -57,7 +57,7 @@ class CustomMenu(Menu):
             ),
             CustomAppList(
                 u'Configurações',
-                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', ),
+                models=('raizcidadanista.cms.models.Recurso', 'raizcidadanista.cms.models.Theme', 'raizcidadanista.cms.models.URLNotFound', ),
                 children=configuracoes_children
             ),
             CustomAppList(

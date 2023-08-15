@@ -5,7 +5,7 @@ python-dateutil
 django-admin-tools
 
 html5lib==0.9999999
-reportlab==3.3.0
+reportlab==3.5.55
 pisa==3.0.33
 xhtml2pdf==0.0.6
 pyPdf==1.13
